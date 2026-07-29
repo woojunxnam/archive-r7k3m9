@@ -1,0 +1,127 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Daily Book Report · 2026-07-28</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  color-scheme:dark;
+  --bg:#000;--card:#1c1c1e;--text:#f5f5f7;--muted:#98989d;--hair:rgba(255,255,255,.09);
+  --accent:#0a84ff;--pos:#30d158;--neg:#ff453a;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 40px rgba(0,0,0,.55);
+  --line-spy:#8e8e93;--line-qqq:#ff9f0a;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum";line-height:1.45}
+.wrap{max-width:940px;margin:0 auto;padding:44px 24px 72px;animation:rise .5s cubic-bezier(.16,1,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+h1{font-size:21px;font-weight:600;letter-spacing:-.01em}
+.badge{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:3px 9px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:30px}
+.hero{font-size:56px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.hero .u{font-size:26px;font-weight:500;color:var(--muted);margin-left:4px}
+.herosub{color:var(--muted);font-size:14px;margin-top:8px}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px 24px;margin-top:20px}
+.cardhead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.card h2{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.tabs{display:flex;gap:4px;background:var(--hair);border-radius:10px;padding:3px}
+.tab{font:inherit;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;border-radius:8px;padding:5px 11px;cursor:pointer;transition:all .2s cubic-bezier(.16,1,.3,1)}
+.tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:2px;background:var(--hair);border-radius:14px;overflow:hidden}
+.tile{background:var(--card);padding:16px 18px}
+.tile .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+.tile .v{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.tile .n{font-size:11px;color:var(--muted);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:0 0 10px}
+td{padding:11px 0;border-top:1px solid var(--hair)}
+th.r,td.r{text-align:right}
+.wbar{height:5px;background:var(--hair);border-radius:3px;overflow:hidden;width:80px;margin-top:5px}
+.wbar>i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.chip{display:inline-block;font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;background:var(--hair);color:var(--text)}
+.ddwrap{position:relative;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--pos),#e6a800 62%,var(--neg));margin:22px 0 8px;opacity:.85}
+.ddmark{position:absolute;top:-5px;width:3px;height:19px;background:var(--text);border-radius:2px;transform:translateX(-50%)}
+.ddlab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.pca{display:flex;gap:26px;flex-wrap:wrap;align-items:center}
+.pca .big{font-size:34px;font-weight:600;letter-spacing:-.02em}
+.pca .lab{font-size:12px;color:var(--muted)}
+.ok{color:var(--pos);font-weight:600}
+.foot{color:var(--muted);font-size:12px;margin-top:34px;text-align:center;line-height:1.6}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:18px;margin-top:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+</style></head><body><div class="wrap">
+<div class="top"><h1>Daily Book Report</h1><span class="badge">LIVE · PUBLIC</span></div>
+<div class="sub">as of 2026-07-28 · <span id="m-sub">since inception 2026-07-23 (3 trading days)</span></div>
+<div class="hero"><span id="m-hero" class="neg">−0.35%</span></div>
+<div class="herosub">cumulative return over selected window</div>
+<div class="card"><div class="cardhead"><h2>Performance vs SPY · QQQ (indexed to 100)</h2><div class="tabs"><button class="tab" data-days="7" onclick="__setP(this)">7D</button><button class="tab" data-days="30" onclick="__setP(this)">30D</button><button class="tab" data-days="90" onclick="__setP(this)">90D</button><button class="tab" data-days="365" onclick="__setP(this)">1Y</button><button class="tab active" data-days="0" onclick="__setP(this)">ALL</button></div></div><svg viewBox="0 0 880 300" role="img" aria-label="indexed performance">
+  <line id="baseline" x1="6" y1="75.2" x2="820" y2="75.2" stroke="var(--hair)" stroke-width="1" stroke-dasharray="3 4"/>
+  <text id="base-lbl" x="6" y="69.2" font-size="10" fill="var(--muted)">100</text>
+  <polyline id="ln-qqq" fill="none" stroke="var(--line-qqq)" stroke-width="2" stroke-linejoin="round" points="6.0,75.2 413.0,171.8 820.0,236.6"/>
+  <polyline id="ln-spy" fill="none" stroke="var(--line-spy)" stroke-width="2" stroke-linejoin="round" points="6.0,75.2 413.0,66.8 820.0,51.4"/>
+  <polyline id="ln-book" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" points="6.0,75.2 413.0,116.8 820.0,99.1"/>
+  <text id="lbl-book" x="826" y="103" font-size="11" fill="var(--accent)">99.6</text><text id="lbl-spy" x="826" y="55" font-size="11" fill="var(--line-spy)">100.4</text><text id="lbl-qqq" x="826" y="241" font-size="11" fill="var(--line-qqq)">97.6</text>
+  <text id="ax-lo" x="6" y="292" font-size="11" fill="var(--muted)">2026-07-23</text>
+  <text id="ax-hi" x="820" y="292" font-size="11" fill="var(--muted)" text-anchor="end">2026-07-28</text>
+</svg>
+<div class="legend"><span><i style="background:var(--accent)"></i>Book</span><span><i style="background:var(--line-spy)"></i>SPY</span><span><i style="background:var(--line-qqq)"></i>QQQ</span></div></div>
+<div class="card"><h2>Risk</h2><div class="grid"><div class="tile"><div class="k">Sharpe</div><div class="v"><span id="m-sharpe">—</span></div><div class="n" id="m-note1">n=3 · need ~20</div></div><div class="tile"><div class="k">Calmar</div><div class="v"><span id="m-calmar">—</span></div><div class="n" id="m-note2">n=3 · need ~20</div></div><div class="tile"><div class="k">Max Drawdown</div><div class="v"><span id="m-maxdd">-0.6%</span></div></div><div class="tile"><div class="k">Volatility</div><div class="v"><span id="m-vol">6.9%</span></div><div class="n" id="">annualized</div></div><div class="tile"><div class="k">Beta vs SPY</div><div class="v"><span id="m-beta">8.41</span></div></div><div class="tile"><div class="k">Today</div><div class="v"><span id="m-today"><span class="pos">+0.26%</span></span></div></div></div></div>
+<div class="card"><h2>Sleeves</h2><table>
+  <tr><th>Sleeve</th><th class="r">Weight</th><th class="r">Cum (inception)</th><th class="r">Today</th></tr><tr><td>Sleeve 1<div class="wbar"><i style="width:70%"></i></div></td><td class="r">70.0%</td><td class="r pos">—</td><td class="r pos">—</td></tr><tr><td>Sleeve 2<div class="wbar"><i style="width:22%"></i></div></td><td class="r">22.5%</td><td class="r pos">—</td><td class="r pos">—</td></tr><tr><td>Sleeve 3<div class="wbar"><i style="width:20%"></i></div></td><td class="r">20.0%</td><td class="r pos">—</td><td class="r pos">—</td></tr><tr><td>Sleeve 4<div class="wbar"><i style="width:20%"></i></div></td><td class="r">20.0%</td><td class="r pos">—</td><td class="r pos">—</td></tr><tr><td>Sleeve 5<div class="wbar"><i style="width:16%"></i></div></td><td class="r">15.5%</td><td class="r pos">—</td><td class="r pos">—</td></tr><tr><td>Sleeve 6<div class="wbar"><i style="width:10%"></i></div></td><td class="r">10.0%</td><td class="r pos">—</td><td class="r pos">—</td></tr><tr><td>Sleeve 7<div class="wbar"><i style="width:20%"></i></div></td><td class="r">20.0%</td><td class="r pos">—</td><td class="r pos">—</td></tr></table></div>
+<div class="card"><h2>Diversification (sleeve PCA)</h2><div class="pca">
+  <div><div class="big">5.6<span class="lab"> / 7 bets</span></div><div class="lab">effective independent bets (ENB)</div></div>
+  <div><div class="big">26%</div><div class="lab">risk on the top direction (PC1)</div></div>
+  <div><span class="ok">✓ hedges intact</span><div class="lab">near risk-parity across directions</div></div></div></div>
+<div class="card"><h2>Drawdown vs Pause Bands</h2><div class="ddwrap"><span class="ddmark" style="left:60%"></span><span class="ddmark" style="left:80%"></span><span class="ddmark" style="left:100%"></span><span class="ddmark" style="left:2%;background:var(--accent);height:23px;top:-7px"></span></div>
+  <div class="ddlab"><span>now -0.6%</span><span>−15%</span><span>−20%</span><span>−25% pause</span></div></div>
+
+<div class="foot">Normalized — indexed to 100, no dollar figures or positions. Live track record from inception. Not investment advice.</div>
+</div><script>
+(function(){
+  var GEO={"W": 880, "H": 300, "PT": 18, "PB": 30, "PL": 6, "PR": 60}, S=[{"d": "2026-07-23", "b": 100.0, "s": 100.0, "q": 100.0}, {"d": "2026-07-27", "b": 99.3871, "s": 100.1233, "q": 98.578}, {"d": "2026-07-28", "b": 99.6479, "s": 100.3509, "q": 97.6227}], MIN_N=20;
+  function reindex(a,k){var b=a[0][k];return a.map(function(p){return p[k]/b*100;});}
+  function slice(days){
+    if(!days) return S;
+    var end=S[S.length-1].d, cut=new Date(end); cut.setDate(cut.getDate()-days);
+    var f=S.filter(function(p){return new Date(p.d)>=cut;});
+    return f.length>1?f:S.slice(-2);
+  }
+  function pts(v,lo,hi){var n=v.length,pw=GEO.W-GEO.PL-GEO.PR,ph=GEO.H-GEO.PT-GEO.PB;
+    return v.map(function(y,i){var x=GEO.PL+(n>1?i/(n-1)*pw:0);var yy=GEO.PT+(1-(y-lo)/(hi-lo))*ph;return x.toFixed(1)+','+yy.toFixed(1);}).join(' ');}
+  function Y(y,lo,hi){var ph=GEO.H-GEO.PT-GEO.PB;return GEO.PT+(1-(y-lo)/(hi-lo))*ph;}
+  function mean(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
+  function std(a){if(a.length<1)return 0;var m=mean(a);return Math.sqrt(a.reduce(function(x,y){return x+(y-m)*(y-m);},0)/a.length);}
+  function set(id,txt,neg){var e=document.getElementById(id);if(!e)return;e.textContent=txt;if(neg!==undefined){e.classList.remove('pos','neg');e.classList.add(neg?'neg':'pos');}}
+  function pf(x,d){if(x==null)return '—';d=d==null?2:d;return (x>=0?'+':'−')+Math.abs(x).toFixed(d)+'%';}
+  function draw(days,label){
+    var a=slice(days),b=reindex(a,'b'),sp=reindex(a,'s'),q=reindex(a,'q');
+    var all=b.concat(sp).concat(q),lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),pad=(hi-lo)*0.18||1;lo-=pad;hi+=pad;
+    document.getElementById('ln-book').setAttribute('points',pts(b,lo,hi));
+    document.getElementById('ln-spy').setAttribute('points',pts(sp,lo,hi));
+    document.getElementById('ln-qqq').setAttribute('points',pts(q,lo,hi));
+    var by=Y(100,lo,hi).toFixed(1);
+    var base=document.getElementById('baseline');base.setAttribute('y1',by);base.setAttribute('y2',by);
+    document.getElementById('base-lbl').setAttribute('y',(by-6));
+    [['lbl-book',b],['lbl-spy',sp],['lbl-qqq',q]].forEach(function(p){var e=document.getElementById(p[0]);e.setAttribute('y',(Y(p[1][p[1].length-1],lo,hi)+4).toFixed(1));e.textContent=p[1][p[1].length-1].toFixed(1);});
+    document.getElementById('ax-lo').textContent=a[0].d;document.getElementById('ax-hi').textContent=a[a.length-1].d;
+    // metrics
+    var n=a.length,rb=[],rs=[];for(var i=1;i<b.length;i++){rb.push(b[i]/b[i-1]-1);rs.push(sp[i]/sp[i-1]-1);}
+    var cum=b[b.length-1]-100, today=rb.length?rb[rb.length-1]*100:0;
+    var sh=std(rb)>0?mean(rb)/std(rb)*Math.sqrt(252):0, vol=std(rb)*Math.sqrt(252)*100;
+    var peak=b[0],mdd=0;b.forEach(function(v){peak=Math.max(peak,v);mdd=Math.min(mdd,v/peak-1);});mdd*=100;
+    var cagr=Math.pow(b[b.length-1]/100,252/n)-1, calmar=mdd<0?cagr/Math.abs(mdd/100):null;
+    if(n<MIN_N){sh=null;calmar=null;}
+    var vs=std(rs)*std(rs),beta=0;if(vs>0){var mr=mean(rb),ms=mean(rs),cov=mean(rb.map(function(x,i){return (x-mr)*(rs[i]-ms);}));beta=cov/vs;}
+    set('m-hero',pf(cum),cum<0);
+    var note=(n>=MIN_N?'annualized · n='+n:'n='+n+' · need ~'+MIN_N);
+    set('m-sharpe',sh==null?'—':sh.toFixed(2));set('m-note1',note);set('m-note2',note);
+    set('m-calmar',calmar==null?'—':calmar.toFixed(2));
+    set('m-maxdd',mdd.toFixed(1)+'%');set('m-vol',vol.toFixed(1)+'%');set('m-beta',beta.toFixed(2));
+    set('m-today',pf(today),today<0);
+    document.getElementById('m-sub').textContent='window: '+label+' · '+a[0].d+' → '+a[a.length-1].d+' ('+n+' trading days)';
+  }
+  window.__setP=function(btn){var d=+btn.getAttribute('data-days');
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');
+    draw(d,btn.textContent);};
+})();
+</script></body></html>
