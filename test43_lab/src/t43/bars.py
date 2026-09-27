@@ -63,6 +63,8 @@ def aggregate_3m(m1: pd.DataFrame) -> pd.DataFrame:
         agg["cum_adjustment"] = ("cum_adjustment", "last")
     if "roll_adjacent" in m1.columns:
         agg["roll_adjacent"] = ("roll_adjacent", "max")
+    if "session_date" in m1.columns:
+        agg["canon_sd"] = ("session_date", "last")
     b = g.agg(**agg).reset_index()
     return b
 
@@ -76,7 +78,8 @@ def add_clock(b: pd.DataFrame) -> pd.DataFrame:
     # CME trading/session date: bars opening at/after 18:00 belong to next day's session.
     sd = t.dt.normalize()
     sd = sd.where(b["mod"] < 18 * 60, sd + pd.Timedelta(days=1))
-    b["session_date"] = sd
+    # prefer the canonical CME trading date (holiday mornings belong to the next trading date)
+    b["session_date"] = pd.to_datetime(b["canon_sd"]) if "canon_sd" in b.columns else sd
     b["in_rth"] = (b["mod"] >= 570) & (b["mod"] < 960)
     return b
 

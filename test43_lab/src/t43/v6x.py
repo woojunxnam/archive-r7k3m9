@@ -60,7 +60,8 @@ PARAM_NAMES = [
     "profitRefMode", "profitZ", "profitZMinTicks",
     "reductionLock", "rearmATR", "dayStop", "emergencyLoss", "emergencyToCore",
     "regimeMaxQty", "buyStartMod", "buyEndMod", "rollCostPerContract",
-    "coreTierMode", "kBase", "kMid", "kTop",
+    "coreTierMode", "kBase", "kMid", "kTop", "tacticalMode",
+    "ddLimit", "ddFloorQty", "ddRearmLen",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 
@@ -93,7 +94,8 @@ DEFAULTS = dict(
     profitRefMode=0, profitZ=0.0, profitZMinTicks=4,
     reductionLock=0, rearmATR=0.5, dayStop=0.0, emergencyLoss=0.0, emergencyToCore=1,
     regimeMaxQty=0, buyStartMod=570, buyEndMod=954, rollCostPerContract=0.0,
-    coreTierMode=0, kBase=0, kMid=0, kTop=0,
+    coreTierMode=0, kBase=0, kMid=0, kTop=0, tacticalMode=1,
+    ddLimit=0.0, ddFloorQty=0, ddRearmLen=20,
 )
 
 REASONS = [
@@ -113,7 +115,7 @@ COUNTER_NAMES = [
     "repairSuccessFillCount", "repairFailedRestoreFillCount", "controlledDriftBuyCount",
     "profitSellCount", "riskSellCount", "overnightTrimCount", "marginRejects",
     "coreBuildOrders", "profitZOrders", "dayStopOrders", "emergencyOrders", "regimeTrimOrders", "rollCost",
-    "spare30", "spare31",
+    "ddTriggers", "spare31",
 ]
 C = {n: i for i, n in enumerate(COUNTER_NAMES)}
 
@@ -279,6 +281,9 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
     emergencyToCore = prm[84] > 0.5; regimeMaxQty = int(prm[85]); buyStartMod = int(prm[86])
     buyEndMod = int(prm[87]); rollCost = prm[88]
     coreTierMode = int(prm[89]); kBase = int(prm[90]); kMid = int(prm[91]); kTop = int(prm[92])
+    tacticalOn = prm[93] > 0.5
+    ddLimit = prm[94]; ddFloorQty = int(prm[95]); ddRearmLen = int(prm[96])
+    hwm = initCap; ddActive = False
     M = intradayMaxQty
     span = float(M - K)
 
@@ -485,6 +490,13 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                     tierState = 1 + (1 if medium else 0) + (1 if strong else 0)
                 K = min(K, M)
                 span = float(M - K)
+        if nR and ddActive and regN >= ddRearmLen and ddRearmLen > 0:
+            smr = 0.0
+            for k in range(regN - ddRearmLen, regN):
+                smr += regC[k]
+            if lastRTHClose > smr / ddRearmLen:
+                ddActive = False
+                hwm = prev_eq
         bullRegime = True
         if regN >= regimeLen and regimeLen > 0:
             sm = 0.0
@@ -1056,6 +1068,11 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                     buyOrderReason = 17; cnt[14] += 1
                 cnt[11] += 1
 
+        if not tacticalOn:
+            buyOrderSubmitted = False
+            sellOrderSubmitted = False
+            if inR and posNow > K:
+                sellOrderSubmitted = True; sellOrderQty = posNow - K; sellOrderReason = 23; cnt[28] += 1
         if dayStopped or emergencyActive:
             buyOrderSubmitted = False
         if coreBuildMode > 0 and posNow < K and inR and buyWindow and (not buyOrderSubmitted) and (not sellOrderSubmitted) \
@@ -1077,6 +1094,19 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                 lastTrimSess = sess[i]
                 buyOrderSubmitted = False
                 sellOrderSubmitted = True; sellOrderQty = posNow - K; sellOrderReason = 18; cnt[22] += 1
+        if ddLimit > 0:
+            eqg = initCap + realized
+            for k in range(lot_head, lot_tail):
+                eqg += (c[i] - lot_px[k]) * PV * lot_q[k]
+            if not ddActive:
+                hwm = max(hwm, eqg)
+                if hwm - eqg >= ddLimit:
+                    ddActive = True
+                    cnt[30] += 1
+            if ddActive:
+                buyOrderSubmitted = False
+                if posNow > ddFloorQty:
+                    sellOrderSubmitted = True; sellOrderQty = posNow - ddFloorQty; sellOrderReason = 22
         if dayStop > 0 and (not dayStopped) and posNow > K:
             eqc = initCap + realized
             for k in range(lot_head, lot_tail):

@@ -88,10 +88,12 @@ def envelope(st: dict) -> str:
 
 
 def margin_util(b, a, res, pct=0.10):
-    """max over bars of pos*rawPrice*5*pct / equity (TV-style 10% margin)."""
+    """max over bars of pos*rawPrice*5*pct / equity (TV-style 10% margin); >1 = breach."""
     px = a.get("mref_c", b["c"].values)
     req = res["pos"] * px * PV * pct
-    return float((req / np.maximum(res["equity"], 1.0)).max())
+    eq = res["equity"]
+    util = np.where(eq > 0, req / np.maximum(eq, 1.0), np.where(req > 0, np.inf, 0.0))
+    return float(util.max())
 
 
 def evaluate(b, a, prm, label="", periods=("DEV", "VAL", "HOLDOUT", "FULL"), extra=None):
@@ -109,6 +111,8 @@ def evaluate(b, a, prm, label="", periods=("DEV", "VAL", "HOLDOUT", "FULL"), ext
         if st:
             out[f"{p}_env"] = envelope(st)
     out["margin_util"] = margin_util(b, a, res)
+    out["margin_breach"] = bool(out["margin_util"] > 1.0)
+    out["min_equity"] = float(res["equity"].min())
     out["contract_sides"] = float(res["f_qty"].sum())
     out["fills"] = int(len(res["f_qty"]))
     if extra:
