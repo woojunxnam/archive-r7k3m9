@@ -1,0 +1,31 @@
+P0_FULL_UNIVERSE_EQUAL_RISK CONSERVATIVE L 701.1 avg 49.8 dd 7247
+P0_FULL_UNIVERSE_EQUAL_RISK MODERATE L 824.6 avg 66.4 dd 9969
+P0_FULL_UNIVERSE_EQUAL_RISK AGGRESSIVE L 1578.2 avg 114.4 dd 14174
+P1_CLUSTER_EQUAL_RISK CONSERVATIVE L 549.6 avg 49.2 dd 4800
+P1_CLUSTER_EQUAL_RISK MODERATE L 894.3 avg 62.9 dd 9410
+P1_CLUSTER_EQUAL_RISK AGGRESSIVE L 1455.2 avg 112.3 dd 12844
+P2_STATIC_DIVERSIFIED CONSERVATIVE L 549.6 avg 39.6 dd 5828
+P2_STATIC_DIVERSIFIED MODERATE L 969.9 avg 70.1 dd 8796
+P2_STATIC_DIVERSIFIED AGGRESSIVE L 1455.2 avg 95.0 dd 12575
+P3_REGIME_ADAPTIVE_25 CONSERVATIVE L 549.6 avg 39.5 dd 5735
+P3_REGIME_ADAPTIVE_25 MODERATE L 894.3 avg 71.0 dd 7700
+P3_REGIME_ADAPTIVE_25 AGGRESSIVE L 1711.6 avg 99.7 dd 14054
+P3_REGIME_ADAPTIVE_50 CONSERVATIVE L 701.1 avg 48.2 dd 6591
+P3_REGIME_ADAPTIVE_50 MODERATE L 894.3 avg 71.8 dd 8150
+P3_REGIME_ADAPTIVE_50 AGGRESSIVE L 1711.6 avg 88.7 dd 14561
+                  portfolio     risk_env      L  DEV_avg  DEV_max_dd  DEV_worst  DEV_ret_dd  DEV_excess_vs_mb  Y2020_avg  Y2022_avg  Y2022_max_dd  DEV_mu_peak  DEV_mu_on_peak  fills_per_day          env
+P0_FULL_UNIVERSE_EQUAL_RISK CONSERVATIVE  701.1    49.75     7247.14   -1781.74        0.01             28.27      57.99      -5.40       6269.39         0.10            0.10           0.82 CONSERVATIVE
+P0_FULL_UNIVERSE_EQUAL_RISK     MODERATE  824.6    66.39     9968.50   -2610.35        0.01             39.04     102.70     -14.33       9968.50         0.10            0.10           1.01     MODERATE
+P0_FULL_UNIVERSE_EQUAL_RISK   AGGRESSIVE 1578.2   114.45    14173.73   -4381.20        0.01             60.79     168.64     -32.27      14173.73         0.17            0.17           1.50   AGGRESSIVE
+      P1_CLUSTER_EQUAL_RISK CONSERVATIVE  549.6    49.19     4800.12   -1722.99        0.01             30.40      74.83       3.23       3923.66         0.08            0.08           0.79 CONSERVATIVE
+      P1_CLUSTER_EQUAL_RISK     MODERATE  894.3    62.92     9410.49   -2651.48        0.01             33.37      89.63     -32.64       8646.06         0.10            0.10           1.03     MODERATE
+      P1_CLUSTER_EQUAL_RISK   AGGRESSIVE 1455.2   112.34    12843.66   -4361.47        0.01             63.44     163.40     -44.08      12409.59         0.14            0.14           1.65   AGGRESSIVE
+      P2_STATIC_DIVERSIFIED CONSERVATIVE  549.6    39.63     5828.36   -1701.97        0.01             24.15      80.43      15.21       2668.43         0.10            0.10           0.65 CONSERVATIVE
+      P2_STATIC_DIVERSIFIED     MODERATE  969.9    70.08     8795.88   -2655.11        0.01             41.99     113.78      11.85       7580.12         0.15            0.15           1.23     MODERATE
+      P2_STATIC_DIVERSIFIED   AGGRESSIVE 1455.2    94.97    12574.86   -4123.10        0.01             52.90     152.01      12.32      11384.61         0.19            0.19           1.27   AGGRESSIVE
+      P3_REGIME_ADAPTIVE_25 CONSERVATIVE  549.6    39.49     5734.72   -1654.74        0.01             21.99      78.66      13.73       4360.87         0.10            0.10           0.66 CONSERVATIVE
+      P3_REGIME_ADAPTIVE_25     MODERATE  894.3    70.98     7699.60   -2655.11        0.01             42.70     121.21      13.95       7113.92         0.13            0.13           1.30     MODERATE
+      P3_REGIME_ADAPTIVE_25   AGGRESSIVE 1711.6    99.72    14053.81   -4433.35        0.01             52.70     195.52     -17.22      12372.70         0.22            0.22           1.41   AGGRESSIVE
+      P3_REGIME_ADAPTIVE_50 CONSERVATIVE  701.1    48.17     6591.19   -1766.23        0.01             29.95      90.75       4.76       6183.80         0.13            0.13           1.00 CONSERVATIVE
+      P3_REGIME_ADAPTIVE_50     MODERATE  894.3    71.79     8150.47   -2655.11        0.01             43.85     127.75      10.66       8150.47         0.14            0.14           1.30     MODERATE
+      P3_REGIME_ADAPTIVE_50   AGGRESSIVE 1711.6    88.72    14560.90   -4325.85        0.01             41.68     202.86     -20.46      12624.92         0.21            0.21           1.41   AGGRESSIVE

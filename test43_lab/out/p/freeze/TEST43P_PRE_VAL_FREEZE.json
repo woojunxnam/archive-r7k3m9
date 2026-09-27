@@ -1,0 +1,510 @@
+{
+ "program": "TEST43-P multi-strategy regime ensemble",
+ "frozen_before_any_VAL_portfolio_outcome": true,
+ "holdout_opened": false,
+ "data": {
+  "DEV": [
+   "2019-05-06",
+   "2024-12-31"
+  ],
+  "VAL": [
+   "2025-01-01",
+   "2025-09-30"
+  ],
+  "HOLDOUT": "closed"
+ },
+ "eligible": [
+  "MNQ_arch_A_AGG_0",
+  "MNQ_robust_A_MOD_2",
+  "MNQ_r2_C_MOD_1",
+  "MNQ_robust_C_CON_0",
+  "ES_robust_A_MOD_1",
+  "ES_r2_F_MOD_2",
+  "ES_r2_A_CON_1",
+  "ES_robust_C_CON_4"
+ ],
+ "shadow_controls": {
+  "ES_robust_F_AGG_0": "downgraded: cost sensitivity + neighbour DD p90 $28k",
+  "MNQ_arch_E_AGG_0": "downgraded: neighbour DD p90 $26k",
+  "ES_r2_G_AGG_0": "wall-clock fix exact on 3m; FAILED 5m (DEV DD $20.5k > $20k AGG) and MNQ transfer (DD $23.4k, VAL excess -40.6)"
+ },
+ "candidates": {
+  "MNQ_arch_A_AGG_0": {
+   "inst": "MNQ",
+   "arch": "A",
+   "params": {
+    "marginU": 0.35,
+    "capRTH": 12,
+    "capON": 13,
+    "fBear": 0.24628218878159636,
+    "fNeut": 0.870389138972383,
+    "fMed": 0.10231795642996155,
+    "fStrong": 0.5923103525847652,
+    "trendMult": 0.5435902093500691,
+    "onMode": 5,
+    "onFrac": 0.3068370700827593,
+    "onMinTier": 1,
+    "dd1": 1667.36208948311,
+    "dd2": 4236.813658313475,
+    "ddM1": 0.1451908790697254,
+    "ddM2": 0.13247810487684364,
+    "ddRearmTier": 1,
+    "ddCooldown": 3,
+    "dayStop": 697.4628659873873,
+    "shockK": 0.6267756170059119,
+    "riskFloorFrac": 0.45071487227134754,
+    "minDelta": 1,
+    "cooldownBars": 19,
+    "buyStartMod": 660,
+    "buyEndMod": 720
+   },
+   "sha256": "0fac501664da5045bd8e56c04c4047bf0dc96b71ab00099145f84fcbe9ed5a4c"
+  },
+  "MNQ_robust_A_MOD_2": {
+   "inst": "MNQ",
+   "arch": "A",
+   "params": {
+    "marginU": 0.5,
+    "capRTH": 16,
+    "capON": 11,
+    "fBear": 0.10307012474082855,
+    "fNeut": 0.4238910860945714,
+    "fMed": 0.6449350976178903,
+    "fStrong": 0.4861688638022608,
+    "trendMult": 0.47292550346497503,
+    "onMode": 2,
+    "onFrac": 0.6506060110206835,
+    "onMinTier": 2,
+    "dd1": 2618.570674397966,
+    "dd2": 6917.2501100953905,
+    "ddM1": 0.056857372175623797,
+    "ddM2": 0.05309471850843554,
+    "ddRearmTier": 1,
+    "ddCooldown": 3,
+    "dayStop": 1449.9418022765612,
+    "gapK": 1.1999569500876095,
+    "riskFloorFrac": 0.23211774684841768,
+    "minDelta": 1,
+    "cooldownBars": 32,
+    "buyStartMod": 660,
+    "buyEndMod": 930
+   },
+   "sha256": "94d6e15e51286926a19e1430c38bdf23989638ceb06957e9fc22af22c67b9faa"
+  },
+  "MNQ_r2_C_MOD_1": {
+   "inst": "MNQ",
+   "arch": "C",
+   "params": {
+    "marginU": 0.8,
+    "capRTH": 3,
+    "capON": 15,
+    "fBear": 0.3821914050416857,
+    "fNeut": 0.4549051323809337,
+    "fMed": 0.9654271704148321,
+    "fStrong": 0.8024561082300605,
+    "trendMult": 0.6261418170935881,
+    "onMode": 2,
+    "onFrac": 0.24590122403598272,
+    "onMinTier": 1,
+    "dd1": 4906.346711540845,
+    "dd2": 9860.19375930679,
+    "ddM1": 0.11759462859531018,
+    "ddM2": 0.11726829910699663,
+    "ddRearmTier": 1,
+    "ddCooldown": 8,
+    "dayStop": 6188.738896624312,
+    "gapK": 1.6082444398075892,
+    "riskFloorFrac": 0.623107940092084,
+    "redOn": 1,
+    "redZ": 1.8199010117678243,
+    "redPosRth": 0.919294876297445,
+    "redCut": 0.18738645058343953,
+    "redExitZ": 1.6496958051923842,
+    "minDelta": 2,
+    "cooldownBars": 11,
+    "buyStartMod": 600,
+    "buyEndMod": 900
+   },
+   "sha256": "8835af3fb6d8ea75a39482b748199c02216298c3623195cb2b735f4d6d5f2098"
+  },
+  "MNQ_robust_C_CON_0": {
+   "inst": "MNQ",
+   "arch": "C",
+   "params": {
+    "marginU": 0.8,
+    "capRTH": 5,
+    "capON": 10,
+    "fBear": 0.27504639545312104,
+    "fNeut": 0.4499559957832385,
+    "fMed": 0.9021406551313247,
+    "fStrong": 0.22736392875208755,
+    "trendMult": 0.15225653033129008,
+    "onMode": 2,
+    "onFrac": 0.2875154296696368,
+    "onMinTier": 3,
+    "riskFloorFrac": 0.7202639260716274,
+    "redOn": 1,
+    "redZ": 3.356833209681362,
+    "redPosRth": 0.6179210103984938,
+    "redCut": 0.8109640415671447,
+    "redExitZ": 0.9592292239053853,
+    "minDelta": 3,
+    "cooldownBars": 20,
+    "buyStartMod": 600,
+    "buyEndMod": 930
+   },
+   "sha256": "6b60e4d482c8a97cc1e5d1319c73b24f1d1fac59047380f296b76e2a4c8a12a5"
+  },
+  "ES_robust_A_MOD_1": {
+   "inst": "ES",
+   "arch": "A",
+   "params": {
+    "marginU": 0.8,
+    "capRTH": 19,
+    "capON": 23,
+    "fBear": 0.17468553579418858,
+    "fNeut": 0.0335519869235248,
+    "fMed": 0.8572671251297748,
+    "fStrong": 0.137866434082743,
+    "trendMult": 0.9664684183619765,
+    "onMode": 4,
+    "onFrac": 0.5533610133720285,
+    "onMinTier": 3,
+    "dd1": 5941.7624904420345,
+    "dd2": 11967.603103439424,
+    "ddM1": 0.9713440934002436,
+    "ddM2": 0.4216802271406285,
+    "ddRearmTier": 2,
+    "ddCooldown": 1,
+    "dayStop": 1993.7781482371977,
+    "gapK": 2.3027898663046615,
+    "shockK": 1.4562354516673526,
+    "riskFloorFrac": 0.05627666428328955,
+    "minDelta": 2,
+    "cooldownBars": 34,
+    "buyStartMod": 570,
+    "buyEndMod": 954
+   },
+   "sha256": "e472a139f17eb52b33f2c0e7ae4f7666a8d0466a790aea8efc27238a4152acb2"
+  },
+  "ES_r2_F_MOD_2": {
+   "inst": "ES",
+   "arch": "F",
+   "params": {
+    "marginU": 0.5,
+    "capRTH": 14,
+    "capON": 32,
+    "volBudget": 6969.370156756462,
+    "volBudgetON": 7317.136675457388,
+    "fBear": 0.47468779358601504,
+    "fNeut": 0.5555781244028634,
+    "fMed": 0.8364447265609933,
+    "fStrong": 0.27543308986923637,
+    "trendMult": 0.9011425667733152,
+    "onMode": 4,
+    "onFrac": 0.9506740725830183,
+    "onMinTier": 1,
+    "dd1": 3198.460999713843,
+    "dd2": 5744.871787031532,
+    "ddM1": 0.302169796631807,
+    "ddM2": 0.2978925284165418,
+    "ddRearmTier": 2,
+    "ddCooldown": 15,
+    "riskFloorFrac": 0.8361893442591091,
+    "minDelta": 2,
+    "cooldownBars": 12,
+    "buyStartMod": 630,
+    "buyEndMod": 720
+   },
+   "sha256": "19c1623b2afe5adde0bfbe15ac6067bbc7b1e9bacd86abc807e081e7b1340fa4"
+  },
+  "ES_r2_A_CON_1": {
+   "inst": "ES",
+   "arch": "A",
+   "params": {
+    "marginU": 0.5,
+    "capRTH": 7,
+    "capON": 24,
+    "fBear": 0.13913958820392425,
+    "fNeut": 0.27930076194862585,
+    "fMed": 0.8612645376448065,
+    "fStrong": 0.26667777468777376,
+    "trendMult": 0.6027539731395417,
+    "onMode": 1,
+    "onFrac": 0.9186004587369415,
+    "onMinTier": 1,
+    "riskFloorFrac": 0.3251462838868815,
+    "minDelta": 1,
+    "cooldownBars": 30,
+    "buyStartMod": 570,
+    "buyEndMod": 720
+   },
+   "sha256": "295b8f3e22bd1a56e1a880a2f92323d37e7444fa11d3bfd611f34e0a139de4a0"
+  },
+  "ES_robust_C_CON_4": {
+   "inst": "ES",
+   "arch": "C",
+   "params": {
+    "marginU": 0.5,
+    "capRTH": 7,
+    "capON": 12,
+    "fBear": 0.6132553928165784,
+    "fNeut": 0.5542570714578016,
+    "fMed": 0.9491044702035879,
+    "fStrong": 0.43338761124569125,
+    "trendMult": 0.570618092560812,
+    "onMode": 2,
+    "onFrac": 0.5179842648645149,
+    "onMinTier": 2,
+    "dd1": 1929.283481393159,
+    "dd2": 5059.999936829283,
+    "ddM1": 0.42619452504362554,
+    "ddM2": 0.1638498405027639,
+    "ddRearmTier": 1,
+    "ddCooldown": 2,
+    "riskFloorFrac": 0.09928905575320679,
+    "minDelta": 3,
+    "cooldownBars": 6,
+    "buyStartMod": 585,
+    "buyEndMod": 720
+   },
+   "sha256": "f55f831f394d4cdf55f38c147cb5c71d7b60e41799815c04c37abc73ae77a4a3"
+  },
+  "ES_robust_F_AGG_0": {
+   "inst": "ES",
+   "arch": "F",
+   "params": {
+    "marginU": 0.8,
+    "capRTH": 48,
+    "capON": 28,
+    "volBudget": 6708.21042805404,
+    "fBear": 0.9551527653863221,
+    "fNeut": 0.13531792059109424,
+    "fMed": 0.9502605363663624,
+    "fStrong": 0.54819586847477,
+    "trendMult": 0.8323696299221339,
+    "onMode": 5,
+    "onFrac": 0.037496169195107676,
+    "onMinTier": 1,
+    "dayStop": 1663.2901138219336,
+    "gapK": 2.4131822485973684,
+    "riskFloorFrac": 0.026198455327392324,
+    "minDelta": 2,
+    "cooldownBars": 4,
+    "buyStartMod": 585,
+    "buyEndMod": 900
+   },
+   "sha256": "da9903537d981ec9015f462a7baf0aae5451d550164df4dbbd51b831c7f5bcb9"
+  },
+  "MNQ_arch_E_AGG_0": {
+   "inst": "MNQ",
+   "arch": "E",
+   "params": {
+    "marginU": 0.5,
+    "capRTH": 20,
+    "capON": 14,
+    "volBudget": 2164.872717988184,
+    "onMode": 5,
+    "onFrac": 0.6010581894652904,
+    "onMinTier": 2,
+    "minDelta": 3,
+    "cooldownBars": 39,
+    "buyStartMod": 570,
+    "buyEndMod": 900
+   },
+   "sha256": "51abc03cb431d0daf4688b72e3fa3f3d546b17ad70ea739b5f0e646b94bfcd2d"
+  },
+  "ES_r2_G_AGG_0": {
+   "inst": "ES",
+   "arch": "G",
+   "params": {
+    "pointValue": 5.0,
+    "rollCostPerContract": 3.74,
+    "intradayMaxQty": 10,
+    "coreQty": 10,
+    "coreBuildMode": 1,
+    "coreTierMode": 1,
+    "kBase": 7,
+    "kMid": 3,
+    "kTop": 0,
+    "tacticalMode": 1,
+    "overnightMode": 1,
+    "lotQty": 3,
+    "targetDecayBars": 88,
+    "decayMode": 3,
+    "oppositeSideCooldownBars": 8,
+    "minimumOppositeMoveATR": 0.03432381428651581,
+    "addCooldownBars": 0,
+    "maxActionsPerSess": 4,
+    "bottomRangePct": 0.4540718348465769,
+    "driftVWAPDeepSigma": 1.220807498863504,
+    "ddLimit": 3175.736075463079,
+    "ddFloorQty": 0,
+    "ddRearmLen": 20,
+    "disableMask": 4320
+   },
+   "sha256": "f72aa914f5be5299d489042ace37fc90b6dcb1156d3e82af2cbdc741876fdb3f"
+  }
+ },
+ "clusters": {
+  "method": "average linkage on 1 - (0.5 daily corr + 0.25 30-min position corr + 0.25 drawdown overlap), cut 0.5",
+  "membership": {
+   "MNQ_arch_A_AGG_0": 1,
+   "MNQ_robust_A_MOD_2": 1,
+   "MNQ_r2_C_MOD_1": 2,
+   "MNQ_robust_C_CON_0": 2,
+   "ES_robust_A_MOD_1": 3,
+   "ES_r2_F_MOD_2": 3,
+   "ES_r2_A_CON_1": 3,
+   "ES_robust_C_CON_4": 3
+  }
+ },
+ "risk_normalisation": {
+  "unit": "sleeve standalone DEV daily P&L standard deviation ($)",
+  "sigma_daily_dev": {
+   "MNQ_arch_A_AGG_0": 925.7515391441907,
+   "MNQ_robust_A_MOD_2": 1112.315442578703,
+   "MNQ_r2_C_MOD_1": 519.5728564462142,
+   "MNQ_robust_C_CON_0": 349.8885397847561,
+   "ES_robust_A_MOD_1": 968.587861702884,
+   "ES_r2_F_MOD_2": 649.1493571702214,
+   "ES_r2_A_CON_1": 434.07046950369937,
+   "ES_robust_C_CON_4": 484.7269603321453
+  },
+  "sleeve_contract_weight": "w_s = budget_s * L / sigma_s (float); instrument target = sum_s w_s * desired_s; integer only at execution"
+ },
+ "portfolios": {
+  "P0_FULL_UNIVERSE_EQUAL_RISK": {
+   "MNQ_arch_A_AGG_0": 0.125,
+   "MNQ_robust_A_MOD_2": 0.125,
+   "MNQ_r2_C_MOD_1": 0.125,
+   "MNQ_robust_C_CON_0": 0.125,
+   "ES_robust_A_MOD_1": 0.125,
+   "ES_r2_F_MOD_2": 0.125,
+   "ES_r2_A_CON_1": 0.125,
+   "ES_robust_C_CON_4": 0.125
+  },
+  "P1_CLUSTER_EQUAL_RISK": {
+   "MNQ_robust_A_MOD_2": 0.16666666666666666,
+   "MNQ_arch_A_AGG_0": 0.16666666666666666,
+   "MNQ_robust_C_CON_0": 0.16666666666666666,
+   "MNQ_r2_C_MOD_1": 0.16666666666666666,
+   "ES_robust_A_MOD_1": 0.08333333333333333,
+   "ES_r2_F_MOD_2": 0.08333333333333333,
+   "ES_r2_A_CON_1": 0.08333333333333333,
+   "ES_robust_C_CON_4": 0.08333333333333333
+  },
+  "P2_STATIC_DIVERSIFIED": {
+   "MNQ_robust_A_MOD_2": 0.3333333333333333,
+   "MNQ_robust_C_CON_0": 0.3333333333333333,
+   "ES_robust_A_MOD_1": 0.3333333333333333
+  },
+  "P2B_STATIC_4SLEEVE": {
+   "MNQ_robust_A_MOD_2": 0.25,
+   "ES_robust_A_MOD_1": 0.25,
+   "MNQ_robust_C_CON_0": 0.25,
+   "MNQ_arch_A_AGG_0": 0.25
+  }
+ },
+ "p2_rule": "one representative per behavioural cluster = max min(F1,F2,F3 matched-beta excess) on DEV, tie -> DEV ret/DD; equal risk",
+ "p2b_rule": "first 4 of the deterministic round-robin cluster order (DEV candidate-count frontier saturation)",
+ "regime_tilt": {
+  "base": "P2_STATIC_DIVERSIFIED",
+  "alphas": [
+   0.25,
+   0.5
+  ],
+  "cells": "trend tier (BEAR / NEUTRAL / BULL, lagged completed sessions) x vol (ATR20 pct >= 2/3 HIVOL)",
+  "estimate": "expanding strictly-prior sessions; tilt = 1 + alpha * clip(t/2, -1, 1); none before 250 sessions or < 20 cell sessions; renormalised to constant total budget",
+  "forbidden_inputs": "no TEST43-M directional signal; C6 compression not used"
+ },
+ "risk_scale_L": {
+  "P0_FULL_UNIVERSE_EQUAL_RISK|CONSERVATIVE": 701.1,
+  "P0_FULL_UNIVERSE_EQUAL_RISK|MODERATE": 824.6,
+  "P0_FULL_UNIVERSE_EQUAL_RISK|AGGRESSIVE": 1578.2,
+  "P1_CLUSTER_EQUAL_RISK|CONSERVATIVE": 549.6,
+  "P1_CLUSTER_EQUAL_RISK|MODERATE": 894.3,
+  "P1_CLUSTER_EQUAL_RISK|AGGRESSIVE": 1455.2,
+  "P2_STATIC_DIVERSIFIED|CONSERVATIVE": 549.6,
+  "P2_STATIC_DIVERSIFIED|MODERATE": 969.9,
+  "P2_STATIC_DIVERSIFIED|AGGRESSIVE": 1455.2,
+  "P3_REGIME_ADAPTIVE_25|CONSERVATIVE": 549.6,
+  "P3_REGIME_ADAPTIVE_25|MODERATE": 894.3,
+  "P3_REGIME_ADAPTIVE_25|AGGRESSIVE": 1711.6,
+  "P3_REGIME_ADAPTIVE_50|CONSERVATIVE": 701.1,
+  "P3_REGIME_ADAPTIVE_50|MODERATE": 894.3,
+  "P3_REGIME_ADAPTIVE_50|AGGRESSIVE": 1711.6,
+  "P2B_STATIC_4SLEEVE|CONSERVATIVE": 760.3,
+  "P2B_STATIC_4SLEEVE|MODERATE": 969.9,
+  "P2B_STATIC_4SLEEVE|AGGRESSIVE": 2013.2
+ },
+ "L_calibration": "largest L on a 60-point geometric grid (100..12000) with DEV MaxDD <= 90% envelope DD, DEV worst day >= 90% envelope floor, no margin breach",
+ "governor": {
+  "marginU": 0.5,
+  "dd1_frac": 0.6,
+  "dd2_frac": 0.85,
+  "m1": 0.5,
+  "m2": 0.25,
+  "day_frac": 0.8,
+  "day_mult": 0.5,
+  "atr_cap": 0.0,
+  "inst_share": 0.85,
+  "deadband": 0.6,
+  "slip_ticks": 1.0,
+  "commission": 0.62,
+  "m_intra": 1.0,
+  "m_on": 1.0,
+  "delay": 0,
+  "env_dd": "envelope DD",
+  "dd_tiers": "0.6*envDD -> x0.5, 0.85*envDD -> x0.25; rearm at a new session when DD < 0.3*envDD",
+  "day_stop": "0.8*|envelope worst-day floor| -> x0.5 for the rest of the session"
+ },
+ "envelopes": {
+  "CONSERVATIVE": [
+   10000,
+   -2000
+  ],
+  "MODERATE": [
+   15000,
+   -3000
+  ],
+  "AGGRESSIVE": [
+   20000,
+   -5000
+  ]
+ },
+ "costs": {
+  "commission_side": 0.62,
+  "slippage_ticks": 1,
+  "roll_cost": {
+   "MES": 3.74,
+   "MNQ": 2.24
+  }
+ },
+ "margin": {
+  "MES": {
+   "intraday_frac": 0.06416935897435898,
+   "overnight_frac": 0.09167051282051282
+  },
+  "MNQ": {
+   "intraday_frac": 0.07769201093071854,
+   "overnight_frac": 0.11098842629802283
+  },
+  "note": "raw (unadjusted) price for notional/margin; adjusted canonical price for P&L; marginU 0.5 of equity"
+ },
+ "val_pass_rule": "VAL avg/day > 0 AND VAL MaxDD <= envelope DD AND VAL worst day >= envelope floor AND no margin breach AND VAL matched-beta excess reported",
+ "final_selection_rule": {
+  "PRIMARY": "among MODERATE variants passing VAL: highest DEV ret/DD; ties -> fewer sleeves",
+  "SECONDARY_1": "simplest static diversified: P2_STATIC_DIVERSIFIED|MODERATE if it passes VAL, else P2B",
+  "SECONDARY_2": "defensive: CONSERVATIVE variant passing VAL with the lowest DEV MaxDD",
+  "note": "P3 is eligible for PRIMARY only if it also beats P2 on VAL after cost (avg/day and ret/DD); no rescue"
+ },
+ "code": {
+  "t43/portfolio.py": "e2da1d5d1d1ac3d6c60165309a2d6b67efbf14d2565cc47be2283bfe3744f2c3",
+  "t43/sleeves.py": "6a8e60b6017fd0c52fe2030aa9982cd0e1273755b2b30e11f525b2ac840ae2e5",
+  "p03_portfolio_dev.py": "663c926ae84e6209200b72dbe96427c44cbfd06c2a16ea88549985a440be911c",
+  "p04_pre_val_freeze.py": "e95d7f6f651462920a6c647e8ac20a9d799151791140b01c493fb1d3dd210c8a",
+  "t43/v6a.py": "cc1bd489915c0278b975311cc83efc25125f80063d4c14e18f2b4586a027dbf8",
+  "t43/v6x.py": "6ae46e8aa439644af7988e486e069de08511fce614eb647a6df303c8e4afb81e"
+ }
+}
