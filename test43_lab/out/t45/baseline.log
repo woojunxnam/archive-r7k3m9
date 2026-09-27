@@ -1,0 +1,30 @@
+                                                    0  ...                   3
+candidate                         CHAMPION_CONTROL_V1  ...  XGBOOST_CHALLENGER
+daily_pnl_max_abs_diff                            0.0  ...                 0.0
+all_daily_columns_max_abs_diff                    0.0  ...                 0.0
+days                                             1780  ...                1780
+ALL_days                                         1780  ...                1780
+ALL_total                                    93609.78  ...            42404.57
+ALL_avg                                     52.589764  ...           23.822792
+ALL_max_dd                                    6193.43  ...             5169.71
+ALL_worst                                    -1722.99  ...            -1785.25
+ALL_best                                      2275.02  ...             1862.75
+ALL_ret_dd                                   0.008491  ...            0.004608
+ALL_ex_top3_avg                             48.964118  ...           20.942034
+ALL_active_share                             0.787079  ...            0.531461
+ALL_sharpe_ann                               1.863886  ...            1.402378
+FH_days                                           165  ...                 165
+FH_total                                      9690.71  ...             7341.51
+FH_avg                                      58.731576  ...              44.494
+FH_max_dd                                     6193.43  ...             1956.18
+FH_worst                                     -1523.36  ...             -1557.5
+FH_best                                       2055.13  ...             1723.75
+FH_ret_dd                                    0.009483  ...            0.022745
+FH_ex_top3_avg                              23.351879  ...           16.556121
+FH_active_share                              0.751515  ...            0.484848
+FH_sharpe_ann                                1.660073  ...            2.176955
+peak_margin_util                             0.078669  ...            0.052902
+positions_max_abs_diff_vs_frozen                  0.0  ...                 NaN
+
+[26 rows x 4 columns]
+REPRO_OK True

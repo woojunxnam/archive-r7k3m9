@@ -67,7 +67,7 @@ def build_tasks(bank, post):
         A = {**base, **{f"L_{kk}": v for kk, v in fl.items() if kk not in ("gap_lock", "prior_ret", "prior_range", "trend20", "vol_pct")},
              "G_gap_lock": fl["gap_lock"], "T_prior_ret": fl["prior_ret"], "T_trend20": fl["trend20"], "V_prior_range": fl["prior_range"],
              "V_vol_pct": fl["vol_pct"], "X_rel_rth_ret": fl["rth_ret"] - flo["rth_ret"], "X_rel_day_ret": fl["day_ret"] - flo["day_ret"],
-             "X_rel_mom60": fl["mom60"] - flo["mom60"], "S_champ_pos": st["champ_1612"], "S_champ_dd": st["champ_dd"], **reg, "y": yA}
+             "X_rel_mom60": fl["mom60"] - flo["mom60"], "S_champ_pos": st["champ_pos@15:45"], "S_champ_dd": st["champ_dd"], **reg, "y": yA}
         # ---- B: gap rebound, decision 09:31 (fill 09:32) -> 16:00
         fm = F.morning(pn, 0)
         yB = (FP[:, g("16:00")] - FP[:, 1]) / pn.atr

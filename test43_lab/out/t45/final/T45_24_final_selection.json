@@ -1,0 +1,79 @@
+{
+ "FINAL_TEST45_CHALLENGER": "NONE",
+ "n_candidates": 154,
+ "n_eligible": 0,
+ "near_misses_one_rule": [
+  {
+   "candidate": "V6_STATE_CARRY|BOTH|16:00|champ>1",
+   "rules_failed": "R5",
+   "comb_ret_dd": 0.009654094473699,
+   "incr_avg": 5.941193181818186,
+   "corr": 0.3596095991820186,
+   "outer_median": 1.9869405099150133,
+   "outer_pos": 5
+  },
+  {
+   "candidate": "V6_STATE_CARRY|MNQ|16:00|champ>1",
+   "rules_failed": "R5",
+   "comb_ret_dd": 0.0095006458823749,
+   "incr_avg": 5.027409090909103,
+   "corr": 0.3067988184429782,
+   "outer_median": 1.550934844192634,
+   "outer_pos": 5
+  },
+  {
+   "candidate": "V6_STATE_CARRY|BOTH|16:14|champ>1",
+   "rules_failed": "R5",
+   "comb_ret_dd": 0.0094683988885026,
+   "incr_avg": 5.146869318181828,
+   "corr": 0.3447948156270747,
+   "outer_median": 1.6031872509960154,
+   "outer_pos": 5
+  },
+  {
+   "candidate": "V6_STATE_CARRY|MNQ|16:00|champ>0",
+   "rules_failed": "R3",
+   "comb_ret_dd": 0.0089444097266162,
+   "incr_avg": 16.29935227272729,
+   "corr": 0.5347849064184108,
+   "outer_median": 13.832252964426871,
+   "outer_pos": 4
+  },
+  {
+   "candidate": "V6_STATE_CARRY|ES|14:30|champ>0",
+   "rules_failed": "R3",
+   "comb_ret_dd": 0.0088419504832661,
+   "incr_avg": 5.005750000000013,
+   "corr": 0.5607837374123882,
+   "outer_median": 3.794071146245056,
+   "outer_pos": 4
+  },
+  {
+   "candidate": "V6_STATE_CARRY|ES|15:00|champ>1",
+   "rules_failed": "R3",
+   "comb_ret_dd": 0.0087014701663733,
+   "incr_avg": 1.1433522727272774,
+   "corr": 0.2408174891313943,
+   "outer_median": 1.1320553359683794,
+   "outer_pos": 4
+  },
+  {
+   "candidate": "V6_STATE_CARRY|BOTH|15:00|champ>1",
+   "rules_failed": "R2",
+   "comb_ret_dd": 0.0073056336322029,
+   "incr_avg": 6.467602272727284,
+   "corr": 0.4204458907111906,
+   "outer_median": 2.92,
+   "outer_pos": 4
+  },
+  {
+   "candidate": "V6_STATE_CARRY|BOTH|15:15|champ>1",
+   "rules_failed": "R2",
+   "comb_ret_dd": 0.0072620987065757,
+   "incr_avg": 7.172420454545467,
+   "corr": 0.411667269297903,
+   "outer_median": 2.6184860557768905,
+   "outer_pos": 4
+  }
+ ]
+}

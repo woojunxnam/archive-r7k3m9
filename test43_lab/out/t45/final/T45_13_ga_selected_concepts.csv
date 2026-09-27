@@ -1,0 +1,7 @@
+inst,morning,close,c_time,c_base,c_boost_feature,c_vol_gate,o_rule,fold,m_gap_region,m_w,m_flush_region,m_exit,m_crash_guard
+BOTH,0,1,15:15,0,rth_ret>,1,EXIT_OPEN,O1_2021,,,,,
+BOTH,1,1,16:00,0,champ_pos>,1,KEEP_ADVERSE,O2_2022,none,0.0,"(-0.5,-0.2]",11:00,0.0
+BOTH,0,1,15:45,0,champ_pos>,0,EXIT_AFTER,O3_2023,,,,,
+MNQ,1,1,16:00,0,champ_pos>,1,EXIT_OPEN,O4_2024,none,60.0,"(-0.2,0]",CARRY,0.0
+MNQ,1,1,15:30,0,champ_pos>,0,EXIT_AFTER,O5_2025_26,none,90.0,none,15:00,0.0
+MNQ,1,1,15:45,0,champ_pos>,0,EXIT_AFTER,FINAL_ALL_TO_2026-05-27,none,60.0,none,15:00,1.0

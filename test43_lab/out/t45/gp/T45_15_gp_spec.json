@@ -1,0 +1,48 @@
+{
+ "unique_programs_total": 105630,
+ "per_fold": "{('FINAL_ALL_TO_2026-05-27', 'GP_CLOSE'): 8633, ('FINAL_ALL_TO_2026-05-27', 'GP_MORNING'): 9285, ('O1_2021', 'GP_CLOSE'): 8625, ('O1_2021', 'GP_MORNING'): 9195, ('O2_2022', 'GP_CLOSE'): 8894, ('O2_2022', 'GP_MORNING'): 9182, ('O3_2023', 'GP_CLOSE'): 8861, ('O3_2023', 'GP_MORNING'): 9165, ('O4_2024', 'GP_CLOSE'): 8504, ('O4_2024', 'GP_MORNING'): 9174, ('O5_2025_26', 'GP_CLOSE'): 8648, ('O5_2025_26', 'GP_MORNING'): 9082}",
+ "POP": 80,
+ "GENS": 30,
+ "SEEDS": [
+  303,
+  404
+ ],
+ "ISLANDS": 2,
+ "MAX_DEPTH": 4,
+ "MAX_NODES": 15,
+ "morning_inputs": [
+  "gap_atr",
+  "gap_pct",
+  "gap_sigma",
+  "opening_selloff_atr",
+  "opening_recovery_atr",
+  "current_RTH_return",
+  "RTH_range_position",
+  "distance_to_RTH_VWAP",
+  "prior_day_return",
+  "prior_day_range",
+  "volatility_percentile",
+  "ES_NQ_relative_strength",
+  "current_V6_intensity",
+  "portfolio_DD"
+ ],
+ "close_inputs": [
+  "gap_atr",
+  "current_RTH_return",
+  "RTH_range_position",
+  "distance_to_RTH_VWAP",
+  "prior_day_return",
+  "prior_day_range",
+  "volatility_percentile",
+  "ES_NQ_relative_strength",
+  "current_V6_intensity",
+  "portfolio_DD"
+ ],
+ "primitives": [
+  "GT",
+  "LT",
+  "AND",
+  "OR",
+  "NOT"
+ ]
+}

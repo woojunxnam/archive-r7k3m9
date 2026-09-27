@@ -1,0 +1,63 @@
+{
+ "GA_FINAL": {
+  "genome": {
+   "inst": "MNQ",
+   "m_on": 1,
+   "m_gap_kind": "cash",
+   "m_gap_norm": "atr",
+   "m_gap_hi": null,
+   "m_gap_lo": -4.237380469710066,
+   "m_w": 60,
+   "m_flush_hi": null,
+   "m_flush_lo": -2.651472173065008,
+   "m_reclaim": 0.8668033768007211,
+   "m_exit": "15:00",
+   "m_q": 2,
+   "m_vol_max": 0.4926516304497478,
+   "m_trend": -1,
+   "m_rel": 1,
+   "m_v6": 0,
+   "m_dd_max": 4800.638552160907,
+   "c_on": 1,
+   "c_time": "15:45",
+   "c_base": 0,
+   "c_feat": "champ_pos",
+   "c_dir": 1,
+   "c_thr": 0.20217461189570418,
+   "c_boost": 2,
+   "c_vol_max": null,
+   "o_rule": "EXIT_AFTER",
+   "o_thr": -1.3217880767035197,
+   "o_until": "11:00",
+   "o_w": 30
+  },
+  "plateau_pass": false,
+  "plateau_share_ok": 0.96875,
+  "concept": {
+   "inst": "MNQ",
+   "morning": 1,
+   "close": 1,
+   "m_gap_region": "none",
+   "m_w": 60,
+   "m_flush_region": "none",
+   "m_exit": "15:00",
+   "m_crash_guard": 1,
+   "c_time": "15:45",
+   "c_base": 0,
+   "c_boost_feature": "champ_pos>",
+   "c_vol_gate": 0,
+   "o_rule": "EXIT_AFTER"
+  }
+ },
+ "GA_FOLD_PLATEAU_PASS_COUNT": 1,
+ "GP_MORNING_FINAL": {
+  "rule": "(((current_RTH_return > -0.159 AND gap_atr > 0.195) OR opening_selloff_atr > -0.259) AND (NOT(opening_selloff_atr < -0.0238) AND (prior_day_range > 1.14 OR gap_pct > 0.0237)))",
+  "ind": "{\"kind\": \"GP_MORNING\", \"inst\": \"MNQ\", \"tree\": null, \"w\": 15, \"m_exit\": \"15:00\", \"m_q\": 2}",
+  "tree": "('AND', ('OR', ('AND', ('GT', 'current_RTH_return', -0.1586941773312142), ('GT', 'gap_atr', 0.19466663918432417)), ('GT', 'opening_selloff_atr', -0.25947140263073415)), ('AND', ('NOT', ('LT', 'opening_selloff_atr', -0.023796155798885305)), ('OR', ('GT', 'prior_day_range', 1.1350385374219927), ('GT', 'gap_pct', 0.02365124071823593))))"
+ },
+ "GP_CLOSE_FINAL": {
+  "rule": "(NOT(current_V6_intensity < 1) AND ((current_RTH_return > -0.223 OR current_V6_intensity > 2) AND ((current_V6_intensity > 0 OR distance_to_RTH_VWAP < 0.1) AND prior_day_range < 1.14)))",
+  "ind": "{\"kind\": \"GP_CLOSE\", \"inst\": \"MNQ\", \"tree\": null, \"c_time\": \"15:30\", \"c_base\": 0, \"c_boost\": 1}",
+  "tree": "('AND', ('NOT', ('LT', 'current_V6_intensity', 1.0)), ('AND', ('OR', ('GT', 'current_RTH_return', -0.22333272784152253), ('GT', 'current_V6_intensity', 2.0)), ('AND', ('OR', ('GT', 'current_V6_intensity', 0.0), ('LT', 'distance_to_RTH_VWAP', 0.10001626385927795)), ('LT', 'prior_day_range', 1.1350385374219927))))"
+ }
+}

@@ -221,7 +221,7 @@ def late_study(P, sims, st):
             fo = F.late(other, j)
             f["rel_rth_ret_vs_other"] = f["rth_ret"] - fo["rth_ret"]
             f["rel_day_ret_vs_other"] = f["day_ret"] - fo["day_ret"]
-            f["champ_pos_1612"] = st[f"p{'ES' if sm.k == 0 else 'MNQ'}_1612"].values
+            f["champ_pos_at_t"] = st[f"p{'ES' if sm.k == 0 else 'MNQ'}_{t.replace(':', '')}"].values
             f["champ_dd_prev"] = st["champ_dd_prev"].values
             y = (np.r_[FP[1:, 0], np.nan] - FP[:, j + 1]) / pn.atr            # fill t+1 -> next RTH open (locked)
             fe[(sm.k, t)] = (f, y)

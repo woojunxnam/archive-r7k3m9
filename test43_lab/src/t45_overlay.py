@@ -56,7 +56,7 @@ class Bank:
                 f = F.late(pn, g(t))
                 for nm in C_FEATS[1:-1]:
                     d[f"{nm}@{t}"] = f[nm]
-                d[f"champ_pos@{t}"] = st[f"p{C.INSTS[k]}_1612"].values if t in ("16:00", "16:14") else d["champ_1612"]
+                d[f"champ_pos@{t}"] = st[f"p{C.INSTS[k]}_{t.replace(':', '')}"].values      # champion position in effect at t
             d["fill_ok"] = ~np.isnan(sm.FP)
             self.I.append(d)
 

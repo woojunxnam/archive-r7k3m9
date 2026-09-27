@@ -1,0 +1,169 @@
+# T45_25 Pre-OOS freeze
+
+`out/t45/freeze/TEST45_PRE_OOS_FREEZE.json` sha256 **185d1ef91ddffe494ce5826a5142af31644a4816bb2a4db72d110909ed1c2987**
+
+```json
+{
+ "program": "TEST45 ES/NQ session alpha + multi-model ML + genetic evolution",
+ "written_before_new_oos_data": true,
+ "research_data_end": "2026-05-27",
+ "new_oos_start": "2026-05-28",
+ "test44_authorities_verified_unchanged": {
+  "out/t44/freeze/TEST44_PRE_OOS_FREEZE.json": "3401331f1668a463008f17456f1738248434bbd8cf7a86438aee84149ceeeae4",
+  "out/t44/freeze/TEST44_NEW_OOS_ACCEPTANCE_RULES.json": "2f74e2cafaa96cd6051b22dac25b6cdf6cf903229db7fb0bdccd3eabbf708236",
+  "out/t44/oos_protocol/TEST44_OOS_DATA_PROTOCOL.json": "f50902babcbc848574984abb59c4e9cd435e2a3d20878a66955686b6429d7cc3",
+  "src/t44_oos_evaluator.py": "dde908ea03ae93d31f827c21366f7a2088c8027ab711f86d64dbce37fafa3b29",
+  "out/p/freeze/TEST43P_FINAL_PORTFOLIOS.json": "3269dc94f5972854ac99ae1c7a45a6cc44b00987b46b279ddb2e16b13dc66fe7"
+ },
+ "data": {
+  "ES": {
+   "file": "data/canonical_1m_ES.parquet",
+   "sha256": "2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116"
+  },
+  "MNQ": {
+   "file": "data/canonical_1m_MNQ.parquet",
+   "sha256": "66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2"
+  }
+ },
+ "FINAL_TEST45_CHALLENGER": "NONE",
+ "structure": "CHAMPION_CONTROL_V1 (unchanged, TEST43-P SECONDARY_2 P1_CLUSTER_EQUAL_RISK|CONSERVATIVE) + TEST45 overlay in the SAME $150k account",
+ "execution_clock": {
+  "CASH_REFERENCE_CLOSE": "16:00:00 ET = close of the 1m bar end-stamped 16:00",
+  "LAST_ALLOWED_EXECUTION": "16:15:00 ET",
+  "LAST_CAUSAL_EXECUTION_BAR": "decision on bars end-stamped <= 16:14, fill at the OPEN of the 1m bar end-stamped 16:15 (first trade after 16:14:00)",
+  "LOCKED_OVERNIGHT_INTERVAL": "from the 16:15-bar-open fill to the next RTH open (open of the 1m bar end-stamped 09:31); no strategy order in between",
+  "NEXT_EXECUTABLE_OPEN": "09:30 ET; a pre-planned exit fills at the RTH open print; any decision using the open fills at the open of the bar end-stamped 09:32",
+  "generic_rule": "decision at minute T uses bars end-stamped <= T; fill at the open of bar T+1 +/- 1 tick; entries never use an earlier price; if the bar is missing, the entry is skipped (forward fallback <= 3 min)",
+  "early_close_sessions": "entries whose bar does not exist are skipped; reductions may fill at the last existing bar",
+  "overnight_path_features": "NONE",
+  "overnight_trading": "NONE (position locked)"
+ },
+ "overlay_spec": null,
+ "overlay_description": null,
+ "integer_mapping": {
+  "per_instrument_overlay_target": "0 / 1",
+  "max_overlay_contracts": 2,
+  "combined_with_champion": "separate virtual sleeve; broker net target = champion target + overlay target (no fractional execution)"
+ },
+ "lock_governor": {
+  "LOCK_K_ATR": 2.5,
+  "LOCK_BUDGET_usd": 4000.0,
+  "rule": "sum(q * LOCK_K * ATR14_RTH(prev) * $/pt) over locked overlay inventory <= budget, else cut the largest"
+ },
+ "costs": {
+  "commission_per_side": 0.62,
+  "slippage_ticks_per_side": 1,
+  "stress": "SLIP4",
+  "roll": "2 sides x (commission + 1 tick) when carried into a contract-switch session (rolled during RTH before the lock)"
+ },
+ "margin": {
+  "source": "IBKR reference (t43/instruments.py) scaled by raw notional",
+  "overnight_check": "before 16:14 decision: champion + overlay overnight margin <= 0.5 x equity"
+ },
+ "features": {
+  "champ_pos@t": "Champion (frozen) target position in effect at decision minute t (3m bar open-stamped t; 16:14 -> 16:12)",
+  "no_other_features": null
+ },
+ "model_training_refit": "NONE - deterministic rule; no parameters are refit; the Champion is the frozen TEST43-P implementation",
+ "code_sha256": {
+  "src/t45_00_baseline.py": "ea542759d5f05845ce7d0542b88503c89cdbfa1f729669280d0607812615b17f",
+  "src/t45_01_session.py": "18f7d57fd234a3039b397f8c5fee4d7b052389244eaafabc99a2b769e3bfeb8c",
+  "src/t45_02_morning.py": "a94088a35c57c7dc9ca03bf25d7ac87e825ca9035a6b51097f7f93263fbd4fd6",
+  "src/t45_03_det.py": "e670edd1f190299644d1f4287b1854365e59034f5537d8b003f26be51e62dd73",
+  "src/t45_04_ml.py": "2b96c2a474d96d0b4e6144f249e5e726d9fdcf6aa4a2af7903feee7ae225bc75",
+  "src/t45_05_ga.py": "ade4f88bf44f47b70a8003d4dcf3d22a0e4df3d9b4280d6980f26757f7472347",
+  "src/t45_06_gp.py": "23bbf7b081b77e799138d6ac46461759cc47047229a4275a167a15c4bde564ef",
+  "src/t45_07_eval.py": "af19f98fe55c774acaa7301bb7491abdae662fb9df4b2c1307d9c61ce29d133e",
+  "src/t45_08_v6carry.py": "b03e47761d52cb6c53465d60a57fbbb4ed7fcb115fe1832a4c674e4273f3ad04",
+  "src/t45_09_select.py": "d240c5986b0d0fbca7b454d1d6531b935cbe9634fbe7b2b6f6a5918167723571",
+  "src/t45_10_freeze.py": "cb13731fab0c8f63ed935e942581a8686e587ae6348542cc34eb989b788170a5",
+  "src/t45_common.py": "61121549fe3d5f921b73d9ea96bb9532e64b1a1816de125a5745000fa6152a77",
+  "src/t45_feat.py": "28392cb9d0f7bbb15f3fafb985ab93d89a82337623412c7e08acef2de11ff86c",
+  "src/t45_overlay.py": "b98093a8724a86d85596f5a919942c2af90588a7bc59fb224b3ec2cc431eb0a8",
+  "src/t45_sim.py": "d878ffe22b04ca39f35bd53a6098c5b0f8e000debaebf31ed88e9e5d233a9f23",
+  "src/t43/instruments.py": "f2131b35da0bdbc44a239a0f2c778ac304baf77232bcbafed6d5cd0765fff7e8",
+  "src/t43/bars.py": "400d5f6be3639ee796d30fe18efc1358faeb7f136018827afcd6104048f8095c",
+  "src/t43/portfolio.py": "e2da1d5d1d1ac3d6c60165309a2d6b67efbf14d2565cc47be2283bfe3744f2c3",
+  "src/t44_common.py": "0805a6f07708ed57f4742aed371ecdc08a61ecd107edae69b5cedbd60385463d",
+  "src/t44_alloc.py": "96bc4881fbd71482bfbb0d77e8ce3e738767ebf9050fc6950c535b5b90e3b67e",
+  "src/p03_portfolio_dev.py": "663c926ae84e6209200b72dbe96427c44cbfd06c2a16ea88549985a440be911c"
+ },
+ "shadow_only (not evaluated for promotion)": [
+  "all other TEST45 overlays, ML models, GA/GP genomes (see T45_24 audit)"
+ ],
+ "shadow_forward_monitoring (REPORT ONLY, frozen now, cannot be promoted by the coming OOS)": {
+  "V6_STATE_CARRY|MNQ|15:45|champ>0": {
+   "inst": "MNQ",
+   "m_on": 0,
+   "m_gap_kind": "lock",
+   "m_gap_norm": "atr",
+   "m_gap_hi": "inf",
+   "m_gap_lo": "-inf",
+   "m_w": 0,
+   "m_flush_hi": "inf",
+   "m_flush_lo": "-inf",
+   "m_reclaim": 0.0,
+   "m_exit": "16:00",
+   "m_q": 1,
+   "m_vol_max": 1.0,
+   "m_trend": 0,
+   "m_rel": 0,
+   "m_v6": 0,
+   "m_dd_max": "inf",
+   "c_on": 1,
+   "c_time": "15:45",
+   "c_base": 0,
+   "c_feat": "champ_pos",
+   "c_dir": 1,
+   "c_thr": 0.0,
+   "c_boost": 1,
+   "c_vol_max": 1.0,
+   "o_rule": "EXIT_OPEN",
+   "o_thr": -0.75,
+   "o_until": "12:00",
+   "o_w": 1
+  },
+  "V6_STATE_CARRY|BOTH|16:00|champ>1": {
+   "inst": "BOTH",
+   "m_on": 0,
+   "m_gap_kind": "lock",
+   "m_gap_norm": "atr",
+   "m_gap_hi": "inf",
+   "m_gap_lo": "-inf",
+   "m_w": 0,
+   "m_flush_hi": "inf",
+   "m_flush_lo": "-inf",
+   "m_reclaim": 0.0,
+   "m_exit": "16:00",
+   "m_q": 1,
+   "m_vol_max": 1.0,
+   "m_trend": 0,
+   "m_rel": 0,
+   "m_v6": 0,
+   "m_dd_max": "inf",
+   "c_on": 1,
+   "c_time": "16:00",
+   "c_base": 0,
+   "c_feat": "champ_pos",
+   "c_dir": 1,
+   "c_thr": 1.0,
+   "c_boost": 1,
+   "c_vol_max": 1.0,
+   "o_rule": "EXIT_OPEN",
+   "o_thr": -0.75,
+   "o_until": "12:00",
+   "o_w": 1
+  },
+  "reason": "concept recurred in every nested GA/GP outer fold; failed the predeclared rule (R3 corr/R4 worst-day, resp. R5 vs unconditional carry)"
+ },
+ "selection_audit": {
+  "n_candidates": 154,
+  "n_eligible": 0,
+  "eligible": []
+ },
+ "new_oos_data_acquired": false,
+ "new_oos_opened": false,
+ "live_authorization": "NO"
+}
+```
+

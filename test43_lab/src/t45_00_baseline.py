@@ -83,6 +83,11 @@ def main():
             opn = df[df.m == 570].groupby("sd").head(1).set_index("sd")
             st = pd.DataFrame({"pES_1612": lk.pES, "pMNQ_1612": lk.pMNQ, "pES_end": last.pES, "pMNQ_end": last.pMNQ,
                                "pES_0930": opn.pES, "pMNQ_0930": opn.pMNQ})
+            # champion position IN EFFECT at each TEST45 decision minute T: the 3m bar open-stamped at T (target set at T from
+            # information through T).  16:14 -> bar 16:12.  Never a later bar (causality fix: no 16:12 state before 16:12).
+            for hhmm, m_ in (("1430", 870), ("1500", 900), ("1515", 915), ("1530", 930), ("1545", 945), ("1600", 960), ("1614", 972)):
+                x = df[df.m == m_].groupby("sd").head(1).set_index("sd")
+                st[f"pES_{hhmm}"] = x.pES; st[f"pMNQ_{hhmm}"] = x.pMNQ
             st.to_csv(f"{out}/champion_session_state.csv")
     B = pd.DataFrame(rows)
     B.to_csv(f"{out}/T45_00_baseline_reproduction.csv", index=False)
