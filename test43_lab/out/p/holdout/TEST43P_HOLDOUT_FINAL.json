@@ -1,0 +1,381 @@
+{
+ "status": {
+  "PRIMARY_HOLDOUT_PASS": "NO",
+  "SECONDARY_1_HOLDOUT_PASS": "NO",
+  "SECONDARY_2_HOLDOUT_PASS": "YES",
+  "HOLDOUT_OPENED": "YES",
+  "HOLDOUT_WINDOW": "2025-10-01 through 2026-05-27",
+  "PRIMARY_NET_PNL": -7164.289999999106,
+  "PRIMARY_AVG_DAY": -43.41993939393397,
+  "PRIMARY_MAX_DD": 12788.169999999227,
+  "PRIMARY_WORST_DAY": -2212.7299999999814,
+  "PRIMARY_REMOVE_TOP3_AVG": -68.79533333332793,
+  "PRIMARY_BEST_DAY_CONCENTRATION": -0.19962201418425882,
+  "PRIMARY_MATCHED_BETA_EXCESS": -79.47892562912324,
+  "PRIMARY_SESSION_MATCHED_BETA_EXCESS": -80.99153041472904,
+  "FINAL_TEST43P_STATUS": "PRIMARY = HOLDOUT_FAIL; SECONDARY PASS REPORTED ONLY (no automatic promotion)",
+  "LIVE_AUTHORIZATION": "NO"
+ },
+ "portfolios": {
+  "PRIMARY": {
+   "portfolio": "P2B_STATIC_4SLEEVE|MODERATE",
+   "members": [
+    "MNQ_robust_A_MOD_2",
+    "ES_robust_A_MOD_1",
+    "MNQ_robust_C_CON_0",
+    "MNQ_arch_A_AGG_0"
+   ],
+   "sessions": 165,
+   "gross_pnl": -6669.999999999106,
+   "net_pnl": -7164.289999999106,
+   "friction_commission_slippage": 488.31000000000006,
+   "roll_cost": 5.98,
+   "contract_sides_MES": 109.0,
+   "contract_sides_MNQ": 254.0,
+   "avg_day": -43.41993939393397,
+   "median_day": 0.0,
+   "max_dd": 12788.169999999227,
+   "worst_day": -2212.7299999999814,
+   "best_day": 1430.149999999965,
+   "best_day_share": -0.19962201418425882,
+   "return_dd": -0.003395320784282395,
+   "avg_ex_top1": -52.08751515150952,
+   "avg_ex_top3": -68.79533333332793,
+   "avg_ex_top5": -82.66890909090412,
+   "positive_day_share": 0.3515151515151515,
+   "matched_beta_avg_day": 36.05898623518927,
+   "matched_beta_excess_per_day": -79.47892562912324,
+   "session_matched_beta": {
+    "portfolio_net_pnl": -7164.289999999106,
+    "ES_avg_rth_contracts": 0.5174965100046534,
+    "ES_avg_on_contracts": 0.4037045060658579,
+    "ES_passive_gross": 1638.173894386209,
+    "ES_passive_net": 1563.6563927660125,
+    "MNQ_avg_rth_contracts": 0.6708271236959762,
+    "MNQ_avg_on_contracts": 0.36881429344883593,
+    "MNQ_passive_gross": 4751.638390718182,
+    "MNQ_passive_net": 4635.656125665173,
+    "sessions": 165,
+    "session_matched_net_pnl": 6199.312518431186,
+    "session_matched_gross_pnl": 6389.812285104391,
+    "excess_vs_session_matched_total": -13363.602518430293,
+    "excess_vs_session_matched_per_day": -80.99153041472904
+   },
+   "session_matched_beta_excess_per_day": -80.99153041472904,
+   "avg_contracts_MES": 0.4355115631747353,
+   "avg_contracts_MNQ": 0.45316198850186,
+   "avg_rth_MES": 0.5174965100046534,
+   "avg_on_MES": 0.4037045060658579,
+   "avg_rth_MNQ": 0.6702652396463471,
+   "avg_on_MNQ": 0.36893414211438474,
+   "max_contracts_MES": 4,
+   "max_contracts_MNQ": 4,
+   "peak_margin_util": 0.07087877646237888,
+   "peak_overnight_margin_util": 0.07087877646237888,
+   "stress": {
+    "SLIP4": {
+     "net_pnl": -7363.049999999348,
+     "avg_day": -44.624545454541504,
+     "max_dd": 12901.429999999556,
+     "worst_day": -2220.9800000000396
+    },
+    "TIMING_BRITTLENESS_STRESS": {
+     "net_pnl": -7235.359999999113,
+     "avg_day": -43.85066666666129,
+     "max_dd": 12763.499999999302,
+     "worst_day": -2065.2299999999814
+    }
+   },
+   "acceptance": {
+    "envelope": "MODERATE",
+    "sessions": 165,
+    "total_net_pnl": -7164.289999999106,
+    "avg_daily": -43.41993939393397,
+    "max_dd": 12788.169999999227,
+    "worst_day": -2212.7299999999814,
+    "avg_ex_top3": -68.79533333332793,
+    "best_day": 1430.149999999965,
+    "best_day_share": -0.19962201418425882,
+    "peak_margin_util": 0.07087877646237888,
+    "conditions": {
+     "net_pnl_positive": false,
+     "no_margin_breach": true,
+     "peak_margin_util_le_0.5": true,
+     "max_dd_within_envelope": true,
+     "worst_day_within_envelope": true,
+     "remove_top3_avg_positive": false,
+     "best_day_le_35pct_of_total": false
+    },
+    "PASS": false,
+    "report_only": {
+     "matched_beta_avg": 36.05898623518927,
+     "matched_beta_excess": -79.47892562912324,
+     "stress": {
+      "SLIP4": {
+       "net_pnl": -7363.049999999348,
+       "avg_day": -44.624545454541504,
+       "max_dd": 12901.429999999556,
+       "worst_day": -2220.9800000000396
+      },
+      "TIMING_BRITTLENESS_STRESS": {
+       "net_pnl": -7235.359999999113,
+       "avg_day": -43.85066666666129,
+       "max_dd": 12763.499999999302,
+       "worst_day": -2065.2299999999814
+      }
+     }
+    }
+   },
+   "rolling_3m": {
+    "n_windows": 103,
+    "min": -10460.779999999679,
+    "max": 1499.9100000002654,
+    "positive_share": 0.1553398058252427
+   }
+  },
+  "SECONDARY_1": {
+   "portfolio": "P2_STATIC_DIVERSIFIED|MODERATE",
+   "members": [
+    "MNQ_robust_A_MOD_2",
+    "MNQ_robust_C_CON_0",
+    "ES_robust_A_MOD_1"
+   ],
+   "sessions": 165,
+   "gross_pnl": -7646.999999999623,
+   "net_pnl": -8064.469999999623,
+   "friction_commission_slippage": 409.25,
+   "roll_cost": 8.22,
+   "contract_sides_MES": 135.0,
+   "contract_sides_MNQ": 140.0,
+   "avg_day": -48.87557575757347,
+   "median_day": 0.0,
+   "max_dd": 12555.749999999767,
+   "worst_day": -1503.3099999999977,
+   "best_day": 1836.2700000000186,
+   "best_day_share": -0.2276987824370485,
+   "return_dd": -0.0038926846869023657,
+   "avg_ex_top1": -60.004484848482676,
+   "avg_ex_top3": -75.05999999999803,
+   "avg_ex_top5": -87.9395757575738,
+   "positive_day_share": 0.3212121212121212,
+   "matched_beta_avg_day": 29.559460017726938,
+   "matched_beta_excess_per_day": -78.4350357753004,
+   "session_matched_beta": {
+    "portfolio_net_pnl": -8064.469999999623,
+    "ES_avg_rth_contracts": 0.596556537924616,
+    "ES_avg_on_contracts": 0.4581889081455806,
+    "ES_passive_gross": 1873.8282857267852,
+    "ES_passive_net": 1783.4618835510928,
+    "MNQ_avg_rth_contracts": 0.45505774962742174,
+    "MNQ_avg_on_contracts": 0.26506045840101067,
+    "MNQ_passive_gross": 3308.2054504167354,
+    "MNQ_passive_net": 3235.0926049964287,
+    "sessions": 165,
+    "session_matched_net_pnl": 5018.554488547521,
+    "session_matched_gross_pnl": 5182.03373614352,
+    "excess_vs_session_matched_total": -13083.024488547144,
+    "excess_vs_session_matched_per_day": -79.29105750634632
+   },
+   "session_matched_beta_excess_per_day": -79.29105750634632,
+   "avg_contracts_MES": 0.4968653260841289,
+   "avg_contracts_MNQ": 0.31812387815093257,
+   "avg_rth_MES": 0.596556537924616,
+   "avg_on_MES": 0.4581889081455806,
+   "avg_rth_MNQ": 0.45467659376454167,
+   "avg_on_MNQ": 0.265146591565569,
+   "max_contracts_MES": 5,
+   "max_contracts_MNQ": 3,
+   "peak_margin_util": 0.059420650170310174,
+   "peak_overnight_margin_util": 0.059420650170310174,
+   "stress": {
+    "SLIP4": {
+     "net_pnl": -8203.979999999632,
+     "avg_day": -49.72109090908868,
+     "max_dd": 12639.759999999776,
+     "worst_day": -1542.3099999999977
+    },
+    "TIMING_BRITTLENESS_STRESS": {
+     "net_pnl": -8197.729999999632,
+     "avg_day": -49.68321212120989,
+     "max_dd": 12593.009999999776,
+     "worst_day": -1581.5599999999977
+    }
+   },
+   "acceptance": {
+    "envelope": "MODERATE",
+    "sessions": 165,
+    "total_net_pnl": -8064.469999999623,
+    "avg_daily": -48.87557575757347,
+    "max_dd": 12555.749999999767,
+    "worst_day": -1503.3099999999977,
+    "avg_ex_top3": -75.05999999999803,
+    "best_day": 1836.2700000000186,
+    "best_day_share": -0.2276987824370485,
+    "peak_margin_util": 0.059420650170310174,
+    "conditions": {
+     "net_pnl_positive": false,
+     "no_margin_breach": true,
+     "peak_margin_util_le_0.5": true,
+     "max_dd_within_envelope": true,
+     "worst_day_within_envelope": true,
+     "remove_top3_avg_positive": false,
+     "best_day_le_35pct_of_total": false
+    },
+    "PASS": false,
+    "report_only": {
+     "matched_beta_avg": 29.559460017726938,
+     "matched_beta_excess": -78.4350357753004,
+     "stress": {
+      "SLIP4": {
+       "net_pnl": -8203.979999999632,
+       "avg_day": -49.72109090908868,
+       "max_dd": 12639.759999999776,
+       "worst_day": -1542.3099999999977
+      },
+      "TIMING_BRITTLENESS_STRESS": {
+       "net_pnl": -8197.729999999632,
+       "avg_day": -49.68321212120989,
+       "max_dd": 12593.009999999776,
+       "worst_day": -1581.5599999999977
+      }
+     }
+    }
+   },
+   "rolling_3m": {
+    "n_windows": 103,
+    "min": -9319.689999999944,
+    "max": 643.4300000001676,
+    "positive_share": 0.1553398058252427
+   }
+  },
+  "SECONDARY_2": {
+   "portfolio": "P1_CLUSTER_EQUAL_RISK|CONSERVATIVE",
+   "members": [
+    "MNQ_robust_A_MOD_2",
+    "MNQ_arch_A_AGG_0",
+    "MNQ_robust_C_CON_0",
+    "MNQ_r2_C_MOD_1",
+    "ES_robust_A_MOD_1",
+    "ES_r2_F_MOD_2",
+    "ES_r2_A_CON_1",
+    "ES_robust_C_CON_4"
+   ],
+   "sessions": 165,
+   "gross_pnl": 9909.250000000631,
+   "net_pnl": 9690.710000000632,
+   "friction_commission_slippage": 214.8,
+   "roll_cost": 3.74,
+   "contract_sides_MES": 40.0,
+   "contract_sides_MNQ": 125.0,
+   "avg_day": 58.73157575757959,
+   "median_day": 0.0,
+   "max_dd": 6193.4299999995565,
+   "worst_day": -1523.359999999986,
+   "best_day": 2055.1300000000047,
+   "best_day_share": 0.2120721804697355,
+   "return_dd": 0.009482883597228644,
+   "avg_ex_top1": 46.27624242424623,
+   "avg_ex_top3": 23.351878787882477,
+   "avg_ex_top5": 4.016181818185424,
+   "positive_day_share": 0.37575757575757573,
+   "matched_beta_avg_day": 38.36899080086994,
+   "matched_beta_excess_per_day": 20.362584956709654,
+   "session_matched_beta": {
+    "portfolio_net_pnl": 9690.710000000632,
+    "ES_avg_rth_contracts": 0.6823173569101908,
+    "ES_avg_on_contracts": 0.6445515597920277,
+    "ES_passive_gross": 2388.1124691953974,
+    "ES_passive_net": 2359.562217882869,
+    "MNQ_avg_rth_contracts": 0.5319020119225037,
+    "MNQ_avg_on_contracts": 0.3656199242014077,
+    "MNQ_passive_gross": 4185.411633294152,
+    "MNQ_passive_net": 4120.825908906032,
+    "sessions": 165,
+    "session_matched_net_pnl": 6480.388126788901,
+    "session_matched_gross_pnl": 6573.5241024895495,
+    "excess_vs_session_matched_total": 3210.321873211731,
+    "excess_vs_session_matched_per_day": 19.45649620128322
+   },
+   "session_matched_beta_excess_per_day": 19.45649620128322,
+   "avg_contracts_MES": 0.6551078275799277,
+   "avg_contracts_MNQ": 0.4120600400613928,
+   "avg_rth_MES": 0.6823173569101908,
+   "avg_on_MES": 0.6445515597920277,
+   "avg_rth_MNQ": 0.5314564913913448,
+   "avg_on_MNQ": 0.3657387348353553,
+   "max_contracts_MES": 2,
+   "max_contracts_MNQ": 2,
+   "peak_margin_util": 0.07866944694100558,
+   "peak_overnight_margin_util": 0.07866944694100558,
+   "stress": {
+    "SLIP4": {
+     "net_pnl": 9584.190000000614,
+     "avg_day": 58.08600000000372,
+     "max_dd": 6200.199999999604,
+     "worst_day": -1530.109999999986
+    },
+    "TIMING_BRITTLENESS_STRESS": {
+     "net_pnl": 9238.190000000614,
+     "avg_day": 55.98903030303402,
+     "max_dd": 6515.919999999576,
+     "worst_day": -1502.859999999986
+    }
+   },
+   "acceptance": {
+    "envelope": "CONSERVATIVE",
+    "sessions": 165,
+    "total_net_pnl": 9690.710000000632,
+    "avg_daily": 58.73157575757959,
+    "max_dd": 6193.4299999995565,
+    "worst_day": -1523.359999999986,
+    "avg_ex_top3": 23.351878787882477,
+    "best_day": 2055.1300000000047,
+    "best_day_share": 0.2120721804697355,
+    "peak_margin_util": 0.07866944694100558,
+    "conditions": {
+     "net_pnl_positive": true,
+     "no_margin_breach": true,
+     "peak_margin_util_le_0.5": true,
+     "max_dd_within_envelope": true,
+     "worst_day_within_envelope": true,
+     "remove_top3_avg_positive": true,
+     "best_day_le_35pct_of_total": true
+    },
+    "PASS": true,
+    "report_only": {
+     "matched_beta_avg": 38.36899080086994,
+     "matched_beta_excess": 20.362584956709654,
+     "stress": {
+      "SLIP4": {
+       "net_pnl": 9584.190000000614,
+       "avg_day": 58.08600000000372,
+       "max_dd": 6200.199999999604,
+       "worst_day": -1530.109999999986
+      },
+      "TIMING_BRITTLENESS_STRESS": {
+       "net_pnl": 9238.190000000614,
+       "avg_day": 55.98903030303402,
+       "max_dd": 6515.919999999576,
+       "worst_day": -1502.859999999986
+      }
+     }
+    }
+   },
+   "rolling_3m": {
+    "n_windows": 103,
+    "min": -4938.919999999751,
+    "max": 14716.610000000219,
+    "positive_share": 0.30097087378640774
+   }
+  }
+ },
+ "integrity": {
+  "checks_passed": 37,
+  "prefix_qa_max_abs_diff": {
+   "PRIMARY": 4.547473508864641e-13,
+   "SECONDARY_1": 4.547473508864641e-13,
+   "SECONDARY_2": 4.547473508864641e-13
+  },
+  "data_last_session": "2026-05-27"
+ }
+}
