@@ -1,0 +1,4 @@
+{
+ "SIMPLE_BEST_FEASIBLE": "D4|off0.1|lam0.0|mu0.0|max1",
+ "BEST_MAX2_FEASIBLE": "D4|off0.2|lam0.0|mu0.0|max2"
+}

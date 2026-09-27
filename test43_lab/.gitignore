@@ -9,3 +9,6 @@ out/v6/*_5m_bars.parquet
 out/m/*/*.parquet
 out/p/sleeve_*.parquet
 out/p/holdout/*.parquet
+out/t44/bars/
+out/t44/sleeves/
+out/t44/*.npy

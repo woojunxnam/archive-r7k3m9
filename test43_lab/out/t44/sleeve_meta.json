@@ -1,0 +1,79 @@
+{
+ "MNQ_arch_A_AGG_0": {
+  "inst": "MNQ",
+  "max_desired_DEV": 10.0,
+  "mean_desired_when_active_DEV": 4.151742428751893,
+  "active_share_DEV": 0.4560486461541246,
+  "cand_sha256": "0fac501664da5045bd8e56c04c4047bf0dc96b71ab00099145f84fcbe9ed5a4c"
+ },
+ "MNQ_robust_A_MOD_2": {
+  "inst": "MNQ",
+  "max_desired_DEV": 10.0,
+  "mean_desired_when_active_DEV": 4.576329345228744,
+  "active_share_DEV": 0.5471923194092967,
+  "cand_sha256": "94d6e15e51286926a19e1430c38bdf23989638ceb06957e9fc22af22c67b9faa"
+ },
+ "MNQ_r2_C_MOD_1": {
+  "inst": "MNQ",
+  "max_desired_DEV": 3.0,
+  "mean_desired_when_active_DEV": 1.901364981255684,
+  "active_share_DEV": 0.7329709806145317,
+  "cand_sha256": "8835af3fb6d8ea75a39482b748199c02216298c3623195cb2b735f4d6d5f2098"
+ },
+ "MNQ_robust_C_CON_0": {
+  "inst": "MNQ",
+  "max_desired_DEV": 5.0,
+  "mean_desired_when_active_DEV": 1.6395518131604228,
+  "active_share_DEV": 0.40190989241019853,
+  "cand_sha256": "6b60e4d482c8a97cc1e5d1319c73b24f1d1fac59047380f296b76e2a4c8a12a5"
+ },
+ "ES_robust_A_MOD_1": {
+  "inst": "ES",
+  "max_desired_DEV": 16.0,
+  "mean_desired_when_active_DEV": 3.1822848450590304,
+  "active_share_DEV": 0.9825257711011474,
+  "cand_sha256": "e472a139f17eb52b33f2c0e7ae4f7666a8d0466a790aea8efc27238a4152acb2"
+ },
+ "ES_r2_F_MOD_2": {
+  "inst": "ES",
+  "max_desired_DEV": 12.0,
+  "mean_desired_when_active_DEV": 3.101129838859048,
+  "active_share_DEV": 0.9995033164912471,
+  "cand_sha256": "19c1623b2afe5adde0bfbe15ac6067bbc7b1e9bacd86abc807e081e7b1340fa4"
+ },
+ "ES_r2_A_CON_1": {
+  "inst": "ES",
+  "max_desired_DEV": 6.0,
+  "mean_desired_when_active_DEV": 1.9433877882297315,
+  "active_share_DEV": 0.9995334185220806,
+  "cand_sha256": "295b8f3e22bd1a56e1a880a2f92323d37e7444fa11d3bfd611f34e0a139de4a0"
+ },
+ "ES_robust_C_CON_4": {
+  "inst": "ES",
+  "max_desired_DEV": 7.0,
+  "mean_desired_when_active_DEV": 2.366126982406052,
+  "active_share_DEV": 0.9995258930143722,
+  "cand_sha256": "f55f831f394d4cdf55f38c147cb5c71d7b60e41799815c04c37abc73ae77a4a3"
+ },
+ "ES_robust_F_AGG_0": {
+  "inst": "ES",
+  "max_desired_DEV": 38.0,
+  "mean_desired_when_active_DEV": 8.75928486835454,
+  "active_share_DEV": 0.8336938051525646,
+  "cand_sha256": "da9903537d981ec9015f462a7baf0aae5451d550164df4dbbd51b831c7f5bcb9"
+ },
+ "MNQ_arch_E_AGG_0": {
+  "inst": "MNQ",
+  "max_desired_DEV": 20.0,
+  "mean_desired_when_active_DEV": 3.253822837597862,
+  "active_share_DEV": 0.9995762162292595,
+  "cand_sha256": "51abc03cb431d0daf4688b72e3fa3f3d546b17ad70ea739b5f0e646b94bfcd2d"
+ },
+ "ES_r2_G_AGG_0": {
+  "inst": "ES",
+  "max_desired_DEV": 10.0,
+  "mean_desired_when_active_DEV": 9.290147789033796,
+  "active_share_DEV": 0.6410904761689747,
+  "cand_sha256": "f72aa914f5be5299d489042ace37fc90b6dcb1156d3e82af2cbdc741876fdb3f"
+ }
+}

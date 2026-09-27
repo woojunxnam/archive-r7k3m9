@@ -1,0 +1,7 @@
+{
+ "D1_ONE_CONTRACT": "D1|off0.2|max1",
+ "D2_TWO_CONTRACT": "D2|off0.2|th0.33|max1",
+ "D3_CLUSTER_SLOT": "D3|off0.2|slots2|D2|th0.5|mean|max1",
+ "D4_INTEGER_TRACKING": "D4|off0.1|lam0.0|mu0.0|max1",
+ "RESIDUAL": "RES|off0.2|H10|K1|max1"
+}

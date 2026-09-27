@@ -1,0 +1,25 @@
+cap 1 done 72
+cap 2 done 144
+cap 3 done 216
+cap 4 done 288
+   family              config  ALL_avg  ALL_max_dd  ALL_worst  ALL_ret_dd  ALL_excess_vs_mb  Y2020_avg  Y2022_avg  FORMER_HOLDOUT_avg
+BENCHMARK CHAMPION_CONTROL_V1   52.590     6193.43   -1722.99       0.008            29.428     74.835      3.227              58.732
+BENCHMARK   D0_CURRENT_TEST43   75.540    12788.17   -2499.96       0.006            38.072    151.295      1.326             -43.420
+BENCHMARK       D0b_TEST43_P2   64.121    12555.75   -2655.11       0.005            30.582    113.782     11.850             -48.876
+             family                               config  ALL_avg  ALL_max_dd  ALL_worst  ALL_ret_dd  ALL_excess_vs_mb  Y2020_avg  Y2022_avg  FORMER_HOLDOUT_avg  fills_per_day  avg_MES  avg_MNQ  feasible
+D4_INTEGER_TRACKING          D4|off0.2|lam0.5|mu1.0|max4   68.009    14837.11   -3398.49       0.005            30.084    108.822    -22.352              96.723          0.596    0.602    1.455     False
+D4_INTEGER_TRACKING          D4|off0.1|lam0.0|mu0.0|max3   69.711    15326.80   -2882.87       0.005            31.314    120.211    -14.888              86.788          1.124    0.943    1.303     False
+D4_INTEGER_TRACKING         D4|off0.2|lam0.25|mu1.0|max4   67.911    15101.51   -3398.49       0.004            29.984    109.198    -22.891              95.802          0.615    0.598    1.457     False
+           RESIDUAL              RES|off0.2|H130|K2|max2   56.265    12752.56   -3439.60       0.004            23.555     87.195     -7.767              42.910          1.659    0.562    1.230     False
+    D2_TWO_CONTRACT                D2|off0.2|th0.67|max4  101.677    24563.28   -5275.57       0.004            37.244    182.856    -35.824              55.950          1.199    1.751    2.098     False
+    D3_CLUSTER_SLOT  D3|off0.2|slots2|D2|th0.5|mean|max4   78.220    19057.17   -3398.49       0.004            34.303    123.101    -27.013              88.021          0.872    0.691    1.687     False
+    D3_CLUSTER_SLOT D3|off0.2|slots2|D2|th0.67|mean|max4   72.631    17859.61   -3398.49       0.004            30.381    112.476    -26.661              89.394          0.867    0.666    1.623     False
+    D3_CLUSTER_SLOT  D3|off0.2|slots2|D2|th0.5|mean|max3   74.878    18729.19   -3398.49       0.004            32.304    117.923    -30.714              80.421          0.819    0.687    1.627     False
+           RESIDUAL              RES|off0.1|H130|K2|max4   58.914    15385.08   -5221.99       0.004            15.297    116.288    -27.459              99.597          2.618    0.976    1.525     False
+    D2_TWO_CONTRACT                D2|off0.0|th0.67|max3   91.651    24437.99   -5399.74       0.004            23.518    133.181    -63.866             196.479          0.859    2.590    1.839     False
+    D2_TWO_CONTRACT                D2|off0.2|th0.67|max3   82.077    23366.75   -4537.24       0.004            24.927    120.021    -34.510              99.403          0.828    1.608    1.832     False
+           RESIDUAL               RES|off0.1|H40|K2|max2   45.952    13166.12   -3955.48       0.003             9.157     57.408    -33.367              96.561          2.403    0.970    1.211     False
+    D1_ONE_CONTRACT                       D1|off0.2|max3   75.967    23580.11   -4537.24       0.003            21.888    127.224    -58.821              76.124          0.803    1.578    1.706     False
+    D1_ONE_CONTRACT                       D1|off0.0|max3   77.246    24516.50   -5399.74       0.003            11.151    137.741    -65.930              43.639          0.931    2.575    1.754     False
+    D1_ONE_CONTRACT                       D1|off0.2|max4   80.945    26342.81   -5139.83       0.003            23.425    166.072    -60.291              22.453          0.994    1.672    1.818     False
+{'D1_ONE_CONTRACT': 'D1|off0.2|max1', 'D2_TWO_CONTRACT': 'D2|off0.2|th0.33|max1', 'D3_CLUSTER_SLOT': 'D3|off0.2|slots2|D2|th0.5|mean|max1', 'D4_INTEGER_TRACKING': 'D4|off0.1|lam0.0|mu0.0|max1', 'RESIDUAL': 'RES|off0.2|H10|K1|max1'}
