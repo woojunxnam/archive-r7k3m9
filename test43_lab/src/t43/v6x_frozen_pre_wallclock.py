@@ -62,8 +62,6 @@ PARAM_NAMES = [
     "regimeMaxQty", "buyStartMod", "buyEndMod", "rollCostPerContract",
     "coreTierMode", "kBase", "kMid", "kTop", "tacticalMode",
     "ddLimit", "ddFloorQty", "ddRearmLen", "pointValue", "disableMask", "maxActionsPerSess",
-    # ---- TEST43-P wall-clock time base (defaults = native 3m semantics)
-    "barMinutes", "refMinutes", "fillDelayBars",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 
@@ -98,7 +96,6 @@ DEFAULTS = dict(
     regimeMaxQty=0, buyStartMod=570, buyEndMod=954, rollCostPerContract=0.0,
     coreTierMode=0, kBase=0, kMid=0, kTop=0, tacticalMode=1,
     ddLimit=0.0, ddFloorQty=0, ddRearmLen=20, pointValue=5.0, disableMask=0, maxActionsPerSess=0,
-    barMinutes=3, refMinutes=3, fillDelayBars=0,
 )
 
 REASONS = [
@@ -206,14 +203,6 @@ def pine_wpr(h, l, c, n):
 
 
 @njit(cache=True)
-def _wc(x, rmin, bmin):
-    """Convert a count of rmin-minute bars to the running bmin-minute bar size (wall-clock)."""
-    if x <= 0 or rmin == bmin:
-        return x
-    return max(1, int(round(x * rmin / bmin)))
-
-
-@njit(cache=True)
 def _nanmax(a, b):
     if math.isnan(a):
         return b
@@ -297,16 +286,6 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
     coreTierMode = int(prm[89]); kBase = int(prm[90]); kMid = int(prm[91]); kTop = int(prm[92])
     tacticalOn = prm[93] > 0.5
     ddLimit = prm[94]; ddFloorQty = int(prm[95]); ddRearmLen = int(prm[96])
-    # ---- wall-clock conversion: intraday bar counts are specified in refMinutes-bars (frozen research used 3m)
-    # and converted to the running bar size.  Session-count quantities (regimeLen, ddRearmLen) are NOT converted.
-    BMIN = int(prm[100]); RMIN = int(prm[101]); FD = int(prm[102])  # FD: TIMING_BRITTLENESS_STRESS only
-    microDBLookback = _wc(microDBLookback, RMIN, BMIN); strengthBuildBars = _wc(strengthBuildBars, RMIN, BMIN)
-    addCooldownBars = _wc(addCooldownBars, RMIN, BMIN); oppositeSideCooldownBars = _wc(oppositeSideCooldownBars, RMIN, BMIN)
-    antiStallBars = _wc(antiStallBars, RMIN, BMIN); targetDecayBars = _wc(targetDecayBars, RMIN, BMIN)
-    repairLookback = _wc(repairLookback, RMIN, BMIN); repairLifeBars = _wc(repairLifeBars, RMIN, BMIN)
-    coreRotationAgeBars = _wc(coreRotationAgeBars, RMIN, BMIN); rfLookback = _wc(rfLookback, RMIN, BMIN)
-    W15 = max(1, int(round(15.0 / BMIN))); W30 = max(1, int(round(30.0 / BMIN))); W60 = max(1, int(round(60.0 / BMIN)))
-    RB = 64
     hwm = initCap; ddActive = False
     M = intradayMaxQty
     span = float(M - K)
@@ -345,7 +324,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
     pos = 0
 
     # rolling RTH arrays (cap 20) and completed RTH sessions (cap 4)
-    rthH = np.zeros(64); rthL = np.zeros(64); rthN = 0
+    rthH = np.zeros(20); rthL = np.zeros(20); rthN = 0
     compH = np.zeros(4); compL = np.zeros(4); compN = 0
 
     priorRTHHigh = np.nan; priorRTHLow = np.nan
@@ -389,7 +368,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
 
     for i in range(n):
         # ===================== FILL AT THIS BAR'S OPEN (order from bar i-1)
-        if pendingOrderBar >= 0 and pendingOrderBar == i - 1 - FD and pendingOrderQty > 0:
+        if pendingOrderBar >= 0 and pendingOrderBar == i - 1 and pendingOrderQty > 0:
             if pendingOrderSide == 1:
                 px = o[i] + SLIP
                 ok = True
@@ -473,9 +452,8 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
         wr_i = wr2[i]
 
         mod_i = hh[i] * 60 + mm[i]
-        # wall-clock: bar CLOSE time vs the frozen 3m-bar-close anchors (identical on 3m bars)
-        buyWindow = inR and mod_i >= buyStartMod and mod_i + BMIN <= buyEndMod + RMIN
-        trimDecisionBar = mod_i < 972 and mod_i + BMIN >= 972  # first bar closing at/after 16:12
+        buyWindow = inR and mod_i >= buyStartMod and mod_i <= buyEndMod
+        trimDecisionBar = (hh[i] == 16 and mm[i] == 9)  # time_close == 16:12
         inOpeningRangeWindow = inR and hh[i] == 9 and mm[i] < 45
         openingRangeReady = inR and (hh[i] > 9 or (hh[i] == 9 and mm[i] >= 45))
 
@@ -572,11 +550,11 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
         roll15High = np.nan; roll15Low = np.nan; roll30High = np.nan; roll30Low = np.nan
         roll60High = np.nan; roll60Low = np.nan
         if inR and rthN > 0:
-            for k in range(max(0, rthN - W60), rthN):
+            for k in range(max(0, rthN - 20), rthN):
                 age = rthN - k  # 1 = most recent
-                if age <= W15:
+                if age <= 5:
                     roll15High = _nanmax(roll15High, rthH[k]); roll15Low = _nanmin(roll15Low, rthL[k])
-                if age <= W30:
+                if age <= 10:
                     roll30High = _nanmax(roll30High, rthH[k]); roll30Low = _nanmin(roll30Low, rthL[k])
                 roll60High = _nanmax(roll60High, rthH[k]); roll60Low = _nanmin(roll60Low, rthL[k])
         prior4RTHHigh = np.nan; prior4RTHLow = np.nan
@@ -706,7 +684,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
         buyOrderSubmitted = False; sellOrderSubmitted = False
         buyOrderReason = 0; sellOrderReason = 0; buyOrderQty = 0; sellOrderQty = 0
 
-        resolvingPendingOrder = pendingOrderBar >= 0 and i > pendingOrderBar + FD
+        resolvingPendingOrder = pendingOrderBar >= 0 and i > pendingOrderBar
         resolvedOrderSide = pendingOrderSide if resolvingPendingOrder else 0
         resolvedOrderReason = pendingOrderReason if resolvingPendingOrder else 0
         resolvedOrderFilled = resolvingPendingOrder and ((resolvedOrderSide == 1 and actualBuy) or (resolvedOrderSide == -1 and actualSell))
@@ -1038,7 +1016,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
         repairPriceFailedHigher = (repairPending and inR and not math.isnan(repairSellReference)) and (
             c[i] >= repairSellReference + failedRepairRestoreMove)
         repairTimedOut = repairPending and repairAge >= repairLifeBars
-        repairLateSessionRestore = (repairPending and inR and hh[i] == 15) and (mod_i + BMIN >= 951)
+        repairLateSessionRestore = (repairPending and inR and hh[i] == 15) and (mm[i] >= 48)
         failedRepairRestoreSignal = (inventoryLive and inR and repairPending and posNow < repairRestoreCap
                                      and posNow + lotQty <= repairRestoreCap and posNow + lotQty <= intradayMaxQty) and (
             repairPriceFailedHigher or strengthInvalidatesRepair or repairTimedOut or repairLateSessionRestore)
@@ -1115,7 +1093,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                 buyOrderSubmitted = False
                 sellOrderSubmitted = True; sellOrderQty = lotQty; sellOrderReason = 23; cnt[28] += 1
         if overnightMode == 2 or (overnightMode == 3 and not bullRegime):
-            trimNow = (inR and mod_i + BMIN >= 960) or ((not inR) and i > 0 and in_rth[i - 1])
+            trimNow = (inR and mod_i >= 957) or ((not inR) and i > 0 and in_rth[i - 1])
             if trimNow and posNow > K and lastTrimSess != sess[i]:
                 lastTrimSess = sess[i]
                 buyOrderSubmitted = False
@@ -1164,8 +1142,6 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                     pendingInitialOrder = False; pendingInitialBar = -1
             if sellOrderSubmitted and ((disableMask >> sellOrderReason) & 1) == 1:
                 sellOrderSubmitted = False
-        if FD > 0 and pendingOrderBar >= 0:   # stress mode: an in-flight delayed order blocks new submissions
-            buyOrderSubmitted = False; sellOrderSubmitted = False
         if buyOrderSubmitted and buyOrderQty > 0:
             safe = min(buyOrderQty, max(Meff - posNow, 0))
             if safe > 0:
@@ -1182,12 +1158,12 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
 
         # ---------------- push RTH arrays AFTER signals
         if inR:
-            if rthN < RB:
+            if rthN < 20:
                 rthH[rthN] = h[i]; rthL[rthN] = l[i]; rthN += 1
             else:
-                for k in range(RB - 1):
+                for k in range(19):
                     rthH[k] = rthH[k + 1]; rthL[k] = rthL[k + 1]
-                rthH[RB - 1] = h[i]; rthL[RB - 1] = l[i]
+                rthH[19] = h[i]; rthL[19] = l[i]
 
         # ---------------- bookkeeping for next bar
         prev_vwapLowerDeep = vwapLowerDeep
