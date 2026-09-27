@@ -21,3 +21,70 @@ MNQ D AGGRESSIVE trials 1500 feasible 909 best 165.46 saturated None sec 196
 MNQ E AGGRESSIVE trials 1500 feasible 797 best 61.98 saturated None sec 124
 /usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
   optuna_warn(
+MNQ A MODERATE trials 1500 feasible 919 best 73.69 saturated None sec 159
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ D MODERATE trials 1500 feasible 733 best 71.7 saturated None sec 200
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ C MODERATE trials 1500 feasible 580 best 57.03 saturated None sec 188
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ F MODERATE trials 1500 feasible 956 best 90.51 saturated None sec 176
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ E MODERATE trials 1500 feasible 742 best 34.81 saturated None sec 122
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ A CONSERVATIVE trials 1500 feasible 763 best 34.86 saturated None sec 157
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ D CONSERVATIVE trials 1500 feasible 709 best 46.21 saturated None sec 194
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ C CONSERVATIVE trials 1500 feasible 982 best 23.37 saturated None sec 186
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ F CONSERVATIVE trials 1500 feasible 872 best 45.51 saturated None sec 177
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ E CONSERVATIVE trials 1500 feasible 952 best 22.44 saturated None sec 126
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES D AGGRESSIVE trials 1500 feasible 939 best 62.05 saturated None sec 200
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES A AGGRESSIVE trials 1500 feasible 656 best 106.99 saturated None sec 158
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES F AGGRESSIVE trials 1500 feasible 1047 best 30.81 saturated False sec 169
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES C AGGRESSIVE trials 1500 feasible 961 best 47.22 saturated None sec 198
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES E AGGRESSIVE trials 1500 feasible 752 best 39.51 saturated None sec 127
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES A MODERATE trials 1500 feasible 862 best 34.12 saturated None sec 158
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES D MODERATE trials 1500 feasible 884 best 25.81 saturated None sec 207
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES C MODERATE trials 1500 feasible 846 best 33.67 saturated None sec 180
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES F MODERATE trials 1500 feasible 970 best 39.73 saturated None sec 173
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES E MODERATE trials 1500 feasible 600 best 28.75 saturated None sec 127
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES A CONSERVATIVE trials 1500 feasible 1098 best 11.89 saturated True sec 161
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES D CONSERVATIVE trials 1500 feasible 866 best 21.9 saturated None sec 204
+ES C CONSERVATIVE trials 1500 feasible 783 best 24.83 saturated None sec 186
+ES F CONSERVATIVE trials 1500 feasible 746 best 21.64 saturated None sec 166
+ES E CONSERVATIVE trials 1500 feasible 694 best 19.16 saturated None sec 122
