@@ -1,0 +1,125 @@
+{
+ "file": "../data/canonical_1m_ES.parquet",
+ "sha256": "2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116",
+ "rows": 2486058,
+ "schema": {
+  "dt": "timestamp[ns]",
+  "session_date": "timestamp[ns]",
+  "o": "double",
+  "h": "double",
+  "l": "double",
+  "c": "double",
+  "v": "int64",
+  "contract": "string",
+  "cum_adjustment": "double",
+  "session_date_plus6h": "timestamp[ns]",
+  "cal_date": "timestamp[ns]",
+  "roll_adjacent": "bool"
+ },
+ "columns": [
+  "dt",
+  "session_date",
+  "o",
+  "h",
+  "l",
+  "c",
+  "v",
+  "contract",
+  "cum_adjustment",
+  "session_date_plus6h",
+  "cal_date",
+  "roll_adjacent"
+ ],
+ "dt_tz": "None",
+ "first_dt": "2019-05-05 18:01:00",
+ "last_dt": "2026-05-27 17:00:00",
+ "out_of_order_rows": 0,
+ "duplicate_dt": 0,
+ "bad_ohlc_rows": 0,
+ "nonpositive_price_rows": 0,
+ "nan_price_rows": 0,
+ "zero_volume_rows": 0,
+ "negative_volume_rows": 0,
+ "nan_volume_rows": 0,
+ "off_tick_close_rows": 0,
+ "hour17_rows": 1756,
+ "rows_17_01_to_18_00": 0,
+ "sessions": 1825,
+ "sessions_with_rth": 1820,
+ "median_rows_per_session": 1380.0,
+ "median_rth_rows": 390.0,
+ "full_rth_sessions_390": 1725,
+ "partial_rth_sessions_lt_380": 88,
+ "short_rth_sessions_le_225": 62,
+ "missing_rth_minutes_total": 12416,
+ "rth_intra_session_gaps_gt1m": 32,
+ "rth_intra_session_gaps_gt5m": 27,
+ "rth_first_minute_mode": 571,
+ "rth_first_minute_not_0931": 6,
+ "volume_spike_minute_by_month_unique": [
+  571
+ ],
+ "contracts": 29,
+ "contract_switches": 28,
+ "contract_switch_list": [
+  "2019-05-05 18:01:00 ESM9",
+  "2019-06-16 18:01:00 ESU9",
+  "2019-09-15 18:01:00 ESZ9",
+  "2019-12-15 18:01:00 ESH0",
+  "2020-03-16 18:01:00 ESM0",
+  "2020-06-15 18:01:00 ESU0",
+  "2020-09-13 18:01:00 ESZ0",
+  "2020-12-13 18:01:00 ESH1",
+  "2021-03-14 18:01:00 ESM1",
+  "2021-06-13 18:01:00 ESU1",
+  "2021-09-12 18:01:00 ESZ1",
+  "2021-12-12 18:01:00 ESH2",
+  "2022-03-13 18:01:00 ESM2",
+  "2022-06-13 18:01:00 ESU2",
+  "2022-09-12 18:01:00 ESZ2",
+  "2022-12-12 18:01:00 ESH3",
+  "2023-03-13 18:01:00 ESM3",
+  "2023-06-12 18:01:00 ESU3",
+  "2023-09-11 18:01:00 ESZ3",
+  "2023-12-11 18:01:00 ESH4",
+  "2024-03-11 18:01:00 ESM4",
+  "2024-06-17 18:01:00 ESU4",
+  "2024-09-16 18:01:00 ESZ4",
+  "2024-12-16 18:01:00 ESH5",
+  "2025-03-17 18:01:00 ESM5",
+  "2025-06-16 18:01:00 ESU5",
+  "2025-09-15 18:01:00 ESZ5",
+  "2025-12-15 18:01:00 ESH6",
+  "2026-03-16 18:01:00 ESM6"
+ ],
+ "cum_adjustment_unique": 29,
+ "cum_adjustment_first_last": [
+  0.0,
+  -696.25
+ ],
+ "roll_adjacent_rows": 38439,
+ "roll_adjacent_sessions": 28,
+ "abs_1m_close_change_gt_40pts": 55,
+ "abs_1m_close_change_top5": [
+  [
+   "2020-03-16 09:46:00",
+   138.5
+  ],
+  [
+   "2025-04-09 13:20:00",
+   130.25
+  ],
+  [
+   "2026-03-23 07:06:00",
+   118.5
+  ],
+  [
+   "2020-03-13 01:01:00",
+   109.0
+  ],
+  [
+   "2025-04-06 18:03:00",
+   98.75
+  ]
+ ]
+}

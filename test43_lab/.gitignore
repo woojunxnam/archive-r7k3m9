@@ -3,3 +3,5 @@ out/cache/
 __pycache__/
 *.pyc
 authorities/legacy/*.bin
+out/p123/*.parquet
+out/opt/log_*.txt
