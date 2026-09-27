@@ -29,7 +29,7 @@ PARAM_NAMES = [
     "onMode", "onFrac", "onMinTier",
     "dd1", "dd2", "dd3", "ddM1", "ddM2", "ddM3", "ddRearmTier", "ddCooldown",
     "dayStop", "gapK", "shockK", "riskFloorFrac",
-    "minDelta", "cooldownBars", "buyStartMod", "buyEndMod", "tickSize",
+    "minDelta", "cooldownBars", "buyStartMod", "buyEndMod", "tickSize", "delayBars", "lastBarMod",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 DEFAULTS = dict(
@@ -41,7 +41,7 @@ DEFAULTS = dict(
     onMode=1, onFrac=1.0, onMinTier=2,
     dd1=0.0, dd2=0.0, dd3=0.0, ddM1=1.0, ddM2=1.0, ddM3=0.0, ddRearmTier=2, ddCooldown=1,
     dayStop=0.0, gapK=0.0, shockK=0.0, riskFloorFrac=0.0,
-    minDelta=1, cooldownBars=0, buyStartMod=570, buyEndMod=954, tickSize=0.25,
+    minDelta=1, cooldownBars=0, buyStartMod=570, buyEndMod=954, tickSize=0.25, delayBars=0, lastBarMod=957,
 )
 REASONS = ["NONE", "REBAL_UP", "REBAL_DOWN", "ON_TRIM", "DD_CUT", "DAYSTOP", "GAP_EMERG", "VOLSHOCK"]
 
@@ -71,6 +71,8 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
     rearmTier = int(prm[38]); ddCool = int(prm[39])
     dayStop = prm[40]; gapK = prm[41]; shockK = prm[42]; floorF = prm[43]
     minDelta = int(prm[44]); cool = int(prm[45]); bStart = int(prm[46]); bEnd = int(prm[47])
+    delay = int(prm[49]); lastMod = int(prm[50])
+    pendAge = 0
 
     pos = 0
     realized = 0.0
@@ -87,7 +89,9 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
     lastRollSess = -1
     for i in range(n):
         # ---- fill pending order at this bar's open
-        if pend != 0:
+        if pend != 0 and pendAge < delay:
+            pendAge += 1
+        elif pend != 0:
             px = o[i] + SLIP if pend > 0 else o[i] - SLIP
             q = pend
             if q > 0:
@@ -137,7 +141,7 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
             ddMult = m3
         # ---- caps
         rawpx = mref[i]
-        lastR = (inR and mod[i] >= 957) or ((not inR) and i > 0 and in_rth[i - 1])
+        lastR = (inR and mod[i] >= lastMod) or ((not inR) and i > 0 and in_rth[i - 1])
         onSide = (not inR) or lastR
         cap = capON if onSide else capRTH
         mfrac = mOn if onSide else mIn
@@ -235,7 +239,7 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
                     ok = True
                     reason = 1
             if ok:
-                pend = delta; pend_reason = reason
+                pend = delta; pend_reason = reason; pendAge = 0
         pos_arr[i] = pos; eq_arr[i] = eq; tgt_arr[i] = target
         prev_eq = eq
     return pos_arr, eq_arr, tgt_arr, f_bar[:nf], f_qty[:nf], f_px[:nf], f_reason[:nf]

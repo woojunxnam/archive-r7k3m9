@@ -44,10 +44,10 @@ def normalise_1m(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def aggregate_3m(m1: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate END-stamped 1m bars into OPEN-stamped 3m bars (TradingView convention)."""
+def aggregate_3m(m1: pd.DataFrame, minutes: int = 3) -> pd.DataFrame:
+    """Aggregate END-stamped 1m bars into OPEN-stamped N-minute bars (TradingView convention)."""
     open_minute = m1["dt"] - pd.Timedelta(minutes=1)
-    t = open_minute.dt.floor("3min")
+    t = open_minute.dt.floor(f"{minutes}min")
     g = m1.assign(t=t).groupby("t", sort=True)
     agg = {
         "o": ("o", "first"),

@@ -7,8 +7,9 @@ import pandas as pd
 from . import features, instruments, lab, v6a
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "out")
-BARS = {"ES": os.path.join(ROOT, "p123", "ES_3m_bars.parquet"), "MNQ": os.path.join(ROOT, "mnq", "MNQ_3m_bars.parquet")}
-PROF = {"ES": "MES", "MNQ": "MNQ"}
+BARS = {"ES": os.path.join(ROOT, "p123", "ES_3m_bars.parquet"), "MNQ": os.path.join(ROOT, "mnq", "MNQ_3m_bars.parquet"),
+        "ES5": os.path.join(ROOT, "v6", "ES_5m_bars.parquet"), "MNQ5": os.path.join(ROOT, "v6", "MNQ_5m_bars.parquet")}
+PROF = {"ES": "MES", "MNQ": "MNQ", "ES5": "MES", "MNQ5": "MNQ"}
 PERIODS = {
     "DEV": lab.SPLITS["DEV"], "VAL": lab.SPLITS["VAL"], "DV": (None, lab.VAL_END),
     "PRE23": (None, pd.Timestamp("2022-12-31")), "P23": (pd.Timestamp("2023-01-01"), lab.VAL_END),
