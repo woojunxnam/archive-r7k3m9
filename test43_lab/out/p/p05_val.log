@@ -1,0 +1,38 @@
+P0_FULL_UNIVERSE_EQUAL_RISK CONSERVATIVE VAL avg 45.1 dd 5785 pass True
+P0_FULL_UNIVERSE_EQUAL_RISK MODERATE VAL avg 96.5 dd 7440 pass True
+P0_FULL_UNIVERSE_EQUAL_RISK AGGRESSIVE VAL avg 147.8 dd 11240 pass True
+P1_CLUSTER_EQUAL_RISK CONSERVATIVE VAL avg 73.0 dd 2541 pass True
+P1_CLUSTER_EQUAL_RISK MODERATE VAL avg 103.3 dd 7530 pass True
+P1_CLUSTER_EQUAL_RISK AGGRESSIVE VAL avg 168.3 dd 9375 pass True
+P2_STATIC_DIVERSIFIED CONSERVATIVE VAL avg 41.5 dd 2107 pass True
+P2_STATIC_DIVERSIFIED MODERATE VAL avg 118.1 dd 4358 pass True
+P2_STATIC_DIVERSIFIED AGGRESSIVE VAL avg 135.3 dd 7784 pass True
+P2B_STATIC_4SLEEVE CONSERVATIVE VAL avg 71.2 dd 2705 pass True
+P2B_STATIC_4SLEEVE MODERATE VAL avg 112.0 dd 3663 pass True
+P2B_STATIC_4SLEEVE AGGRESSIVE VAL avg 154.3 dd 10263 pass True
+P3_REGIME_ADAPTIVE_25 CONSERVATIVE VAL avg 74.4 dd 2181 pass True
+P3_REGIME_ADAPTIVE_25 MODERATE VAL avg 108.6 dd 4698 pass True
+P3_REGIME_ADAPTIVE_25 AGGRESSIVE VAL avg 229.2 dd 7135 pass True
+P3_REGIME_ADAPTIVE_50 CONSERVATIVE VAL avg 85.0 dd 3442 pass True
+P3_REGIME_ADAPTIVE_50 MODERATE VAL avg 106.2 dd 3375 pass True
+P3_REGIME_ADAPTIVE_50 AGGRESSIVE VAL avg 244.7 dd 6581 pass True
+                  portfolio     risk_env  DEV_avg  DEV_max_dd  DEV_ret_dd  VAL_avg  VAL_max_dd  VAL_worst  VAL_excess_vs_mb  VAL_ret_dd  SLIP4_VAL_avg  TIMING_BRITTLENESS_STRESS_VAL_avg      VAL_env  VAL_PASS
+P0_FULL_UNIVERSE_EQUAL_RISK CONSERVATIVE   49.752     7247.14       0.007   45.108     5784.51   -1668.34            10.377       0.008         43.678                             46.399 CONSERVATIVE      True
+P0_FULL_UNIVERSE_EQUAL_RISK     MODERATE   66.390     9968.50       0.007   96.522     7439.88   -1947.46            49.524       0.013         93.893                             98.018 CONSERVATIVE      True
+P0_FULL_UNIVERSE_EQUAL_RISK   AGGRESSIVE  114.449    14173.73       0.008  147.839    11240.32   -3153.07            60.939       0.013        132.600                            150.940   AGGRESSIVE      True
+      P1_CLUSTER_EQUAL_RISK CONSERVATIVE   49.194     4800.12       0.010   72.976     2540.85   -1654.59            43.926       0.029         71.265                             76.427 CONSERVATIVE      True
+      P1_CLUSTER_EQUAL_RISK     MODERATE   62.915     9410.49       0.007  103.326     7530.10   -2009.97            48.813       0.014        100.789                            106.261     MODERATE      True
+      P1_CLUSTER_EQUAL_RISK   AGGRESSIVE  112.341    12843.66       0.009  168.265     9375.14   -3152.48            86.361       0.018        163.561                            169.894   AGGRESSIVE      True
+      P2_STATIC_DIVERSIFIED CONSERVATIVE   39.633     5828.36       0.007   41.533     2107.22   -1309.72            21.089       0.020         39.798                             42.581 CONSERVATIVE      True
+      P2_STATIC_DIVERSIFIED     MODERATE   70.076     8795.88       0.008  118.090     4358.42   -2269.85            77.260       0.027        114.391                            122.027     MODERATE      True
+      P2_STATIC_DIVERSIFIED   AGGRESSIVE   94.966    12574.86       0.008  135.315     7783.77   -3328.42            71.653       0.017        130.277                            139.313   AGGRESSIVE      True
+         P2B_STATIC_4SLEEVE CONSERVATIVE   58.074     6004.36       0.010   71.208     2705.10   -1616.58            41.527       0.026         68.228                             73.138 CONSERVATIVE      True
+         P2B_STATIC_4SLEEVE     MODERATE   84.488     8021.98       0.011  112.025     3663.38   -1926.23            69.302       0.031        107.194                            116.881 CONSERVATIVE      True
+         P2B_STATIC_4SLEEVE   AGGRESSIVE  117.376    15027.97       0.008  154.250    10263.18   -4075.25            69.056       0.015         94.648                            189.739   AGGRESSIVE      True
+      P3_REGIME_ADAPTIVE_25 CONSERVATIVE   39.486     5734.72       0.007   74.407     2180.84   -1309.72            47.272       0.034         72.552                             76.375 CONSERVATIVE      True
+      P3_REGIME_ADAPTIVE_25     MODERATE   70.980     7699.60       0.009  108.602     4697.78   -2322.97            68.430       0.023        104.824                            112.916     MODERATE      True
+      P3_REGIME_ADAPTIVE_25   AGGRESSIVE   99.716    14053.81       0.007  229.203     7134.59   -4001.44           150.922       0.032        222.806                            233.189   AGGRESSIVE      True
+      P3_REGIME_ADAPTIVE_50 CONSERVATIVE   48.172     6591.19       0.007   84.976     3442.18   -1632.20            52.897       0.025         81.661                             87.089 CONSERVATIVE      True
+      P3_REGIME_ADAPTIVE_50     MODERATE   71.793     8150.47       0.009  106.211     3375.33   -2322.97            68.411       0.031        102.361                            110.173     MODERATE      True
+      P3_REGIME_ADAPTIVE_50   AGGRESSIVE   88.719    14560.90       0.006  244.652     6581.49   -3958.27           166.018       0.037        236.802                            251.136   AGGRESSIVE      True
+{'PRIMARY': 'P2B_STATIC_4SLEEVE|MODERATE', 'SECONDARY_1': 'P2_STATIC_DIVERSIFIED|MODERATE', 'SECONDARY_2': 'P1_CLUSTER_EQUAL_RISK|CONSERVATIVE'}
