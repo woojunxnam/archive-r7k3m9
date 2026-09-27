@@ -1,0 +1,363 @@
+\# TEST22 Final Review — VWAP-Conditioned Classic Indicator / Channel Regimes
+
+
+
+Date: 2026-09-18
+
+Status: COMPLETE — SIX-MARKET UNIVERSE
+
+Timeframe: 5-minute
+
+Universe: ES / NQ / RTY / YM / GC / CL
+
+BTC and SI: excluded by frozen user-directed scope policy
+
+
+
+\#\# Executive result
+
+
+
+TEST22 tested 168 frozen implementations:
+
+\- 6 markets
+
+\- 14 mechanism families
+
+\- LONG + SHORT mirror candidates
+
+\- parity-certified batched native Strategy Tester architecture
+
+\- 12 Deep Backtest files total
+
+
+
+Current partial 2026-09-18 session was excluded.
+
+
+
+Stage-1, completed 1Y:
+
+\- Survivor: 13
+
+\- Borderline A: 13
+
+\- Borderline B: 2
+
+\- Borderline C: 1
+
+\- Reject: 139
+
+\- Total advance: 29 / 168
+
+
+
+After broad-history falsification, intended-micro economics, 4-tick/fill stress, remove-top3 winner stress and portfolio gate:
+
+
+
+NEW MAIN CANDIDATE:
+
+TS22-S01 — NQ T22-07 LONG -\> MNQ
+
+Mechanism: MACD signal-cross snapback LONG with VWAP baseline/context.
+
+
+
+RESEARCH WATCH:
+
+\- T22-W01 — NQ T22-05 LONG -\> MNQ
+
+\- T22-W02 — YM T22-19 LONG -\> MYM
+
+
+
+All other TEST22 implementations: REJECT from Main promotion under V1.
+
+
+
+\#\# Family breadth in Stage-1
+
+
+
+\- F10 CCI zero-line continuation: 5 passes
+
+\- F11 Keltner breakout continuation: 4
+
+\- F1 RSI midline reset: 3
+
+\- F3 MACD histogram acceleration: 3
+
+\- F4 MACD signal-cross snapback: 3
+
+\- F5 ADX/DI trend continuation: 3
+
+\- F8 Bollinger re-entry: 2
+
+\- F13 Choppiness release breakout: 2
+
+\- F2 RSI extreme VWAP reversion: 1
+
+\- F9 Stochastic pullback reset: 1
+
+\- F12 Keltner re-entry: 1
+
+\- F14 ROC reset: 1
+
+
+
+\#\# Strict broad-history compression
+
+
+
+Only three Stage-1 passes remain above PF 1 after the frozen 2023+ intended-micro 4-tick + remove-top3 combination:
+
+
+
+\#\#\# TS22-S01 — NQ T22-07 LONG
+
+
+
+Recent Stage-1:
+
+\- 102 trades
+
+\- PF \~1.627
+
+\- H1 positive
+
+\- H2 positive
+
+\- remove-top3 recent net remains strongly positive
+
+\- class: Survivor
+
+
+
+2023+ actual MNQ 4t:
+
+\- 369 trades
+
+\- net +$8,121.32
+
+\- PF \~1.375
+
+\- 4t + top3 PF \~1.160
+
+\- 4t + top3 net +$3,468.48
+
+
+
+Annual 4t:
+
+\- 2023 +$1,083, PF \~1.27
+
+\- 2024 +$340, PF \~1.07
+
+\- 2025 +$3,411, PF \~1.39
+
+\- 2026 YTD +$3,288, PF \~1.92
+
+
+
+Recent 4t:
+
+\- \~3m: 25 trades, +$1,786, PF \~2.87
+
+\- \~6m: 50 trades, +$2,027, PF \~1.83
+
+\- \~12m: 102 trades, +$3,305, PF \~1.54
+
+
+
+Rolling:
+
+\- 6m positive \~79%
+
+\- 12m positive \~94%
+
+
+
+Full available:
+
+\- 1,460 trades
+
+\- full 4t PF \~1.075
+
+\- full 4t + top3 PF \~0.985
+
+\- pre-2023 4t PF \~0.858
+
+
+
+Interpretation:
+
+MODERN-MARKET CONDITIONAL / ALL-ERA THIN / DISTINCT-NQ-LONG / PORTFOLIO-USEFUL.
+
+
+
+\#\#\# T22-W01 — NQ T22-05 LONG
+
+
+
+2023+:
+
+\- 793 trades
+
+\- 4t net +$3,890
+
+\- 4t PF \~1.076
+
+\- 4t + top3 PF \~1.033
+
+
+
+Weaknesses:
+
+\- 2025 negative
+
+\- recent \~3m slightly negative
+
+\- full 4t + top3 PF \~0.864
+
+\- adding to Main lowers portfolio PF/Sharpe and worsens tail.
+
+
+
+Status:
+
+RESEARCH\_WATCH / THIN-NQ-CONTINUATION.
+
+
+
+\#\#\# T22-W02 — YM T22-19 LONG
+
+
+
+2023+:
+
+\- 603 trades
+
+\- 4t net +$1,040
+
+\- 4t PF \~1.076
+
+\- 4t + top3 PF \~1.015
+
+
+
+Weaknesses:
+
+\- 2026 YTD negative
+
+\- recent \~3m negative
+
+\- full 4t + top3 PF \~0.782
+
+\- standalone edge too thin for direct Main addition.
+
+
+
+Status:
+
+RESEARCH\_WATCH / THIN-MODERN-EDGE / DIVERSIFICATION-INTERESTING.
+
+
+
+\#\# TS22-S01 portfolio gate
+
+
+
+Primary benchmark before TEST22:
+
+Core6 + Shadow7, 2023-01-01 through 2026-09-15, intended micros, 4t.
+
+
+
+Before:
+
+\- Net $28,264.79
+
+\- PF 1.3549
+
+\- Sharpe-like 1.7682
+
+\- MaxDD -$3,702.25
+
+\- Worst day -$644.94
+
+\- Positive months 73.3%
+
+\- Max total virtual gross 6
+
+\- Max MNQ absolute net 3
+
+
+
+After adding TS22-S01:
+
+\- Net $36,386.11
+
+\- PF 1.3591
+
+\- Sharpe-like 1.9672
+
+\- MaxDD -$3,870.24
+
+\- Worst day -$931.18
+
+\- Positive months 73.3%
+
+\- Max total virtual gross remains 6
+
+\- Max MNQ gross / absolute net remains 3 / 3
+
+
+
+Diversification / overlap:
+
+\- calendar daily corr vs aggregate Main \~0.003
+
+\- corr vs existing MNQ bucket \~0.013
+
+\- LC03 position overlap \~0.5%
+
+\- LC04 overlap \~13.0%
+
+\- LC05 overlap \~3.8%
+
+\- TS10-S02 overlap \~28.7%, mostly opposite-direction interaction
+
+\- TS16-S01 overlap \~1.1%
+
+
+
+Interpretation:
+
+TS22-S01 materially improves daily risk-adjusted return without increasing historical peak gross or peak MNQ net exposure.
+
+Tradeoff: worst day and MaxDD worsen modestly.
+
+
+
+\#\# Governance status
+
+
+
+Under LIVE\_PROMOTION\_DEMOTION\_GOVERNANCE\_V2:
+
+TS22-S01 has passed frozen historical, actual-micro, friction, winner-concentration, temporal and portfolio gates.
+
+
+
+Status:
+
+MAIN SHADOW ID + DIRECT-LIVE-ELIGIBLE AT 1 MNQ AFTER EXECUTION MAPPING / ARM AUTHORIZATION.
+
+
+
+No size \>1 is authorized.
+
+
+
+TEST22 complete.
