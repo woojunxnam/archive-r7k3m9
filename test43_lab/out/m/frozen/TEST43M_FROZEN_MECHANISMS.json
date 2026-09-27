@@ -1,0 +1,35 @@
+{
+  "frozen_at": "2026-09-27, after DEV-only discovery; before any VAL feature/label computation",
+  "governance": "DEV only for discovery. VAL evaluated ONCE with these exact definitions; no retune. HOLDOUT closed.",
+  "gate_status": "NO mechanism passed the full DEV information gate (placebo-calibrated |t|, era/fold stability, >=2 horizons). All items below are the strongest DEV candidates, frozen for a one-time VAL diagnostic only; none is eligible for promotion unless it also passes VAL.",
+  "information_candidates": [
+    {"id": "C1", "insts": ["ES", "MNQ"], "hz": "30m", "ev": "L_SWEEP", "metric": "d_ret60", "sign": 1},
+    {"id": "C2", "insts": ["ES", "MNQ"], "hz": "15m", "ev": "L_SWEEP", "metric": "d_ret60", "sign": 1},
+    {"id": "C3", "insts": ["ES", "MNQ"], "hz": "120m", "ev": "UB_ACCEPT", "align": "MULTI_HIGH", "metric": "diff_vs_other_align", "sign": 1},
+    {"id": "C4a", "insts": ["ES"], "hz": "5D", "ev": "UB_FAILED_ACCEPT", "metric": "d_ret60", "sign": -1},
+    {"id": "C4b", "insts": ["ES"], "hz": "OR15", "ev": "U_RETEST_HOLD", "metric": "d_ret60", "sign": -1},
+    {"id": "C5", "insts": ["MNQ"], "hz": "30m", "ev": "DB_FAILED_ACCEPT", "metric": "d_ret60", "sign": 1},
+    {"id": "C6", "insts": ["ES", "MNQ"], "hz": "60m", "state": "COMPRESSION", "metric": "d_frange60", "sign": -1}
+  ],
+  "analog_candidates": [
+    {"id": "A1", "insts": ["ES", "MNQ"], "col": "ABL_SHAPE_ATR_60m+RANGE|k50", "metric": "IC_pooled", "sign": 1},
+    {"id": "A2", "insts": ["MNQ"], "col": "SHAPE_ONLY_RANGE_120m|k100", "metric": "IC_pooled", "sign": 1}
+  ],
+  "mechanisms": [
+    {"name": "O1_ES_LSWEEP30_UP", "inst": "ES", "type": "event", "up": [["30m", "L_SWEEP"]], "down": [], "hold": 20},
+    {"name": "O1_MNQ_LSWEEP30_UP", "inst": "MNQ", "type": "event", "up": [["30m", "L_SWEEP"]], "down": [], "hold": 20},
+    {"name": "O2_ES_UPPERFAIL_DOWN", "inst": "ES", "type": "event", "up": [], "down": [["5D", "UB_FAILED_ACCEPT"], ["OR15", "U_RETEST_HOLD"]], "hold": 20},
+    {"name": "O3_MNQ_DOWNFAIL_LSWEEP_UP", "inst": "MNQ", "type": "event", "up": [["30m", "DB_FAILED_ACCEPT"], ["30m", "L_SWEEP"]], "down": [], "hold": 20},
+    {"name": "O4_ES_ANALOG_A1", "inst": "ES", "type": "analog", "col": "ABL_SHAPE_ATR_60m+RANGE|k50", "conf": ["HIGH", "MED"], "hold": 5},
+    {"name": "O4_MNQ_ANALOG_A1", "inst": "MNQ", "type": "analog", "col": "ABL_SHAPE_ATR_60m+RANGE|k50", "conf": ["HIGH", "MED"], "hold": 5}
+  ],
+  "val_preregistered_sizes": {"up_mult": 1.25, "dn_mult": 0.75, "xHead": 0},
+  "overlays": [
+    {"name": "O1_ES_LSWEEP30_UP|VAL", "inst": "ES", "type": "event", "up": [["30m", "L_SWEEP"]], "down": [], "hold": 20, "up_mult": 1.25, "dn_mult": 1.0, "xHead": 0},
+    {"name": "O1_MNQ_LSWEEP30_UP|VAL", "inst": "MNQ", "type": "event", "up": [["30m", "L_SWEEP"]], "down": [], "hold": 20, "up_mult": 1.25, "dn_mult": 1.0, "xHead": 0},
+    {"name": "O2_ES_UPPERFAIL_DOWN|VAL", "inst": "ES", "type": "event", "up": [], "down": [["5D", "UB_FAILED_ACCEPT"], ["OR15", "U_RETEST_HOLD"]], "hold": 20, "up_mult": 1.0, "dn_mult": 0.75, "xHead": 0},
+    {"name": "O3_MNQ_DOWNFAIL_LSWEEP_UP|VAL", "inst": "MNQ", "type": "event", "up": [["30m", "DB_FAILED_ACCEPT"], ["30m", "L_SWEEP"]], "down": [], "hold": 20, "up_mult": 1.25, "dn_mult": 1.0, "xHead": 0},
+    {"name": "O4_ES_ANALOG_A1|VAL", "inst": "ES", "type": "analog", "col": "ABL_SHAPE_ATR_60m+RANGE|k50", "conf": ["HIGH", "MED"], "hold": 5, "up_mult": 1.25, "dn_mult": 0.75, "xHead": 0},
+    {"name": "O4_MNQ_ANALOG_A1|VAL", "inst": "MNQ", "type": "analog", "col": "ABL_SHAPE_ATR_60m+RANGE|k50", "conf": ["HIGH", "MED"], "hold": 5, "up_mult": 1.25, "dn_mult": 0.75, "xHead": 0}
+  ]
+}

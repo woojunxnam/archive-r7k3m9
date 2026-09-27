@@ -30,6 +30,7 @@ PARAM_NAMES = [
     "dd1", "dd2", "dd3", "ddM1", "ddM2", "ddM3", "ddRearmTier", "ddCooldown",
     "dayStop", "gapK", "shockK", "riskFloorFrac",
     "minDelta", "cooldownBars", "buyStartMod", "buyEndMod", "tickSize", "delayBars", "lastBarMod",
+    "xHead", "xOn",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 DEFAULTS = dict(
@@ -42,6 +43,7 @@ DEFAULTS = dict(
     dd1=0.0, dd2=0.0, dd3=0.0, ddM1=1.0, ddM2=1.0, ddM3=0.0, ddRearmTier=2, ddCooldown=1,
     dayStop=0.0, gapK=0.0, shockK=0.0, riskFloorFrac=0.0,
     minDelta=1, cooldownBars=0, buyStartMod=570, buyEndMod=954, tickSize=0.25, delayBars=0, lastBarMod=957,
+    xHead=0, xOn=0,
 )
 REASONS = ["NONE", "REBAL_UP", "REBAL_DOWN", "ON_TRIM", "DD_CUT", "DAYSTOP", "GAP_EMERG", "VOLSHOCK"]
 
@@ -57,7 +59,7 @@ def make_params(**kw):
 
 @njit(cache=True)
 def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, vwap_z, pos5d, pos_rth,
-           rsi2, gap_atr, bar_range_atr, trend_ok, prm):
+           rsi2, gap_atr, bar_range_atr, trend_ok, xm, prm):
     n = len(c)
     PV = prm[0]; COMM = prm[1]; SLIP = prm[2] * prm[48]; INIT = prm[3]; ROLL = prm[4]
     capRTH = int(prm[5]); capON = int(prm[6]); mU = prm[7]; mIn = prm[8]; mOn = prm[9]
@@ -71,7 +73,7 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
     rearmTier = int(prm[38]); ddCool = int(prm[39])
     dayStop = prm[40]; gapK = prm[41]; shockK = prm[42]; floorF = prm[43]
     minDelta = int(prm[44]); cool = int(prm[45]); bStart = int(prm[46]); bEnd = int(prm[47])
-    delay = int(prm[49]); lastMod = int(prm[50])
+    delay = int(prm[49]); lastMod = int(prm[50]); xHead = int(prm[51]); xOn = prm[52] > 0.5
     pendAge = 0
 
     pos = 0
@@ -148,8 +150,10 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
         mcap = int(math.floor(mU * max(eq, 0.0) / (rawpx * PV * mfrac))) if rawpx > 0 else 0
         allowed = min(cap, mcap)
         vb = (vBon if vBon > 0 else vB) if onSide else vB
+        vcap = 1000000
         if vb > 0 and atrD[i] > 0:
-            allowed = min(allowed, int(math.floor(vb / (PV * atrD[i]))))
+            vcap = int(math.floor(vb / (PV * atrD[i])))
+            allowed = min(allowed, vcap)
         if allowed < 0:
             allowed = 0
         # ---- state fraction
@@ -198,6 +202,14 @@ def kernel(o, h, l, c, mref, roll_day, sess, mod, in_rth, new_rth, tier, atrD, v
         if riskCut:
             frac = min(frac, floorF)
         target = int(math.floor(frac * allowed + 0.5))
+        # ---- TEST43-M external exposure modifier (research only; xm == 1 leaves V6A unchanged)
+        if xm[i] != 1.0 and ((inR and not lastR) or (xOn and onSide)):
+            if xm[i] > 1.0:
+                if (not riskCut) and ddLevel == 0:
+                    ax = min(cap + xHead, mcap, vcap)
+                    target = max(target, min(int(math.floor(target * xm[i] + 0.5)), max(ax, 0)))
+            else:
+                target = int(math.floor(target * xm[i] + 0.5))
         reason = 0
         # ---- overnight decision: last RTH bar (15:57) or first non-RTH bar after RTH (half days)
         if onSide:
@@ -255,7 +267,8 @@ def run(b, f, prm, mref=None, roll_day=None):
     atrD = np.nan_to_num(f["d_ATR20"], nan=0.0)
     out = kernel(b.o.values, b.h.values, b.l.values, b.c.values, np.asarray(mref, float), roll_day, f["sess"], f["mod"],
                  f["in_rth"], f["new_rth"], f["d_TIER"], atrD, f["vwap_z"], f["pos_5d"], f["pos_rth"],
-                 np.nan_to_num(f["rsi2"], nan=50.0), f["gap_atr"], f["bar_range_atr"], trend_ok, prm)
+                 np.nan_to_num(f["rsi2"], nan=50.0), f["gap_atr"], f["bar_range_atr"], trend_ok,
+                 np.asarray(f.get("xm", np.ones(n)), float), prm)
     keys = ["pos", "equity", "target", "f_bar", "f_qty", "f_px", "f_reason"]
     r = dict(zip(keys, out))
     r["f_side"] = np.sign(r["f_qty"]).astype(np.int64)

@@ -1,0 +1,3 @@
+inst,dev_bars,feature_cols_checked,feature_cols_mismatch,mismatch_list,dev_events,val_build_dev_events,events_identical
+ES,664407,105,0,,917621,917621,True
+MNQ,663074,105,0,,921631,921631,True
