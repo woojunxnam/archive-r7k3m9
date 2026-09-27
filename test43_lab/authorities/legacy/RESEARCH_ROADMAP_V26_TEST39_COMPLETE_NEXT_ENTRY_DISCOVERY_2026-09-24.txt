@@ -1,0 +1,383 @@
+\# Research Roadmap V26 — TEST39 Complete / Next Entry Discovery
+
+
+
+Date: 2026-09-24
+
+Status: CURRENT FORWARD ROADMAP AUTHORITY
+
+
+
+This supersedes V25 for forward research planning.
+
+
+
+\#\# 1. Current portfolio
+
+
+
+Primary Main:
+
+CORE6 + SHADOW11 + TEST20\_L2\_ONLY
+
+18 sleeves.
+
+
+
+Secondary:
+
+unchanged.
+
+
+
+No portfolio membership or live authorization changes.
+
+
+
+\#\# 2. TEST39 — COMPLETE
+
+
+
+TEST39:
+
+RTH\_FAST\_CAPTURE\_EXIT\_RESPONSE
+
+
+
+Final authority:
+
+TEST39\_FINAL\_STATUS\_AFTER\_CHATGPT\_V1\_2026-09-24
+
+Drive ID:
+
+1QdycixLjyw62Zt60uST\_ZXK89ObPXmoUdkeYE0FWVFY
+
+
+
+Final conclusions:
+
+
+
+\- FAST\_MFE\_HIGH\_GIVEBACK is descriptively present across 46/48 native-5m RTH/US-window reversion lanes.
+
+\- Early favorable excursion is common.
+
+\- This path shape is not sufficient evidence of positive entry edge.
+
+\- FAST50 / FAST100 / STRUCT50 / STRUCT75 / STRUCT100 are all EXIT\_TREATMENT\_FRAGILE.
+
+\- EXIT\_TREATMENT\_GENERALIZABLE = NONE.
+
+\- Generic hard-TP optimization is CLOSED for this cohort.
+
+\- No portfolio replay is warranted.
+
+\- Historical TEST32 statuses remain unchanged.
+
+
+
+One research signal:
+
+T32-M3-L-C0 / YM / STRUCT50
+
+\= NEW\_EXIT\_VARIANT\_RESEARCH\_SIGNAL / NARROW\_OPTIMUM\_RISK / NOT\_PROMOTED.
+
+
+
+Do not open a dense follow-up TP grid around it.
+
+
+
+\#\# 3. Wave B
+
+
+
+Wave B remains:
+
+PARTIAL-CLOSED / NO ECONOMIC CONCLUSION.
+
+
+
+Do not restart immediately.
+
+
+
+Its completed data/overnight context may be reused later.
+
+
+
+\#\# 4. Forward architecture
+
+
+
+Authority:
+
+SINGLE\_NATIVE\_TIMEFRAME\_RESEARCH\_STANDARD\_V1\_2026-09-24
+
+Drive ID:
+
+1l6z8Z9VAheHh-MpMObAQ-d6QnH161M63wThr\_fDm\_4Y
+
+
+
+Default:
+
+
+
+\- 1m strategy = native 1m
+
+\- 3m strategy = native 3m
+
+\- 5m strategy = native 5m
+
+\- no same-symbol MTF dependency by default
+
+\- no lower-timeframe request architecture by default
+
+\- canonical 1m may be used for offline path diagnostics and deterministic aggregation.
+
+
+
+\#\# 5. Research implication from TEST39
+
+
+
+Do not keep attempting to rescue weak entries through exit engineering.
+
+
+
+Priority returns to:
+
+
+
+ENTRY / BEHAVIOR DISCOVERY.
+
+
+
+Research should seek:
+
+\- different economic behavior
+
+\- different loss behavior
+
+\- different time regime
+
+\- different market regime
+
+rather than another TP rule.
+
+
+
+\#\# 6. Confirmed portfolio behavior gap
+
+
+
+Exact signal-window audit established:
+
+
+
+\- Main entries strictly after 14:30 ET = 0
+
+\- dedicated late-RTH Main sleeves = 0
+
+\- 14:30 entries are only broad-window boundary cases
+
+
+
+Therefore:
+
+
+
+LATE\_RTH\_DISTINCT\_BEHAVIOR = CONFIRMED\_PORTFOLIO\_GAP.
+
+
+
+This is a structural gap, not proof of alpha.
+
+
+
+\#\# 7. Next research-wave priority
+
+
+
+Recommended next entry-discovery theme:
+
+
+
+LATE\_RTH / CLOSING-AUCTION BEHAVIOR
+
+
+
+Reason:
+
+\- confirmed portfolio gap;
+
+\- materially different information/time regime from heavily saturated morning/midday VWAP/OR work;
+
+\- can be studied under single-native-timeframe architecture;
+
+\- no need for overnight lower-TF requests;
+
+\- may provide behavior diversification even on the same index roots.
+
+
+
+Do not copy morning VWAP/OR strategies into later timestamps.
+
+
+
+Future late-RTH research must begin from genuinely late-session mechanisms such as:
+
+\- failed late continuation
+
+\- closing trend acceleration
+
+\- late-day inventory unwind
+
+\- session-extreme rejection/acceptance
+
+\- close-location / range-extension behavior
+
+
+
+These are concept buckets only, not frozen TEST40 candidates or thresholds.
+
+
+
+\#\# 8. Market expansion remains the second major research axis
+
+
+
+After / alongside future planning, preserve:
+
+
+
+GC / CL first
+
+then FX.
+
+
+
+Market expansion is attractive for behavior diversification but should not be used as an excuse to multiply strategy counts.
+
+
+
+Use market-specific session logic when research starts.
+
+
+
+\#\# 9. TEST40
+
+
+
+TEST40 remains UNASSIGNED in this roadmap.
+
+
+
+Before assigning it:
+
+\- perform a compact non-PnL late-RTH mechanism audit;
+
+\- ensure proposed mechanisms are not simple re-timings of saturated VWAP/OR/trend-pullback families;
+
+\- keep the candidate set small.
+
+
+
+\#\# 10. Agent status
+
+
+
+Claude:
+
+IDLE after TEST39 completion.
+
+
+
+GPT Desktop \#1:
+
+IDLE unless time-sensitive Massive 1m archive is still running.
+
+
+
+GPT Desktop \#2:
+
+IDLE.
+
+
+
+ChatGPT:
+
+governance / next-wave freeze.
+
+
+
+Do not create work merely to keep sessions active.
+
+
+
+\#\# 11. Next decision
+
+
+
+The next research decision is between:
+
+
+
+A. Late-RTH entry-behavior wave
+
+B. GC/CL market-expansion entry wave
+
+
+
+Current evidence favors evaluating late-RTH first because it is a confirmed portfolio behavior gap.
+
+
+
+No TEST40 numeric freeze exists yet.
+
+
+
+PORTFOLIO\_MEMBERSHIP\_CHANGED = NO
+
+LIVE\_AUTHORIZATION = NO
+
+
+
+END
+
+\#\# EXT-ADX-01 side experiment — provisional status
+
+
+
+Claude completed the compact external ADX/DI falsification.
+
+
+
+Current status:
+
+\- NQ control = PROVISIONAL\_SURVIVOR\_PENDING\_NULL
+
+\- NQ RTH-bull proxy = PROVISIONAL\_SURVIVOR\_PENDING\_NULL
+
+\- YM control/proxy = REJECT
+
+
+
+Second-pass authority:
+
+EXT\_ADX\_01\_CHATGPT\_SECOND\_PASS\_V1\_2026-09-24
+
+Drive ID:
+
+1sR\_Qpa8nEp5Sw6SXM3HX\_EqBngA0yIacfHQG9\_kI8as
+
+
+
+Before any portfolio gate, run one bounded NQ signal-free null benchmark to separate ADX/DI event value from generic long exposure / wide-stop 0.30R mechanics.
+
+
+
+Do not expand markets or tune parameters before this null test.
+
+

@@ -1,0 +1,501 @@
+\# TEST33 Final Status After ChatGPT V2
+
+
+
+Date: 2026-09-24
+
+Status: RESEARCH COMPLETE / SECOND PASS COMPLETE / NO PORTFOLIO MEMBERSHIP CHANGE / NO LIVE AUTHORIZATION
+
+
+
+\#\# 1. Final technical review
+
+
+
+TEST33 implementation quality is accepted.
+
+
+
+Accepted gates:
+
+\- canonical data extended append-only through 2026-09-23;
+
+\- overlap identity = 100%, prior history unchanged;
+
+\- static audit PASS;
+
+\- TradingView exact compile PASS, 0 errors / 0 warnings;
+
+\- Pine/Python bar/state/signal parity PASS, 0 mismatches;
+
+\- execution probe PASS across 64 lanes;
+
+\- 8/8 predeclared Deep sentinels PASS on identical TradingView bars;
+
+\- source / PnL authority frozen before PnL;
+
+\- canonical/Python bulk replay executed only after the gates passed.
+
+
+
+The TradingView Deep UI-label runner correction is an infrastructure fix, not a strategy rule change.
+
+
+
+\#\# 2. Implementation interpretation second pass
+
+
+
+Claude documented several pre-PnL implementation readings.
+
+
+
+Most are accepted as consistent with the frozen intent:
+
+\- E6 contiguous-session prefix;
+
+\- SAME\_BAR\_REJECT only;
+
+\- separation may occur on anchor bar but cannot be the later retest;
+
+\- first qualified retest only;
+
+\- failed HOLD ends the pending sequence;
+
+\- M3/M6/M7 retest cap at anchor+12, HOLD allowed on the adjacent following bar;
+
+\- M3 stabilization at anchor+1;
+
+\- latest same-family/side event replaces pending anchor.
+
+
+
+One wording ambiguity is noted:
+
+
+
+E3 used the previous 20 contiguous completed 5m bars from the CURRENT DAY session only.
+
+
+
+The numeric freeze said "20 immediately prior contiguous complete 5m bars" but did not explicitly state "same-session only."
+
+
+
+Governance:
+
+\- retain Claude's same-session implementation as TEST33 V1 because it was documented and frozen before PnL;
+
+\- do not post-hoc change it;
+
+\- record the wording lesson for future Waves: every rolling intraday baseline must explicitly say SAME\_SESSION or CROSS\_SESSION;
+
+\- no TEST33 rerun is required because the only strict standalone survivor is M6-S-A1/NQ, not an M3/E3 implementation.
+
+
+
+\#\# 3. TEST33 research result
+
+
+
+64 market/candidate lanes:
+
+\- Stage-1 SURVIVOR: 11
+
+\- BORDERLINE: 11
+
+\- REJECT: 42
+
+\- strict standalone survivors: 1
+
+
+
+Only strict survivor:
+
+
+
+T33-M6-S-A1
+
+NQ
+
+SHORT
+
+Compression release -\> event AVWAP separation -\> first qualified retest -\> HOLD
+
+Primary shell
+
+Intended execution: MNQ
+
+
+
+\#\# 4. Standalone survivor evidence
+
+
+
+T33-M6-S-A1 / NQ:
+
+
+
+LATEST\_1Y:
+
+\- 45 canonical trades
+
+\- PF 1.96 native
+
+\- both halves positive
+
+
+
+MODERN 2023+:
+
+\- 191 trades
+
+\- micro 4t net +$3,888.48
+
+\- micro 4t PF 1.404
+
+\- micro 4t remove-top3 +$1,648.14
+
+\- approximate stressed expectancy after top3 removal: +$8.8/trade
+
+
+
+TradingView finalist Deep:
+
+\- strict gate independently remains positive at +$1,324.92.
+
+
+
+Weaknesses:
+
+\- PRE\_2023 micro 4t = -$506.78;
+
+\- 2021 and 2022 negative;
+
+\- 2023 approximately flat/slightly negative;
+
+\- rolling 12m positive only 59.5%;
+
+\- best of 64 lanes on the strict-gate metric, so multiple-comparison / false-discovery risk is material;
+
+\- post-freeze extension is positive (+$688 / 16 trades) but does not erase the historical instability.
+
+
+
+Final standalone label:
+
+
+
+STANDALONE\_SURVIVOR = YES
+
+EDGE\_STRENGTH = THIN / RECENT-BIASED
+
+PORTABILITY = MARKET\_SPECIFIC\_NQ
+
+PERSONAL\_DEPLOYMENT\_STATUS = RESEARCH\_WATCH / PERSONAL\_CANDIDATE
+
+LIVE\_AUTHORIZATION = NO
+
+
+
+\#\# 5. AVWAP incremental claim
+
+
+
+The broad TEST33 hypothesis is NOT supported as portable.
+
+
+
+M1:
+
+A1 generally worsened the control.
+
+
+
+M3:
+
+mixed.
+
+
+
+M6:
+
+mixed overall, but NQ SHORT A1 is the one strict survivor.
+
+
+
+M7:
+
+A1 consistently loses less than C0, but both arms lose on every market.
+
+
+
+Final mechanism statement:
+
+
+
+EVENT\_AVWAP\_PORTABLE\_ALPHA = NO
+
+EVENT\_AVWAP\_MARKET\_SPECIFIC\_ALPHA = YES, narrow evidence only in NQ M6 SHORT
+
+FAMILY\_LEVEL\_PROMOTION = NO
+
+
+
+\#\# 6. Structural exit
+
+
+
+For T33-M6-S-A1/NQ, the preregistered structural exit:
+
+\- materially reduces MAE;
+
+\- reduces worst day;
+
+\- reduces median underwater time;
+
+\- but cuts micro 4t net by approximately $1,469;
+
+\- leaves only +$179 after 4t + remove-top3 stress;
+
+\- truncates both winners and losers heavily.
+
+
+
+Final:
+
+STRUCTURAL\_EXIT\_REPLACES\_PRIMARY\_SHELL = NO
+
+STRUCTURAL\_EXIT = ATTRIBUTION\_ONLY / NOT PREFERRED
+
+
+
+\#\# 7. Personal portfolio gate
+
+
+
+\#\#\# Primary Main
+
+
+
+Current authority:
+
+CORE6 + SHADOW11 + TEST20\_L2\_ONLY.
+
+
+
+Exact base reproduced:
+
+3,007 trades / $58,008.61 / PF 1.4663 / MaxDD -$4,739.63.
+
+
+
+With T33-M6-S-A1 at 1 MNQ:
+
+\- Net +$3,492.42
+
+\- Sharpe-like +0.0882
+
+\- PF declines 1.4663 -\> 1.4594
+
+\- Event MaxDD worsens by about $139
+
+\- worst day unchanged
+
+\- positive weeks improve 56.0% -\> 57.0%
+
+\- NQ net share increases 84.57% -\> 85.44%
+
+\- max NQ gross rises 4 -\> 5
+
+\- daily correlation only 0.0131
+
+\- bottom-5% tail-day overlap = 0
+
+\- marginal-net bootstrap 95% CI includes zero: approximately -$848 to +$8,536.
+
+
+
+Final Primary classification:
+
+MARGINAL\_MIXED / DO\_NOT\_ADD.
+
+
+
+\#\#\# Secondary
+
+
+
+Exact base reproduced:
+
+3,433 trades / $191,543.38 / PF 1.4317 / MaxDD -$19,376.60.
+
+
+
+With candidate at 2 MNQ:
+
+\- Net +$6,984.84
+
+\- Sharpe-like improves modestly
+
+\- Event MaxDD improves by about $456
+
+\- PF declines 1.4317 -\> 1.4291
+
+\- positive completed weeks decline 59.1% -\> 58.5%
+
+\- max NQ gross rises 10 -\> 12
+
+\- max NQ absolute net rises 8 -\> 10
+
+\- candidate PnL on Secondary base loss days is negative.
+
+
+
+Final Secondary classification:
+
+MARGINAL\_MIXED / DO\_NOT\_ADD.
+
+
+
+\#\# 8. Prop interpretation — corrected governance
+
+
+
+The 1-MNQ path itself is not weak:
+
+\- p95 MAE ≈ $233 = 11.7% of a $2,000 reference;
+
+\- worst open trade drawdown ≈ $677 = 33.8%;
+
+\- zero candidate-alone rolling starts crossed static -$2,000.
+
+
+
+But cadence is sparse:
+
+\- median calendar gap 5 days;
+
+\- p90 gap 15 days;
+
+\- max gap 50 days;
+
+\- 70 gaps of 7+ days.
+
+
+
+Claude's existing firm engines produced zero standalone evaluation passes, dominated by inactivity handling.
+
+
+
+Second-pass governance:
+
+\- this is valid evidence that T33-M6-S-A1 is NOT a self-contained standalone Prop evaluation strategy;
+
+\- it is NOT sufficient evidence to reject the candidate as a sleeve inside a multi-strategy Prop portfolio;
+
+\- the intended Prop research objective is account-level portfolio behavior, where other sleeves can supply cadence;
+
+\- there is currently no frozen supported Prop base, so an exact incremental Prop-portfolio gate cannot be run.
+
+
+
+Final Prop labels:
+
+
+
+STANDALONE\_PROP\_STRATEGY = NOT\_SUPPORTED
+
+PROP\_PATH\_AT\_1\_MNQ = NOT\_WEAK
+
+PROP\_PORTFOLIO\_COMPATIBILITY = WATCH
+
+MFFU\_INCREMENTAL\_PORTFOLIO\_GATE = PENDING\_SUPPORTED\_BASE
+
+LUCID\_INCREMENTAL\_PORTFOLIO\_GATE = PENDING\_SUPPORTED\_BASE
+
+
+
+Do not use the standalone inactivity result as a final portfolio-level rejection.
+
+
+
+\#\# 9. Exit-response curve
+
+
+
+Under the new forward standard:
+
+SURVIVOR\_EXIT\_RESPONSE\_CURVE\_STANDARD\_V1\_2026-09-24
+
+Drive ID:
+
+1ySvN1uUsUyafiA0sPqOdUhZJ8SC9Obqjv44necwWbH4
+
+
+
+T33-M6-S-A1 is technically eligible for a post-completion BASE vs 0.50..2.00 ATR\_PREV hard-TP response curve.
+
+
+
+However:
+
+\- TEST33 is closed without requiring this extra attribution;
+
+\- the curve cannot alter the TEST33 standalone-survivor decision;
+
+\- it cannot rescue portfolio promotion;
+
+\- if later run, classify it as POST\_TEST33\_EXIT\_ATTRIBUTION, not a reopened discovery test.
+
+
+
+\#\# 10. Final lifecycle
+
+
+
+T33-M6-S-A1 / NQ SHORT:
+
+
+
+STANDALONE\_SURVIVOR
+
+MARKET\_SPECIFIC\_NQ
+
+THIN\_RECENT\_BIASED\_EDGE
+
+RESEARCH\_WATCH
+
+PERSONAL\_CANDIDATE
+
+CURRENT\_PRIMARY\_ADDITION = NO
+
+CURRENT\_SECONDARY\_ADDITION = NO
+
+STANDALONE\_PROP = NO
+
+PROP\_PORTFOLIO\_COMPATIBILITY\_WATCH = YES
+
+LIVE = NO
+
+
+
+TEST33:
+
+COMPLETE
+
+
+
+PORTFOLIO\_MEMBERSHIP\_CHANGED = NO
+
+LIVE\_AUTHORIZATION = NO
+
+
+
+Forward work:
+
+Wave A = TEST34 + TEST35 + TEST37, already authorized for parallel non-PnL research.
+
+
+
+END

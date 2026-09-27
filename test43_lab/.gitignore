@@ -1,0 +1,5 @@
+data/
+out/cache/
+__pycache__/
+*.pyc
+authorities/legacy/*.bin

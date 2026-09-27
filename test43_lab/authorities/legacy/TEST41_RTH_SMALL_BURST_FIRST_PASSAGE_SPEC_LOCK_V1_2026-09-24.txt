@@ -1,0 +1,1437 @@
+\# TEST41 — RTH SMALL-BURST FIRST-PASSAGE DISCOVERY — SPEC LOCK V1
+
+
+
+Date: 2026-09-24
+
+Status: LOCKED BEFORE TEST41 PNL
+
+PNL\_OPENED = NO
+
+TEST40\_STATUS = UNASSIGNED
+
+PORTFOLIO\_MEMBERSHIP\_CHANGED = NO
+
+LIVE\_AUTHORIZATION = NO
+
+
+
+\#\# 1. Research objective
+
+
+
+Primary question:
+
+
+
+Find causal entry conditions where a bounded small target is reached before a comparably bounded stop materially more often than a signal-free causal null benchmark, after realistic intended-micro friction.
+
+
+
+This is NOT:
+
+\- an "80% win-rate" search;
+
+\- an exit-optimization exercise;
+
+\- a Trader Tom replication;
+
+\- a new VWAP/OR threshold grid;
+
+\- a multi-timeframe study.
+
+
+
+The central object is short-horizon ENTRY INFORMATION.
+
+
+
+\#\# 2. Why TEST41 is distinct
+
+
+
+TEST39 established:
+
+EARLY FAVORABLE EXCURSION \!= ROBUST ENTRY EDGE.
+
+
+
+Do not rescue weak entries through exit optimization.
+
+
+
+EXT-ADX-01 established:
+
+ADX/DI event/day selection can contain information, but the source-constrained NQ implementation used a wide structural stop and produced only thin modern portfolio value.
+
+
+
+TEST41 therefore normalizes both sides of the immediate burst:
+
+small fixed target versus equal fixed stop.
+
+
+
+Trader Tom concepts are used only to motivate causal price-action entry families such as proof-first structure, micro pullback resumption and directional expansion.
+
+Winner pyramiding, trailing, discretionary management and long-tail capture are OUT OF TEST41 V1.
+
+
+
+\#\# 3. Primary universe
+
+
+
+Phase A only:
+
+
+
+ES -\> MES
+
+NQ -\> MNQ
+
+RTY -\> M2K
+
+YM -\> MYM
+
+
+
+Directions:
+
+LONG and SHORT are separate explicit hypotheses.
+
+
+
+No automatic assumption of direction symmetry.
+
+
+
+GC / CL are NOT authorized in TEST41 V1.
+
+They remain possible later market-expansion follow-up only after Phase A methodology survives and the user explicitly authorizes expansion.
+
+
+
+\#\# 4. Timeframe / Pine architecture
+
+
+
+Exactly native 5-minute strategy state.
+
+
+
+ONE STRATEGY = ONE NATIVE TIMEFRAME.
+
+
+
+No same-symbol MTF dependency.
+
+
+
+Prohibited in TEST41 Pine:
+
+\- request.security()
+
+\- request.security\_lower\_tf()
+
+\- same-symbol ticker.\* alternate-feed architecture
+
+\- daily/15m requested state
+
+\- internal synthetic 1m strategy clock
+
+\- mixed 3m/5m/15m execution clocks
+
+
+
+Canonical 1m is allowed OFFLINE only for:
+
+\- exact first-passage TP/SL ordering;
+
+\- gap-through handling;
+
+\- 1m timing buckets;
+
+\- MAE/MFE and path diagnostics.
+
+
+
+This does not make TEST41 a 1m+5m strategy.
+
+
+
+Pine runs on the native 5m RTH research chart/session and must reproduce signal/entry clocks.
+
+Python/canonical replay is the economic authority for intrabar first passage.
+
+
+
+\#\# 5. DAY / session clock
+
+
+
+Use project DAY / RTH research session:
+
+
+
+09:30 through 15:45 America/New\_York,
+
+with the existing published half-day/calendar authority.
+
+
+
+For TEST41 entries:
+
+
+
+signal bars may open from 09:30 through 14:20 ET.
+
+
+
+Entry:
+
+next adjacent valid 5m open.
+
+
+
+Valid entry times:
+
+09:35 through 14:25 ET inclusive.
+
+
+
+No entry at or after 14:30 ET.
+
+
+
+Reason:
+
+\- keeps every 15-minute burst resolved by 14:45;
+
+\- avoids terminal-flat interaction;
+
+\- preserves the confirmed strictly-after-14:30 portfolio gap for future TEST40 late-RTH research.
+
+
+
+Maximum:
+
+one accepted entry per candidate / direction / market / session.
+
+First eligible signal only.
+
+
+
+Missing/partial next bar:
+
+fail closed.
+
+
+
+No DCA.
+
+No pyramiding.
+
+
+
+\#\# 6. Prior-session regime states
+
+
+
+Two frozen regime arms only.
+
+
+
+\#\#\# R0 — NO REGIME FILTER
+
+
+
+All otherwise valid signals are eligible.
+
+
+
+\#\#\# R1 — PRIOR-DAY CLOSE MOMENTUM ALIGNMENT
+
+
+
+Use ONLY completed prior valid project DAY sessions accumulated from the same native 5m stream.
+
+
+
+Let:
+
+C1 = immediately previous valid completed DAY session terminal close.
+
+C2 = second previous valid completed DAY session terminal close.
+
+
+
+LONG:
+
+C1 \> C2
+
+
+
+SHORT:
+
+C1 \< C2
+
+
+
+Equality:
+
+no R1 trade.
+
+
+
+Missing prior-session state:
+
+no R1 trade.
+
+
+
+"Previous day" means previous valid completed research session, not previous calendar date.
+
+
+
+R1 uses no Daily timeframe request and no daily feed.
+
+
+
+No threshold, percentage change, ATR normalization or magnitude filter is added.
+
+
+
+R0 and R1 are both retained so regime value is attributable.
+
+
+
+No additional regime filters are authorized in V1.
+
+
+
+\#\# 7. Frozen mechanism families
+
+
+
+Exactly FOUR mechanism families.
+
+
+
+Each family is tested LONG and SHORT.
+
+
+
+\#\#\# M1 — ADX/DI TREND-STRENGTH BURST
+
+
+
+Reuse the custom ADX/DI source math from EXT-ADX:
+
+length = 14
+
+strategy threshold = ADX \> 25
+
+no ta.dmi substitution.
+
+
+
+TEST41 state is updated on the native 5m RTH stream.
+
+
+
+LONG:
+
+A/C case:
+
+DI+ crosses above DI-
+
+AND ADX \> 25
+
+\-\> confirm.
+
+
+
+Pending case:
+
+DI+ crosses above DI- while ADX \<=25
+
+\-\> pending bullish state.
+
+
+
+Pending cancels if DI+ \<= DI-.
+
+
+
+If ADX later crosses from \<=25 to \>25 while DI+ \> DI-
+
+\-\> confirm.
+
+
+
+SHORT:
+
+exact directional inverse:
+
+DI- crosses above DI+;
+
+pending while ADX \<=25;
+
+pending cancels if DI- \<= DI+;
+
+ADX crossing \>25 while DI- \> DI+ confirms.
+
+
+
+Signal:
+
+confirmation bar close.
+
+
+
+This is a TEST41 equal-risk first-passage study, NOT a rerun of EXT-ADX's structural-stop / 0.30R strategy.
+
+
+
+\#\#\# M2 — MICRO SHALLOW RETEST -\> RESUME
+
+
+
+Purpose:
+
+a deliberately micro, proof-first 3-bar geometry.
+
+No VWAP, ATR, ER, MA, RVOL, OR or long trend lookback.
+
+
+
+This is NOT the legacy TEST14/21/28 path-efficiency shallow-pullback family.
+
+
+
+On signal bar t:
+
+
+
+LONG:
+
+1\. impulse bar t-2:
+
+   Close\[t-2\] \> Open\[t-2\]
+
+   AND Close\[t-2\] \> max(High\[t-5\], High\[t-4\], High\[t-3\]).
+
+2\. pullback bar t-1:
+
+   Close\[t-1\] \< Open\[t-1\]
+
+   AND Low\[t-1\] \>= (High\[t-2\] + Low\[t-2\]) / 2.
+
+3\. prove-first resume bar t:
+
+   Close\[t\] \> Open\[t\]
+
+   AND Close\[t\] \> High\[t-1\].
+
+
+
+SHORT:
+
+exact inverse:
+
+1\. t-2 bearish and closes below min(Low\[t-5\], Low\[t-4\], Low\[t-3\]).
+
+2\. t-1 bullish and High\[t-1\] \<= midpoint of t-2 range.
+
+3\. t bearish and Close\[t\] \< Low\[t-1\].
+
+
+
+Signal:
+
+bar t close.
+
+
+
+No additional efficiency threshold or pullback-depth grid.
+
+
+
+\#\#\# M3 — CONFIRMED MICRO STRUCTURE TRANSITION BREAK
+
+
+
+Purpose:
+
+mechanically translate Trader Tom-style structure break without discretionary swing selection.
+
+
+
+Use confirmed 3-bar pivots only.
+
+
+
+A pivot high at bar j becomes known only after bar j+1 completes:
+
+High\[j\] \> High\[j-1\]
+
+AND High\[j\] \>= High\[j+1\].
+
+
+
+A pivot low at bar j becomes known only after bar j+1 completes:
+
+Low\[j\] \< Low\[j-1\]
+
+AND Low\[j\] \<= Low\[j+1\].
+
+
+
+Maintain the two most recent confirmed pivot highs and two most recent confirmed pivot lows.
+
+
+
+LONG setup:
+
+\- bearish microstructure exists:
+
+  most recent confirmed pivot high \< previous confirmed pivot high
+
+  AND
+
+  most recent confirmed pivot low \< previous confirmed pivot low.
+
+\- current completed signal bar closes at least one market tick ABOVE the most recent confirmed pivot high.
+
+\- current signal bar is bullish.
+
+
+
+SHORT:
+
+exact inverse:
+
+\- most recent pivot high \> previous pivot high
+
+\- most recent pivot low \> previous pivot low
+
+\- current completed bar closes at least one tick BELOW the most recent confirmed pivot low
+
+\- current signal bar bearish.
+
+
+
+No hindsight swing relabeling.
+
+Once a pivot is confirmed, later bars cannot move that pivot backward.
+
+
+
+Signal:
+
+structure-break bar close.
+
+
+
+\#\#\# M4 — DIRECTIONAL EXPANSION / EXTENDED-BAR BURST
+
+
+
+Purpose:
+
+test immediate continuation after a locally exceptional, efficient directional bar.
+
+
+
+No VWAP, OR, MA, ATR or volume filter.
+
+
+
+For current completed signal bar t:
+
+
+
+range\_t = High\[t\] - Low\[t\].
+
+body\_t = abs(Close\[t\] - Open\[t\]).
+
+
+
+LONG:
+
+\- Close\[t\] \> Open\[t\]
+
+\- range\_t \> max(range\[t-1\], range\[t-2\], range\[t-3\])
+
+\- body\_t / range\_t \>= 2/3
+
+\- (Close\[t\] - Low\[t\]) / range\_t \>= 0.75
+
+\- Close\[t\] \> max(High\[t-1\], High\[t-2\], High\[t-3\])
+
+
+
+SHORT:
+
+exact inverse:
+
+\- Close\[t\] \< Open\[t\]
+
+\- same range condition
+
+\- body/range \>= 2/3
+
+\- (Close\[t\] - Low\[t\]) / range\_t \<= 0.25
+
+\- Close\[t\] \< min(Low\[t-1\], Low\[t-2\], Low\[t-3\])
+
+
+
+Zero-range bar:
+
+invalid.
+
+
+
+No separate "maturity" threshold in V1.
+
+Do not add one after PnL.
+
+
+
+\#\# 8. Candidate matrix
+
+
+
+Markets: 4
+
+Mechanisms: 4
+
+Directions: 2
+
+Regimes: 2
+
+
+
+TOTAL PRIMARY LANES = 64.
+
+
+
+ID format:
+
+
+
+T41-M{1..4}-{L|S}-R{0|1}-{MARKET}
+
+
+
+Example:
+
+T41-M4-L-R1-NQ
+
+
+
+Each lane is independent.
+
+Do not suppress a signal because another TEST41 lane fired.
+
+
+
+\#\# 9. Fixed equal-risk burst levels
+
+
+
+Market-price barriers are frozen at approximately $50 gross per intended micro:
+
+
+
+ES / MES:
+
+TP = +10.00 ES points
+
+SL = -10.00 ES points
+
+
+
+NQ / MNQ:
+
+TP = +25.00 NQ points
+
+SL = -25.00 NQ points
+
+
+
+RTY / M2K:
+
+TP = +10.00 RTY points
+
+SL = -10.00 RTY points
+
+
+
+YM / MYM:
+
+TP = +100 YM points
+
+SL = -100 YM points
+
+
+
+No target/stop grid.
+
+
+
+Current CME contract economics verified before freeze:
+
+MES = $5/index point; 0.25 tick = $1.25.
+
+MNQ = $2/index point; 0.25 tick = $0.50.
+
+M2K = $5/index point; 0.10 tick = $0.50.
+
+MYM = $0.50/index point; 1 point tick = $0.50.
+
+
+
+\#\# 10. Entry reference and barrier semantics
+
+
+
+entry\_ref =
+
+next adjacent valid native 5m OPEN.
+
+
+
+The equal gross barriers are defined from entry\_ref, before execution friction:
+
+
+
+LONG:
+
+TP\_REF = entry\_ref + market\_target
+
+SL\_REF = entry\_ref - market\_target
+
+
+
+SHORT:
+
+TP\_REF = entry\_ref - market\_target
+
+SL\_REF = entry\_ref + market\_target
+
+
+
+Costs/slippage do NOT move the reference barriers.
+
+This preserves the first-passage question independently of friction assumptions.
+
+
+
+\#\# 11. First-passage path authority
+
+
+
+Canonical 1m OHLC is the intrabar authority.
+
+
+
+Observe exactly the first 15 wall-clock minutes after entry:
+
+the 15 one-minute bars whose opens are entry\_time through entry\_time + 14 minutes.
+
+
+
+For each trade classify:
+
+
+
+TP\_FIRST
+
+SL\_FIRST
+
+NEITHER\_TIMEOUT
+
+
+
+If both TP\_REF and SL\_REF are touched in the same 1m bar:
+
+ADVERSE FIRST.
+
+
+
+Gap-through:
+
+\- stop gaps use the worse 1m open when it is beyond the stop;
+
+\- favorable target gaps receive no price improvement beyond TP\_REF.
+
+
+
+If neither barrier is hit:
+
+TIMEOUT exit reference = close of the 15th 1m bar.
+
+
+
+Required timing diagnostics:
+
+TP \<=1m
+
+TP \<=3m
+
+TP \<=5m
+
+TP \<=10m
+
+TP \<=15m
+
+
+
+Also report stop timing using the same buckets.
+
+
+
+\#\# 12. Intended-micro economics
+
+
+
+Inherit TEST21 micro-cost authority:
+
+
+
+MES:
+
+RT fee $1.22; tick value $1.25.
+
+
+
+MNQ:
+
+RT fee $1.22; tick value $0.50.
+
+
+
+M2K:
+
+RT fee $1.22; tick value $0.50.
+
+
+
+MYM:
+
+RT fee $1.22; tick value $0.50.
+
+
+
+Two fixed friction views only:
+
+
+
+BASE:
+
+1 tick adverse per fill
+
+\+ actual micro RT fee.
+
+
+
+4T:
+
+4 ticks adverse per fill
+
+\+ actual micro RT fee.
+
+
+
+No fee tuning.
+
+
+
+Execution fill:
+
+entry\_ref plus adverse slippage in trade direction.
+
+
+
+TP/SL/TIMEOUT exit reference receives adverse exit slippage.
+
+
+
+No positive slippage.
+
+
+
+\#\# 13. Required metrics
+
+
+
+Per lane:
+
+
+
+signal count
+
+completed trade count
+
+TP\_FIRST %
+
+SL\_FIRST %
+
+NEITHER\_TIMEOUT %
+
+resolved TP-first share = TP / (TP + SL)
+
+BASE net / PF / expectancy
+
+4T net / PF / expectancy
+
+win rate after costs
+
+median time-to-TP
+
+median time-to-SL
+
+TP timing buckets
+
+SL timing buckets
+
+MAE
+
+MFE
+
+p95 MAE
+
+MaxDD
+
+worst day
+
+longest consecutive losing trades
+
+positive days
+
+positive completed weeks
+
+positive months
+
+annual results
+
+rolling-12m positive share
+
+remove-top1 / remove-top3 winner stress
+
+R0 vs R1 retention and outcome delta
+
+
+
+Report full available history plus:
+
+PRE\_2023
+
+2023+
+
+and annual partitions.
+
+
+
+\#\# 14. Signal-free causal null
+
+
+
+Every serious lane receives two deterministic null families.
+
+
+
+500 seeded permutations per family.
+
+
+
+Seed authority:
+
+410924
+
+
+
+Freeze and hash the permutation plans BEFORE null economics.
+
+
+
+\#\#\# DATE\_SHUFFLE\_NULL
+
+
+
+Preserve:
+
+\- market
+
+\- direction
+
+\- regime arm
+
+\- calendar year
+
+\- actual event 5m clock distribution.
+
+
+
+Destroy:
+
+the date-price association of the mechanism.
+
+
+
+R0:
+
+destination dates come from eligible valid DAY sessions in the same year.
+
+
+
+R1:
+
+destination dates come only from eligible valid DAY sessions in the same year that satisfy the same directional R1 bias.
+
+
+
+Keep the original event clock.
+
+If destination slot is missing/invalid:
+
+fail closed.
+
+No redraw.
+
+
+
+Rebuild:
+
+entry\_ref
+
+fixed TP/SL
+
+15m path
+
+timeout
+
+costs
+
+campaign first-signal/day mechanics.
+
+
+
+\#\#\# CLOCK\_SHUFFLE\_NULL
+
+
+
+Preserve:
+
+\- actual signal date
+
+\- market
+
+\- direction
+
+\- R0/R1 day selection
+
+\- calendar year.
+
+
+
+Shuffle:
+
+eligible 5m signal clocks among that lane's same-year events.
+
+
+
+Rebuild entry/path/economics at the destination clock.
+
+
+
+Missing/invalid destination:
+
+fail closed.
+
+No redraw.
+
+
+
+Purpose:
+
+DATE null tests whether the selected days/price states matter.
+
+CLOCK null tests whether the exact intraday mechanism timing adds information beyond day/regime selection.
+
+
+
+\#\# 15. Predeclared null separation rule
+
+
+
+For each null family:
+
+
+
+SEPARATES =
+
+full-history 4T net actual percentile \>= 95
+
+AND
+
+2023+ 4T net actual percentile \>= 90
+
+AND
+
+2023+ TP\_FIRST-rate actual percentile \>= 90.
+
+
+
+Interpretation:
+
+
+
+DATE fails:
+
+SIGNAL\_SELECTION\_NOT\_DEMONSTRATED.
+
+
+
+DATE passes, CLOCK fails:
+
+DAY\_OR\_REGIME\_SELECTION\_ONLY.
+
+Not promotion-eligible in TEST41 V1.
+
+
+
+DATE and CLOCK both pass:
+
+TIMING\_SUPPORTED.
+
+
+
+Do not alter these percentiles after outcomes.
+
+
+
+\#\# 16. Standalone survivor gate
+
+
+
+A lane can be a STRICT TEST41 SURVIVOR only if ALL apply:
+
+
+
+\- at least 100 full-history completed trades;
+
+\- at least 50 completed 2023+ trades;
+
+\- full-history 4T net \> 0;
+
+\- PRE\_2023 4T net \> 0;
+
+\- 2023+ 4T net \> 0;
+
+\- 2023+ 4T remove-top3 net \> 0;
+
+\- DATE\_SHUFFLE separates;
+
+\- CLOCK\_SHUFFLE separates.
+
+
+
+If economic evidence is positive but sample minimum fails:
+
+SPARSE\_RESEARCH\_SIGNAL only.
+
+
+
+If R1 survives while R0 fails:
+
+that is allowed, but it must be described as REGIME\_CONDITIONAL.
+
+Do not treat lower trade count itself as evidence.
+
+
+
+If R0 and R1 both survive:
+
+compare attribution, but do not automatically keep both as independent portfolio sleeves.
+
+
+
+\#\# 17. Pine / Python / QA requirements before PnL
+
+
+
+Before economic output may be opened:
+
+
+
+1\. exact TEST41 spec read and hashed;
+
+2\. canonical 1m lineage / calendar / roll authority reused or append-only extended;
+
+3\. deterministic RTH 5m aggregation PASS;
+
+4\. prior-session C1/C2 publication clock PASS;
+
+5\. no request.\* / no same-symbol ticker.\* source guard PASS;
+
+6\. independent Python mechanism reference implemented;
+
+7\. Pine native-5m implementation compiled;
+
+8\. Pine vs Python SIGNAL parity = zero mismatches on identical valid bars;
+
+9\. next-open entry clock parity PASS;
+
+10\. R1 state parity PASS;
+
+11\. M3 pivot-confirmation no-lookahead tests PASS;
+
+12\. synthetic same-minute TP+SL adverse-first tests PASS;
+
+13\. timeout 15m tests PASS;
+
+14\. half-day / missing-bar / roll fail-closed tests PASS;
+
+15\. first-signal-per-lane/day campaign parity PASS;
+
+16\. permutation plans frozen and hashed;
+
+17\. PnL analysis specification frozen.
+
+
+
+TradingView Deep is NOT the bulk research authority.
+
+
+
+A compact native-5m TradingView sentinel may be used for compile/signal/entry sanity.
+
+Canonical/Python carries full economics and 1m first-passage truth.
+
+
+
+\#\# 18. Legacy-neighbor governance
+
+
+
+Known nearby legacy work:
+
+
+
+\- TEST14 / TEST21 / TEST28 studied path-efficiency shallow-pullback continuation.
+
+\- TEST24/27/28/29/31 studied broader two-leg pullback/resume families.
+
+\- TEST11 extensively studied failed recovery -\> continuation.
+
+\- TEST22 included ADX/DI + VWAP trend continuation.
+
+\- EXT-ADX-01 tested source-constrained ADX/DI LONG with a wide structural stop and 0.30R TP.
+
+
+
+Therefore:
+
+
+
+M2 is intentionally a minimal micro 3-bar geometry with no ER/VWAP/ATR/MA/RVOL and is NOT permission to reopen legacy efficiency threshold grids.
+
+
+
+No generic TEST11-style failed-recovery family is included in TEST41 V1.
+
+
+
+M1 tests equal-risk first-passage using ADX/DI timing; it does not claim ADX novelty.
+
+
+
+M3 is deterministic confirmed-pivot structure transition.
+
+
+
+M4 is local directional expansion.
+
+
+
+Do not revive near-neighbor legacy grids if these fail.
+
+
+
+\#\# 19. Portfolio gate
+
+
+
+Only STRICT TEST41 SURVIVORS may reach portfolio replay.
+
+
+
+Use current authority:
+
+PORTFOLIO\_INCREMENTAL\_GATE\_STANDARD\_V2\_BEHAVIOR\_DIVERSIFICATION\_2026-09-24.
+
+
+
+Primary base:
+
+CORE6 + SHADOW11 + TEST20\_L2\_ONLY.
+
+
+
+Secondary:
+
+current Shadow11-based Secondary authority.
+
+
+
+Portfolio evaluation prioritizes:
+
+loss behavior
+
+regime
+
+tail overlap
+
+drawdown interaction
+
+then root concentration.
+
+
+
+Do not reject automatically because a survivor is NQ.
+
+
+
+No portfolio membership changes without user approval.
+
+
+
+\#\# 20. Trader Tom management study — explicitly out of scope
+
+
+
+TEST41 V1 does NOT test:
+
+
+
+winner pyramiding
+
+adding at +0.5R / +1R
+
+trailing winners
+
+structure exits
+
+reversal/flip management
+
+variable structural stop
+
+discretionary early exit
+
+
+
+If a TEST41 entry becomes a strict survivor, a later separately numbered management-attribution study may compare:
+
+fixed small-burst shell
+
+vs trailing
+
+vs structure exit
+
+vs winner pyramid.
+
+
+
+A failed TEST41 entry cannot be rescued by Tom-style management.
+
+
+
+\#\# 21. Agent workflow
+
+
+
+Use all three sessions, but do NOT duplicate work.
+
+
+
+GPT Desktop \#1:
+
+independent non-PnL legacy/novelty/mechanism audit.
+
+
+
+GPT Desktop \#2:
+
+independent causality/Pine/QA/null-method audit.
+
+
+
+Claude:
+
+implementation engineer + canonical Python research engine + Pine parity + economics/nulls after the two non-PnL audits are available.
+
+
+
+ChatGPT:
+
+research director, second-pass, governance and final classification.
+
+
+
+User:
+
+final authority.
+
+
+
+Agents must stay idle when their assigned decision-critical work is complete.
+
+
+
+\#\# 22. Final lock
+
+
+
+TEST41\_NAME = RTH\_SMALL\_BURST\_FIRST\_PASSAGE\_DISCOVERY
+
+TEST41\_PHASE\_A = LOCKED
+
+MARKETS = ES/NQ/RTY/YM
+
+NATIVE\_TF = 5m
+
+MECHANISMS = M1/M2/M3/M4
+
+REGIMES = R0/R1
+
+DIRECTIONS = LONG/SHORT
+
+LANES = 64
+
+TARGET\_STOP\_GRID = NONE
+
+TIMEOUT\_GRID = NONE
+
+TIMEOUT = 15m
+
+SAME\_SYMBOL\_MTF = NO
+
+REQUEST\_SECURITY = NO
+
+PINE\_BULK\_PNL\_AUTHORITY = NO
+
+CANONICAL\_1M\_PATH\_AUTHORITY = YES
+
+TEST40 = STILL\_UNASSIGNED
+
+PNL\_OPENED = NO
+
+
+
+END
+
+

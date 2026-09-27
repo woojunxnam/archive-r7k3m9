@@ -1,0 +1,966 @@
+﻿SOXL V1 STRATEGY MECHANISM + PINESCRIPT PORTABILITY HANDOFF
+Snapshot: 2026-09-16
+Purpose: give a separate research session enough authoritative detail to attempt a Pine Script representation of SOXL V1 without guessing or silently changing the economics.
+
+
+IMPORTANT SCOPE / SOURCE-OF-TRUTH RULE
+This document is a mechanism handoff, not permission to change production or place trades. Where this handoff conflicts with versioned source/config artifacts, the versioned source wins. The most useful exact historical research implementation referenced below is pinned at GitHub commit 17fba2886ecc2378d1a3bf6156dee681e849f504. The current production fallback/champion is C0 Core + G0/E1 Mini. MATH-A is supported research code but KEEP_SUPPORTED_NOT_PROMOTED / OFF for current normal production. The safest Pine project is therefore:
+
+
+PHASE 1 PINE TARGET = C0 CORE + G0/E1 MINI ONLY.
+MATH-A = OPTIONAL LATER PORT AFTER ITS EXACT CAUSAL MODEL IS RECOVERED; DO NOT GUESS IT.
+
+
+============================================================
+1. CURRENT PRODUCTION / DATA AUTHORITY CONTEXT
+============================================================
+
+
+Instrument / direction
+- SOXL shares, LONG ONLY.
+- No short SOXL logic is part of V1.
+- TQQQ is a separate portability/research lane and is currently RESEARCH_DISABLED.
+
+
+Canonical market-data concept
+- Production strategy-bar authority is TradingView BATS:SOXL standard 1-minute completed RTH bars.
+- Current transport: TradingView completed 1m bar -> Worker/D1 durable inbox -> authenticated Windows consumer -> canonical journal -> FillAwareStrategyProvider.
+- IBKR live bid/ask is execution-safety/broker truth, NOT the source of SOXL strategy OHLC bars.
+- For a Pine port, use the same BATS:SOXL standard candle source/session and completed-bar semantics. Do not use Heikin Ashi or another synthetic bar type.
+
+
+Research capital model used by the current mechanism
+- Account reference in the research engine: $140,000.
+- S0 shared strategy authority: $80,000 fixed scale.
+- C0 core unit authority: $80,000 / 6 = approximately $13,333.33 per logical core unit before share rounding/cost reserve.
+- Mini authority: $10,000 INSIDE the same shared $80,000 authority; it is not an additional $10,000 on top.
+- Mini campaign risk reference: $250 under S0. This is a campaign risk trigger/reference, NOT a guarantee that realized loss cannot exceed $250.
+- Current production scaling should not be inferred from unused broker buying power.
+
+
+Current live-state note at this snapshot
+- SOXL V1 is currently DISABLED after the latest owner restart/deployment sequence, flat, with zero working orders in the last explicit status check.
+- This does not mean the mechanism is retired. SOXL can be independently operator-enabled once its own production preflight is clean.
+
+
+============================================================
+2. HIGH-LEVEL SOXL V1 STRUCTURE
+============================================================
+
+
+Current production fallback/champion:
+
+
+SOXL V1 = C0 CORE + G0/E1 MINI
+
+
+They share one physical cash/capital ledger but have different economic jobs:
+
+
+A. C0 CORE
+- Six logical long units.
+- Dynamic daily-volatility grid.
+- Buys progressively deeper prices with resting/eligible bid semantics.
+- Reduces the highest-cost core lot into a rebound/ratcheting sell target.
+- Has cap reduction and lot-age expiry.
+
+
+B. G0/E1 MINI
+- A smaller tactical bottom/rebound campaign.
+- Starts from a causal 5m grouped depression event, filtered by completed 65m decline-deceleration context in the favorable archived branch.
+- Uses up to 3 economic entries: STARTER plus limited DIP / RECOVERY roles.
+- Entries are next-executable-Open style in the archived economic engine, not passive lower limits.
+- Exits include catastrophic/risk/time, a one-time soft reduction, trough-based rebound reductions, and slow mean recovery.
+- Once reduction begins, new additions stop.
+
+
+C. MATH-A
+- Separate deep-entry admission overlay studied on top of C0 + G0/E1.
+- NOT part of the current normal production champion/fallback.
+- Do not include in the first Pine parity version.
+
+
+============================================================
+3. C0 CORE — EXACT MECHANISM DETAIL
+============================================================
+
+
+3.1 Daily volatility ruler
+
+
+The core grid DOES NOT use a 5-bar intraday ATR.
+
+
+ATR5_daily is a causal DAILY/session ruler:
+- use the previous five COMPLETED eligible daily/session true ranges;
+- shift the series so current-day final information cannot leak into the current session;
+- average those five prior completed true ranges.
+
+
+Define:
+
+
+g = ATR5_daily / 5
+
+
+This grid step g is the principal spacing unit for C0.
+
+
+A Pine port must be extremely careful with daily request.security semantics:
+- no lookahead;
+- only prior completed daily/session information may influence the current session;
+- early closes / incomplete sessions / source-readiness rules matter in the original research package.
+
+
+3.2 Core inventory
+
+
+- Six logical core slots/units maximum.
+- Under S0 each logical unit is allocated roughly shared_budget/6.
+- Share quantity is determined from the unit allocation, eligible price, integer-share rounding, and the authoritative cost model.
+- Cash, existing/pending commitments, shared-cap authority and any current core cap must pass before a bid is admitted.
+
+
+3.3 Session anchor
+
+
+At a new observed RTH session:
+
+
+anchor = observed session Open
+
+
+At the end of each observed 1m bar, once bar processing is complete:
+
+
+if there are NO active core lots:
+    anchor = current completed Close
+else:
+    anchor = max(previous anchor, current completed High)
+
+
+Interpretation:
+- flat core follows the last completed Close;
+- once core inventory exists, the anchor ratchets upward with observed Highs and does not simply follow price downward;
+- session reset to Open is an important exception to the simple “flat close / holding ratchet” description.
+
+
+3.4 Desired core buy levels
+
+
+For the six logical grid ranks:
+
+
+level_k = tick_round_down(anchor - k*g), k = 1..6
+
+
+The historical C0 implementation then removes the leading ranks according to current active core occupancy. In the pinned code this is effectively:
+
+
+levels = [anchor-g, anchor-2g, ..., anchor-6g][number_of_active_core_lots:]
+
+
+followed by tick rounding, duplicate removal, quantity sizing and capital admission.
+
+
+Do not replace this with:
+- six market buys at current price;
+- ATR of intraday bars;
+- an average-entry-centered grid;
+- unlimited DCA.
+
+
+3.5 Core bid activation / fill economics in the historical OHLC engine
+
+
+Archived baseline behavior forms desired core bids at each 1m decision boundary. Later REST research adds an explicit working-order lifecycle, but the economic C0 reference remains a resting/eligible buy-level concept.
+
+
+Historical OHLC fill convention:
+- if bar Open <= active buy limit, fill at Open;
+- otherwise, if bar Low <= active buy limit, fill at the limit price;
+- if neither happens, no fill.
+
+
+This is an OHLC backtest convention, not proof of real exchange queue priority.
+
+
+Important Pine portability issue:
+- TradingView’s broker emulator may resolve same-bar limit-touch ordering differently from the Python authority.
+- The pinned Python lifecycle explicitly tracks buy/sell touch ambiguity and has an archived SELL-FIRST convention in ambiguous cases.
+- Therefore exact Pine Strategy Tester PnL may diverge even if signal/level logic is correct. A proper port should first compare generated levels, state transitions and intended targets, then separately compare emulator fills.
+
+
+3.6 Core sell reference and rebound reduction
+
+
+The ordinary core sell reference is NOT simply average entry price.
+
+
+General target:
+
+
+core_sell_target = tick_round_up(sell_ref + 2*g)
+
+
+When a core buy is filled, the engine updates sell_ref from the filled core path; the deepest fill in the processed set becomes the relevant sell reference for that transition.
+
+
+When price reaches the sell target:
+- the HIGHEST-COST active core lot is the lot selected for reduction;
+- if current bar Open is already at/above target, the historical engine sells at Open;
+- otherwise, if bar High reaches target, it sells at the target under the OHLC convention;
+- a reduction may realize a loss relative to that selected lot or to account average cost. Do not impose a “only sell above average entry” rule.
+
+
+After a normal core SELL, if core inventory remains, the Python reference advances to that sell target; if core becomes flat, sell_ref becomes empty/NaN. Timeout/cap paths can reset sell_ref from remaining inventory according to code-defined rules.
+
+
+3.7 Core lot expiry
+
+
+The archived C0 core has a ten-trading-session lot-age rule.
+- A core lot reaching the frozen age boundary is liquidated under the strategy’s TIMEOUT semantics near the session boundary.
+- Do not convert this to ten calendar days.
+- Gap/resume handling is policy-sensitive in the research engine; do not invent a new forced-gap rule in Pine if the exact deployed policy does not specify it.
+
+
+3.8 Core cap reductions
+
+
+At a completed/open processing boundary, if actual core+mini exposure or core-only exposure exceeds the frozen shared/core authority:
+- the engine reduces the HIGHEST-COST core lot first;
+- for C0 this is a full-tranche cap reduction, rather than silently resizing every lot pro-rata.
+
+
+This is a risk/capital action, not an alpha exit.
+
+
+============================================================
+4. G0/E1 MINI — FAVORABLE ARCHIVED MECHANISM
+============================================================
+
+
+The favorable archived combined branch is described as:
+
+
+5m IMMEDIATE grouped 2-of-4
++ completed 65m DECLINE_DECELERATION context
++ slow exit enabled
++ N3 / BOTH / E2 / TROUGH / FIXED
++ C0 core in the same shared account
+
+
+This is NOT the earlier prototype that required COMPOSITE confirmation for every starter.
+
+
+4.1 Fast 5m grouped depression features
+
+
+Build ONLY from completed 5m aggregates. The pinned feature implementation defines four grouped depression families:
+
+
+A — oscillator exhaustion
+- RSI length 2 using Pine/Wilder-style RMA gain/loss construction.
+- A = RSI2 < 21.
+
+
+B — price displacement
+- basis = SMA(Close, 23)
+- sd = population-style rolling stdev over 23
+- B = Close < basis - 2*sd.
+
+
+C — negative-return shock
+- typical = (High + Low + Close) / 3
+- ROC27 = 100 * (typical / typical[27] - 1)
+- z = (ROC27 - rolling_mean_55(ROC27)) / rolling_std_55(ROC27)
+- C = z < -1.6.
+
+
+D — structural discount
+- prior completed daily/session pivot = (High + Low + Close) / 3
+- structural_discount = prior pivot - 0.25*(prior High - prior Low)
+- D = current 5m Close < structural_discount.
+
+
+Known/readiness guard requires the completed aggregate and all required warmups/features to be valid, including RSI, Bollinger deviation, shock z-score, structural level, ATR14>0, EMA20 and CLV.
+
+
+Score:
+
+
+score = A + B + C + D
+
+
+grouped depression qualifies when score >= 2 and feature state is KNOWN.
+
+
+The grouped evidence is deliberately not described as four independent alphas; the features can be correlated.
+
+
+4.2 Supporting fast features
+
+
+On completed 5m bars:
+
+
+TURN = Close > previous Close
+RECLAIM = Close > previous High
+CLV = (Close-Low)/(High-Low)
+COMPOSITE = (Close > Open)
+            AND TURN
+            AND (RSI2 > previous RSI2)
+            AND (CLV >= 0.65)
+
+
+Fresh variants fire only on a false->true transition, not every bar while the condition stays true.
+
+
+soft_down = Close < previous Close < Close[2]
+
+
+Fast EMA20 and ATR14 are also computed on the completed 5m aggregate. The mini campaign locks original_atr from the causal fast state when the campaign is created.
+
+
+4.3 Arm creation / IMMEDIATE starter event
+
+
+The cohort generator requires:
+- score >= 2;
+- KNOWN fast state;
+- a fresh-enough event separation (the historical cohort logic uses a minimum false-run and arm spacing so one continuing depression is not emitted every bar).
+
+
+In the favorable IMMEDIATE variant, the qualifying grouped event confirms immediately on that completed 5m decision bar. There is no extra COMPOSITE confirmation requirement for the starter.
+
+
+The exact cohort implementation also prevents continuous duplicate arms through its false-run / prior-arm spacing state. Preserve that behavior rather than treating every score>=2 bar as a fresh campaign.
+
+
+4.4 Completed 65m DECLINE_DECELERATION context
+
+
+The favorable branch uses completed 65m context as an admission layer.
+
+
+On completed 65m bars compute:
+- EMA20
+- ATR14
+- rolling High20 / Low20
+- slope = EMA20 - EMA20[3]
+- d3 = Close - Close[3]
+- dprev = Close[3] - Close[6]
+
+
+Define decline:
+
+
+Close < EMA20
+AND d3 < 0
+AND dprev < 0
+
+
+Then:
+
+
+DECLINE_DECELERATION = decline AND d3 > dprev
+DECLINE_ACCELERATION = decline AND d3 <= dprev
+
+
+Since both d3 and dprev are negative, d3>dprev means the most recent 3-bar decline is still negative but less negative than the preceding 3-bar decline: selling is decelerating.
+
+
+Only completed/causally available 65m context may be used. No current incomplete 65m lookahead.
+
+
+The same slow table exposes an EMA20 target used by the slow-exit branch.
+
+
+4.5 Campaign state machine
+
+
+Conceptual mini states:
+
+
+ARMED
+-> BUILDING / ADD_BLOCKED
+-> DERISK
+-> CLOSED
+
+
+Economic entry roles:
+- STARTER
+- DIP
+- RECOVERY
+
+
+Important invariants:
+- first entry counts as one lifetime economic entry;
+- partial-fill fragments do not create new economic entry IDs;
+- once any reduction begins, reduction_started becomes true, state becomes DERISK, pending entry is cancelled, and NO NEW ADD is allowed for that campaign.
+
+
+4.6 Mini size / campaign locking
+
+
+Under S0:
+- total mini authority = $10,000;
+- N3 means three economic entry units, so nominal locked unit authority is approximately $10,000/3 before integer share rounding/cost reserve;
+- the $10,000 sits inside the shared $80,000 cap.
+
+
+At campaign creation, the engine locks campaign-level quantities such as:
+- original ATR
+- campaign budget
+- per-entry unit budget
+- risk authority
+- original scale/equity cutoff
+- initial/slow decision target
+
+
+A losing campaign does not automatically receive more budget because account equity later grows.
+
+
+4.7 STARTER execution
+
+
+When a fresh eligible arm appears while no mini campaign exists:
+- no same-minute sell conflict;
+- valid RTH entry window;
+- completed 65m permission/context is allowed;
+- capital/equity authority is valid;
+
+
+create the campaign and plan role=STARTER.
+
+
+The archived economic entry contract is NEXT EXECUTABLE OPEN.
+
+
+The decision Close may be stored as an intent/reference level for sizing/telemetry, but that does NOT make the entry a resting limit at the signal Close.
+
+
+Pine translation concept:
+completed causal signal -> next executable bar Open market-style backtest entry.
+
+
+4.8 ADD timing
+
+
+For tf=5 and the frozen non-clock branch:
+
+
+minimum spacing = 3 * tf = 15 minutes
+
+
+between economic entry decisions/fills.
+
+
+For N3 + BOTH:
+- total lifetime entries <= 3;
+- one slot is STARTER;
+- reserve_recovery = 1;
+- therefore at most one DIP and at most one RECOVERY are available in the typical three-entry campaign.
+
+
+4.9 DIP add
+
+
+DIP requires:
+- campaign already has inventory;
+- no pending entry;
+- no reduction has started;
+- lifetime entry count below N3;
+- minimum spacing satisfied;
+- new/fresh grouped arm is present;
+- DIP role capacity remains;
+- current causal fast Close <= last mini fill/entry price - 0.5 * original_ATR;
+- context/capital/time gates pass.
+
+
+Then plan one DIP unit for the next executable Open.
+
+
+4.10 RECOVERY add
+
+
+RECOVERY requires:
+- campaign already has inventory;
+- no reduction has started;
+- lifetime entry count below N3;
+- minimum spacing satisfied;
+- fresh COMPOSITE event;
+- RECOVERY role capacity remains;
+- current causal Close >= last mini price + 0.25 * original_ATR;
+- target room remains: EMA20 - current Close >= 0.5 * original_ATR;
+- context/capital/time gates pass.
+
+
+Then plan one RECOVERY unit for next executable Open.
+
+
+Interpretation: RECOVERY is not another dip. It adds only after price has improved enough from the last mini entry while still leaving sufficient distance to the fast mean.
+
+
+============================================================
+5. G0/E1 MINI EXIT / REDUCTION LOGIC
+============================================================
+
+
+The mini has multiple exit layers. They are not interchangeable.
+
+
+5.1 Risk flag / campaign loss trigger
+
+
+The engine tracks campaign PnL including current inventory and costs.
+
+
+Under S0, risk authority is $250.
+
+
+When campaign marked PnL at a causal boundary reaches <= -risk_limit, the campaign risk flag is set and pending entry is cancelled. The next processing path gives RISK exit priority.
+
+
+This is not a guaranteed maximum realized loss because price can gap/move before execution.
+
+
+5.2 Absolute time exit
+
+
+For the combined mini branch, nominal maximum age is:
+
+
+min(first filled mini entry time + 360 wall minutes,
+    scheduled RTH close - final safety minute)
+
+
+When that deadline is reached, TIME exit takes priority.
+
+
+Do not reset the age because of later DIP/RECOVERY entries.
+
+
+5.3 Catastrophic exit — E2
+
+
+For E2:
+
+
+if causal fast Close <= first_price - 3 * original_ATR:
+    full campaign exit = CATASTROPHIC
+
+
+The first mini fill price and original ATR remain the campaign references.
+
+
+5.4 Soft reduction — E2
+
+
+Only once per campaign while soft_done=false:
+
+
+SOFT fires if either:
+
+
+A) causal fast Close < first_price - 1 * original_ATR
+
+
+OR
+
+
+B) mini utilization >= 0.5
+   AND soft_down is true
+   where soft_down = Close < previous Close < Close[2]
+
+
+SOFT sells approximately 1/3 of current mini quantity, marks soft_done=true, and moves the campaign into ADD_BLOCKED/derisk behavior.
+
+
+5.5 TROUGH rebound reduction — FIXED
+
+
+The tested TROUGH reference is explicitly capable of reducing below average entry price.
+
+
+Fixed rebound threshold:
+
+
+threshold = 0.75 * original_ATR
+
+
+Track prior observed campaign trough. Required rebound level is approximately:
+
+
+trough + 0.75*original_ATR
+
+
+but if a prior rebound reduction has already fired, a rearm_level can make the next required level higher:
+
+
+required = max(trough + 0.75*ATR, prior rearm_level)
+
+
+When the causal Close crosses the required rebound level:
+- sell approximately 1/3 of current mini quantity;
+- record the decision trough/close;
+- set new rearm_level = current Close + 0.75*original_ATR.
+
+
+Therefore the rule does NOT freely move the trigger lower every time a new trough appears after a reduction. This is important for parity.
+
+
+5.6 Slow mean exit — completed 65m branch
+
+
+The favorable branch has slow_exit enabled.
+
+
+Fast risk / catastrophic / soft / rebound logic retains priority.
+
+
+If none of those fires, and a completed/known 65m slow target exists, the engine evaluates recovery to the slow target on the 1m execution clock using causally available prior close information.
+
+
+Conceptually:
+
+
+if previous completed 1m Close >= current causally known 65m EMA20 target:
+    full exit = SLOW_MEAN
+
+
+The slow target is derived only from completed 65m context; no incomplete HTF lookahead.
+
+
+5.7 Cap exit
+
+
+If mini exposure exceeds its locked mini budget or the shared $80k authority at the relevant boundary, the risk/capital layer can perform a CAP exit/reduction. This is a capital-governor action, not an alpha signal.
+
+
+5.8 Exit execution and state
+
+
+Any first reduction sets:
+- reduction_started = true
+- state = DERISK
+- pending mini buy = cancelled
+
+
+No additional DIP/RECOVERY is allowed afterward.
+
+
+When all mini lots are gone:
+- campaign state closes;
+- realized PnL/fees and campaign metadata are finalized.
+
+
+============================================================
+6. ENTRY / EXIT PRIORITY — PINE PORT GUIDANCE
+============================================================
+
+
+For mini, the Python authority effectively prioritizes existing-risk actions before new entries.
+
+
+Simplified causal order:
+1. recover/missing-data / preexisting RISK or TIME state;
+2. catastrophic / soft / rebound fast exits;
+3. slow mean exit if enabled and no fast exit fired;
+4. cap/risk reductions;
+5. only if no reduction/sell blocks the minute, evaluate starter/add opportunity;
+6. fill planned mini entry at its next executable Open.
+
+
+Do not allow Pine to add and reduce the same campaign in an order that reverses the frozen intent.
+
+
+For core, similarly preserve sell/cap/timeout priority and document any same-bar buy/sell ambiguity. The Python historical engine contains explicit ordering conventions that TradingView’s emulator may not reproduce automatically.
+
+
+============================================================
+7. MATH-A — WHAT IS KNOWN AND WHAT MUST NOT BE GUESSED
+============================================================
+
+
+MATH-A is a deep-entry admission overlay studied on top of C0 + G0/E1.
+
+
+Known facts:
+- strict frozen threshold uses p < 0.40 in the studied overlay;
+- it depends on matured historical analog/probability evidence rather than a trivial single indicator;
+- early in the validated lane, insufficient matured analog history meant it did not repair the major 2022 weakness;
+- research showed a positive whole-account delta at 2/5/10 bps in the studied candidate, but uncertainty/path dependence remained and the confidence interval included zero;
+- when favorable inventory-difference intervals were removed, the incremental effect weakened materially / could become negative;
+- disposition is KEEP_SUPPORTED_NOT_PROMOTED;
+- production normal champion/fallback remains C0 + G0/E1 without MATH-A.
+
+
+Therefore:
+- first Pine version MUST exclude MATH-A;
+- do not replace MATH-A with a guessed RSI/probability approximation and still call it V1 parity;
+- if MATH-A is later ported, first recover its exact causal feature vector, analog maturity rules, prefix-only fit/probability construction, strict float threshold semantics, and READY / INSUFFICIENT_HISTORY / ALLOW / VETO state machine from the versioned research branch.
+
+
+============================================================
+8. CURRENT PRODUCTION IMPLEMENTATION VS A PINE PORT
+============================================================
+
+
+The current local production/research engine is fill-aware and stateful. On restart it reconstructs SOXL strategy state from durable completed bars and execution inputs. This is why current owner restarts can spend substantial time in FillAwareStrategyProvider recovery.
+
+
+A Pine port could reduce local signal-state reconstruction only if Pine becomes the authoritative strategy-state/signal calculator. That does NOT automatically mean Pine should own actual broker fill/account truth.
+
+
+Preferred separation to test:
+
+
+TradingView Pine
+- compute causal C0/G0/E1 signal/state
+- emit strategy target / ENTRY / REDUCE / EXIT events
+
+
+GridMax
+- authenticate/dedup/persist
+- maintain actual broker/fill ownership
+- risk/capital/reconciliation
+- price/quote safety
+- SharedExecutionOwner
+
+
+IBKR
+- actual order/fill/position/account truth
+
+
+Key challenge:
+- C0 is not a simple single-position strategy. It has six logical core units, resting limit levels, highest-cost reductions, dynamic sell_ref, cap/age rules, plus a mini campaign sharing capital.
+- Pine Strategy Tester has its own broker emulator and may not reproduce Python intrabar ordering exactly.
+- A live Pine strategy also does not automatically receive actual IBKR fills back into its internal strategy.position state.
+
+
+Therefore “Pine works” should mean causal state/signal parity first, not merely similar cumulative PnL.
+
+
+============================================================
+9. RECOMMENDED PINESCRIPT PORTABILITY TEST PLAN
+============================================================
+
+
+Stage P0 — observational indicator/state script
+Do NOT place Pine strategy orders yet.
+On BATS:SOXL 1m RTH standard candles, plot/export:
+- prior-completed ATR5_daily
+- g
+- anchor
+- six desired core levels
+- active logical core slot count from the ported state machine
+- sell_ref and core sell target
+- 5m A/B/C/D flags, score, arm/fresh-arm
+- 5m ATR14, EMA20, COMPOSITE_fresh, soft_down
+- completed 65m DECLINE_DECELERATION and EMA20 slow target
+- mini campaign state / role / entry count / original ATR
+- all exit reasons.
+
+
+Compare these timestamp-by-timestamp against the Python authority.
+
+
+Stage P1 — economic intent parity
+Generate intended actions without relying on TradingView broker fills:
+- CORE_BUY_INTENT(slot/rank, limit, qty)
+- CORE_REDUCE_INTENT(reason, selected logical lot, qty)
+- MINI_STARTER / MINI_DIP / MINI_RECOVERY
+- MINI_SOFT / MINI_REBOUND / MINI_SLOW_MEAN / MINI_CATASTROPHIC / MINI_TIME / MINI_RISK / MINI_CAP.
+
+
+Require deterministic event IDs and compare the event stream to a reference export from Python.
+
+
+Stage P2 — Pine Strategy Tester approximation
+Only after P0/P1 match, implement strategy.entry/strategy.order/strategy.exit approximations.
+- allow sufficient pyramiding/logical IDs for six core units plus mini bookkeeping;
+- use limit orders for core levels;
+- use market-style next-bar execution for mini economic entries/exits as appropriate;
+- preserve no-add-after-reduction;
+- document TradingView emulator divergence caused by same-bar ordering, gap fills, lot selection, or limit assumptions.
+
+
+Do NOT retune thresholds to make the Pine equity curve match.
+
+
+Stage P3 — alert transport candidate
+If state/intent parity is satisfactory:
+- emit versioned confirmed-bar alerts;
+- include strategy version/hash, event type, intended target/logical state, timestamp, and deterministic event key;
+- keep GridMax as actual broker/risk/reconciliation authority;
+- run SHADOW parity before any production authority change.
+
+
+============================================================
+10. PINE MULTI-TIMEFRAME CAUSALITY REQUIREMENTS
+============================================================
+
+
+1m chart is the base clock.
+
+
+5m fast features:
+- use only a completed 5m aggregate;
+- do not allow the current incomplete 5m candle to change a past decision;
+- IMMEDIATE means immediate after the completed qualifying 5m bar is causally available, not intra-5m hindsight.
+
+
+65m slow features:
+- completed bars only;
+- no request.security lookahead;
+- a 65m context/EMA target becomes available only after that 65m bar completes.
+
+
+Daily ATR5 / structural level:
+- prior completed eligible daily/session observations only;
+- current session final H/L/C cannot leak into current-session grid spacing.
+
+
+If TradingView’s exact RTH 65m segmentation differs from the Python scheduler, parity will fail even if formulas are identical. Freeze and document the actual segment boundaries before comparing results.
+
+
+============================================================
+11. PARITY CHECKLIST — DO NOT CALL IT SOXL V1 UNTIL THESE ARE EXPLAINED
+============================================================
+
+
+Core parity
+- daily ATR5 values
+- grid step g
+- session anchor reset
+- flat anchor updates
+- holding ratchet updates
+- six desired levels
+- capital-admitted levels/quantities
+- core fill intentions
+- sell_ref transitions
+- +2g sell targets
+- highest-cost lot selection
+- cap reductions
+- 10-session timeout
+- same-bar buy/sell ambiguity count and treatment.
+
+
+Mini signal parity
+- A/B/C/D flags
+- known/warmup mask
+- grouped score>=2 arms
+- fresh-arm suppression / spacing
+- 65m DECLINE_DECELERATION state
+- starter decisions
+- one DIP / one RECOVERY role capacity under N3/BOTH
+- 15m minimum add spacing
+- next-open planned entries.
+
+
+Mini exit parity
+- risk flag
+- time deadline
+- catastrophic threshold
+- one-time soft reduction
+- trough/rearm rebound reductions
+- slow 65m EMA20 mean exit
+- cap exit
+- no-add-after-reduction
+- full campaign close.
+
+
+Portfolio parity
+- core quantity
+- mini quantity
+- combined exposure
+- cash / pending commitments
+- shared $80k authority violations = zero
+- mini $10k authority violations = zero
+- event ordering and fees/cost treatment.
+
+
+Performance comparison is SECONDARY. If PnL matches while state/events do not, that is not sufficient parity.
+
+
+============================================================
+12. IMPORTANT KNOWN MODEL / BACKTEST LIMITATIONS
+============================================================
+
+
+- Current validated minute history is exposed research history, not untouched OOS.
+- OHLC data cannot identify exact queue position or every intrabar path.
+- Historical limit fill conventions are proxies for executable exchange behavior.
+- Python and TradingView broker emulators may disagree on same-bar touches even with identical economic rules.
+- Missing/incomplete session handling is part of the authority and must not be silently filled or forward-filled.
+- A Pine backtest that looks better is NOT evidence to change production unless the difference is understood and preregistered as a new challenger.
+- Do not optimize Pine thresholds merely to reproduce historical Python PnL.
+
+
+============================================================
+13. AUTHORITATIVE SOURCE MAP FOR THE RESEARCH SESSION
+============================================================
+
+
+Google Drive roadmap:
+SOXL_TQQQ_RESEARCH_AND_AUTOTRADER_ROADMAP_20260913
+Doc ID: 11ls9uXxGLMGkuTIOiAyvAPkscLFaoC0IhkRsPUKx76M
+
+
+Original detailed handoff:
+SOXL_NEW_SESSION_HANDOFF.md
+Drive ID: 1tDCmjDgn92QHnjmioRi4MhfeoSCpf9qH
+SHA256 recorded in advisory note: 3a237d1b9cf926a0b421f5b9e8fcd26a2d964539107887400bd68fee0abe620a
+
+
+Advisory/research review:
+SOXL_ADVICE_MARKET_ENTRY_AND_MECHANISMS_20260913.md
+Drive ID: 1gpL5meByTYh4kIWNv-QpMvgc6aW8Obbc
+
+
+Pinned historical code reference:
+GitHub repo: woojunxnam/grid_max
+Commit: 17fba2886ecc2378d1a3bf6156dee681e849f504
+Important paths:
+- src/research/readiness_engine.py
+- src/research/readiness_policy.py
+- src/research/readiness_data.py
+- src/research/campaign_features.py
+- src/research/underwater_engine.py
+
+
+Roadmap production disposition to preserve:
+- C0 + G0/E1 = current SOXL fallback/champion for normal production.
+- MATH-A = KEEP_SUPPORTED_NOT_PROMOTED / OFF.
+- TQQQ = RESEARCH_DISABLED.
+
+
+============================================================
+14. WHAT THE PINESCRIPT RESEARCH SESSION SHOULD DELIVER
+============================================================
+
+
+Do not begin by claiming a production-ready Pine replacement.
+
+
+Deliver in this order:
+1. A precise mapping table: Python authority variable/rule -> Pine variable/rule.
+2. A 1m observational Pine indicator that reproduces C0 + G0/E1 causal state without placing orders.
+3. Explicit handling of 5m/65m/daily completed-bar timing with no lookahead.
+4. A parity export/debug table for core levels, mini arms/roles and exits.
+5. A list of any rules Pine cannot reproduce exactly because of emulator/fill-state limitations.
+6. Only then, a Pine strategy version for backtest comparison.
+7. Compare event/state parity first; compare trade/PnL parity second.
+8. Do not add MATH-A unless its exact authority is recovered separately.
+9. Do not alter production, TradingView production alerts, GridMax execution, or IBKR permissions during this research.
+
+
+The central question is not “can Pine generate a similar equity curve?” It is:
+
+
+CAN PINE REPRODUCE THE SAME CAUSAL C0 + G0/E1 STRATEGY STATE AND INTENDED ACTION STREAM FROM THE SAME BATS:SOXL RTH DATA WITHOUT LOOKAHEAD OR SILENT ECONOMIC CHANGES?
+
+
+If YES, Pine could become a future strategy-signal authority candidate and may substantially simplify local SOXL startup/recovery. If NO, retain the local FillAwareStrategyProvider and optimize durable checkpoint/recovery instead.

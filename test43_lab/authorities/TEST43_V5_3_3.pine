@@ -1,0 +1,2072 @@
+﻿//@version=6
+strategy(
+     "TEST43 V5.3.3 — MES 3m Step-1 Full-Overnight — Parser Safe",
+     overlay = true,
+     behind_chart = false,
+     // Account model.
+     initial_capital = 150000,
+     currency = currency.USD,
+     // Intentionally irrelevant to the inventory engine:
+     // all inventory changes use strategy.order(), which ignores pyramiding.
+     pyramiding = 1,
+     // Costs.
+     commission_type = strategy.commission.cash_per_contract,
+     commission_value = 0.62,
+     slippage = 1,
+     // IMPORTANT:
+     // TradingView defaults to 100% margin (1:1), which blocks
+     // realistic futures pyramiding. 10% is intentionally conservative
+     // versus the current IBKR MES overnight initial margin near 9.2%
+     // of notional at ~7800.
+     margin_long = 10,
+     margin_short = 10,
+     // Deterministic once-per-bar-close research model.
+     // Market orders fill on the next available tick / next bar open.
+     calc_on_order_fills = false,
+     calc_on_every_tick = false,
+     process_orders_on_close = false
+)
+//====================================================
+// TEST43 V5.3.3
+//
+// WHY THIS REWRITE EXISTS
+//
+// 1) Pine strategies calculate once per bar close by default.
+// 2) Market orders created at bar close fill on the next tick,
+//    normally the next bar open.
+// 3) strategy.entry() is limited by the Properties > Pyramiding value.
+// 4) strategy.order() ignores pyramiding and nets directly against
+//    the current position.
+// 5) TradingView defaults to margin_long = 100% (1:1).
+//    For MES this can cap a $150k simulation around 4 contracts.
+// 6) This version therefore:
+//      - uses strategy.order() for ALL inventory changes,
+//      - sets margin_long = 10%,
+//      - uses one net position instead of C2...C12 entry IDs,
+//      - tracks order attempts vs actual fills.
+//
+//====================================================
+// V5.3 CONTROLLED-DRIFT / PAIRED-REPAIR RESEARCH BUILD
+//
+// Intentional structural prior:
+// - U.S. index upside drift is treated as a long-side prior.
+// - Base Goal can be protected as core inventory.
+// - Deep multi-timeframe weakness + reclaim can receive more size.
+// - Repair SELL is forbidden while another repair slot is pending.
+// - Repair SELL is blocked near lower VWAP/range locations.
+// - Every repair slot must restore lower (success) or higher/timeout
+//   (failed repair); no silent cancellation.
+//
+// Controlled overfit boundary:
+// - broad 0.25 range buckets and 1.0/1.5/2.0 sigma concepts,
+// - no date-specific exceptions,
+// - no single historical regime special case,
+// - execution layer unchanged.
+//====================================================
+//====================================================
+// V5.2 COST-AWARE RECYCLING
+//
+// V5.1 proved that the execution layer can use the full 24-MES cap,
+// but it also overtraded badly. V5.2 keeps the execution layer frozen
+// and changes only the strategy economics.
+//
+// Main changes:
+// - overlay recycle minimum profit raised to 12 ticks,
+// - lower-rebuy gap raised to 10 ticks,
+// - stronger underwater/base repair rebound requirements,
+// - opposite-side cooldown + minimum price displacement,
+// - failed-high SELL requires extra confirmation,
+// - anti-stall slowed from 30m to 45m,
+// - repair SELL counter reporting fixed,
+// - estimated commission/slippage/gross-before-friction added.
+//
+// Goal:
+// fewer cycles, larger captured move per cycle, lower friction drag.
+//
+//====================================================
+//====================================================
+// V5.2 STRATEGY-LAYER ADDITIONS
+//
+// EXECUTION LAYER IS FROZEN FROM THE PASSED HARNESS:
+// - strategy.order()
+// - margin_long / margin_short = 10
+// - next-open market fill model
+// - one inventory action per bar
+// - absolute 24 MES cap
+//
+// V5.2 adds ONLY strategy behavior:
+// - reversal + continuation dual lane,
+// - Base Goal accumulation,
+// - recycle overlay,
+// - underwater rotation,
+// - anti-stall base catch-up,
+// - realized vs MTM daily diagnostics.
+//
+//====================================================
+// LONG ONLY INVENTORY CONCEPT
+//
+// REVERSAL LANE:
+//   support/range bottom + exhaustion + reversal.
+//
+// CONTINUATION LANE:
+//   prior-RTH high / opening range / RTH 15/30/60 breakout,
+//   follow-through / higher-low / breakout pullback.
+//
+// OVERNIGHT:
+//   inventory may remain,
+//   signal engine is frozen.
+//
+// EACH NEW RTH:
+//   keep existing inventory,
+//   reset target to current position,
+//   rebuild today's structural permission from fresh RTH evidence.
+//
+// INVENTORY:
+//
+//   Active Target = max structurally permitted MES.
+//   Base Goal     = inventory bias.
+//
+//   Position < Base Goal:
+//       aggressive BUY bias.
+//
+//   Position ~= Base Goal:
+//       balanced recycle.
+//
+//   Position > Base Goal:
+//       SELL / recycle bias.
+//
+// REPAIR:
+//
+//   Underwater rebound or failed high breakout can SELL 2.
+//   A lower-rebuy opportunity is remembered,
+//   but NEVER blocks normal trading.
+//
+// Intraday max: 24 MES.
+// Overnight max: 10 MES.
+// RTH trade decisions only, except 16:12 overnight trim.
+//
+// NO NORMAL HARD STOP.
+// Optional catastrophic emergency only.
+//====================================================
+//====================================================
+// POSITION LIMITS
+//====================================================
+int lotQty = (input.int( 1, "Inventory step MES", minval = 1, maxval = 4 ))
+int intradayMaxQty = (input.int( 24, "Intraday max MES", minval = 2, maxval = 40 ))
+bool enableOvernightTrim = (input.bool( false, "Enable overnight inventory trim" ))
+int overnightMaxQty = (input.int( 24, "Overnight max MES when trim enabled", minval = 1, maxval = 40 ))
+//====================================================
+// IBKR REFERENCE MARGINS
+//
+// Informational dashboard only.
+// Values can change.
+//====================================================
+float ibkrIntradayInitialRef = (input.float( 2502.61, "IBKR MES intraday initial margin ref $", minval = 1 ))
+float ibkrOvernightInitialRef = (input.float( 3575.15, "IBKR MES overnight initial margin ref $", minval = 1 ))
+//====================================================
+// SESSION
+//====================================================
+string rthSession = (input.session( "0930-1600", "RTH Session ET" ))
+float dailyTarget = (input.float( 600, "Daily target $", minval = 50 ))
+//====================================================
+// FAST OSCILLATORS
+//====================================================
+float rsiExtremeLevel = (input.float( 15, "RSI(2) extreme", minval = 1, maxval = 40 ))
+float easyAddRSI = (input.float( 40, "Easy BUY RSI(2)", minval = 10, maxval = 70 ))
+float fastSellRSI = (input.float( 65, "Fast recycle SELL RSI(2)", minval = 50, maxval = 99 ))
+float baseSellRSI = (input.float( 78, "Base rotation SELL RSI(2)", minval = 60, maxval = 99 ))
+float wrExtremeLevel = (input.float( -90, "Williams %R(2) extreme", minval = -100, maxval = -50 ))
+float easyAddWR = (input.float( -80, "Easy BUY Williams %R", minval = -100, maxval = -20 ))
+//====================================================
+// EXHAUSTION
+//====================================================
+int pushesToExhaustion = (input.int( 3, "Down pushes", minval = 1, maxval = 6 ))
+float pushSpacingATR = (input.float( 0.05, "Down-push spacing ATR", minval = 0, step = 0.01 ))
+//====================================================
+// REVERSAL LOCATION
+//====================================================
+float bottomRangePct = (input.float( 0.35, "Bottom range zone", minval = 0.10, maxval = 0.70, step = 0.05 ))
+int microDBLookback = (input.int( 10, "Micro double-bottom lookback", minval = 3 ))
+float microDBToleranceATR = (input.float( 0.20, "Micro DB tolerance ATR", minval = 0.05, step = 0.05 ))
+//====================================================
+// CONTINUATION
+//====================================================
+float strongBullBodyPct = (input.float( 0.60, "Strong bull body fraction", minval = 0.40, maxval = 0.90, step = 0.05 ))
+float strongBullClosePct = (input.float( 0.75, "Strong bull close position", minval = 0.50, maxval = 1.00, step = 0.05 ))
+float strongBullRangeATR = (input.float( 0.80, "Strong bull range / ATR", minval = 0.20, step = 0.05 ))
+float higherLowATR = (input.float( 0.05, "Higher-low separation ATR", minval = 0, step = 0.05 ))
+float breakoutToleranceATR = (input.float( 0.20, "Breakout pullback tolerance ATR", minval = 0.05, step = 0.05 ))
+float continuationATR = (input.float( 0.20, "Continuation distance ATR", minval = 0, step = 0.05 ))
+float breakoutClosePct = (input.float( 0.60, "Minimum breakout close position", minval = 0.50, maxval = 0.95, step = 0.05 ))
+//====================================================
+// BASE BUILD
+//====================================================
+int strengthBuildBars = (input.int( 6, "Strength catch-up bars", minval = 1, tooltip = "6 x 3m = 18 minutes" ))
+float maxCatchupExtensionATR = (input.float( 1.00, "Max continuation catch-up extension ATR", minval = 0.10, step = 0.10 ))
+int addCooldownBars = (input.int( 0, "Bars between inventory BUYs", minval = 0, maxval = 10 ))
+int oppositeSideCooldownBars = (input.int( 2, "Bars before reversing inventory action", minval = 0, maxval = 10, tooltip = "2 x 3m = 6 minutes. Prevent immediate BUY→SELL→BUY churn." ))
+float minimumOppositeMoveATR = (input.float( 0.08, "Minimum price move before opposite action ATR", minval = 0.02, step = 0.02 ))
+int antiStallBars = (input.int( 15, "Anti-stall bars without fill", minval = 5, maxval = 40, tooltip = "15 x 3m = 45 minutes. If Position is below Base Goal and structure is still valid, allow a +2 catch-up." ))
+//====================================================
+// TARGET DECAY
+//====================================================
+int targetDecayBars = (input.int( 20, "Target decay bars", minval = 5, tooltip = "20 x 3m = 60 minutes" ))
+//====================================================
+// RECYCLE PROFITS
+//====================================================
+int recycleMinTicks = (input.int( 12, "Overlay recycle minimum ticks", minval = 4 ))
+float recycleTPATR = (input.float( 0.12, "Overlay recycle ATR", minval = 0.04, step = 0.02 ))
+int baseRotateMinTicks = (input.int( 10, "Base rotation minimum ticks", minval = 2 ))
+float baseRotateATR = (input.float( 0.15, "Base rotation ATR", minval = 0.05, step = 0.05 ))
+float coreTPATR = (input.float( 0.60, "Flat-reset core TP ATR", minval = 0.10, step = 0.05 ))
+//====================================================
+// UNDERWATER / REPAIR
+//====================================================
+int repairLookback = (input.int( 5, "Repair rebound lookback", minval = 2 ))
+int overlayRepairSellTicks = (input.int( 8, "Overlay underwater rebound ticks", minval = 4 ))
+float overlayRepairSellATR = (input.float( 0.08, "Overlay underwater rebound ATR", minval = 0.02, step = 0.02 ))
+int baseRepairSellTicks = (input.int( 16, "Base underwater rebound ticks", minval = 6 ))
+float baseRepairSellATR = (input.float( 0.20, "Base underwater rebound ATR", minval = 0.05, step = 0.05 ))
+int lowerRebuyTicks = (input.int( 10, "Lower REBUY gap ticks", minval = 4 ))
+float lowerRebuyATR = (input.float( 0.10, "Lower REBUY gap ATR", minval = 0.02, step = 0.02 ))
+int repairLifeBars = (input.int( 20, "Repair opportunity bars", minval = 1 ))
+float abandonRepairStrengthATR = (input.float( 0.15, "Cancel repair after strength ATR", minval = 0.05, step = 0.05 ))
+//====================================================
+// V5.3 CONTROLLED UPSIDE-DRIFT BIAS / LOCATION
+//
+// This is intentional, bounded structural bias rather than
+// unrestricted parameter fitting. Defaults favor long exposure
+// when price is statistically low and has started to reclaim.
+//====================================================
+bool controlledUpsideBias = (input.bool( true, "Controlled upside-drift bias" ))
+bool useVWAPLocationBias = (input.bool( true, "Use RTH VWAP location / reclaim" ))
+bool useRangeLocationBias = (input.bool( true, "Use 60m / session / 5D range location" ))
+float driftVWAPDeepSigma = (input.float( 1.50, "Deep VWAP lower band sigma", minval = 0.50, maxval = 3.00, step = 0.25 ))
+float driftVWAPExtremeSigma = (input.float( 2.00, "Extreme VWAP lower band sigma", minval = 1.00, maxval = 4.00, step = 0.25 ))
+float driftRangeLowPct = (input.float( 0.25, "60m / session low-zone fraction", minval = 0.10, maxval = 0.45, step = 0.05 ))
+float driftFiveDayLowPct = (input.float( 0.30, "5D RTH low-zone fraction", minval = 0.10, maxval = 0.50, step = 0.05 ))
+int driftMinLocationScore = (input.int( 2, "Minimum multi-TF dip score", minval = 1, maxval = 4 ))
+bool protectCoreBase = (input.bool( true, "Protect Base Goal as core long inventory" ))
+//====================================================
+// V5.3 PAIRED REPAIR GATES
+//====================================================
+bool useOneRepairSlot = (input.bool( true, "One REPAIR_SELL per pending repair" ))
+bool useRepairLocationGate = (input.bool( true, "Block repair SELL in lower-location zones" ))
+float repairMinVWAPZ = (input.float( -1.00, "Repair SELL minimum VWAP z-score", minval = -3.00, maxval = 1.00, step = 0.25 ))
+float repairMin60Pos = (input.float( 0.35, "Repair SELL minimum 60m range position", minval = 0.10, maxval = 0.80, step = 0.05 ))
+float repairMinSessionPos = (input.float( 0.30, "Repair SELL minimum session range position", minval = 0.10, maxval = 0.80, step = 0.05 ))
+int failedRepairRestoreTicks = (input.int( 8, "Failed repair higher restore ticks", minval = 2, maxval = 40 ))
+float failedRepairRestoreATR = (input.float( 0.08, "Failed repair higher restore ATR", minval = 0.02, maxval = 1.00, step = 0.02 ))
+//====================================================
+// CORE ROTATION
+//====================================================
+bool allowCoreRotation = (input.bool( true, "Allow underwater CORE rotation" ))
+int coreRotationAgeBars = (input.int( 20, "Core rotation minimum age", minval = 1 ))
+float coreRotationMinLoss = (input.float( 250, "Core rotation minimum open loss $", minval = 0 ))
+//====================================================
+// OPTIONAL EMERGENCY
+//====================================================
+bool emergencyEnabled = (input.bool( false, "Emergency catastrophic exit" ))
+float emergencyLossDollar = (input.float( 15000, "Emergency open loss $", minval = 500 ))
+//====================================================
+// DISPLAY
+//====================================================
+bool showDashboard = (input.bool( true, "Show dashboard" ))
+bool showTradeMarkers = (input.bool( true, "Show custom BUY / SELL fill markers" ))
+bool showOrderMarkers = (input.bool( false, "Show order-created markers" ))
+//====================================================
+// NATIVE 3M ONLY
+//====================================================
+if (barstate.isfirst and timeframe.in_seconds() != 180)
+    runtime.error(
+         "TEST43 V5.3.1 requires native 3-minute MES chart."
+    )
+//====================================================
+// SESSION CLOCK
+//====================================================
+bool inRTH = (not na( time( timeframe.period, rthSession, "America/New_York" ) ))
+bool newRTH = (inRTH and not inRTH[1])
+int hh = (hour( time, "America/New_York" ))
+int mm = (minute( time, "America/New_York" ))
+bool buyWindow = (inRTH and ( hh < 15 or ( hh == 15 and mm <= 54 ) ))
+bool closesAt1600 = (hour( time_close, "America/New_York" ) == 16 and minute( time_close, "America/New_York" ) == 0)
+bool trimDecisionBar = (hour( time_close, "America/New_York" ) == 16 and minute( time_close, "America/New_York" ) == 12)
+bool inOpeningRangeWindow = (inRTH and hh == 9 and mm < 45)
+bool openingRangeReady = (inRTH and ( hh > 9 or ( hh == 9 and mm >= 45 ) ))
+//====================================================
+// BASIC INDICATORS
+//====================================================
+float atr = (ta.atr(14))
+float rsi2 = (ta.rsi( close, 2 ))
+float wr2 = (ta.wpr( 2 ))
+bool rsiExtreme = (rsi2 <= rsiExtremeLevel)
+bool wrExtreme = (wr2 <= wrExtremeLevel)
+bool rsiTurnUp = (rsi2 > rsi2[1] and rsi2[1] <= rsiExtremeLevel)
+bool wrTurnUp = (wr2 > wr2[1] and wr2[1] <= wrExtremeLevel)
+//====================================================
+// RTH-ONLY ROLLING ARRAYS
+//
+// Current bar is pushed only AFTER all signal logic.
+// Therefore these levels always use prior completed RTH bars.
+//====================================================
+var array<float> rthHighs = (array.new_float())
+var array<float> rthLows = (array.new_float())
+var array<float> completedRTHHighs = (array.new_float())
+var array<float> completedRTHLows = (array.new_float())
+f_lastMax(
+     array<float> xs,
+     int n
+) =>
+    float result = (na)
+    int sz = (array.size( xs ))
+    int count = (math.min( sz, n ))
+    if (count > 0)
+        for i = sz - count to sz - 1
+            float v = (array.get( xs, i ))
+            result := (na( result ) ? v : math.max( result, v ))
+    result
+f_lastMin(
+     array<float> xs,
+     int n
+) =>
+    float result = (na)
+    int sz = (array.size( xs ))
+    int count = (math.min( sz, n ))
+    if (count > 0)
+        for i = sz - count to sz - 1
+            float v = (array.get( xs, i ))
+            result := (na( result ) ? v : math.min( result, v ))
+    result
+//====================================================
+// PRIOR RTH / CURRENT RTH / OPENING RANGE
+//====================================================
+var float priorRTHHigh = (na)
+var float priorRTHLow = (na)
+var float currentRTHHigh = (na)
+var float currentRTHLow = (na)
+var float openingRangeHigh = (na)
+var float openingRangeLow = (na)
+//====================================================
+// NEW RTH PREP
+//====================================================
+if (newRTH)
+    if (not na( currentRTHHigh ))
+        priorRTHHigh := (currentRTHHigh)
+        priorRTHLow := (currentRTHLow)
+        array.push(
+             completedRTHHighs,
+             currentRTHHigh
+        )
+        array.push(
+             completedRTHLows,
+             currentRTHLow
+        )
+        if (array.size( completedRTHHighs ) > 4)
+            array.shift(
+                 completedRTHHighs
+            )
+            array.shift(
+                 completedRTHLows
+            )
+    currentRTHHigh := (high)
+    currentRTHLow := (low)
+    openingRangeHigh := (high)
+    openingRangeLow := (low)
+    array.clear(
+         rthHighs
+    )
+    array.clear(
+         rthLows
+    )
+else if (inRTH)
+    currentRTHHigh := (na( currentRTHHigh ) ? high : math.max( currentRTHHigh, high ))
+    currentRTHLow := (na( currentRTHLow ) ? low : math.min( currentRTHLow, low ))
+    if (inOpeningRangeWindow)
+        openingRangeHigh := (na( openingRangeHigh ) ? high : math.max( openingRangeHigh, high ))
+        openingRangeLow := (na( openingRangeLow ) ? low : math.min( openingRangeLow, low ))
+//====================================================
+// V5.3 RTH VWAP + VOLUME-WEIGHTED SIGMA
+//
+// Custom RTH-only VWAP avoids mixing the overnight session into
+// the 09:30-16:00 location model. Current-bar values are known only
+// at the completed-bar decision point; reclaim uses the prior band.
+//====================================================
+var float rthCumVolume = (0.0)
+var float rthCumPV = (0.0)
+var float rthCumP2V = (0.0)
+float vwapSource = (hlc3)
+if (newRTH)
+    rthCumVolume := (volume)
+    rthCumPV := (volume * vwapSource)
+    rthCumP2V := (volume * vwapSource * vwapSource)
+else if (inRTH)
+    rthCumVolume += (volume)
+    rthCumPV += (volume * vwapSource)
+    rthCumP2V += (volume * vwapSource * vwapSource)
+float rthVWAP = (( inRTH and rthCumVolume > 0 ) ? rthCumPV / rthCumVolume : na)
+float rthVWAPVariance = (( inRTH and rthCumVolume > 0 and not na( rthVWAP ) ) ? math.max( rthCumP2V / rthCumVolume - rthVWAP * rthVWAP, 0 ) : na)
+float rthVWAPStd = (not na( rthVWAPVariance ) ? math.sqrt( rthVWAPVariance ) : na)
+float vwapLowerDeep = (( not na( rthVWAP ) and not na( rthVWAPStd ) ) ? rthVWAP - rthVWAPStd * driftVWAPDeepSigma : na)
+float vwapLowerExtreme = (( not na( rthVWAP ) and not na( rthVWAPStd ) ) ? rthVWAP - rthVWAPStd * driftVWAPExtremeSigma : na)
+float vwapZ = (( not na( rthVWAP ) and not na( rthVWAPStd ) and rthVWAPStd > syminfo.mintick ) ? ( close - rthVWAP ) / rthVWAPStd : 0.0)
+//====================================================
+// RTH-ONLY ROLLING LEVELS
+//====================================================
+float roll15High = (inRTH ? f_lastMax( rthHighs, 5 ) : na)
+float roll15Low = (inRTH ? f_lastMin( rthLows, 5 ) : na)
+float roll30High = (inRTH ? f_lastMax( rthHighs, 10 ) : na)
+float roll30Low = (inRTH ? f_lastMin( rthLows, 10 ) : na)
+float roll60High = (inRTH ? f_lastMax( rthHighs, 20 ) : na)
+float roll60Low = (inRTH ? f_lastMin( rthLows, 20 ) : na)
+//====================================================
+// V5.3 CURRENT 5-RTH-SESSION ROLLING RANGE
+//
+// Current RTH + four completed RTH sessions. No future daily or
+// weekly bar is used.
+//====================================================
+float prior4RTHHigh = (f_lastMax( completedRTHHighs, 4 ))
+float prior4RTHLow = (f_lastMin( completedRTHLows, 4 ))
+float roll5DHigh = (inRTH ? ( na( prior4RTHHigh ) ? currentRTHHigh : math.max( currentRTHHigh, prior4RTHHigh ) ) : na)
+float roll5DLow = (inRTH ? ( na( prior4RTHLow ) ? currentRTHLow : math.min( currentRTHLow, prior4RTHLow ) ) : na)
+//====================================================
+// RANGE POSITION
+//====================================================
+f_rangePos(
+     float px,
+     float lo,
+     float hi
+) =>
+    float width = (hi - lo)
+    width > syminfo.mintick ? (px - lo) / width : 0.50
+float posPriorRTH = (not na( priorRTHLow ) and not na( priorRTHHigh ) ? f_rangePos( close, priorRTHLow, priorRTHHigh ) : 0.50)
+float posOpening = (openingRangeReady and not na( openingRangeLow ) and not na( openingRangeHigh ) ? f_rangePos( close, openingRangeLow, openingRangeHigh ) : 0.50)
+float pos15 = (not na( roll15Low ) and not na( roll15High ) ? f_rangePos( close, roll15Low, roll15High ) : 0.50)
+float pos30 = (not na( roll30Low ) and not na( roll30High ) ? f_rangePos( close, roll30Low, roll30High ) : 0.50)
+float pos60 = (not na( roll60Low ) and not na( roll60High ) ? f_rangePos( close, roll60Low, roll60High ) : 0.50)
+float posCurrentRTH = (( inRTH and not na( currentRTHLow ) and not na( currentRTHHigh ) ) ? f_rangePos( close, currentRTHLow, currentRTHHigh ) : 0.50)
+float pos5D = (( inRTH and not na( roll5DLow ) and not na( roll5DHigh ) ) ? f_rangePos( close, roll5DLow, roll5DHigh ) : 0.50)
+//====================================================
+// REVERSAL LOCATION
+//====================================================
+bool nearPriorRTHLow = (inRTH and not na( priorRTHLow ) and posPriorRTH <= bottomRangePct)
+bool nearOpeningLow = (openingRangeReady and posOpening <= bottomRangePct)
+bool near15Low = (inRTH and not na( roll15Low ) and pos15 <= bottomRangePct)
+bool near30Low = (inRTH and not na( roll30Low ) and pos30 <= bottomRangePct)
+bool near60Low = (inRTH and not na( roll60Low ) and pos60 <= bottomRangePct)
+//====================================================
+// FAILED LOW BREAKDOWNS
+//====================================================
+bool failedPriorRTHLow = (inRTH and not na( priorRTHLow ) and low < priorRTHLow and close > priorRTHLow)
+bool failedOpeningLow = (openingRangeReady and not na( openingRangeLow ) and low < openingRangeLow and close > openingRangeLow)
+bool failed15Low = (inRTH and not na( roll15Low ) and low < roll15Low and close > roll15Low)
+bool failed30Low = (inRTH and not na( roll30Low ) and low < roll30Low and close > roll30Low)
+bool failed60Low = (inRTH and not na( roll60Low ) and low < roll60Low and close > roll60Low)
+bool anyFailedLowBreak = (failedPriorRTHLow or failedOpeningLow or failed15Low or failed30Low or failed60Low)
+//====================================================
+// FAILED HIGH BREAKOUTS
+//====================================================
+bool failedPriorRTHHigh = (inRTH and not na( priorRTHHigh ) and high > priorRTHHigh and close < priorRTHHigh)
+bool failedOpeningHigh = (openingRangeReady and not na( openingRangeHigh ) and high > openingRangeHigh and close < openingRangeHigh)
+bool failed15High = (inRTH and not na( roll15High ) and high > roll15High and close < roll15High)
+bool failed30High = (inRTH and not na( roll30High ) and high > roll30High and close < roll30High)
+bool failed60High = (inRTH and not na( roll60High ) and high > roll60High and close < roll60High)
+bool anyFailedHighBreak = (failedPriorRTHHigh or failedOpeningHigh or failed15High or failed30High or failed60High)
+//====================================================
+// RANGE SCORE
+//====================================================
+int rangeScore = (0)
+rangeScore += (( nearPriorRTHLow or failedPriorRTHLow ) ? 1 : 0)
+rangeScore += (( nearOpeningLow or failedOpeningLow ) ? 1 : 0)
+rangeScore += (( near15Low or failed15Low ) ? 1 : 0)
+rangeScore += (( near30Low or failed30Low ) ? 1 : 0)
+rangeScore += (( near60Low or failed60Low ) ? 1 : 0)
+bool evidenceLocation = (inRTH and rangeScore >= 1)
+//====================================================
+// RETEST
+//====================================================
+float retestTolerance = (atr * 0.10)
+bool rangeRetest = (inRTH and ( ( not na( roll15Low ) and low <= roll15Low + retestTolerance ) or ( not na( roll30Low ) and low <= roll30Low + retestTolerance ) or ( openingRangeReady and not na( openingRangeLow ) and low <= openingRangeLow + retestTolerance ) ))
+//====================================================
+// RTH DOWN PUSHES
+//====================================================
+var int downPushes = (0)
+var float previousPushLow = (na)
+if (newRTH)
+    downPushes := (0)
+    previousPushLow := (na)
+bool bearishPush = (inRTH and close < open and low < low[1])
+bool lowerEnough = (na( previousPushLow ) or low <= previousPushLow - atr * pushSpacingATR)
+bool validDownPush = (barstate.isconfirmed and inRTH and bearishPush and lowerEnough)
+if (validDownPush)
+    downPushes += (1)
+    previousPushLow := (low)
+//====================================================
+// CANDLE METRICS
+//====================================================
+float candleRange = (math.max( high - low, syminfo.mintick ))
+float candleBody = (math.abs( close - open ))
+float bodyPct = (candleBody / candleRange)
+float lowerWick = (math.min( open, close ) - low)
+float lowerWickPct = (lowerWick / candleRange)
+float closePct = (( close - low ) / candleRange)
+//====================================================
+// REVERSAL PRICE ACTION
+//====================================================
+bool bottomRejection = (inRTH and lowerWickPct >= 0.25 and closePct >= 0.55)
+bool sellClimax = (inRTH and close < open and candleRange >= atr * 1.20 and closePct <= 0.35 and ( rsiExtreme or wrExtreme or downPushes >= pushesToExhaustion ))
+float priorMicroLow = (ta.lowest( low[1], microDBLookback ))
+bool microDoubleBottom = (inRTH and not na( priorMicroLow ) and math.abs( low - priorMicroLow ) <= atr * microDBToleranceATR and close > open)
+//====================================================
+// BULLISH PRICE ACTION
+//====================================================
+bool strongBullBar = (inRTH and close > open and bodyPct >= strongBullBodyPct and closePct >= strongBullClosePct and candleRange >= atr * strongBullRangeATR)
+bool bullFollowThrough = (inRTH and strongBullBar[1] and close > open and close > close[1] and close > ( high[1] + low[1] ) / 2.0)
+//====================================================
+// REVERSAL LANE
+//====================================================
+bool evidenceExhaustion = (inRTH and ( rsiExtreme or wrExtreme or downPushes >= pushesToExhaustion or sellClimax ))
+bool evidenceReversal = (inRTH and ( rsiTurnUp or wrTurnUp or bottomRejection or anyFailedLowBreak or close > high[1] ))
+int reversalEvidenceCount = (( evidenceLocation ? 1 : 0 ) + ( evidenceExhaustion ? 1 : 0 ) + ( evidenceReversal ? 1 : 0 ))
+bool reversalProbe = (buyWindow and reversalEvidenceCount >= 2)
+bool strongReversalProbe = (buyWindow and reversalEvidenceCount == 3)
+//====================================================
+// V5.3 CONTROLLED-DRIFT LOCATION / RECLAIM
+//====================================================
+bool vwapDeepReclaim = (( useVWAPLocationBias and inRTH and not na( vwapLowerDeep[1] ) ) and ( low <= vwapLowerDeep[1] ) and ( close > vwapLowerDeep[1] ) and ( close > open or close > close[1] ))
+bool vwapExtremeTouch = (( useVWAPLocationBias and inRTH and not na( vwapLowerExtreme[1] ) ) and ( low <= vwapLowerExtreme[1] ))
+bool driftLow60 = (useRangeLocationBias and pos60 <= driftRangeLowPct)
+bool driftLowSession = (useRangeLocationBias and posCurrentRTH <= driftRangeLowPct)
+bool driftLow5D = (useRangeLocationBias and pos5D <= driftFiveDayLowPct)
+int driftLocationScore = (( ( useVWAPLocationBias and ( vwapZ <= -driftVWAPDeepSigma or vwapDeepReclaim or vwapExtremeTouch ) ) ? 1 : 0 ) + ( driftLow60 ? 1 : 0 ) + ( driftLowSession ? 1 : 0 ) + ( driftLow5D ? 1 : 0 ))
+bool driftReclaimEvidence = (( vwapDeepReclaim or failed60Low or failedPriorRTHLow or bottomRejection ) and evidenceReversal)
+bool controlledDriftDip = (( controlledUpsideBias ) and ( driftLocationScore >= driftMinLocationScore ))
+bool controlledDriftBuySignal = (( buyWindow and controlledDriftDip ) and ( driftReclaimEvidence ))
+bool controlledDriftExtreme = (controlledDriftBuySignal and ( vwapExtremeTouch or driftLocationScore >= 3 ))
+//====================================================
+// CONTINUATION LANE
+//====================================================
+bool freshBreakPriorRTH = (buyWindow and not na( priorRTHHigh ) and close > priorRTHHigh and close[1] <= priorRTHHigh)
+bool freshBreakOpening = (buyWindow and openingRangeReady and not na( openingRangeHigh ) and close > openingRangeHigh and close[1] <= openingRangeHigh)
+bool freshBreak15 = (buyWindow and not na( roll15High ) and close > roll15High and close[1] <= roll15High)
+bool freshBreak30 = (buyWindow and not na( roll30High ) and close > roll30High and close[1] <= roll30High)
+bool freshBreak60 = (buyWindow and not na( roll60High ) and close > roll60High and close[1] <= roll60High)
+bool goodBreakoutClose = (close > open and closePct >= breakoutClosePct)
+bool continuationEntry = (buyWindow and ( ( freshBreakOpening and goodBreakoutClose ) or ( freshBreak15 and goodBreakoutClose ) or freshBreakPriorRTH or freshBreak30 or freshBreak60 or ( bullFollowThrough and ( not na( roll15High ) and close > roll15High ) ) ))
+bool strongContinuationEntry = (freshBreak60 or freshBreak30 or freshBreakPriorRTH or ( freshBreak15 and strongBullBar ) or ( freshBreakOpening and strongBullBar ))
+//====================================================
+// PERSISTENT INVENTORY STATE
+//====================================================
+var bool inventoryActive = (false)
+var int inventoryStartBar = (na)
+var float inventoryLow = (na)
+var float coreATR = (na)
+var string dayLane = ("FLAT")
+var string structuralState = ("FLAT")
+var int activeTargetQty = (2)
+var int dayEngineStartBar = (na)
+var int lastDecayBar = (na)
+var int buildWindowUntilBar = (na)
+var float buildAnchor = (na)
+var bool continuationMode = (false)
+var bool reversalMode = (false)
+//====================================================
+// PENDING INITIAL ORDER STATE
+//
+// We only commit campaign state after actual fill.
+//====================================================
+var bool pendingInitialOrder = (false)
+var int pendingInitialBar = (na)
+var string pendingInitialLane = ("")
+var int pendingInitialTarget = (2)
+var float pendingInitialATR = (na)
+//====================================================
+// REPAIR OPPORTUNITY
+//====================================================
+var bool repairPending = (false)
+var float repairSellReference = (na)
+var int repairStartBar = (na)
+var int repairRestoreCap = (0)
+//====================================================
+// H2 / CONTINUATION STATE
+//====================================================
+var int h2Stage = (0)
+var int h2PullbackBar = (na)
+var bool sixtyBreakoutSeen = (false)
+var float sixtyBreakoutLevel = (na)
+var int sixtyBreakoutBar = (na)
+var bool sixtyPullbackHeld = (false)
+var int sixtyPullbackBar = (na)
+var bool continuation1Seen = (false)
+var float continuation1High = (na)
+var int continuation1Bar = (na)
+var bool continuationPullbackSeen = (false)
+var int continuationPullbackBar = (na)
+//====================================================
+// EXECUTION / DEBUG STATE
+//====================================================
+var int buyFillEvents = (0)
+var int sellFillEvents = (0)
+var float boughtContracts = (0.0)
+var float soldContracts = (0.0)
+var float maxMESSeen = (0.0)
+var float worstOpenPnL = (0.0)
+var int overnightTrimCount = (0)
+var int lastFillBar = (na)
+var float lastBuyFillPrice = (na)
+var float lastSellFillPrice = (na)
+var int lastBuyOrderBar = (na)
+var int lastSellOrderBar = (na)
+var int lastInventoryActionBar = (na)
+var string lastFilledSide = ("")
+var float lastInventoryFillPrice = (na)
+var int lastBuyFillBar = (na)
+var int lastSellFillBar = (na)
+var int buyOrderCount = (0)
+var int sellOrderCount = (0)
+var int unfilledOrderCount = (0)
+var int reversalInitialCount = (0)
+var int continuationInitialCount = (0)
+var int baseBuildCount = (0)
+var int overlayBuyCount = (0)
+var int antiStallBuyCount = (0)
+var int strengthBuyCount = (0)
+var int pullbackBuyCount = (0)
+var int repairBuyCount = (0)
+var int repairSellCount = (0)
+var int repairSuccessFillCount = (0)
+var int repairFailedRestoreFillCount = (0)
+var int controlledDriftBuyCount = (0)
+var int profitSellCount = (0)
+var int riskSellCount = (0)
+var string pendingOrderSide = ("")
+var string pendingOrderReason = ("")
+var float pendingOrderQty = (0.0)
+var int pendingOrderBar = (na)
+bool buyOrderSubmitted = (false)
+bool sellOrderSubmitted = (false)
+string buyOrderReason = ("")
+string sellOrderReason = ("")
+float buyOrderQty = (0.0)
+float sellOrderQty = (0.0)
+//====================================================
+// POSITION SNAPSHOT
+//====================================================
+float posNow = (strategy.position_size)
+float posPrev = (nz( strategy.position_size[1], 0 ))
+bool actualBuy = (posNow > posPrev)
+bool actualSell = (posNow < posPrev)
+float actualBuyQty = (actualBuy ? posNow - posPrev : 0)
+float actualSellQty = (actualSell ? posPrev - posNow : 0)
+//====================================================
+// RESOLVE PREVIOUS ORDER ATTEMPT
+//
+// IMPORTANT V5.3:
+// Save the prior order's reason BEFORE clearing persistent state.
+// This lets fill accounting know whether a filled SELL was a
+// REPAIR_SELL, TARGET_TRIM, PROFIT_SELL, etc.
+//
+// Market order created at bar N close is expected at bar N+1 open.
+//====================================================
+bool resolvingPendingOrder = (not na( pendingOrderBar ) and bar_index > pendingOrderBar)
+string resolvedOrderSide = (resolvingPendingOrder ? pendingOrderSide : "")
+string resolvedOrderReason = (resolvingPendingOrder ? pendingOrderReason : "")
+float resolvedOrderQty = (resolvingPendingOrder ? pendingOrderQty : 0.0)
+bool resolvedOrderFilled = (resolvingPendingOrder and ( ( resolvedOrderSide == "BUY" and actualBuy ) or ( resolvedOrderSide == "SELL" and actualSell ) ))
+if (resolvingPendingOrder and not resolvedOrderFilled)
+    unfilledOrderCount += (1)
+//====================================================
+// ACTUAL FILL ACCOUNTING
+//
+// Fill reference assumes next-open market fill
+// plus declared one-tick adverse slippage.
+//====================================================
+if (actualBuy)
+    buyFillEvents += (1)
+    lastFilledSide := ("BUY")
+    lastInventoryFillPrice := (open + syminfo.mintick)
+    lastBuyFillBar := (bar_index)
+    boughtContracts += (actualBuyQty)
+    lastFillBar := (bar_index)
+    lastBuyFillPrice := (open + syminfo.mintick)
+    if (resolvedOrderReason == "LOWER_REBUY")
+        repairSuccessFillCount += (1)
+    if (resolvedOrderReason == "FAILED_RESTORE")
+        repairFailedRestoreFillCount += (1)
+    if (( resolvedOrderReason == "DRIFT_BASE" or resolvedOrderReason == "DRIFT_OVERLAY" ))
+        controlledDriftBuyCount += (1)
+    if (posPrev == 0)
+        inventoryActive := (true)
+        inventoryStartBar := (bar_index)
+        inventoryLow := (low)
+        coreATR := (na( pendingInitialATR ) ? atr : pendingInitialATR)
+        activeTargetQty := (math.max( int( posNow ), pendingInitialTarget ))
+        dayLane := (pendingInitialLane == "" ? "FILLED" : pendingInitialLane)
+        structuralState := ("INITIAL FILLED")
+        reversalMode := (pendingInitialLane == "REVERSAL" or pendingInitialLane == "MIXED")
+        continuationMode := (pendingInitialLane == "CONTINUATION" or pendingInitialLane == "MIXED")
+        buildWindowUntilBar := (bar_index + strengthBuildBars)
+        buildAnchor := (lastBuyFillPrice)
+        lastDecayBar := (bar_index)
+        pendingInitialOrder := (false)
+        pendingInitialBar := (na)
+        pendingInitialLane := ("")
+        pendingInitialTarget := (2)
+        pendingInitialATR := (na)
+    if (repairPending and posNow >= repairRestoreCap)
+        repairPending := (false)
+        repairSellReference := (na)
+        repairStartBar := (na)
+        repairRestoreCap := (0)
+if (actualSell)
+    sellFillEvents += (1)
+    lastFilledSide := ("SELL")
+    lastInventoryFillPrice := (open - syminfo.mintick)
+    lastSellFillBar := (bar_index)
+    soldContracts += (actualSellQty)
+    lastFillBar := (bar_index)
+    lastSellFillPrice := (open - syminfo.mintick)
+    if (resolvedOrderReason == "REPAIR_SELL")
+
+
+
+
+        repairSellCount += (1)
+        repairPending := (true)
+        repairSellReference := (lastSellFillPrice)
+        repairStartBar := (bar_index)
+//====================================================
+// CLEAR RESOLVED ORDER STATE
+// AFTER FILL ACCOUNTING
+//====================================================
+if (resolvingPendingOrder)
+    pendingOrderSide := ("")
+    pendingOrderReason := ("")
+    pendingOrderQty := (0)
+    pendingOrderBar := (na)
+maxMESSeen := (math.max( maxMESSeen, math.abs( posNow ) ))
+worstOpenPnL := (math.min( worstOpenPnL, strategy.openprofit ))
+//====================================================
+// INITIAL ORDER REJECTION CLEANUP
+//====================================================
+if (pendingInitialOrder and not na( pendingInitialBar ) and bar_index > pendingInitialBar and posNow == 0)
+    pendingInitialOrder := (false)
+    pendingInitialBar := (na)
+    pendingInitialLane := ("")
+    pendingInitialTarget := (2)
+    pendingInitialATR := (na)
+//====================================================
+// FLAT RESET
+//====================================================
+if (posNow == 0 and posPrev > 0)
+    inventoryActive := (false)
+    inventoryStartBar := (na)
+    inventoryLow := (na)
+    coreATR := (na)
+    activeTargetQty := (2)
+    dayLane := ("FLAT")
+    structuralState := ("FLAT")
+    continuationMode := (false)
+    reversalMode := (false)
+    h2Stage := (0)
+    h2PullbackBar := (na)
+    sixtyBreakoutSeen := (false)
+    sixtyBreakoutLevel := (na)
+    sixtyBreakoutBar := (na)
+    sixtyPullbackHeld := (false)
+    sixtyPullbackBar := (na)
+    continuation1Seen := (false)
+    continuation1High := (na)
+    continuation1Bar := (na)
+    continuationPullbackSeen := (false)
+    continuationPullbackBar := (na)
+    buildWindowUntilBar := (na)
+    buildAnchor := (na)
+    repairPending := (false)
+    repairSellReference := (na)
+    repairStartBar := (na)
+    repairRestoreCap := (0)
+//====================================================
+// SELF-HEAL EXISTING POSITION
+//====================================================
+if (posNow > 0 and not inventoryActive)
+    inventoryActive := (true)
+    inventoryStartBar := (bar_index)
+    inventoryLow := (low)
+    coreATR := (atr)
+    activeTargetQty := (math.max( 2, int( posNow ) ))
+    dayLane := ("STATE RECOVERY")
+    structuralState := ("STATE RECOVERY")
+    lastDecayBar := (bar_index)
+//====================================================
+// NEW RTH = NEW SIGNAL ENGINE
+//
+// Inventory stays.
+// Signal state resets.
+//====================================================
+if (newRTH)
+    dayEngineStartBar := (bar_index)
+    downPushes := (0)
+    previousPushLow := (na)
+    h2Stage := (0)
+    h2PullbackBar := (na)
+    sixtyBreakoutSeen := (false)
+    sixtyBreakoutLevel := (na)
+    sixtyBreakoutBar := (na)
+    sixtyPullbackHeld := (false)
+    sixtyPullbackBar := (na)
+    continuation1Seen := (false)
+    continuation1High := (na)
+    continuation1Bar := (na)
+    continuationPullbackSeen := (false)
+    continuationPullbackBar := (na)
+    continuationMode := (false)
+    reversalMode := (false)
+    buildWindowUntilBar := (na)
+    buildAnchor := (na)
+    if (posNow > 0)
+        activeTargetQty := (math.max( 2, int( posNow ) ))
+        dayLane := ("CARRY + NEW RTH")
+        structuralState := ("RTH RESET")
+    else
+        activeTargetQty := (2)
+        dayLane := ("FLAT")
+        structuralState := ("RTH RESET")
+    lastDecayBar := (bar_index)
+//====================================================
+// REPAIR AGE
+//
+// V5.3 never silently expires a repair slot. repairLifeBars now
+// triggers a restoration BUY instead of reopening another SELL slot.
+//====================================================
+int repairAge = (repairPending and not na( repairStartBar ) ? bar_index - repairStartBar : 0)
+//====================================================
+// INVENTORY LIVE
+//====================================================
+bool inventoryLive = (inventoryActive and posNow > 0)
+int inventoryAge = (inventoryLive and not na( inventoryStartBar ) ? bar_index - inventoryStartBar : 0)
+int dayEngineAge = (inRTH and not na( dayEngineStartBar ) ? bar_index - dayEngineStartBar : 0)
+if (inventoryLive)
+    inventoryLow := (na( inventoryLow ) ? low : math.min( inventoryLow, low ))
+//====================================================
+// H2 — RTH ONLY
+//====================================================
+bool bullAttempt = (inventoryLive and inRTH and close > high[1] and close > open)
+bool h2Event = (false)
+if (inventoryLive and inRTH)
+    if (h2Stage == 0 and bullAttempt)
+        h2Stage := (1)
+    else if (h2Stage == 1)
+        bool h2PullbackEvent = (low < low[1] or close < close[1])
+        if (h2PullbackEvent and na( h2PullbackBar ))
+            h2PullbackBar := (bar_index)
+        if (not na( h2PullbackBar ) and bar_index > h2PullbackBar and bullAttempt)
+            h2Event := (true)
+            h2Stage := (2)
+//====================================================
+// HIGHER LOW — RTH ONLY
+//====================================================
+float prior2High = (ta.highest( high[1], 2 ))
+bool higherLowBreak = (inventoryLive and inRTH and not na( inventoryLow ) and low >= inventoryLow + atr * higherLowATR and close > prior2High)
+//====================================================
+// 60M BREAKOUT TRACK
+//====================================================
+if (inventoryLive and inRTH and not sixtyBreakoutSeen and ( freshBreak60 or ( not na( roll60High ) and close > roll60High ) ))
+    sixtyBreakoutSeen := (true)
+    sixtyBreakoutLevel := (roll60High)
+    sixtyBreakoutBar := (bar_index)
+//====================================================
+// BREAKOUT PULLBACK
+//====================================================
+bool sixtyPullbackEvent = (false)
+if (inventoryLive and inRTH and sixtyBreakoutSeen and not sixtyPullbackHeld and not na( sixtyBreakoutBar ) and bar_index > sixtyBreakoutBar)
+    float sixtyTolerance = (atr * breakoutToleranceATR)
+    bool sixtyTouched = (low <= sixtyBreakoutLevel + sixtyTolerance and low >= sixtyBreakoutLevel - sixtyTolerance)
+    bool sixtyHeld = (close > sixtyBreakoutLevel)
+    if (sixtyTouched and sixtyHeld and close > open)
+        sixtyPullbackHeld := (true)
+        sixtyPullbackBar := (bar_index)
+        sixtyPullbackEvent := (true)
+//====================================================
+// CONTINUATION 1
+//====================================================
+bool continuation1Event = (inventoryLive and inRTH and sixtyPullbackHeld and not continuation1Seen and not na( sixtyPullbackBar ) and bar_index > sixtyPullbackBar and close > open and close > high[1] and close >= sixtyBreakoutLevel + atr * continuationATR)
+if (continuation1Event)
+    continuation1Seen := (true)
+    continuation1High := (high)
+    continuation1Bar := (bar_index)
+//====================================================
+// CONTINUATION PULLBACK
+//====================================================
+if (inventoryLive and inRTH and continuation1Seen and not continuationPullbackSeen and bar_index > continuation1Bar)
+    bool continuationPullbackEvent = (low < low[1] or close < close[1])
+    if (continuationPullbackEvent)
+        continuationPullbackSeen := (true)
+        continuationPullbackBar := (bar_index)
+//====================================================
+// CONTINUATION 2
+//====================================================
+bool continuation2Event = (inventoryLive and inRTH and continuationPullbackSeen and not na( continuationPullbackBar ) and bar_index > continuationPullbackBar and close > open and close > high[1] and not na( continuation1High ) and close > continuation1High)
+//====================================================
+// TARGET ENGINE
+//====================================================
+int targetBefore = (activeTargetQty)
+bool freshStructuralEvidence = (false)
+if (inventoryLive and inRTH)
+    // REVERSAL
+    if (reversalEvidenceCount == 3 and activeTargetQty < 4)
+        activeTargetQty := (4)
+        structuralState := ("3/3 REVERSAL")
+        reversalMode := (true)
+        freshStructuralEvidence := (true)
+    if (( anyFailedLowBreak or bottomRejection ) and activeTargetQty < 6)
+        activeTargetQty := (6)
+        structuralState := ("LOW REJECTION")
+        reversalMode := (true)
+        freshStructuralEvidence := (true)
+    if (( microDoubleBottom or h2Event ) and activeTargetQty < 8)
+        activeTargetQty := (8)
+        structuralState := (h2Event ? "H2" : "DOUBLE BOTTOM")
+        reversalMode := (true)
+        freshStructuralEvidence := (true)
+    if (bullFollowThrough and activeTargetQty < 10)
+        activeTargetQty := (10)
+        structuralState := ("FOLLOW THROUGH")
+        freshStructuralEvidence := (true)
+    if (higherLowBreak and activeTargetQty < 12)
+        activeTargetQty := (12)
+        structuralState := ("HIGHER LOW")
+        freshStructuralEvidence := (true)
+    // CONTINUATION
+    if (freshBreakOpening and activeTargetQty < 10)
+        activeTargetQty := (10)
+        structuralState := ("OPENING RANGE BREAKOUT")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (freshBreak15 and activeTargetQty < 12)
+        activeTargetQty := (12)
+        structuralState := ("15M BREAKOUT")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (freshBreakPriorRTH and activeTargetQty < 14)
+        activeTargetQty := (14)
+        structuralState := ("PRIOR RTH BREAKOUT")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (freshBreak30 and activeTargetQty < 16)
+        activeTargetQty := (16)
+        structuralState := ("30M BREAKOUT")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (freshBreak60 and activeTargetQty < 18)
+        activeTargetQty := (18)
+        structuralState := ("60M BREAKOUT")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (sixtyPullbackEvent and activeTargetQty < 20)
+        activeTargetQty := (20)
+        structuralState := ("BREAKOUT PULLBACK")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (continuation1Event and activeTargetQty < 22)
+        activeTargetQty := (22)
+        structuralState := ("CONTINUATION 1")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+    if (continuation2Event and activeTargetQty < 24)
+        activeTargetQty := (24)
+        structuralState := ("CONTINUATION 2")
+        continuationMode := (true)
+        freshStructuralEvidence := (true)
+activeTargetQty := (math.min( activeTargetQty, intradayMaxQty ))
+bool targetRaisedThisBar = (activeTargetQty > targetBefore)
+if (inventoryLive and inRTH and freshStructuralEvidence)
+    lastDecayBar := (bar_index)
+    buildWindowUntilBar := (bar_index + strengthBuildBars)
+    buildAnchor := (close)
+    dayLane := (reversalMode and continuationMode ? "MIXED" : continuationMode ? "CONTINUATION" : reversalMode ? "REVERSAL" : dayLane)
+//====================================================
+// TARGET DECAY
+//====================================================
+if (inventoryLive and inRTH and not na( lastDecayBar ) and bar_index - lastDecayBar >= targetDecayBars and activeTargetQty > 2)
+    activeTargetQty := (math.max( 2, activeTargetQty - 2 ))
+    lastDecayBar := (bar_index)
+    structuralState := ("TARGET DECAY")
+//====================================================
+// BASE GOAL
+//====================================================
+f_baseGoal(
+     int target
+) =>
+    int goal = (int( math.ceil( target / 4.0 ) ) * 2)
+    math.min(
+         goal,
+         target
+     )
+int baseGoal = (f_baseGoal( activeTargetQty ))
+//====================================================
+// INITIAL TARGET CANDIDATE
+//====================================================
+int continuationInitialTarget = (freshBreak60 ? 18 : freshBreak30 ? 16 : freshBreakPriorRTH ? 14 : freshBreak15 ? 12 : freshBreakOpening ? 10 : 8)
+//====================================================
+// INITIAL ORDER DECISION
+//
+// State is NOT committed until actual fill.
+//====================================================
+bool reversalInitialSignal = (( posNow == 0 and not pendingInitialOrder ) and ( reversalProbe or controlledDriftBuySignal ))
+bool continuationInitialSignal = (posNow == 0 and not pendingInitialOrder and continuationEntry)
+bool initialSignal = (reversalInitialSignal or continuationInitialSignal)
+if (initialSignal)
+    bool mixedInitial = (reversalInitialSignal and continuationInitialSignal)
+    bool strongInitial = (strongReversalProbe or strongContinuationEntry or mixedInitial or controlledDriftExtreme)
+    buyOrderSubmitted := (true)
+    buyOrderQty := (strongInitial ? math.min( 4, intradayMaxQty ) : lotQty)
+    buyOrderReason := (mixedInitial ? "MIXED_INITIAL" : continuationInitialSignal ? "TREND_INITIAL" : "REVERSAL_INITIAL")
+    pendingInitialOrder := (true)
+    pendingInitialBar := (bar_index)
+    pendingInitialLane := (mixedInitial ? "MIXED" : continuationInitialSignal ? "CONTINUATION" : "REVERSAL")
+    pendingInitialTarget := (mixedInitial ? math.max( strongReversalProbe ? 4 : 2, continuationInitialTarget ) : continuationInitialSignal ? continuationInitialTarget : strongReversalProbe ? 4 : 2)
+    if (controlledDriftExtreme)
+        pendingInitialTarget := (math.max( pendingInitialTarget, 8 ))
+    pendingInitialTarget := (math.min( pendingInitialTarget, intradayMaxQty ))
+    pendingInitialATR := (atr)
+    if (mixedInitial)
+        reversalInitialCount += (1)
+        continuationInitialCount += (1)
+    else if (continuationInitialSignal)
+        continuationInitialCount += (1)
+    else
+        reversalInitialCount += (1)
+//====================================================
+// BUY TRIGGERS FOR EXISTING INVENTORY
+//====================================================
+bool easyPullback = (inRTH and ( rsi2 <= easyAddRSI or wr2 <= easyAddWR or rangeRetest or low < low[1] or validDownPush or anyFailedLowBreak ))
+bool strengthEvent = (inRTH and ( strongBullBar or bullFollowThrough or freshBreakOpening or freshBreak15 or freshBreakPriorRTH or freshBreak30 or freshBreak60 or h2Event or higherLowBreak or sixtyPullbackEvent or continuation1Event or continuation2Event ))
+bool buildWindowActive = (inventoryLive and inRTH and not na( buildWindowUntilBar ) and bar_index <= buildWindowUntilBar)
+bool continuationCatchupHold = (continuationMode and buildWindowActive and not anyFailedHighBreak and not na( buildAnchor ) and close >= buildAnchor - atr * 0.25 and close <= buildAnchor + atr * maxCatchupExtensionATR and ( close > open or close >= close[1] ))
+bool addCooldownOK = (na( lastInventoryActionBar ) or bar_index - lastInventoryActionBar > addCooldownBars)
+//====================================================
+// REPAIR LOWER REBUY
+//====================================================
+float repairLowerGap = (math.max( atr * lowerRebuyATR, syminfo.mintick * lowerRebuyTicks ))
+bool repairPriceLower = (repairPending and not na( repairSellReference ) and low <= repairSellReference - repairLowerGap)
+bool repairAddSignal = (( inventoryLive and buyWindow and repairPending and repairPriceLower ) and ( posNow < repairRestoreCap and posNow + lotQty <= repairRestoreCap and posNow + lotQty <= intradayMaxQty ) and ( easyPullback or evidenceReversal or continuationEntry or controlledDriftBuySignal ))
+//====================================================
+// ANTI-STALL BASE CATCH-UP
+//
+// If we are still below Base Goal but no fill has occurred
+// for antiStallBars, permit one +2 catch-up when today's
+// lane structure is still valid.
+//
+// Continuation lane:
+// - no failed high breakout,
+// - current bar not bearish,
+// - structure is still continuation-active.
+//
+// Reversal lane:
+// - still has >=2/3 reversal evidence,
+// - and current bar shows recovery / rejection.
+//
+// This is deliberately NOT a blind timer BUY.
+//====================================================
+int barsWithoutFillForSignal = (not na( lastFillBar ) ? bar_index - lastFillBar : 1000000)
+bool antiStallContinuationOK = (continuationMode and not anyFailedHighBreak and close >= open)
+bool antiStallReversalOK = (reversalMode and reversalEvidenceCount >= 2 and ( bottomRejection or anyFailedLowBreak or close > close[1] ))
+bool antiStallBaseSignal = (inventoryLive and buyWindow and posNow < baseGoal and posNow + lotQty <= baseGoal and posNow + lotQty <= activeTargetQty and barsWithoutFillForSignal >= antiStallBars and addCooldownOK and ( antiStallContinuationOK or antiStallReversalOK ))
+//====================================================
+// BASE BUILD
+//====================================================
+bool driftPullbackPermission = (( not controlledUpsideBias ) or ( controlledDriftDip or vwapZ <= -0.50 or pos60 <= bottomRangePct or posCurrentRTH <= bottomRangePct ))
+bool baseBuildSignal = (( inventoryLive and buyWindow and posNow < baseGoal and posNow + lotQty <= baseGoal and posNow + lotQty <= activeTargetQty and addCooldownOK ) and ( ( easyPullback and driftPullbackPermission ) or targetRaisedThisBar or strengthEvent or continuationCatchupHold or antiStallBaseSignal or controlledDriftBuySignal ))
+//====================================================
+// OVERLAY BUY
+//====================================================
+bool overlayBuySignal = (( inventoryLive and buyWindow and posNow >= baseGoal and posNow < activeTargetQty and posNow + lotQty <= activeTargetQty and addCooldownOK ) and ( ( easyPullback and driftPullbackPermission ) or strengthEvent or controlledDriftBuySignal ))
+//====================================================
+// PROFIT / REPAIR SELL SIGNALS
+//====================================================
+float overlayProfitMove = (math.max( atr * recycleTPATR, syminfo.mintick * recycleMinTicks ))
+float baseRotationMove = (math.max( atr * baseRotateATR, syminfo.mintick * baseRotateMinTicks ))
+bool overlayProfitSell = (inventoryLive and inRTH and posNow > baseGoal and not na( lastBuyFillPrice ) and ( close >= lastBuyFillPrice + overlayProfitMove or ( rsi2 >= fastSellRSI and close > lastBuyFillPrice ) ))
+bool baseProfitRotationSell = (( inventoryLive and inRTH and posNow >= 4 and posNow <= baseGoal ) and ( not protectCoreBase ) and ( close >= strategy.position_avg_price + baseRotationMove ) and ( rsi2 >= baseSellRSI or anyFailedHighBreak ))
+float recentLow = (ta.lowest( low, repairLookback ))
+float overlayRepairMove = (math.max( atr * overlayRepairSellATR, syminfo.mintick * overlayRepairSellTicks ))
+float baseRepairMove = (math.max( atr * baseRepairSellATR, syminfo.mintick * baseRepairSellTicks ))
+float requiredRepairMove = (posNow <= baseGoal ? baseRepairMove : overlayRepairMove)
+bool meaningfulRepairRebound = (inRTH and close - recentLow >= requiredRepairMove)
+bool reboundEvidence = (inRTH and ( rsi2 > rsi2[1] or wr2 > wr2[1] or close > open or close > high[1] ))
+bool underwater = (inventoryLive and strategy.openprofit < 0)
+bool coreRotationEligible = (allowCoreRotation and not protectCoreBase and posNow == lotQty and inventoryAge >= coreRotationAgeBars and strategy.openprofit <= -coreRotationMinLoss)
+bool repairSlotAvailable = (( not useOneRepairSlot ) or ( not repairPending ))
+bool repairBaseFloorOK = (( not protectCoreBase ) or ( posNow - lotQty >= baseGoal ))
+bool repairLocationRecovered = (( not useRepairLocationGate ) or ( vwapZ >= repairMinVWAPZ and pos60 >= repairMin60Pos and posCurrentRTH >= repairMinSessionPos ))
+bool underwaterSellSignal = (( inventoryLive and inRTH and underwater and meaningfulRepairRebound and reboundEvidence ) and ( repairSlotAvailable and repairBaseFloorOK and repairLocationRecovered ) and ( posNow > lotQty or coreRotationEligible ))
+bool failedHighSellSignal = (( inventoryLive and inRTH and anyFailedHighBreak and posNow > lotQty ) and ( repairSlotAvailable and repairBaseFloorOK and repairLocationRecovered ) and ( close < open or rsi2 >= fastSellRSI or high - close >= candleRange * 0.35 ))
+bool excessTargetSellSignal = (inventoryLive and inRTH and posNow > activeTargetQty and reboundEvidence)
+bool coreProfitExit = (( inventoryLive and inRTH and posNow == lotQty and activeTargetQty <= 2 and not protectCoreBase ) and ( not na( coreATR ) and close >= strategy.position_avg_price + coreATR * coreTPATR ))
+//====================================================
+// V5.3 FAILED-REPAIR RESTORE
+//
+// A repair slot can finish only by:
+// 1) lower successful REBUY, or
+// 2) higher/timeout/late-session restoration.
+// No silent cancellation that leaves long exposure permanently missing.
+//====================================================
+float failedRepairRestoreMove = (math.max( atr * failedRepairRestoreATR, syminfo.mintick * failedRepairRestoreTicks ))
+bool strengthInvalidatesRepair = (( repairPending and inRTH and not na( repairSellReference ) and strengthEvent ) and ( close >= repairSellReference + atr * abandonRepairStrengthATR ))
+bool repairPriceFailedHigher = (( repairPending and inRTH and not na( repairSellReference ) ) and ( close >= repairSellReference + failedRepairRestoreMove ))
+bool repairTimedOut = (repairPending and repairAge >= repairLifeBars)
+bool repairLateSessionRestore = (( repairPending and inRTH and hh == 15 ) and ( mm >= 48 ))
+bool failedRepairRestoreSignal = (( inventoryLive and inRTH and repairPending and posNow < repairRestoreCap and posNow + lotQty <= repairRestoreCap and posNow + lotQty <= intradayMaxQty ) and ( repairPriceFailedHigher or strengthInvalidatesRepair or repairTimedOut or repairLateSessionRestore ))
+//====================================================
+// COST-AWARE OPPOSITE-SIDE CHURN CONTROL
+//
+// Normal BUY/SELL reversals require:
+// - a minimum number of bars since the opposite fill,
+// - and a minimum price displacement.
+//
+// Structural risk sells remain allowed immediately.
+//====================================================
+
+
+
+
+bool sellAfterBuyBarsOK = (na( lastBuyFillBar ) or bar_index - lastBuyFillBar >= oppositeSideCooldownBars)
+bool buyAfterSellBarsOK = (na( lastSellFillBar ) or bar_index - lastSellFillBar >= oppositeSideCooldownBars)
+float oppositeMoveFloor = (math.max( atr * minimumOppositeMoveATR, syminfo.mintick * 4 ))
+bool sellAfterBuyPriceOK = (lastFilledSide != "BUY" or na( lastInventoryFillPrice ) or close >= lastInventoryFillPrice + oppositeMoveFloor)
+bool buyAfterSellPriceOK = (lastFilledSide != "SELL" or na( lastInventoryFillPrice ) or close <= lastInventoryFillPrice - oppositeMoveFloor or freshStructuralEvidence)
+bool normalSellChurnOK = (sellAfterBuyBarsOK and sellAfterBuyPriceOK)
+bool normalBuyChurnOK = (buyAfterSellBarsOK and buyAfterSellPriceOK)
+//====================================================
+// ONE INVENTORY ACTION PER BAR
+//
+// Priority:
+// 1) TARGET / STRUCTURAL SELL
+// 2) PAIRED LOWER REPAIR BUY
+// 3) FAILED / TIMEOUT REPAIR RESTORE BUY
+// 4) BASE BUILD BUY
+// 5) OVERLAY PROFIT SELL
+// 6) BASE PROFIT ROTATION SELL (disabled when core protected)
+// 7) OVERLAY BUY
+//====================================================
+if (inventoryLive and inRTH and not buyOrderSubmitted and not sellOrderSubmitted)
+    if (excessTargetSellSignal)
+        sellOrderSubmitted := (true)
+        sellOrderQty := (math.min( lotQty, int( posNow ) ))
+        sellOrderReason := ("TARGET_TRIM")
+        riskSellCount += (1)
+    else if (failedHighSellSignal)
+        sellOrderSubmitted := (true)
+        sellOrderQty := (math.min( lotQty, int( posNow ) ))
+        sellOrderReason := ("REPAIR_SELL")
+        repairRestoreCap := (int( posNow ))
+        riskSellCount += (1)
+    else if (underwaterSellSignal)
+        sellOrderSubmitted := (true)
+        sellOrderQty := (math.min( lotQty, int( posNow ) ))
+        sellOrderReason := ("REPAIR_SELL")
+        repairRestoreCap := (int( posNow ))
+        riskSellCount += (1)
+    else if (repairAddSignal)
+        buyOrderSubmitted := (true)
+        buyOrderQty := (lotQty)
+        buyOrderReason := ("LOWER_REBUY")
+        repairBuyCount += (1)
+    else if (failedRepairRestoreSignal)
+        buyOrderSubmitted := (true)
+        buyOrderQty := (lotQty)
+        buyOrderReason := ("FAILED_RESTORE")
+        repairBuyCount += (1)
+    else if (baseBuildSignal and normalBuyChurnOK)
+        buyOrderSubmitted := (true)
+        buyOrderQty := (lotQty)
+        if (antiStallBaseSignal)
+            buyOrderReason := ("BASE_ANTISTALL")
+            antiStallBuyCount += (1)
+        else if (continuationCatchupHold or strengthEvent)
+            buyOrderReason := ("BASE_STRENGTH")
+            strengthBuyCount += (1)
+        else if (controlledDriftBuySignal)
+            buyOrderReason := ("DRIFT_BASE")
+            pullbackBuyCount += (1)
+        else
+            buyOrderReason := ("BASE_PULLBACK")
+            pullbackBuyCount += (1)
+        baseBuildCount += (1)
+    else if (overlayProfitSell and normalSellChurnOK)
+        sellOrderSubmitted := (true)
+        sellOrderQty := (lotQty)
+        sellOrderReason := ("PROFIT_SELL")
+        profitSellCount += (1)
+    else if (baseProfitRotationSell and normalSellChurnOK)
+        sellOrderSubmitted := (true)
+        sellOrderQty := (lotQty)
+        sellOrderReason := ("BASE_ROTATE")
+        profitSellCount += (1)
+    else if (coreProfitExit and normalSellChurnOK)
+        sellOrderSubmitted := (true)
+        sellOrderQty := (lotQty)
+        sellOrderReason := ("CORE_EXIT")
+        profitSellCount += (1)
+    else if (overlayBuySignal and normalBuyChurnOK)
+        buyOrderSubmitted := (true)
+        buyOrderQty := (lotQty)
+        if (strengthEvent)
+            buyOrderReason := ("OVERLAY_STRENGTH")
+            strengthBuyCount += (1)
+        else if (controlledDriftBuySignal)
+            buyOrderReason := ("DRIFT_OVERLAY")
+            pullbackBuyCount += (1)
+        else
+            buyOrderReason := ("OVERLAY_PULLBACK")
+            pullbackBuyCount += (1)
+        overlayBuyCount += (1)
+//====================================================
+// 16:12 OPTIONAL OVERNIGHT TRIM
+//
+// V5.3.3 default = OFF. With trim disabled, the strategy carries
+// the full existing long inventory overnight, subject only to the
+// intraday hard cap and broker margin model.
+//====================================================
+if (enableOvernightTrim and trimDecisionBar and posNow > overnightMaxQty and not sellOrderSubmitted and not buyOrderSubmitted)
+    sellOrderSubmitted := (true)
+    sellOrderQty := (posNow - overnightMaxQty)
+    sellOrderReason := ("OVERNIGHT_TRIM")
+    overnightTrimCount += (1)
+//====================================================
+// OPTIONAL EMERGENCY
+//====================================================
+if (emergencyEnabled and posNow > 0 and strategy.openprofit <= -emergencyLossDollar)
+    strategy.close_all(
+         immediately = true,
+         comment =
+             "EMERGENCY_KILL"
+    )
+//====================================================
+// SUBMIT NET BUY ORDER
+//
+// strategy.order() ignores pyramiding.
+//====================================================
+if (buyOrderSubmitted and buyOrderQty > 0)
+    float remainingLongCapacity = (math.max( intradayMaxQty - posNow, 0 ))
+    float safeBuyQty = (math.min( buyOrderQty, remainingLongCapacity ))
+    if (safeBuyQty > 0)
+        strategy.order(
+             "INV_BUY",
+             strategy.long,
+             qty =
+                 safeBuyQty,
+             comment =
+                 buyOrderReason
+        )
+        buyOrderCount += (1)
+        lastBuyOrderBar := (bar_index)
+        lastInventoryActionBar := (bar_index)
+        pendingOrderSide := ("BUY")
+        pendingOrderReason := (buyOrderReason)
+        pendingOrderQty := (safeBuyQty)
+        pendingOrderBar := (bar_index)
+//====================================================
+// SUBMIT NET SELL ORDER
+//
+// A short strategy.order() while long reduces
+// the net long position. Quantity is always <= position.
+//====================================================
+if (sellOrderSubmitted and sellOrderQty > 0 and posNow > 0)
+    float safeSellQty = (math.min( sellOrderQty, posNow ))
+    strategy.order(
+         "INV_SELL",
+         strategy.short,
+         qty =
+             safeSellQty,
+         comment =
+             sellOrderReason
+    )
+    sellOrderCount += (1)
+    lastSellOrderBar := (bar_index)
+    lastInventoryActionBar := (bar_index)
+    pendingOrderSide := ("SELL")
+    pendingOrderReason := (sellOrderReason)
+    pendingOrderQty := (safeSellQty)
+    pendingOrderBar := (bar_index)
+//====================================================
+// CUSTOM ORDER-CREATED MARKERS
+//====================================================
+plotshape(
+     (showOrderMarkers and buyOrderSubmitted),
+     title =
+         "BUY ORDER CREATED",
+     style =
+         shape.circle,
+     location =
+         location.belowbar,
+     text =
+         "B?",
+     size =
+         size.tiny,
+     color =
+         color.aqua,
+     textcolor =
+         color.black
+)
+plotshape(
+     (showOrderMarkers and sellOrderSubmitted),
+     title =
+         "SELL ORDER CREATED",
+     style =
+         shape.circle,
+     location =
+         location.abovebar,
+     text =
+         "S?",
+     size =
+         size.tiny,
+     color =
+         color.orange,
+     textcolor =
+         color.black
+)
+//====================================================
+// CUSTOM ACTUAL-FILL MARKERS
+//
+// Native TradingView strategy execution arrows should
+// ALSO appear when Chart Settings > Trading > Executions
+// is enabled.
+//====================================================
+plotshape(
+     (showTradeMarkers and actualBuy),
+     title =
+         "ACTUAL BUY FILL",
+     style =
+         shape.labelup,
+     location =
+         location.belowbar,
+     text =
+         "BUY",
+     size =
+         size.normal,
+     color =
+         color.lime,
+     textcolor =
+         color.black
+)
+plotshape(
+     (showTradeMarkers and actualSell),
+     title =
+         "ACTUAL SELL FILL",
+     style =
+         shape.labeldown,
+     location =
+         location.abovebar,
+     text =
+         "SELL",
+     size =
+         size.normal,
+     color =
+         color.red,
+     textcolor =
+         color.white
+)
+//====================================================
+// PUSH CURRENT RTH BAR INTO ROLLING ARRAYS
+//
+// AFTER signal calculations.
+//====================================================
+if (inRTH)
+    array.push(
+         rthHighs,
+         high
+    )
+    array.push(
+         rthLows,
+         low
+    )
+    if (array.size( rthHighs ) > 20)
+        array.shift(
+             rthHighs
+        )
+        array.shift(
+             rthLows
+        )
+//====================================================
+// DAILY MARK-TO-MARKET P&L
+//====================================================
+var float dayStartEquity = (na)
+var float dayStartNetProfit = (na)
+var int dayStartClosedTrades = (0)
+var float dayStartBoughtContracts = (0.0)
+var float dayStartSoldContracts = (0.0)
+var float cumulativeDayPnL = (0.0)
+var int completedDays = (0)
+var int positiveDays = (0)
+var int targetDays = (0)
+var float bestDay = (na)
+var float worstDay = (na)
+if (newRTH)
+    if (not na( dayStartEquity ))
+        float finishedDay = (strategy.equity - dayStartEquity)
+        completedDays += (1)
+        cumulativeDayPnL += (finishedDay)
+        if (finishedDay > 0)
+            positiveDays += (1)
+        if (finishedDay >= dailyTarget)
+            targetDays += (1)
+        bestDay := (na( bestDay ) ? finishedDay : math.max( bestDay, finishedDay ))
+        worstDay := (na( worstDay ) ? finishedDay : math.min( worstDay, finishedDay ))
+    dayStartEquity := (strategy.equity)
+    dayStartNetProfit := (strategy.netprofit)
+    dayStartClosedTrades := (strategy.closedtrades)
+    dayStartBoughtContracts := (boughtContracts)
+    dayStartSoldContracts := (soldContracts)
+float currentDayPnL = (not na( dayStartEquity ) ? strategy.equity - dayStartEquity : 0)
+float avgDailyPnL = (completedDays > 0 ? cumulativeDayPnL / completedDays : na)
+float positiveDayPct = (completedDays > 0 ? ( positiveDays / completedDays ) * 100 : na)
+float targetHitPct = (completedDays > 0 ? ( targetDays / completedDays ) * 100 : na)
+//====================================================
+// CURRENT-DAY TURNOVER DIAGNOSTICS
+//====================================================
+float realizedPnLToday = (not na( dayStartNetProfit ) ? strategy.netprofit - dayStartNetProfit : 0)
+int closedTradesToday = (strategy.closedtrades - dayStartClosedTrades)
+float contractSidesToday = (( boughtContracts - dayStartBoughtContracts ) + ( soldContracts - dayStartSoldContracts ))
+float avgRealizedPerClosedTrade = (closedTradesToday > 0 ? realizedPnLToday / closedTradesToday : na)
+float avgRealizedPerFillEvent = (( buyFillEvents + sellFillEvents ) > 0 ? realizedPnLToday / math.max( 1, buyFillEvents + sellFillEvents ) : na)
+//====================================================
+// PERFORMANCE / MARGIN DIAGNOSTICS
+//====================================================
+float totalPnL = (strategy.netprofit + strategy.openprofit)
+float winRate = (strategy.closedtrades > 0 ? ( strategy.wintrades / strategy.closedtrades ) * 100 : na)
+float grossLossAbs = (math.abs( strategy.grossloss ))
+float profitFactor = (grossLossAbs > 0 ? strategy.grossprofit / grossLossAbs : na)
+float estimatedCommission = (( boughtContracts + soldContracts ) * 0.62)
+float estimatedSlippageCost = (( boughtContracts + soldContracts ) * syminfo.mintick * syminfo.pointvalue)
+float estimatedTotalFriction = (estimatedCommission + estimatedSlippageCost)
+float estimatedGrossBeforeFriction = (totalPnL + estimatedTotalFriction)
+float contractNotional = (close * syminfo.pointvalue)
+float pineMarginPerContract = (contractNotional * 0.10)
+int pineMarginCapacity = (pineMarginPerContract > 0 ? int( math.floor( strategy.equity / pineMarginPerContract ) ) : 0)
+int ibkrIntradayCapacity = (ibkrIntradayInitialRef > 0 ? int( math.floor( strategy.equity / ibkrIntradayInitialRef ) ) : 0)
+int ibkrOvernightCapacity = (ibkrOvernightInitialRef > 0 ? int( math.floor( strategy.equity / ibkrOvernightInitialRef ) ) : 0)
+int displayTarget = (inRTH ? activeTargetQty : int( math.max( posNow, 0 ) ))
+int displayBase = (inRTH ? baseGoal : int( math.max( posNow, 0 ) ))
+string displayState = (inRTH ? structuralState : "OVERNIGHT HOLD")
+string displayLane = (inRTH ? dayLane : "INVENTORY ONLY")
+float targetFillPct = (displayTarget > 0 ? ( posNow / displayTarget ) * 100 : 0)
+float baseFillPct = (displayBase > 0 ? ( posNow / displayBase ) * 100 : 0)
+int barsSinceFill = (not na( lastFillBar ) ? bar_index - lastFillBar : 0)
+string repairText = (repairPending ? "PENDING " + str.tostring( repairAge ) + "/" + str.tostring( repairLifeBars ) : "OFF")
+//====================================================
+// DASHBOARD
+//====================================================
+var table dash = (table.new( position.top_right, 2, 54, border_width = 1 ))
+if (barstate.islast and showDashboard)
+    table.cell(dash, 0, 0, "VERSION")
+    table.cell(dash, 1, 0, "V5.3.3")
+    table.cell(dash, 0, 1, "Execution Model")
+    table.cell(dash, 1, 1, "strategy.order / next-open")
+    table.cell(dash, 0, 2, "Day Lane")
+    table.cell(dash, 1, 2, displayLane)
+    table.cell(dash, 0, 3, "State")
+    table.cell(dash, 1, 3, displayState)
+    table.cell(dash, 0, 4, "Reversal Evidence")
+    table.cell(
+         dash,
+         1,
+         4,
+         str.tostring(
+             reversalEvidenceCount
+         ) +
+         "/3"
+    )
+    table.cell(dash, 0, 5, "Range Score")
+    table.cell(
+         dash,
+         1,
+         5,
+         str.tostring(
+             rangeScore
+         ) +
+         "/5"
+    )
+    table.cell(dash, 0, 6, "Target / Base")
+    table.cell(
+         dash,
+         1,
+         6,
+         str.tostring(
+             displayTarget
+         ) +
+         " / " +
+         str.tostring(
+             displayBase
+         )
+    )
+    table.cell(dash, 0, 7, "Position MES")
+    table.cell(
+         dash,
+         1,
+         7,
+         str.tostring(
+             posNow
+         )
+    )
+    table.cell(dash, 0, 8, "Target / Base Fill")
+    table.cell(
+         dash,
+         1,
+         8,
+         str.tostring(
+             targetFillPct,
+             "#.0"
+         ) +
+         "% / " +
+         str.tostring(
+             baseFillPct,
+             "#.0"
+         ) +
+         "%"
+    )
+    table.cell(dash, 0, 9, "Repair")
+    table.cell(dash, 1, 9, repairText)
+    table.cell(dash, 0, 10, "RSI2 / W%R2")
+    table.cell(
+         dash,
+         1,
+         10,
+         str.tostring(
+             rsi2,
+             "#.0"
+         ) +
+         " / " +
+         str.tostring(
+             wr2,
+             "#.0"
+         )
+    )
+    table.cell(dash, 0, 11, "Bars Since Fill")
+    table.cell(
+         dash,
+         1,
+         11,
+         str.tostring(
+             barsSinceFill
+         )
+    )
+    table.cell(dash, 0, 12, "BUY / SELL Fills")
+    table.cell(
+         dash,
+         1,
+         12,
+         str.tostring(
+             buyFillEvents
+         ) +
+         " / " +
+         str.tostring(
+             sellFillEvents
+         )
+    )
+    table.cell(dash, 0, 13, "BUY / SELL Orders")
+    table.cell(
+         dash,
+         1,
+         13,
+         str.tostring(
+             buyOrderCount
+         ) +
+         " / " +
+         str.tostring(
+             sellOrderCount
+         )
+    )
+    table.cell(dash, 0, 14, "Unfilled Orders")
+    table.cell(
+         dash,
+         1,
+         14,
+         str.tostring(
+             unfilledOrderCount
+         )
+    )
+    table.cell(dash, 0, 15, "Max MES")
+    table.cell(
+         dash,
+         1,
+         15,
+         str.tostring(
+             maxMESSeen,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 16, "TV Margin Capacity")
+    table.cell(
+         dash,
+         1,
+         16,
+         str.tostring(
+             pineMarginCapacity
+         ) +
+         " MES"
+    )
+    table.cell(dash, 0, 17, "IBKR Intra/ON Cap")
+    table.cell(
+         dash,
+         1,
+         17,
+         str.tostring(
+             ibkrIntradayCapacity
+         ) +
+         " / " +
+         str.tostring(
+             ibkrOvernightCapacity
+         )
+    )
+    table.cell(dash, 0, 18, "Contract Notional")
+    table.cell(
+         dash,
+         1,
+         18,
+         "$" +
+         str.tostring(
+             contractNotional,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 19, "TV Margin/Contract")
+    table.cell(
+         dash,
+         1,
+         19,
+         "$" +
+         str.tostring(
+             pineMarginPerContract,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 20, "Base / Overlay Buys")
+    table.cell(
+         dash,
+         1,
+         20,
+         str.tostring(
+             baseBuildCount
+         ) +
+         " / " +
+         str.tostring(
+             overlayBuyCount
+         )
+    )
+    table.cell(dash, 0, 21, "Repair Buy / Sell")
+    table.cell(
+         dash,
+         1,
+         21,
+         str.tostring(
+             repairBuyCount
+         ) +
+         " / " +
+         str.tostring(
+             repairSellCount
+         )
+    )
+    table.cell(dash, 0, 22, "Profit / Risk Sells")
+    table.cell(
+         dash,
+         1,
+         22,
+         str.tostring(
+             profitSellCount
+         ) +
+         " / " +
+         str.tostring(
+             riskSellCount
+         )
+    )
+    table.cell(dash, 0, 23, "Rev / Trend Starts")
+    table.cell(
+         dash,
+         1,
+         23,
+         str.tostring(
+             reversalInitialCount
+         ) +
+         " / " +
+         str.tostring(
+             continuationInitialCount
+         )
+    )
+    table.cell(dash, 0, 24, "Open P&L")
+    table.cell(
+         dash,
+         1,
+         24,
+         "$" +
+         str.tostring(
+             strategy.openprofit,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 25, "Total P&L")
+    table.cell(
+         dash,
+         1,
+         25,
+         "$" +
+         str.tostring(
+             totalPnL,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 26, "Avg Daily P&L")
+    table.cell(
+         dash,
+         1,
+         26,
+         na(
+             avgDailyPnL
+         )
+         ? "-"
+         : "$" +
+           str.tostring(
+               avgDailyPnL,
+               "#"
+           )
+    )
+    table.cell(dash, 0, 27, "Positive Days")
+    table.cell(
+         dash,
+         1,
+         27,
+         na(
+             positiveDayPct
+         )
+         ? "-"
+         : str.tostring(
+               positiveDayPct,
+               "#.0"
+           ) +
+           "%"
+    )
+    table.cell(dash, 0, 28, "Days >= $600")
+    table.cell(
+         dash,
+         1,
+         28,
+         str.tostring(
+             targetDays
+         ) +
+         " / " +
+         str.tostring(
+             completedDays
+         )
+    )
+    table.cell(dash, 0, 29, "Best / Worst Day")
+    table.cell(
+         dash,
+         1,
+         29,
+         na(
+             bestDay
+         )
+         ? "-"
+         : "$" +
+           str.tostring(
+               bestDay,
+               "#"
+           ) +
+           " / $" +
+           str.tostring(
+               worstDay,
+               "#"
+           )
+    )
+    table.cell(dash, 0, 30, "Max Drawdown")
+    table.cell(
+         dash,
+         1,
+         30,
+         "$" +
+         str.tostring(
+             strategy.max_drawdown,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 31, "Worst Open P&L")
+    table.cell(
+         dash,
+         1,
+         31,
+         "$" +
+         str.tostring(
+             worstOpenPnL,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 32, "Win Rate / PF")
+    table.cell(
+         dash,
+         1,
+         32,
+         (
+             na(
+                 winRate
+             )
+             ? "-"
+             : str.tostring(
+                   winRate,
+                   "#.0"
+               ) +
+               "%"
+         ) +
+         " / " +
+         (
+             na(
+                 profitFactor
+             )
+             ? "-"
+             : str.tostring(
+                   profitFactor,
+                   "#.00"
+               )
+         )
+    )
+    table.cell(dash, 0, 33, "Cost Model")
+    table.cell(
+         dash,
+         1,
+         33,
+         "$0.62/side + 1t"
+    )
+    table.cell(dash, 0, 34, "MTM P&L Today")
+    table.cell(
+         dash,
+         1,
+         34,
+         "$" +
+         str.tostring(
+             currentDayPnL,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 35, "Realized P&L Today")
+    table.cell(
+         dash,
+         1,
+         35,
+         "$" +
+         str.tostring(
+             realizedPnLToday,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 36, "Closed Trades Today")
+    table.cell(
+         dash,
+         1,
+         36,
+         str.tostring(
+             closedTradesToday
+         )
+    )
+    table.cell(dash, 0, 37, "Contract Sides Today")
+    table.cell(
+         dash,
+         1,
+         37,
+         str.tostring(
+             contractSidesToday,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 38, "Avg Realized/Closed")
+    table.cell(
+         dash,
+         1,
+         38,
+         na(
+             avgRealizedPerClosedTrade
+         )
+         ? "-"
+         : "$" +
+           str.tostring(
+               avgRealizedPerClosedTrade,
+               "#.0"
+           )
+    )
+    table.cell(dash, 0, 39, "Anti-Stall Buys")
+    table.cell(
+         dash,
+         1,
+         39,
+         str.tostring(
+             antiStallBuyCount
+         )
+    )
+    table.cell(dash, 0, 40, "Strength / Pullback Buys")
+    table.cell(
+         dash,
+         1,
+         40,
+         str.tostring(
+             strengthBuyCount
+         ) +
+         " / " +
+         str.tostring(
+             pullbackBuyCount
+         )
+    )
+    table.cell(dash, 0, 41, "Daily Goal")
+    table.cell(
+         dash,
+         1,
+         41,
+         "$600 avg target"
+    )
+
+
+
+
+    table.cell(dash, 0, 42, "Est Commission")
+    table.cell(
+         dash,
+         1,
+         42,
+         "$" +
+         str.tostring(
+             estimatedCommission,
+             "#"
+         )
+    )
+
+
+
+
+    table.cell(dash, 0, 43, "Est Slippage")
+    table.cell(
+         dash,
+         1,
+         43,
+         "$" +
+         str.tostring(
+             estimatedSlippageCost,
+             "#"
+         )
+    )
+
+
+
+
+    table.cell(dash, 0, 44, "Est Total Friction")
+    table.cell(
+         dash,
+         1,
+         44,
+         "$" +
+         str.tostring(
+             estimatedTotalFriction,
+             "#"
+         )
+    )
+
+
+
+
+    table.cell(dash, 0, 45, "Est Gross Before Cost")
+    table.cell(
+         dash,
+         1,
+         45,
+         "$" +
+         str.tostring(
+             estimatedGrossBeforeFriction,
+             "#"
+         )
+    )
+    table.cell(dash, 0, 46, "RTH VWAP Z")
+    table.cell(
+         dash,
+         1,
+         46,
+         str.tostring(
+             vwapZ,
+             "#.00"
+         )
+    )
+    table.cell(dash, 0, 47, "60m / Session RP")
+    table.cell(
+         dash,
+         1,
+         47,
+         str.tostring(
+             pos60 *
+             100,
+             "#.0"
+         ) +
+         "% / " +
+         str.tostring(
+             posCurrentRTH *
+             100,
+             "#.0"
+         ) +
+         "%"
+    )
+    table.cell(dash, 0, 48, "5D RTH RP")
+    table.cell(
+         dash,
+         1,
+         48,
+         str.tostring(
+             pos5D *
+             100,
+             "#.0"
+         ) +
+         "%"
+    )
+    table.cell(dash, 0, 49, "Drift Location Score")
+    table.cell(
+         dash,
+         1,
+         49,
+         str.tostring(
+             driftLocationScore
+         ) +
+         "/4"
+    )
+    table.cell(dash, 0, 50, "VWAP Deep Reclaim")
+    table.cell(
+         dash,
+         1,
+         50,
+         vwapDeepReclaim
+         ? "YES"
+         : "NO"
+    )
+    table.cell(dash, 0, 51, "Repair Success / Restore")
+    table.cell(
+         dash,
+         1,
+         51,
+         str.tostring(
+             repairSuccessFillCount
+         ) +
+         " / " +
+         str.tostring(
+             repairFailedRestoreFillCount
+         )
+    )
+    table.cell(dash, 0, 52, "Repair SELL Gate")
+    table.cell(
+         dash,
+         1,
+         52,
+         (repairSlotAvailable and repairBaseFloorOK and repairLocationRecovered)
+         ? "OPEN"
+         : "BLOCKED"
+    )
+    table.cell(dash, 0, 53, "Drift Bias Buys")
+    table.cell(
+         dash,
+         1,
+         53,
+         str.tostring(
+             controlledDriftBuyCount
+         )
+    )

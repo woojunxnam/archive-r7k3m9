@@ -1,0 +1,349 @@
+\# Wave A Preregistration V0 — TEST34 + TEST35 + TEST37
+
+
+
+Date: 2026-09-24
+
+Status: CONCEPT LOCK / NON-PNL RESEARCH AUTHORIZED / NUMERIC RULES NOT FROZEN / PNL NOT AUTHORIZED
+
+
+
+\#\# Objective
+
+Combine three closely related VWAP/state hypotheses into one shared research wave:
+
+
+
+TEST34:
+
+Dynamic Value-Area Auction State.
+
+
+
+TEST35:
+
+VWAP Excursion Energy / Memory / Elasticity.
+
+
+
+TEST37:
+
+VWAP Standard-Deviation State.
+
+
+
+The Wave asks:
+
+which causal 15m market states create genuinely distinct, testable 3m/5m execution setups with favorable path structure?
+
+
+
+\#\# Primary markets/session
+
+ES / NQ / RTY / YM.
+
+RTH DAY only.
+
+
+
+\#\# Shared canonical architecture
+
+Ground truth:
+
+canonical 1m.
+
+
+
+Deterministically aggregate:
+
+3m
+
+5m
+
+15m.
+
+
+
+15m = confirmed state clock only.
+
+
+
+Execution lanes:
+
+TF5 = 15m confirmed state + native 5m setup/entry/exit.
+
+TF3 = 15m confirmed state + native 3m setup/entry/exit.
+
+
+
+No direct 3m-to-5m dependency.
+
+
+
+\#\# TEST34 feature families
+
+15m state candidates:
+
+\- developing VAH/VAL/POC;
+
+\- VWAP relative to value;
+
+\- value width;
+
+\- value migration;
+
+\- prior-value re-entry;
+
+\- acceptance / failure;
+
+\- value compression / expansion.
+
+
+
+Execution setup concepts:
+
+\- edge retest after migration;
+
+\- failed breakout -\> re-entry;
+
+\- prior-value reclaim;
+
+\- compression release -\> first edge retest.
+
+
+
+\#\# TEST35 feature families
+
+15m state candidates:
+
+\- duration of same-side VWAP excursion;
+
+\- integrated normalized distance;
+
+\- signed energy;
+
+\- volume-weighted energy;
+
+\- max displacement;
+
+\- extension efficiency;
+
+\- elasticity / recovery;
+
+\- adverse velocity;
+
+\- path smoothness.
+
+
+
+Execution setup concepts:
+
+\- high-energy shallow pullback continuation;
+
+\- energy divergence exhaustion;
+
+\- deep excursion + fast elasticity mean reversion;
+
+\- deep excursion + weak elasticity continuation.
+
+
+
+\#\# TEST37 feature families
+
+15m state candidates:
+
+\- causal session VWAP;
+
+\- causal volume-weighted dispersion;
+
+\- standardized price location;
+
+\- sigma-band dwell;
+
+\- sigma-width compression/expansion;
+
+\- VWAP slope;
+
+\- standardized-distance divergence.
+
+
+
+Execution setup concepts:
+
+\- sigma-band walk;
+
+\- outer-band failure -\> inner re-entry;
+
+\- sigma expansion -\> first pullback;
+
+\- deep standardized excursion -\> reclaim.
+
+
+
+\#\# Shared controls
+
+Every treatment must retain a simpler control:
+
+\- raw value event;
+
+\- raw distance/dwell state;
+
+\- raw band touch;
+
+\- raw excursion state.
+
+
+
+A complex treatment cannot be considered distinct only because trade count falls.
+
+
+
+\#\# Non-PnL pruning
+
+Before any PnL:
+
+\- compute feature/state density;
+
+\- compare overlap among T34/T35/T37 concepts;
+
+\- measure same-bar and same-session collision;
+
+\- detect near-duplicate states;
+
+\- reject sparse/unimplementable/redundant concepts;
+
+\- propose a compact economic candidate set.
+
+
+
+Do not expand all raw ideas into TF5 and TF3.
+
+
+
+First prune economic hypotheses.
+
+Then pair surviving hypotheses across TF5 / TF3.
+
+
+
+\#\# Candidate-volume target
+
+Aim for approximately:
+
+6-10 economic directional hypotheses before lane expansion,
+
+then roughly 12-20 frozen lane-specific directional IDs total where practical.
+
+
+
+This is a target, not a reason to discard a clearly distinct useful hypothesis.
+
+
+
+\#\# MTF safety
+
+Inherit:
+
+MTF\_EXECUTION\_LANES\_STANDARD\_V1\_2026-09-24
+
+Drive ID:
+
+1Xu-fzGJ2v7mKXruy4A7U1FQDdTyBX4HNxWYUhSs4voU
+
+
+
+15m state must be confirmed.
+
+No developing 15m state.
+
+
+
+\#\# Prop-friendly emphasis
+
+Non-PnL evaluation should describe whether a candidate structurally supports:
+
+\- nearby invalidation;
+
+\- reasonable cadence;
+
+\- low collision burden;
+
+\- short/moderate expected setup delay;
+
+\- complete 1m path reconstruction.
+
+
+
+Do not infer profitability or Prop fit before PnL.
+
+
+
+\#\# Structural exit philosophy
+
+Structural invalidation may be preregistered only if it naturally follows from the mechanism:
+
+\- value-edge failure;
+
+\- elasticity-state failure;
+
+\- sigma-state failure.
+
+
+
+Do not create large exit grids.
+
+
+
+\#\# Parallel isolation
+
+Wave A may proceed while TEST33 Claude is running.
+
+
+
+Wave A research must NOT inspect TEST33 PnL.
+
+Wave A candidate selection must NOT depend on which TEST33 mechanisms win or lose.
+
+
+
+Wave A stops at numeric-freeze proposal until ChatGPT review.
+
+
+
+\#\# Legacy individual TEST files
+
+Existing TEST34/35/37 concept documents remain historical/source material.
+
+This Wave preregistration supersedes separate end-to-end pipelines for forward execution.
+
+
+
+END
+
+
+
+\#\# Survivor-only Exit Response Curve
+
+
+
+Wave A standalone BASE survivors inherit:
+
+SURVIVOR\_EXIT\_RESPONSE\_CURVE\_STANDARD\_V1\_2026-09-24
+
+Drive ID:
+
+1ySvN1uUsUyafiA0sPqOdUhZJ8SC9Obqjv44necwWbH4
+
+
+
+This does NOT expand the non-PnL candidate matrix.
+
+Do not create TP variants before standalone BASE survival.
+
+Frozen post-survivor ladder:
+
+BASE / +0.50 / +0.75 / +1.00 / +1.25 / +1.50 / +1.75 / +2.00 ATR\_PREV.
+
+Bulk curve computation is local Python; TradingView Deep is not multiplied by all TP levels.
+
+

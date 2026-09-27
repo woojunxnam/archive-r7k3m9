@@ -1,0 +1,2356 @@
+﻿//@version=6
+strategy("SOXL 5m", overlay=true,
+     initial_capital=140000, currency=currency.USD,
+     default_qty_type=strategy.fixed, default_qty_value=1,
+     pyramiding=15, close_entries_rule="ANY",
+     commission_type=strategy.commission.percent, commission_value=0.04, slippage=2,
+     backtest_fill_limits_assumption=2,
+     margin_long=100, margin_short=100,
+     process_orders_on_close=false, calc_on_order_fills=false, calc_on_every_tick=false,
+     use_bar_magnifier=true, max_labels_count=500, max_lines_count=500)
+
+
+// ============================================================================
+// SOXL 5m — native 5m long-only C0 + G0/E1 + VWAP research strategy.
+// Also designed for direct portability testing on TQQQ with the same frozen rules.
+// MATH-A excluded.
+// V5/V6 established the frozen SOXL research control:
+// BB_U4_U6 + TREND_CLUSTER + CURRENT trend exit.
+// V12 freezes the tactical engine, synchronizes the virtual ledger with the
+// realistic TradingView fill model, and tests a smarter long-horizon bull core.
+// The smart core uses confirmed SOXX daily state because SOXX and SOXL reference
+// the same NYSE Semiconductor Index while SOXX is not daily 3x leveraged.
+// OFFENSE = frozen 65m bull-trend sleeve.
+// DEFENSE = frozen timeout-cluster governor + V7 proactive C0 slot cap.
+// The original depression feature B remains FROZEN at SMA23 +/-2σ.
+// Progressive C0 admission remains the mean-reversion tail-risk control.
+//
+// VWAP roles:
+// - EXTREME / lower-2SD reclaim can admit STARTER.
+// - deeper negative VWAP Z confirms DIP.
+// - lower-band reclaim / acceptance confirms RECOVERY.
+// - optional VWAP ladder reductions use lower-1SD, -0.5SD, then VWAP.
+// - existing RISK/TIME/CATASTROPHIC/SOFT remain higher priority.
+//
+// Run on SOXL or TQQQ 5m RTH standard candles.
+// Alpha clock = native completed 5m bars; market entries fill next 5m Open.
+// C0 limits rest for the next 5m bar. Bar Magnifier may use lower-timeframe data
+// inside TradingView where available, but strategy state is native 5m.
+//
+// Timing contract:
+// - 5m features use each completed chart bar directly.
+// - 65m context is built causally from 13 completed 5m bars aligned to 09:30 ET.
+// - market-style MINI actions are submitted at a 5m close and fill next 5m Open.
+// - C0 buy/rebound limits are submitted at each 5m close for the next 5m bar.
+// - Strategy Tester charges 2 bps per fill as a percent commission proxy.
+// - Market/stop orders use 1 tick slippage; limit fills require 1 tick beyond.
+// - 100% long margin prevents simulated leverage beyond funded cash.
+// - The source per-share commission component remains in the virtual ledger only.
+// - an internal virtual ledger mirrors the frozen Python OHLC economics and drives
+//   logical lot selection. TradingView fills can still differ on same-bar buy/sell
+//   ambiguity; a dashboard mismatch flag is provided.
+// ============================================================================
+
+
+// ----------------------------- Inputs ----------------------------------------
+// V12 UI policy:
+// - Prior research choices are frozen as constants, not user inputs.
+// - Change ONLY the V12 smart-core mode during this test.
+// - Operational display toggles remain editable.
+//
+// TradingView input groups organize the Inputs tab, but frozen inputs would still
+// remain visible. Hard-coding frozen research authority keeps the page short.
+
+
+string TZ = "America/New_York"
+string RTH = "0930-1600:23456"
+float ACCOUNT_START = 140000.0
+
+
+// ---- Frozen research authority ----------------------------------------------
+float SHARED_BUDGET = 80000.0
+float MINI_BUDGET = 10000.0
+float MINI_RISK = 250.0
+float COST_BPS = 4.0
+
+// ---- V18 frozen production-candidate architecture ---------------------------
+string V17_ABLATION_MODE = "NO_MINI"
+// Production candidate under stress: SMA_STACK Smart Core + C0 + Trend.
+// MINI is disabled after V17 ablation.
+
+bool allowMini = V17_ABLATION_MODE != "NO_MINI" and V17_ABLATION_MODE != "SMART_ONLY"
+bool allowCore = V17_ABLATION_MODE != "NO_C0" and V17_ABLATION_MODE != "SMART_ONLY"
+bool c0ProgressiveAdmission = true
+bool c0VetoDeclineAcceleration = true
+
+
+bool enableVWAP = true
+float VWAP_START_Z = -1.50
+float VWAP_DIP_Z = -1.75
+int VWAP_ACCEPT_BARS = 2
+bool vwapStarterAllowReclaim2 = true
+bool vwapRecoveryRequireAcceptance = false
+bool enableVWAPExitLadder = true
+bool legacyReboundAfterVWAP = true
+
+
+// Frozen V4 leader.
+string EXP_MODE = "BB_U4_U6"
+bool useADXGovernor = false
+bool useKeltner = false
+bool useBBState = true
+bool useRelVol = false
+int BB_STATE_LEN = 23
+float BB_STATE_MULT = 2.0
+string BB_RECOVERY_MODE = "RECLAIM_OR_EXHAUST"
+bool BB_REQUIRE_U4 = true
+float ADX_BEAR = 25.0
+float KC_MULT = 2.0
+int RVOL_LOOKBACK = 20
+float RVOL_HIGH = 1.50
+
+
+// Frozen V5/V6 leader.
+string V5_MODE = "TREND_CLUSTER"
+float TREND_BUDGET = 30000.0
+int TREND_SLOTS = 3
+int TREND_BREAKOUT_LOOKBACK = 20
+float TREND_ADD_ATR = 0.50
+float TREND_TRAIL_ATR = 3.0
+float TREND_EMA_PAD_ATR = 1.0
+int TREND_FAIL_BUCKETS = 2
+bool allowTrendOnTQQQ = false
+string TREND_EXIT_MODE = "CURRENT"
+float TREND_TRAIL_ACT_ATR = 2.0
+
+
+// V11 bull-core sleeve. This capital is separate from the $80k tactical shared
+// authority but still shares the same account cash. BULL60 can therefore use the
+// otherwise idle ~$60k and bring maximum planned gross capital toward $140k.
+float BULL_CORE_MAX_BUDGET = 60000.0
+
+
+// Rejected V5 defense parameters retained as constants only because the shared
+// engine still references them. Their switches remain OFF.
+float VOL_SCALE_FLOOR = 0.35
+int VOL_BASE_DAYS = 20
+float HWM_DD1 = 5.0
+float HWM_DD2 = 10.0
+float HWM_DD3 = 15.0
+int DECAY_START_DAYS = 5
+int CLUSTER_WINDOW = 20
+int CLUSTER_HARD_COUNT = 3
+int CLUSTER_COOLDOWN_DAYS = 5
+
+
+bool useTrendSleeve = (syminfo.ticker == "SOXL" or allowTrendOnTQQQ) and V17_ABLATION_MODE != "NO_TREND" and V17_ABLATION_MODE != "SMART_ONLY"
+bool useVolShield = false
+bool useDecayShield = false
+bool useClusterShield = true
+bool useHWMShield = false
+
+
+int ORPHAN_GRACE_BARS = 2
+
+
+// ---- V17 frozen Smart Core authority ----------------------------------------
+string V12_CORE_MODE = V17_ABLATION_MODE == "TACTICAL_ONLY" ? "CONTROL" : "SOXX_TIERED_RS_ZERO_BEAR_SMA_STACK"
+string V11_CORE_MODE = "CONTROL"
+string V10_REARM_MODE = "CURRENT"
+string V9_TRIGGER_MODE = "DD15"
+string V8_RATCHET_MODE = "RATCHET_START_ONLY"
+string V7_BEAR_MODE = "CONTROL"
+
+
+// ---- Display / diagnostics ---------------------------------------------------
+string G_DISPLAY = "Display / diagnostics"
+bool showCoreLevels = input.bool(true, "C0 levels", group=G_DISPLAY, inline="p1")
+bool plotVWAP = input.bool(true, "VWAP", group=G_DISPLAY, inline="p1")
+bool plotAdaptiveBands = input.bool(false, "BB/KC", group=G_DISPLAY, inline="p1")
+bool showStateLabels = input.bool(true, "Decision labels", group=G_DISPLAY, inline="p2")
+bool strictSymbol = input.bool(true, "Warn unless SOXL/TQQQ 5m", group=G_DISPLAY, inline="p2")
+
+
+string G_DASH = "Dashboards"
+bool showTechnicalDashboard = input.bool(false, "Technical", group=G_DASH, inline="dash")
+bool showPerformanceDashboard = input.bool(true, "Performance", group=G_DASH, inline="dash")
+
+
+// ----------------------------- Helpers ---------------------------------------
+f_round_down(float x) => math.floor(x * 100.0 + 1e-10) / 100.0
+f_round_up(float x)   => math.ceil(x * 100.0 - 1e-10) / 100.0
+
+
+f_fee(float q, float px) =>
+    float commission = math.min(math.max(0.0035 * q, 0.35), 0.01 * q * px)
+    q * px * COST_BPS / 10000.0 + commission
+
+
+f_floor_qty(float allocation, float px) =>
+    int q = na(px) or px <= 0 ? 0 : int(math.max(0, math.floor(allocation / px)))
+    while q > 0 and q * px + f_fee(q, px) > allocation
+        q -= 1
+    q
+
+
+f_push(array<float> a, float v, int maxn) =>
+    array.push(a, v)
+    if array.size(a) > maxn
+        array.shift(a)
+
+
+f_back(array<float> a, int n) =>
+    int s = array.size(a)
+    s > n ? array.get(a, s - 1 - n) : na
+
+
+f_mean_last(array<float> a, int n) =>
+    int s = array.size(a)
+    float out = na
+    if s >= n
+        float sum = 0.0
+        bool ok = true
+        for k = 0 to n - 1
+            float v = array.get(a, s - 1 - k)
+            if na(v)
+                ok := false
+            else
+                sum += v
+        out := ok ? sum / n : na
+    out
+
+
+f_std_last(array<float> a, int n) =>
+    int s = array.size(a)
+    float out = na
+    if s >= n
+        float mu = f_mean_last(a, n)
+        if not na(mu)
+            float ss = 0.0
+            for k = 0 to n - 1
+                float v = array.get(a, s - 1 - k)
+                ss += math.pow(v - mu, 2)
+            out := math.sqrt(ss / n)
+    out
+
+
+f_max_last(array<float> a, int n) =>
+    int s = array.size(a)
+    float out = na
+    if s >= n
+        bool ok = true
+        float m = -1e100
+        for k = 0 to n - 1
+            float v = array.get(a, s - 1 - k)
+            if na(v)
+                ok := false
+            else
+                m := math.max(m, v)
+        out := ok ? m : na
+    out
+
+
+f_min_last(array<float> a, int n) =>
+    int s = array.size(a)
+    float out = na
+    if s >= n
+        bool ok = true
+        float m = 1e100
+        for k = 0 to n - 1
+            float v = array.get(a, s - 1 - k)
+            if na(v)
+                ok := false
+            else
+                m := math.min(m, v)
+        out := ok ? m : na
+    out
+
+
+// Python rma(): SMA seed after n contiguous finite values; any gap resets.
+// State array layout: [last, seedSum, count]. Arrays are reference types, so
+// this helper mutates state in place and returns only the current output.
+f_rma_step(float x, int n, array<float> st) =>
+    float last = array.get(st, 0)
+    float seed = array.get(st, 1)
+    int count = int(array.get(st, 2))
+    float out = na
+    if na(x)
+        last := na
+        seed := 0.0
+        count := 0
+    else if count < n
+        seed += x
+        count += 1
+        if count == n
+            last := seed / n
+            out := last
+    else
+        last := (last * (n - 1) + x) / n
+        out := last
+    array.set(st, 0, last)
+    array.set(st, 1, seed)
+    array.set(st, 2, count)
+    out
+
+
+// Python ema(): first-finite recursive seed, output only after n observations.
+// State array layout: [last, count].
+f_ema_step(float x, int n, array<float> st) =>
+    float last = array.get(st, 0)
+    int count = int(array.get(st, 1))
+    float out = na
+    if na(x)
+        last := na
+        count := 0
+    else
+        last := na(last) ? x : (2.0 / (n + 1.0)) * x + (1.0 - 2.0 / (n + 1.0)) * last
+        count += 1
+        if count >= n
+            out := last
+    array.set(st, 0, last)
+    array.set(st, 1, count)
+    out
+
+
+f_core_count(array<float> qty) =>
+    int n = 0
+    for k = 0 to 5
+        if array.get(qty, k) > 0
+            n += 1
+    n
+
+
+f_core_qty(array<float> qty) =>
+    float q = 0.0
+    for k = 0 to 5
+        q += array.get(qty, k)
+    q
+
+
+f_core_highest_cost_slot(array<float> qty, array<float> entry) =>
+    int ix = -1
+    float best = -1e100
+    for k = 0 to 5
+        if array.get(qty, k) > 0
+            float e = array.get(entry, k)
+            if e > best
+                best := e
+                ix := k
+    ix
+
+
+f_core_lowest_entry(array<float> qty, array<float> entry) =>
+    float m = na
+    for k = 0 to 5
+        if array.get(qty, k) > 0
+            float e = array.get(entry, k)
+            m := na(m) ? e : math.min(m, e)
+    m
+
+
+f_core_free_slot(array<float> qty) =>
+    int ix = -1
+    for k = 0 to 5
+        if ix < 0 and array.get(qty, k) <= 0
+            ix := k
+    ix
+
+
+f_core_avg(array<float> qty, array<float> entry) =>
+    float q = 0.0
+    float v = 0.0
+    for k = 0 to 5
+        float qq = array.get(qty, k)
+        if qq > 0
+            q += qq
+            v += qq * array.get(entry, k)
+    q > 0 ? v / q : na
+
+
+f_trend_qty(array<float> qty) =>
+    float q = 0.0
+    for k = 0 to 2
+        q += array.get(qty, k)
+    q
+
+
+f_trend_count(array<float> qty) =>
+    int n = 0
+    for k = 0 to 2
+        if array.get(qty, k) > 0
+            n += 1
+    n
+
+
+f_bull_core_qty(array<float> qty) =>
+    float q = 0.0
+    for k = 0 to 2
+        q += array.get(qty, k)
+    q
+
+
+f_bull_core_count(array<float> qty) =>
+    int n = 0
+    for k = 0 to 2
+        if array.get(qty, k) > 0
+            n += 1
+    n
+
+
+f_trend_avg(array<float> qty, array<float> entry) =>
+    float q = 0.0
+    float v = 0.0
+    for k = 0 to 2
+        float qq = array.get(qty, k)
+        if qq > 0
+            q += qq
+            v += qq * array.get(entry, k)
+    q > 0 ? v / q : na
+
+
+f_mini_qty(array<float> qty) =>
+    float q = 0.0
+    for k = 0 to 2
+        q += array.get(qty, k)
+    q
+
+
+f_mini_avg(array<float> qty, array<float> entry) =>
+    float q = 0.0
+    float v = 0.0
+    for k = 0 to 2
+        float qq = array.get(qty, k)
+        if qq > 0
+            q += qq
+            v += qq * array.get(entry, k)
+    q > 0 ? v / q : na
+
+
+f_mini_mark_pnl(array<float> qty, array<float> entry, array<float> ecost, float realized, float px) =>
+    float v = realized
+    float q = 0.0
+    for k = 0 to 2
+        float qq = array.get(qty, k)
+        if qq > 0
+            q += qq
+            v += (px - array.get(entry, k)) * qq - array.get(ecost, k)
+    v - (q > 0 ? f_fee(q, px) : 0.0)
+
+
+f_supertrend_dir(float factor, int atrLen) =>
+    [stLine, stDir] = ta.supertrend(factor, atrLen)
+    stDir
+
+
+// ----------------------------- Chart contract --------------------------------
+bool is5m = timeframe.isminutes and timeframe.multiplier == 5
+bool isRth = is5m and not na(time(timeframe.period, RTH, TZ))
+int ymd = year(time, TZ) * 10000 + month(time, TZ) * 100 + dayofmonth(time, TZ)
+int minuteOfDay = hour(time, TZ) * 60 + minute(time, TZ)
+int sessMin = minuteOfDay - 570
+bool symbolOK = syminfo.ticker == "SOXL" or syminfo.ticker == "TQQQ"
+
+
+// Equal-start buy-and-hold diagnostics. These are informational only.
+var float buyHoldStartPx = na
+if isRth and na(buyHoldStartPx)
+    buyHoldStartPx := open
+float buyHoldPnL140 = not na(buyHoldStartPx) and buyHoldStartPx > 0 ? ACCOUNT_START * (close / buyHoldStartPx - 1.0) : na
+float buyHoldPnL80 = not na(buyHoldStartPx) and buyHoldStartPx > 0 ? SHARED_BUDGET * (close / buyHoldStartPx - 1.0) : na
+
+
+// V15 diagnostics: fair same-capital SOXL buy-and-hold benchmark.
+// One market buy at the first observed RTH open, using the same 1-tick buy
+// slippage and virtual fee model as the strategy. It never trades again.
+var float bhDiagFillPx = na
+var float bhDiagQty = 0.0
+var float bhDiagCash = ACCOUNT_START
+var float bhDiagHwm = ACCOUNT_START
+var float bhDiagMaxDD = 0.0
+var float bhDiagMaxDDPct = 0.0
+
+
+if isRth and na(bhDiagFillPx)
+    bhDiagFillPx := open + 2.0 * syminfo.mintick
+    bhDiagQty := f_floor_qty(ACCOUNT_START, bhDiagFillPx)
+    float bhEntryCost = bhDiagQty * bhDiagFillPx + f_fee(bhDiagQty, bhDiagFillPx)
+    bhDiagCash := ACCOUNT_START - bhEntryCost
+    bhDiagHwm := bhDiagCash + bhDiagQty * bhDiagFillPx
+
+
+float bhDiagEquity = not na(bhDiagFillPx) ? bhDiagCash + bhDiagQty * close : na
+float bhDiagPnL = not na(bhDiagEquity) ? bhDiagEquity - ACCOUNT_START : na
+
+
+// Approximate the broker-emulator intrabar path on each 5m bar so B&H DD is a
+// peak-to-trough mark-to-market diagnostic rather than a closed-trade statistic.
+if isRth and bhDiagQty > 0
+    float eqOpen = bhDiagCash + bhDiagQty * open
+    float eqHigh = bhDiagCash + bhDiagQty * high
+    float eqLow = bhDiagCash + bhDiagQty * low
+    bool highFirst = math.abs(open - high) <= math.abs(open - low)
+    float ddNow = 0.0
+    float ddDenom = bhDiagHwm
+    if highFirst
+        bhDiagHwm := math.max(bhDiagHwm, eqHigh)
+        ddDenom := bhDiagHwm
+        ddNow := math.max(0.0, bhDiagHwm - eqLow)
+    else
+        ddDenom := bhDiagHwm
+        ddNow := math.max(0.0, bhDiagHwm - eqLow)
+        bhDiagHwm := math.max(bhDiagHwm, eqHigh)
+    bhDiagMaxDD := math.max(bhDiagMaxDD, ddNow)
+    if ddDenom > 0
+        bhDiagMaxDDPct := math.max(bhDiagMaxDDPct, 100.0 * ddNow / ddDenom)
+
+
+// Confirmed prior-day SOXX state. The [1]/[2] offsets with lookahead_on are the
+// TradingView-documented non-repainting pattern for higher-timeframe data.
+[soxxD1Close, soxxD1EMA20, soxxD1EMA50, soxxD1EMA200, soxxD2EMA20, soxxD2EMA50, soxxD2EMA200, soxxD1SMA50, soxxD1SMA200, soxxD2SMA200] = request.security("NASDAQ:SOXX", "1D", [close[1], ta.ema(close, 20)[1], ta.ema(close, 50)[1], ta.ema(close, 200)[1], ta.ema(close, 20)[2], ta.ema(close, 50)[2], ta.ema(close, 200)[2], ta.sma(close, 50)[1], ta.sma(close, 200)[1], ta.sma(close, 200)[2]], lookahead=barmerge.lookahead_on)
+float soxxD1ROC20 = request.security("NASDAQ:SOXX", "1D", ta.roc(close, 20)[1], lookahead=barmerge.lookahead_on)
+float qqqD1ROC20 = request.security("NASDAQ:QQQ", "1D", ta.roc(close, 20)[1], lookahead=barmerge.lookahead_on)
+// Retail-style confirmation from the traded leveraged ETF itself.
+// Pine Supertrend direction < 0 denotes the bullish/uptrend state.
+float soxlD1STDir = request.security(syminfo.tickerid, "1D", f_supertrend_dir(3.0, 10)[1], lookahead=barmerge.lookahead_on)
+
+
+// ----------------------------- RTH session VWAP ------------------------------
+// Causal session VWAP from native completed 5m RTH bars. Bands use volume-weighted
+// population standard deviation of typical price and reset every RTH session.
+var float vwapCumV = 0.0
+var float vwapCumPV = 0.0
+var float vwapCumP2V = 0.0
+var float sessionVWAP = na
+var float sessionVWAPSD = na
+
+
+// ----------------------------- Daily authority -------------------------------
+var int sessionKey = na
+var int sessionId = -1
+var float dayO = na
+var float dayH = na
+var float dayL = na
+var float dayC = na
+var int dayCount = 0
+var int dayLastSessMin = -1
+var float priorDailyClose = na
+var float structuralDiscount = na
+var array<float> dailyTR = array.new_float()
+
+
+// V7 causal daily trend state. These update only when the PRIOR RTH session is
+// finalized at the next session's first bar.
+var array<float> dailyEMA20State = array.from(float(na), 0.0)
+var array<float> dailyEMA50State = array.from(float(na), 0.0)
+var float dailyEMA20 = na
+var float dailyEMA50 = na
+var float prevDailyEMA20 = na
+var float prevDailyEMA50 = na
+var array<float> dailyTRPct = array.new_float()
+var float atr5Daily = na
+var float dailyVolPct = na
+var float dailyVolBase = na
+var float g = na
+
+
+bool newSession = isRth and (na(sessionKey) or ymd != sessionKey)
+if newSession
+    vwapCumV := 0.0
+    vwapCumPV := 0.0
+    vwapCumP2V := 0.0
+    sessionVWAP := na
+    sessionVWAPSD := na
+    // Finalize the preceding observed RTH session. Push NaN when incomplete so
+    // rolling-five readiness is broken exactly rather than silently compressed.
+    if not na(sessionKey)
+        bool priorSessionComplete = dayCount == 78 or (dayCount == 42 and dayLastSessMin == 205)
+        float completedTR = na
+        if priorSessionComplete and not na(priorDailyClose)
+            completedTR := math.max(dayH - dayL, math.max(math.abs(dayH - priorDailyClose), math.abs(dayL - priorDailyClose)))
+        f_push(dailyTR, completedTR, 80)
+        float completedTRPct = priorSessionComplete and not na(completedTR) and dayC > 0 ? completedTR / dayC : na
+        f_push(dailyTRPct, completedTRPct, 80)
+
+
+        // Daily EMA state is causal: current session sees only yesterday and older.
+        prevDailyEMA20 := dailyEMA20
+        prevDailyEMA50 := dailyEMA50
+        dailyEMA20 := f_ema_step(priorSessionComplete ? dayC : na, 20, dailyEMA20State)
+        dailyEMA50 := f_ema_step(priorSessionComplete ? dayC : na, 50, dailyEMA50State)
+
+
+        if priorSessionComplete
+            structuralDiscount := (dayH + dayL + dayC) / 3.0 - 0.25 * (dayH - dayL)
+            priorDailyClose := dayC
+        else
+            structuralDiscount := na
+            priorDailyClose := na
+    atr5Daily := f_mean_last(dailyTR, 5)
+    dailyVolPct := not na(atr5Daily) and not na(priorDailyClose) and priorDailyClose > 0 ? atr5Daily / priorDailyClose : na
+    dailyVolBase := f_mean_last(dailyTRPct, VOL_BASE_DAYS)
+    g := na(atr5Daily) ? na : atr5Daily / 5.0
+    sessionKey := ymd
+    sessionId += 1
+    dayO := open
+    dayH := high
+    dayL := low
+    dayC := close
+    dayCount := 1
+    dayLastSessMin := sessMin
+else if isRth
+    dayH := math.max(dayH, high)
+    dayL := math.min(dayL, low)
+    dayC := close
+    dayCount += 1
+    dayLastSessMin := sessMin
+
+
+if isRth
+    float vp = (high + low + close) / 3.0
+    float vv = math.max(volume, 0.0)
+    vwapCumV += vv
+    vwapCumPV += vp * vv
+    vwapCumP2V += vp * vp * vv
+    if vwapCumV > 0
+        sessionVWAP := vwapCumPV / vwapCumV
+        float vwapVar = math.max(vwapCumP2V / vwapCumV - sessionVWAP * sessionVWAP, 0.0)
+        sessionVWAPSD := math.sqrt(vwapVar)
+
+
+// ----------------------------- Native completed 5m authority -----------------
+var int fastIndex = -1
+
+
+var array<float> close5 = array.new_float()
+var array<float> high5 = array.new_float()
+var array<float> low5 = array.new_float()
+var array<float> typical5 = array.new_float()
+var array<float> roc5 = array.new_float()
+
+
+var array<float> rsiGainState = array.from(float(na), 0.0, 0.0)
+var array<float> rsiLossState = array.from(float(na), 0.0, 0.0)
+var array<float> atr5mState = array.from(float(na), 0.0, 0.0)
+var array<float> atr20KcState = array.from(float(na), 0.0, 0.0)
+var array<float> ema5mState = array.from(float(na), 0.0)
+var bool prevCompositeRaw = false
+
+
+var float fastClose = na
+var float fastHigh = na
+var float fastLow = na
+var float fastATR14 = na
+var float fastEMA20 = na
+var float fastRSI2 = na
+var float fastCLV = na
+var bool fastKnown = false
+var bool fastA = false
+var bool fastB = false
+var bool fastC = false
+var bool fastD = false
+var int fastScore = 0
+var bool fastCompositeFresh = false
+var bool fastSoftDown = false
+var bool fastEventNow = false
+var bool armEventNow = false
+
+
+// Completed-5m VWAP state.
+var float fastVWAP = na
+var float fastVWAPSD = na
+var float fastVWAPZ = na
+var float fastVWAPLower1 = na
+var float fastVWAPLower2 = na
+var float prevFastVWAPZ = na
+var float prevFastVWAPLower1 = na
+var float prevFastVWAPLower2 = na
+var bool fastVWAPExtreme = false
+var bool fastVWAPReclaim1 = false
+var bool fastVWAPReclaim2 = false
+var bool fastVWAPDecel = false
+var bool fastVWAPAcceptance = false
+var bool vwapAcceptanceArmed = false
+var int vwapAcceptRun = 0
+
+
+// 5m Keltner + Bollinger transition state. Bollinger uses the same 23-bar,
+// population-stdev authority already present in depression feature B.
+var float fastKCLower = na
+var float fastKCZ = na
+var float prevFastKCLower = na
+var float prevFastKCZ = na
+var bool fastKCExtreme = false
+var bool fastKCReclaim = false
+var bool fastKCDecel = false
+var float fastBBPctB = na
+var float fastBBWidth = na
+var float fastBBLower = na
+var float prevFastBBPctB = na
+var float prevFastBBWidth = na
+var float prev2FastBBWidth = na
+var bool fastBBReclaim = false
+var bool fastBBExhaustion = false
+
+
+// Causal time-of-day Relative Volume baseline: each of the 78 regular-session
+// 5m slots owns an independent EMA of PRIOR observations for that same slot.
+// Current volume is never included before the current bar's ratio is calculated.
+var array<float> rvolSlotMeanA = array.new_float(78, na)
+var array<int> rvolSlotCountA = array.new_int(78, 0)
+var float fastRelVol = na
+var bool fastRelVolPanic = false
+var bool fastRelVolAbsorption = false
+
+
+// V5 5m trend triggers.
+var bool fastTrendBreakout = false
+var bool fastTrendReclaim = false
+
+
+// Exact recovered G0 cohort defaults.
+var int falseRun = 2
+var int lastArmFastIndex = -10000
+var bool armActive = false
+var int armExpiry = na
+var int armSessionKey = na
+var int nextArmId = 0
+var int emittedArmId = -1
+
+
+// ----------------------------- Completed 65m authority ------------------------
+var int bucket65 = na
+var float o65 = na
+var float h65 = na
+var float l65 = na
+var float c65 = na
+var int n65 = 0
+var array<float> close65 = array.new_float()
+var array<float> high65 = array.new_float()
+var array<float> low65 = array.new_float()
+var array<float> atr65State = array.from(float(na), 0.0, 0.0)
+var array<float> plusDM65State = array.from(float(na), 0.0, 0.0)
+var array<float> minusDM65State = array.from(float(na), 0.0, 0.0)
+var array<float> adx65State = array.from(float(na), 0.0, 0.0)
+var array<float> ema65State = array.from(float(na), 0.0)
+var array<float> ema65Hist = array.new_float()
+var bool slowKnown = false
+var bool slowDeclineDecel = false
+var bool slowDeclineAccel = false
+var float slowEMA20 = na
+var float slowATR14 = na
+var bool slowDMIKnown = false
+var float slowPlusDI = na
+var float slowMinusDI = na
+var float slowADX = na
+var bool slowADXRising = false
+var bool slowTrendBull = false
+var bool slowTrendBullFresh = false
+var int slowTrendFailCount = 0
+
+
+fastEventNow := false
+armEventNow := false
+slowTrendBullFresh := false
+
+
+if isRth
+    // Native chart bar is already one completed 5m observation.
+    fastIndex += 1
+
+
+    // Session-local VWAP state must not inherit yesterday's reclaim/acceptance path.
+    if sessMin == 0
+        prevFastVWAPZ := na
+        prevFastVWAPLower1 := na
+        prevFastVWAPLower2 := na
+        prevFastKCLower := na
+        prevFastKCZ := na
+        prevFastBBPctB := na
+        prevFastBBWidth := na
+        prev2FastBBWidth := na
+        vwapAcceptanceArmed := false
+        vwapAcceptRun := 0
+        armActive := false
+
+
+    float fc = close
+    float fh = high
+    float fl = low
+    float fo = open
+    float prevFc = f_back(close5, 0)
+    float prev2Fc = f_back(close5, 1)
+    float prevFastCLV = fastCLV
+    float priorTrendHigh = f_max_last(high5, TREND_BREAKOUT_LOOKBACK)
+
+
+    float change = not na(prevFc) ? fc - prevFc : na
+    float gain = na(change) ? na : math.max(change, 0)
+    float loss = na(change) ? na : math.max(-change, 0)
+    float rgOut = f_rma_step(gain, 2, rsiGainState)
+    float rlOut = f_rma_step(loss, 2, rsiLossState)
+    float rsi = na(rgOut) or na(rlOut) ? na : (rgOut == 0 and rlOut == 0 ? 50.0 : 100.0 * rgOut / (rgOut + rlOut))
+
+
+    float tr5 = not na(prevFc) ? math.max(fh - fl, math.max(math.abs(fh - prevFc), math.abs(fl - prevFc))) : na
+    float atrOut = f_rma_step(tr5, 14, atr5mState)
+    float atr20Out = f_rma_step(tr5, 20, atr20KcState)
+    float emaOut = f_ema_step(fc, 20, ema5mState)
+
+
+    // Compute lagged ROC before pushing current typical price.
+    float typical = (fh + fl + fc) / 3.0
+    float typ27 = array.size(typical5) >= 27 ? array.get(typical5, array.size(typical5) - 27) : na
+    float roc = not na(typ27) ? 100.0 * (typical / typ27 - 1.0) : na
+
+
+    f_push(close5, fc, 100)
+    f_push(high5, fh, 100)
+    f_push(low5, fl, 100)
+    f_push(typical5, typical, 120)
+    f_push(roc5, roc, 80)
+
+
+    float basis23 = f_mean_last(close5, 23)
+    float sd23 = f_std_last(close5, 23)
+    float rocMu55 = f_mean_last(roc5, 55)
+    float rocSd55 = f_std_last(roc5, 55)
+    float z55 = not na(roc) and not na(rocMu55) and not na(rocSd55) and rocSd55 != 0 ? (roc - rocMu55) / rocSd55 : na
+    float clv = fh != fl ? (fc - fl) / (fh - fl) : na
+
+
+    // Time-of-day Relative Volume. Ratio uses only the pre-existing slot EMA,
+    // then the current bar updates that EMA after the signal state is derived.
+    int rvolSlot = int(math.floor(sessMin / 5))
+    float rvolBase = rvolSlot >= 0 and rvolSlot < 78 ? array.get(rvolSlotMeanA, rvolSlot) : na
+    int rvolCount = rvolSlot >= 0 and rvolSlot < 78 ? array.get(rvolSlotCountA, rvolSlot) : 0
+    float relVol = rvolCount >= 5 and not na(rvolBase) and rvolBase > 0 ? volume / rvolBase : na
+    bool relVolHigh = useRelVol and not na(relVol) and relVol >= RVOL_HIGH
+    bool relVolPanic = relVolHigh and not na(clv) and clv <= 0.25 and fc < fo
+    bool relVolAbsorption = relVolHigh and not na(clv) and clv >= 0.60 and fc > fo and (na(prevFc) or fc > prevFc)
+
+
+    // Bollinger recovery governor. IMPORTANT: depression feature B above stays
+    // frozen at SMA23 - 2*population stdev. These parameters change ONLY the
+    // separate C0 recovery/unlock state for robustness testing.
+    float bbBasisState = f_mean_last(close5, BB_STATE_LEN)
+    float bbSdState = f_std_last(close5, BB_STATE_LEN)
+    float bbLower = not na(bbBasisState) and not na(bbSdState) ? bbBasisState - BB_STATE_MULT * bbSdState : na
+    float bbUpper = not na(bbBasisState) and not na(bbSdState) ? bbBasisState + BB_STATE_MULT * bbSdState : na
+    float bbSpan = not na(bbUpper) and not na(bbLower) ? bbUpper - bbLower : na
+    float bbPctB = not na(bbSpan) and bbSpan > 0 ? (fc - bbLower) / bbSpan : na
+    float bbWidth = not na(bbBasisState) and bbBasisState != 0 and not na(bbSpan) ? bbSpan / math.abs(bbBasisState) : na
+    bool bbReclaim = useBBState and not na(prevFastBBPctB) and not na(bbPctB) and prevFastBBPctB < 0 and bbPctB >= 0
+    float bbWidthDelta = not na(bbWidth) and not na(prevFastBBWidth) ? bbWidth - prevFastBBWidth : na
+    float prevBBWidthDelta = not na(prevFastBBWidth) and not na(prev2FastBBWidth) ? prevFastBBWidth - prev2FastBBWidth : na
+    bool bbWidthDecel = useBBState and not na(bbWidthDelta) and not na(prevBBWidthDelta) and bbWidthDelta < prevBBWidthDelta
+    bool bbExhaustion = useBBState and not na(bbPctB) and not na(prevFastBBPctB) and bbPctB < 0 and bbPctB > prevFastBBPctB and bbWidthDecel
+
+
+    // Keltner: EMA20 +/- ATR20 * multiple. Re-entry/deceleration is used as
+    // recovery evidence, not as another unconditional oversold buy trigger.
+    float kcLower = not na(emaOut) and not na(atr20Out) ? emaOut - KC_MULT * atr20Out : na
+    float kcZ = not na(emaOut) and not na(atr20Out) and atr20Out > 0 ? (fc - emaOut) / atr20Out : na
+    bool kcExtreme = useKeltner and not na(kcLower) and fc < kcLower
+    bool kcReclaim = useKeltner and not na(prevFc) and not na(prevFastKCLower) and not na(kcLower) and prevFc < prevFastKCLower and fc >= kcLower
+
+
+    bool known = not na(rsi) and not na(sd23) and not na(z55) and not na(structuralDiscount) and not na(atrOut) and atrOut > 0 and not na(emaOut) and not na(clv)
+    bool A = known and rsi < 21
+    bool B = known and fc < basis23 - 2.0 * sd23
+    bool C = known and z55 < -1.6
+    bool D = known and fc < structuralDiscount
+    int score = (A ? 1 : 0) + (B ? 1 : 0) + (C ? 1 : 0) + (D ? 1 : 0)
+
+
+    bool turn = known and not na(prevFc) and fc > prevFc
+    bool compositeRaw = known and fc > fo and turn and not na(fastRSI2) and rsi > fastRSI2 and clv >= 0.65
+    bool compFresh = known and compositeRaw and not prevCompositeRaw
+    bool softDn = known and not na(prevFc) and not na(prev2Fc) and fc < prevFc and prevFc < prev2Fc
+    bool trendBreakout = known and not na(priorTrendHigh) and fc > priorTrendHigh
+    bool trendReclaim = known and not na(prevFc) and not na(emaOut) and not na(sessionVWAP) and fc > emaOut and fc > sessionVWAP and ((not na(fastEMA20) and prevFc <= fastEMA20) or (not na(fastVWAP) and prevFc <= fastVWAP))
+
+
+    float vw = sessionVWAP
+    float vsd = sessionVWAPSD
+    float vz = not na(vw) and not na(vsd) and vsd > 0 ? (fc - vw) / vsd : na
+    float vl1 = not na(vw) and not na(vsd) ? vw - vsd : na
+    float vl2 = not na(vw) and not na(vsd) ? vw - 2.0 * vsd : na
+
+
+    bool vExtreme = enableVWAP and not na(vz) and vz <= VWAP_START_Z
+    bool vReclaim1 = enableVWAP and not na(prevFc) and not na(prevFastVWAPLower1) and not na(vl1) and prevFc < prevFastVWAPLower1 and fc >= vl1
+    bool vReclaim2 = enableVWAP and not na(prevFc) and not na(prevFastVWAPLower2) and not na(vl2) and prevFc < prevFastVWAPLower2 and fc >= vl2
+    float prevLow5 = f_back(low5, 1)
+    bool kcDecel = useKeltner and not na(kcZ) and not na(prevFastKCZ) and not na(prevLow5) and fl <= prevLow5 and kcZ > prevFastKCZ
+    bool vDecel = enableVWAP and not na(vz) and not na(prevFastVWAPZ) and not na(prevLow5) and fl <= prevLow5 and vz > prevFastVWAPZ
+
+
+    if enableVWAP
+        if vReclaim1
+            vwapAcceptanceArmed := true
+            vwapAcceptRun := 1
+        else if vwapAcceptanceArmed
+            if not na(vl1) and fc >= vl1
+                vwapAcceptRun += 1
+            else
+                vwapAcceptanceArmed := false
+                vwapAcceptRun := 0
+        else
+            vwapAcceptRun := 0
+    else
+        vwapAcceptanceArmed := false
+        vwapAcceptRun := 0
+
+
+    bool vAccept = enableVWAP and vwapAcceptanceArmed and vwapAcceptRun >= VWAP_ACCEPT_BARS
+
+
+    fastClose := fc
+    fastHigh := fh
+    fastLow := fl
+    fastATR14 := atrOut
+    fastEMA20 := emaOut
+    fastRSI2 := rsi
+    fastCLV := clv
+    fastKnown := known
+    fastA := A
+    fastB := B
+    fastC := C
+    fastD := D
+    fastScore := score
+    fastCompositeFresh := compFresh
+    fastSoftDown := softDn
+    fastVWAP := vw
+    fastVWAPSD := vsd
+    fastVWAPZ := vz
+    fastVWAPLower1 := vl1
+    fastVWAPLower2 := vl2
+    fastVWAPExtreme := vExtreme
+    fastVWAPReclaim1 := vReclaim1
+    fastVWAPReclaim2 := vReclaim2
+    fastVWAPDecel := vDecel
+    fastVWAPAcceptance := vAccept
+    fastKCLower := kcLower
+    fastKCZ := kcZ
+    fastKCExtreme := kcExtreme
+    fastKCReclaim := kcReclaim
+    fastKCDecel := kcDecel
+    fastBBPctB := bbPctB
+    fastBBWidth := bbWidth
+    fastBBLower := bbLower
+    fastBBReclaim := bbReclaim
+    fastBBExhaustion := bbExhaustion
+    fastRelVol := relVol
+    fastRelVolPanic := relVolPanic
+    fastRelVolAbsorption := relVolAbsorption
+    fastTrendBreakout := trendBreakout
+    fastTrendReclaim := trendReclaim
+    if rvolSlot >= 0 and rvolSlot < 78
+        float alphaRV = 2.0 / (RVOL_LOOKBACK + 1.0)
+        float nextBase = na(rvolBase) ? volume : alphaRV * volume + (1.0 - alphaRV) * rvolBase
+        array.set(rvolSlotMeanA, rvolSlot, nextBase)
+        array.set(rvolSlotCountA, rvolSlot, rvolCount + 1)
+    fastEventNow := true
+    prevCompositeRaw := compositeRaw
+    prevFastVWAPZ := vz
+    prevFastVWAPLower1 := vl1
+    prevFastVWAPLower2 := vl2
+    prevFastKCLower := kcLower
+    prevFastKCZ := kcZ
+    prevFastBBPctB := bbPctB
+    prev2FastBBWidth := prevFastBBWidth
+    prevFastBBWidth := bbWidth
+
+
+    int nowTs = time_close
+    if armActive and (nowTs > armExpiry or ymd != armSessionKey)
+        armActive := false
+    bool qualifying = known and score >= 2
+    if known and qualifying and falseRun >= 2 and fastIndex - lastArmFastIndex >= 3 and not armActive
+        armActive := true
+        armExpiry := nowTs + 30 * 60 * 1000
+        armSessionKey := ymd
+        lastArmFastIndex := fastIndex
+        emittedArmId := nextArmId
+        nextArmId += 1
+        armEventNow := true
+    falseRun := qualifying or not known ? 0 : falseRun + 1
+
+
+    // Causal 65m RTH aggregation = 13 native 5m bars.
+    int b65 = int(math.floor(sessMin / 65))
+    if na(bucket65) or b65 != bucket65
+        bucket65 := b65
+        o65 := open
+        h65 := high
+        l65 := low
+        c65 := close
+        n65 := 1
+    else
+        h65 := math.max(h65, high)
+        l65 := math.min(l65, low)
+        c65 := close
+        n65 += 1
+
+
+    // 65m bucket start minutes are 0,65,... and last constituent 5m bar starts at +60.
+    if sessMin % 65 == 60
+        bool complete65 = n65 == 13
+        float sc = complete65 ? c65 : na
+        float sh = complete65 ? h65 : na
+        float sl = complete65 ? l65 : na
+        float prevSc = f_back(close65, 0)
+        float prevSh = f_back(high65, 0)
+        float prevSl = f_back(low65, 0)
+        float tr65 = complete65 and not na(prevSc) ? math.max(sh - sl, math.max(math.abs(sh - prevSc), math.abs(sl - prevSc))) : na
+        float upMove65 = complete65 and not na(prevSh) ? sh - prevSh : na
+        float downMove65 = complete65 and not na(prevSl) ? prevSl - sl : na
+        float plusDM65 = na(upMove65) or na(downMove65) ? na : (upMove65 > downMove65 and upMove65 > 0 ? upMove65 : 0.0)
+        float minusDM65 = na(upMove65) or na(downMove65) ? na : (downMove65 > upMove65 and downMove65 > 0 ? downMove65 : 0.0)
+        float atr65Out = f_rma_step(tr65, 14, atr65State)
+        float plusDM65Out = f_rma_step(plusDM65, 14, plusDM65State)
+        float minusDM65Out = f_rma_step(minusDM65, 14, minusDM65State)
+        float plusDI65 = not na(atr65Out) and atr65Out > 0 and not na(plusDM65Out) ? 100.0 * plusDM65Out / atr65Out : na
+        float minusDI65 = not na(atr65Out) and atr65Out > 0 and not na(minusDM65Out) ? 100.0 * minusDM65Out / atr65Out : na
+        float diSum65 = not na(plusDI65) and not na(minusDI65) ? plusDI65 + minusDI65 : na
+        float dx65 = not na(diSum65) and diSum65 > 0 ? 100.0 * math.abs(plusDI65 - minusDI65) / diSum65 : na
+        float adx65Out = f_rma_step(dx65, 14, adx65State)
+        float ema65Out = f_ema_step(sc, 20, ema65State)
+
+
+        f_push(close65, sc, 40)
+        f_push(high65, sh, 40)
+        f_push(low65, sl, 40)
+        f_push(ema65Hist, ema65Out, 40)
+
+
+        float hi20 = f_max_last(high65, 20)
+        float lo20 = f_min_last(low65, 20)
+        float c3 = f_back(close65, 3)
+        float c6 = f_back(close65, 6)
+        float e3 = f_back(ema65Hist, 3)
+        float slope65 = not na(ema65Out) and not na(e3) ? ema65Out - e3 : na
+        float d3 = not na(sc) and not na(c3) ? sc - c3 : na
+        float dprev = not na(c3) and not na(c6) ? c3 - c6 : na
+        bool known65 = complete65 and not na(ema65Out) and not na(atr65Out) and atr65Out > 0 and not na(hi20) and not na(lo20) and not na(slope65) and not na(d3) and not na(dprev)
+        bool decline = known65 and sc < ema65Out and d3 < 0 and dprev < 0
+        bool dmiKnown65 = known65 and not na(plusDI65) and not na(minusDI65) and not na(adx65Out)
+        bool adxRising65 = dmiKnown65 and not na(slowADX) and adx65Out > slowADX
+        bool bull65 = known65 and sc > ema65Out and slope65 > 0 and d3 > 0 and dprev >= 0 and (not dmiKnown65 or plusDI65 > minusDI65)
+        bool priorBull65 = slowTrendBull
+
+
+        slowKnown := known65
+        slowDeclineDecel := decline and d3 > dprev
+        slowDeclineAccel := decline and d3 <= dprev
+        slowEMA20 := ema65Out
+        slowATR14 := atr65Out
+        slowDMIKnown := dmiKnown65
+        slowPlusDI := plusDI65
+        slowMinusDI := minusDI65
+        slowADXRising := adxRising65
+        slowADX := adx65Out
+        slowTrendBull := bull65
+        slowTrendBullFresh := bull65 and not priorBull65
+        slowTrendFailCount := bull65 ? 0 : slowTrendFailCount + 1
+
+
+        bucket65 := na
+        n65 := 0
+
+
+
+
+// ----------------------------- Virtual strategy state -------------------------
+var float cash = ACCOUNT_START
+var array<float> coreQtyA = array.new_float(6, 0.0)
+var array<float> coreEntryA = array.new_float(6, na)
+var array<float> coreCostA = array.new_float(6, 0.0)
+var array<int> coreDayA = array.new_int(6, -100000)
+var array<string> coreTvIdA = array.new_string(6, "")
+var array<string> corePendingIdA = array.new_string(6, "")
+var int coreTvSeq = 0
+var float anchor = na
+var float sellRef = na
+var bool c0CampaignArmed = false
+var int c0UnlockedSlots = 0
+var string lastCoreEvent = ""
+
+
+var bool miniActive = false
+var bool miniReductionStarted = false
+var bool miniSoftDone = false
+var bool miniRiskFlag = false
+var string miniState = "NONE"
+var int miniArmId = -1
+var int miniEntryCount = 0
+var int miniDipCount = 0
+var int miniRecoveryCount = 0
+var float miniOriginalATR = na
+var float miniFirstPrice = na
+var float miniLastPrice = na
+var int miniLastEntryTime = na
+var int miniDeadline = na
+var float miniTrough = na
+var float miniRearmLevel = na
+var int miniVWAPExitStage = 0
+var float miniRealized = 0.0
+var array<float> miniQtyA = array.new_float(3, 0.0)
+var array<float> miniEntryA = array.new_float(3, na)
+var array<float> miniCostA = array.new_float(3, 0.0)
+var array<string> miniTvIdA = array.new_string(3, "")
+var string lastMiniEvent = ""
+
+
+// V5 trend sleeve: independent long-only winner-pyramiding sleeve inside shared authority.
+var array<float> trendQtyA = array.new_float(3, 0.0)
+var array<float> trendEntryA = array.new_float(3, na)
+var array<float> trendCostA = array.new_float(3, 0.0)
+var array<string> trendTvIdA = array.new_string(3, "")
+var int trendTvSeq = 0
+var float trendLastPrice = na
+var int trendLastEntryBar = na
+var int trendLastExitBar = na
+var float trendHighWater = na
+var float trendStop = na
+var bool trendTrailArmed = false
+var string lastTrendEvent = ""
+
+
+// V12 smart bull-core sleeve: three independent $20k tranches.
+// BASE is the long-horizon conviction sleeve; MID/TOP are risk-on overlays.
+var array<float> bullCoreQtyA = array.new_float(3, 0.0)
+var array<float> bullCoreEntryA = array.new_float(3, na)
+var array<float> bullCoreCostA = array.new_float(3, 0.0)
+var array<string> bullCoreTvIdA = array.from("", "", "")
+var array<bool> workBullCoreEntryA = array.new_bool(3, false)
+var array<bool> workBullCoreExitA = array.new_bool(3, false)
+var array<float> workBullCoreEntryQA = array.new_float(3, 0.0)
+var array<string> workBullCoreExitReasonA = array.from("", "", "")
+var string lastBullCoreEvent = ""
+
+
+// V14 secular-regime hysteresis.
+// Once a confirmed SOXX secular bear appears, smart-core exposure can stay locked
+// at 0 until a confirmed secular bull state is restored.
+var bool soxxSecularBearLock = false
+
+
+var bool workTrendEntry = false
+var int workTrendEntrySlot = -1
+var float workTrendEntryQ = 0.0
+var string workTrendEntryId = ""
+var string workTrendEntryRole = ""
+var bool workTrendExit = false
+var string workTrendExitReason = ""
+
+
+// Defense state.
+var float equityHWM = ACCOUNT_START
+var array<int> timeoutSessionA = array.new_int()
+var int lastTimeoutSession = -100000
+
+
+// V8 resettable profit-protection epoch.
+// Unlike the rejected all-time HWM shield, this state can re-arm from an
+// independent market recovery signal and reset the risk reference.
+var float v8EpochHWM = ACCOUNT_START
+var int v8RiskLevel = 0
+var int v8DefenseStartSession = -100000
+var int v8LastRearmSession = -100000
+var int v8RearmCount = 0
+
+
+// Orders placed on the previous bar and economically active during THIS bar.
+var array<bool> workCoreBuyActive = array.new_bool(6, false)
+var array<float> workCoreBuyPx = array.new_float(6, na)
+var array<float> workCoreBuyQ = array.new_float(6, 0.0)
+var int workCoreSellSlot = -1
+var float workCoreSellTarget = na
+var float workCoreSellQ = 0.0
+var string workCoreSellExitId = ""
+var array<bool> workCoreMktExit = array.new_bool(6, false)
+var array<string> workCoreMktReason = array.new_string(6, "")
+
+
+var bool workMiniEntry = false
+var int workMiniEntrySlot = -1
+var float workMiniEntryQ = 0.0
+var string workMiniEntryRole = ""
+var bool workMiniExit = false
+var string workMiniExitReason = ""
+var array<float> workMiniExitQ = array.new_float(3, 0.0)
+
+
+lastCoreEvent := ""
+lastMiniEvent := ""
+lastTrendEvent := ""
+lastBullCoreEvent := ""
+
+
+if newSession
+    anchor := open
+
+
+// ----------------------------- Settle previous-bar orders ---------------------
+bool coreSoldThisBar = false
+bool miniSoldThisBar = false
+
+
+if isRth and not na(g) and g > 0
+    // Mirror Strategy Tester slippage=2 in the virtual cash ledger.
+    float mktBuyFill = open + 2.0 * syminfo.mintick
+    float mktSellFill = math.max(syminfo.mintick, open - 2.0 * syminfo.mintick)
+
+
+    // 1) Core market exits planned on the previous bar: TIMEOUT/CAP priority.
+    bool hadCoreMkt = false
+    for k = 0 to 5
+        if array.get(workCoreMktExit, k) and array.get(coreQtyA, k) > 0
+            float qk = array.get(coreQtyA, k)
+            float fee = f_fee(qk, mktSellFill)
+            cash += qk * mktSellFill - fee
+            array.set(coreQtyA, k, 0.0)
+            array.set(coreEntryA, k, na)
+            array.set(coreCostA, k, 0.0)
+            array.set(coreDayA, k, -100000)
+            array.set(coreTvIdA, k, "")
+            hadCoreMkt := true
+            coreSoldThisBar := true
+            string settledReason = array.get(workCoreMktReason, k)
+            lastCoreEvent := settledReason
+            if settledReason == "TIMEOUT"
+                bool newTimeoutSession = array.size(timeoutSessionA) == 0 or array.get(timeoutSessionA, array.size(timeoutSessionA) - 1) != sessionId
+                if newTimeoutSession
+                    array.push(timeoutSessionA, sessionId)
+                    lastTimeoutSession := sessionId
+        array.set(workCoreMktExit, k, false)
+        array.set(workCoreMktReason, k, "")
+    if hadCoreMkt
+        sellRef := f_core_lowest_entry(coreQtyA, coreEntryA)
+
+
+    // 2) MINI market exit planned on previous decision bar, filled at this Open.
+    if workMiniExit and miniActive and f_mini_qty(miniQtyA) > 0
+        float soldQ = 0.0
+        float basis = 0.0
+        for k = 0 to 2
+            float want = array.get(workMiniExitQ, k)
+            float oldQ = array.get(miniQtyA, k)
+            if want > 0 and oldQ > 0
+                float qq = math.min(want, oldQ)
+                float oldCost = array.get(miniCostA, k)
+                float ec = oldCost * qq / oldQ
+                basis += qq * array.get(miniEntryA, k) + ec
+                array.set(miniQtyA, k, oldQ - qq)
+                array.set(miniCostA, k, oldCost - ec)
+                if oldQ - qq <= 0
+                    array.set(miniQtyA, k, 0.0)
+                    array.set(miniEntryA, k, na)
+                    array.set(miniCostA, k, 0.0)
+                    array.set(miniTvIdA, k, "")
+                soldQ += qq
+            array.set(workMiniExitQ, k, 0.0)
+        if soldQ > 0
+            float exitFee = f_fee(soldQ, mktSellFill)
+            miniRealized += soldQ * mktSellFill - basis - exitFee
+            cash += soldQ * mktSellFill - exitFee
+            miniSoldThisBar := true
+            lastMiniEvent := workMiniExitReason
+            if f_mini_qty(miniQtyA) <= 0
+                miniActive := false
+                miniState := "NONE"
+    workMiniExit := false
+    workMiniExitReason := ""
+
+
+    // 2b) V12 smart-core market exits/entries planned on the prior session.
+    for k = 0 to 2
+        if array.get(workBullCoreExitA, k) and array.get(bullCoreQtyA, k) > 0
+            float qbc = array.get(bullCoreQtyA, k)
+            float fee = f_fee(qbc, mktSellFill)
+            cash += qbc * mktSellFill - fee
+            array.set(bullCoreQtyA, k, 0.0)
+            array.set(bullCoreEntryA, k, na)
+            array.set(bullCoreCostA, k, 0.0)
+            array.set(bullCoreTvIdA, k, "")
+            string rsn = array.get(workBullCoreExitReasonA, k)
+            lastBullCoreEvent := rsn
+        array.set(workBullCoreExitA, k, false)
+        array.set(workBullCoreExitReasonA, k, "")
+
+
+    for k = 0 to 2
+        if array.get(workBullCoreEntryA, k) and array.get(workBullCoreEntryQA, k) > 0 and array.get(bullCoreQtyA, k) <= 0
+            float qbc = array.get(workBullCoreEntryQA, k)
+            float fee = f_fee(qbc, mktBuyFill)
+            cash -= qbc * mktBuyFill + fee
+            array.set(bullCoreQtyA, k, qbc)
+            array.set(bullCoreEntryA, k, mktBuyFill)
+            array.set(bullCoreCostA, k, fee)
+            string bid = k == 0 ? "BULL_BASE" : k == 1 ? "BULL_MID" : "BULL_TOP"
+            array.set(bullCoreTvIdA, k, bid)
+            lastBullCoreEvent := bid + "_BUY"
+        array.set(workBullCoreEntryA, k, false)
+        array.set(workBullCoreEntryQA, k, 0.0)
+
+
+    // 2c) V5 trend market exit/entry planned on the previous bar.
+    if workTrendExit and f_trend_qty(trendQtyA) > 0
+        for k = 0 to 2
+            float tq = array.get(trendQtyA, k)
+            if tq > 0
+                float fee = f_fee(tq, mktSellFill)
+                cash += tq * mktSellFill - fee
+                array.set(trendQtyA, k, 0.0)
+                array.set(trendEntryA, k, na)
+                array.set(trendCostA, k, 0.0)
+                array.set(trendTvIdA, k, "")
+        trendLastExitBar := bar_index
+        trendLastPrice := na
+        trendHighWater := na
+        trendStop := na
+        trendTrailArmed := false
+        lastTrendEvent := workTrendExitReason
+    workTrendExit := false
+    workTrendExitReason := ""
+
+
+    if workTrendEntry and workTrendEntrySlot >= 0 and workTrendEntryQ > 0
+        int ts = workTrendEntrySlot
+        if array.get(trendQtyA, ts) <= 0
+            float tq = workTrendEntryQ
+            float fee = f_fee(tq, mktBuyFill)
+            cash -= tq * mktBuyFill + fee
+            array.set(trendQtyA, ts, tq)
+            array.set(trendEntryA, ts, mktBuyFill)
+            array.set(trendCostA, ts, fee)
+            array.set(trendTvIdA, ts, workTrendEntryId)
+            trendLastPrice := mktBuyFill
+            trendLastEntryBar := bar_index
+            trendHighWater := na(trendHighWater) ? high : math.max(trendHighWater, high)
+            lastTrendEvent := workTrendEntryRole
+    workTrendEntry := false
+    workTrendEntrySlot := -1
+    workTrendEntryQ := 0.0
+    workTrendEntryId := ""
+    workTrendEntryRole := ""
+
+
+    // 3) Existing C0 target has SELL-FIRST priority over buy touches.
+    if not coreSoldThisBar and workCoreSellSlot >= 0 and array.get(coreQtyA, workCoreSellSlot) > 0 and not na(workCoreSellTarget)
+        bool sellHit = open >= workCoreSellTarget or high >= workCoreSellTarget + 2.0 * syminfo.mintick
+        if sellHit
+            float qk = math.min(workCoreSellQ, array.get(coreQtyA, workCoreSellSlot))
+            float fill = open >= workCoreSellTarget ? open : workCoreSellTarget
+            float oldQ = array.get(coreQtyA, workCoreSellSlot)
+            float oldCost = array.get(coreCostA, workCoreSellSlot)
+            float ec = oldCost * qk / oldQ
+            float fee = f_fee(qk, fill)
+            cash += qk * fill - fee
+            array.set(coreQtyA, workCoreSellSlot, oldQ - qk)
+            array.set(coreCostA, workCoreSellSlot, oldCost - ec)
+            if oldQ - qk <= 0
+                array.set(coreQtyA, workCoreSellSlot, 0.0)
+                array.set(coreEntryA, workCoreSellSlot, na)
+                array.set(coreCostA, workCoreSellSlot, 0.0)
+                array.set(coreDayA, workCoreSellSlot, -100000)
+                array.set(coreTvIdA, workCoreSellSlot, "")
+            sellRef := f_core_count(coreQtyA) > 0 ? workCoreSellTarget : na
+            coreSoldThisBar := true
+            lastCoreEvent := open >= workCoreSellTarget ? "SELL_OPEN" : "SELL_TOUCH"
+    workCoreSellSlot := -1
+    workCoreSellTarget := na
+    workCoreSellQ := 0.0
+
+
+    // 4) MINI economic entry planned on prior 5m decision bar, filled at this 5m Open.
+    if workMiniEntry and workMiniEntrySlot >= 0 and workMiniEntryQ > 0
+        int s = workMiniEntrySlot
+        if array.get(miniQtyA, s) <= 0
+            float q = workMiniEntryQ
+            float fee = f_fee(q, mktBuyFill)
+            // P2 uses the actual next Open; source may reject a rare gap that breaches
+            // the locked cap. Pine cannot condition a market fill on that unknown Open.
+            cash -= q * mktBuyFill + fee
+            array.set(miniQtyA, s, q)
+            array.set(miniEntryA, s, mktBuyFill)
+            array.set(miniCostA, s, fee)
+            miniEntryCount += 1
+            if workMiniEntryRole == "DIP"
+                miniDipCount += 1
+            if workMiniEntryRole == "RECOVERY"
+                miniRecoveryCount += 1
+            miniLastPrice := mktBuyFill
+            miniLastEntryTime := time
+            if miniEntryCount == 1
+                miniFirstPrice := mktBuyFill
+                int closeTs = timestamp(TZ, year(time,TZ), month(time,TZ), dayofmonth(time,TZ), 16, 0)
+                miniDeadline := math.min(time + 360 * 60 * 1000, closeTs - 60 * 1000)
+            miniState := "BUILDING"
+            lastMiniEvent := workMiniEntryRole
+    workMiniEntry := false
+    workMiniEntrySlot := -1
+    workMiniEntryQ := 0.0
+    workMiniEntryRole := ""
+
+
+    // 5) C0 buy limit fills if no C0 sell occurred in this 5m bar.
+    if not coreSoldThisBar
+        float deepest = na
+        for k = 0 to 5
+            if array.get(workCoreBuyActive, k)
+                float px = array.get(workCoreBuyPx, k)
+                float q = array.get(workCoreBuyQ, k)
+                bool buyHit = open <= px or low <= px - 2.0 * syminfo.mintick
+                if array.get(coreQtyA, k) <= 0 and buyHit and q > 0
+                    // Mirror backtest_fill_limits_assumption=2: an intrabar buy needs
+                    // one tick of penetration; a favorable gap through the limit fills
+                    // at the Open.
+                    float fill = open <= px ? open : px
+                    float fee = f_fee(q, fill)
+                    cash -= q * fill + fee
+                    array.set(coreQtyA, k, q)
+                    array.set(coreEntryA, k, fill)
+                    array.set(coreCostA, k, fee)
+                    array.set(coreDayA, k, sessionId)
+                    array.set(coreTvIdA, k, array.get(corePendingIdA, k))
+                    deepest := na(deepest) ? fill : math.min(deepest, fill)
+                    lastCoreEvent := open <= px ? "BUY_OPEN" : "BUY_TOUCH"
+        if not na(deepest)
+            sellRef := deepest
+    for k = 0 to 5
+        array.set(workCoreBuyActive, k, false)
+        array.set(workCoreBuyPx, k, na)
+        array.set(workCoreBuyQ, k, 0.0)
+
+
+    // End-of-5m-bar causal state after current fills.
+    int settledCoreCount = f_core_count(coreQtyA)
+    if c0ProgressiveAdmission and settledCoreCount == 0 and not armActive and not armEventNow
+        c0CampaignArmed := false
+        c0UnlockedSlots := 0
+    anchor := settledCoreCount == 0 ? close : math.max(anchor, high)
+    if miniActive and f_mini_qty(miniQtyA) > 0
+        miniTrough := na(miniTrough) ? low : math.min(miniTrough, low)
+        float markedNow = f_mini_mark_pnl(miniQtyA, miniEntryA, miniCostA, miniRealized, close)
+        if markedNow <= -MINI_RISK
+            miniRiskFlag := true
+    if f_trend_qty(trendQtyA) > 0
+        trendHighWater := na(trendHighWater) ? high : math.max(trendHighWater, high)
+
+
+// ----------------------------- Cancel stale TV orders -------------------------
+// Every C0 working entry receives a unique ID. After it has had one bar to fill,
+// cancel the remainder; if the virtual fill occurred, the ID is now owned by that
+// logical lot in coreTvIdA. This prevents fixed-ID accumulation across campaigns.
+for k = 0 to 5
+    string pendingId = array.get(corePendingIdA, k)
+    if pendingId != ""
+        strategy.cancel(pendingId)
+    array.set(corePendingIdA, k, "")
+if workCoreSellExitId != ""
+    strategy.cancel(workCoreSellExitId)
+workCoreSellExitId := ""
+
+
+// Safety reconciliation with a 2-bar grace window. strategy.opentrades.* gives
+// access to each open trade's exact entry ID and entry bar. A newly filled order
+// is never orphan-cleaned immediately; only an untracked ID that survives beyond
+// the grace window is closed. This avoids broker-emulator/virtual-ledger timing races.
+var int orphanCleanupOrders = 0
+if isRth and strategy.opentrades > 0
+    for oi = 0 to strategy.opentrades - 1
+        string oid = strategy.opentrades.entry_id(oi)
+        int oidEntryBar = strategy.opentrades.entry_bar_index(oi)
+        bool tracked = false
+        for k = 0 to 5
+            if array.get(coreQtyA, k) > 0 and array.get(coreTvIdA, k) == oid
+                tracked := true
+        for k = 0 to 2
+            if array.get(miniQtyA, k) > 0 and array.get(miniTvIdA, k) == oid
+                tracked := true
+        for k = 0 to 2
+            if array.get(trendQtyA, k) > 0 and array.get(trendTvIdA, k) == oid
+                tracked := true
+        for k = 0 to 2
+            if array.get(bullCoreQtyA, k) > 0 and array.get(bullCoreTvIdA, k) == oid
+                tracked := true
+        bool graceExpired = bar_index - oidEntryBar > ORPHAN_GRACE_BARS
+        if not tracked and graceExpired
+            strategy.close(oid, comment="ORPHAN_CLEANUP")
+            orphanCleanupOrders += 1
+
+
+// ----------------------------- Plan NEXT-bar actions --------------------------
+string miniPlanExit = ""
+float miniPlanFraction = 1.0
+bool coreMarketPlanned = false
+
+
+// V5 defense metrics are causal at the current completed 5m bar.
+equityHWM := math.max(equityHWM, strategy.equity)
+float equityDDPct = equityHWM > 0 ? 100.0 * math.max(0.0, equityHWM - strategy.equity) / equityHWM : 0.0
+float hwmScale = not useHWMShield ? 1.0 : equityDDPct < HWM_DD1 ? 1.0 : equityDDPct < HWM_DD2 ? 0.67 : equityDDPct < HWM_DD3 ? 0.33 : 0.0
+float volScaleRaw = not useVolShield or na(dailyVolPct) or na(dailyVolBase) or dailyVolPct <= 0 ? 1.0 : dailyVolBase / dailyVolPct
+float volScale = not useVolShield ? 1.0 : math.min(1.0, math.max(VOL_SCALE_FLOOR, volScaleRaw))
+
+
+while array.size(timeoutSessionA) > 0 and array.get(timeoutSessionA, 0) < sessionId - CLUSTER_WINDOW + 1
+    array.shift(timeoutSessionA)
+int timeoutClusterCount = array.size(timeoutSessionA)
+bool clusterHard = useClusterShield and timeoutClusterCount >= CLUSTER_HARD_COUNT and sessionId - lastTimeoutSession <= CLUSTER_COOLDOWN_DAYS
+int clusterSlotCap = not useClusterShield ? 6 : clusterHard ? 0 : timeoutClusterCount >= 2 ? 2 : 6
+int clusterTrendCap = not useClusterShield ? TREND_SLOTS : clusterHard ? 0 : timeoutClusterCount >= 2 ? 1 : TREND_SLOTS
+
+
+// V7 bear-state telemetry retained for V8 market re-arm / hard-start interaction.
+// No V7 static CAP2/TIERED governor is active in V8.
+bool v7DailyBear20 = not na(priorDailyClose) and not na(dailyEMA20) and not na(prevDailyEMA20) and priorDailyClose < dailyEMA20 and dailyEMA20 < prevDailyEMA20
+bool v7DailyBearStack = v7DailyBear20 and not na(dailyEMA50) and not na(prevDailyEMA50) and dailyEMA20 < dailyEMA50 and dailyEMA50 < prevDailyEMA50
+bool v7SlowBear = slowKnown and not na(slowEMA20) and close < slowEMA20 and slowDMIKnown and slowMinusDI > slowPlusDI and not na(slowADX) and slowADX >= ADX_BEAR and (slowADXRising or slowDeclineAccel)
+bool v7HardBear = v7DailyBearStack and v7SlowBear
+
+
+// V9 threshold robustness. The V8 START_ONLY behavior is frozen:
+// once severe epoch DD is reached, only NEW C0 campaign starts are blocked.
+// Existing C0 and the trend sleeve are untouched. Market-based re-arm is unchanged.
+v8EpochHWM := math.max(v8EpochHWM, strategy.equity)
+float v8EpochDDPct = v8EpochHWM > 0 ? 100.0 * math.max(0.0, v8EpochHWM - strategy.equity) / v8EpochHWM : 0.0
+
+
+float v9TriggerPct = 15.0
+bool v9UseProtection = V10_REARM_MODE != "NO_PROTECTION"
+int v8RawLevel = v9UseProtection and v8EpochDDPct >= v9TriggerPct ? 3 : 0
+
+
+if v8RawLevel > v8RiskLevel
+    v8RiskLevel := v8RawLevel
+    if v8DefenseStartSession < 0
+        v8DefenseStartSession := sessionId
+
+
+bool v8DailyBull = not na(priorDailyClose) and not na(dailyEMA20) and not na(prevDailyEMA20) and priorDailyClose > dailyEMA20 and dailyEMA20 > prevDailyEMA20
+bool v10SlowRelaxed = slowKnown and not na(slowEMA20) and close > slowEMA20 and not slowDeclineAccel
+bool v10RearmSignal = V10_REARM_MODE == "DAILY_ONLY" ? v8DailyBull :
+     V10_REARM_MODE == "SLOW65_ONLY" ? slowTrendBull :
+     V10_REARM_MODE == "EITHER" ? (v8DailyBull or slowTrendBull) :
+     V10_REARM_MODE == "DAILY_SLOW_RELAXED" ? (v8DailyBull and v10SlowRelaxed) :
+     (v8DailyBull and slowTrendBull)
+bool v8MarketRearm = v8RiskLevel > 0 and sessionId > v8DefenseStartSession and v10RearmSignal
+
+
+if v8MarketRearm
+    v8RiskLevel := 0
+    v8EpochHWM := strategy.equity
+    v8DefenseStartSession := -100000
+    v8LastRearmSession := sessionId
+    v8RearmCount += 1
+
+
+int v8C0Cap = 6
+bool v8BlockStart = v9UseProtection and v8RiskLevel >= 3
+
+
+int v7BearCap = v8C0Cap
+bool v7BlockStart = v8BlockStart
+
+
+float entryRiskScale = math.min(volScale, hwmScale)
+bool defenseHard = hwmScale <= 0 or clusterHard
+
+
+// V12 smart B&H planning.
+// Smart-core trading is gated by the same daily-ATR readiness (g) as the
+// tactical engine. This prevents HTF SOXX data from starting core trades years
+// before the 5m tactical ledger is ready.
+// SOXL_BULL60 preserves the V11 signal source as a benchmark.
+// SOXX modes use confirmed prior-day SOXX data, which is a cleaner 1x state proxy
+// for the same NYSE Semiconductor Index. BASE/TIERED modes keep a permanent $20k
+// SOXL conviction sleeve and add up to two $20k risk-on overlays.
+bool bullCoreEnabled = syminfo.ticker == "SOXL" and V12_CORE_MODE != "CONTROL" and not na(g) and g > 0
+bool bullCoreProtection = v8RiskLevel >= 3
+
+
+bool soxlStrong = not na(priorDailyClose) and not na(dailyEMA20) and not na(dailyEMA50) and
+     not na(prevDailyEMA20) and not na(prevDailyEMA50) and
+     priorDailyClose > dailyEMA50 and dailyEMA20 > dailyEMA50 and
+     dailyEMA20 > prevDailyEMA20 and dailyEMA50 >= prevDailyEMA50
+bool soxlBear = not na(priorDailyClose) and not na(dailyEMA20) and not na(dailyEMA50) and
+     priorDailyClose < dailyEMA50 and dailyEMA20 < dailyEMA50
+
+
+bool soxxReady = not na(soxxD1Close) and not na(soxxD1EMA20) and not na(soxxD1EMA50) and
+     not na(soxxD1EMA200) and not na(soxxD2EMA20) and not na(soxxD2EMA50) and not na(soxxD2EMA200)
+bool soxxMedium = soxxReady and soxxD1Close > soxxD1EMA50 and soxxD1EMA50 >= soxxD2EMA50
+bool soxxStrong = soxxMedium and soxxD1EMA20 > soxxD1EMA50 and soxxD1EMA20 > soxxD2EMA20
+bool soxxFastBrake = soxxReady and soxxD1Close < soxxD1EMA20 and soxxD1EMA20 < soxxD2EMA20
+bool soxxLeadership = not na(soxxD1ROC20) and not na(qqqD1ROC20) and soxxD1ROC20 > qqqD1ROC20
+
+
+// V16 broad bear-regime robustness ablations.
+// CURRENT is the frozen V13/V14 leader. Alternatives remove one concept or swap
+// EMA for the canonical SMA structure. No 180/190/210-style length tuning.
+bool soxxSecularBear = soxxReady and soxxD1Close < soxxD1EMA200 and soxxD1EMA50 < soxxD1EMA200 and soxxD1EMA200 < soxxD2EMA200
+bool soxxSecularBearNoSlope = soxxReady and soxxD1Close < soxxD1EMA200 and soxxD1EMA50 < soxxD1EMA200
+bool soxxSecularBearPriceSlope = soxxReady and soxxD1Close < soxxD1EMA200 and soxxD1EMA200 < soxxD2EMA200
+bool soxxSmaReady = not na(soxxD1SMA50) and not na(soxxD1SMA200) and not na(soxxD2SMA200)
+bool soxxSecularBearSmaStack = soxxSmaReady and soxxD1Close < soxxD1SMA200 and soxxD1SMA50 < soxxD1SMA200 and soxxD1SMA200 < soxxD2SMA200
+
+
+bool soxxSecularBullRearm = soxxReady and soxxD1Close > soxxD1EMA200 and soxxD1EMA50 > soxxD1EMA200 and soxxD1EMA200 > soxxD2EMA200
+bool soxlRetailSTBull = not na(soxlD1STDir) and soxlD1STDir < 0
+
+
+if isRth and newSession
+    if soxxSecularBear
+        soxxSecularBearLock := true
+    else if soxxSecularBullRearm
+        soxxSecularBearLock := false
+
+
+bool wantBase = false
+bool wantMid = false
+bool wantTop = false
+bool selectedSecularBear = soxxSecularBear
+
+
+if V12_CORE_MODE == "SOXL_BULL60"
+    bool on = soxlStrong and not bullCoreProtection
+    wantBase := on
+    wantMid := on
+    wantTop := on
+else if V12_CORE_MODE == "SOXX_BINARY60"
+    bool on = soxxStrong and not bullCoreProtection
+    wantBase := on
+    wantMid := on
+    wantTop := on
+else if V12_CORE_MODE == "SOXX_BASE20_PLUS40"
+    wantBase := true
+    bool on = soxxStrong and not bullCoreProtection
+    wantMid := on
+    wantTop := on
+else if V12_CORE_MODE == "SOXX_TIERED" or V12_CORE_MODE == "SOXX_TIERED_FAST" or V12_CORE_MODE == "SOXX_TIERED_RS" or V12_CORE_MODE == "SOXX_TIERED_ST" or V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR" or V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_HYST" or V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_NOSLOPE" or V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_PRICE_SLOPE" or V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_SMA_STACK"
+    bool zeroBearMode = V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR"
+    bool zeroBearHystMode = V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_HYST"
+    bool zeroBearNoSlopeMode = V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_NOSLOPE"
+    bool zeroBearPriceSlopeMode = V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_PRICE_SLOPE"
+    bool zeroBearSmaStackMode = V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_SMA_STACK"
+
+
+    selectedSecularBear := zeroBearNoSlopeMode ? soxxSecularBearNoSlope :
+         zeroBearPriceSlopeMode ? soxxSecularBearPriceSlope :
+         zeroBearSmaStackMode ? soxxSecularBearSmaStack :
+         soxxSecularBear
+
+
+    bool zeroBearActive = zeroBearMode ? selectedSecularBear :
+         zeroBearHystMode ? soxxSecularBearLock :
+         (zeroBearNoSlopeMode or zeroBearPriceSlopeMode or zeroBearSmaStackMode) ? selectedSecularBear :
+         false
+
+
+    wantBase := not zeroBearActive
+    bool riskOverlayAllowed = not bullCoreProtection and not zeroBearActive and (V12_CORE_MODE != "SOXX_TIERED_FAST" or not soxxFastBrake)
+    wantMid := riskOverlayAllowed and soxxMedium
+
+
+    bool rsFamily = V12_CORE_MODE == "SOXX_TIERED_RS" or
+         V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR" or
+         V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_HYST" or
+         V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_NOSLOPE" or
+         V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_PRICE_SLOPE" or
+         V12_CORE_MODE == "SOXX_TIERED_RS_ZERO_BEAR_SMA_STACK"
+    bool topLeadershipOK = not rsFamily or soxxLeadership
+    bool topRetailSTOK = V12_CORE_MODE != "SOXX_TIERED_ST" or soxlRetailSTBull
+    wantTop := riskOverlayAllowed and soxxStrong and topLeadershipOK and topRetailSTOK
+
+
+float bullCoreReservedNext = 0.0
+int bullDesiredCount = (wantBase ? 1 : 0) + (wantMid ? 1 : 0) + (wantTop ? 1 : 0)
+
+
+if isRth and newSession and bullCoreEnabled
+    for k = 0 to 2
+        bool desired = k == 0 ? wantBase : k == 1 ? wantMid : wantTop
+        float heldQ = array.get(bullCoreQtyA, k)
+        string bid = k == 0 ? "BULL_BASE" : k == 1 ? "BULL_MID" : "BULL_TOP"
+        if heldQ > 0 and not desired
+            array.set(workBullCoreExitA, k, true)
+            string rsn = bullCoreProtection ? "BULL_PROTECT" : selectedSecularBear ? "BULL_TOTAL_BEAR" : soxxSecularBearLock ? "BULL_BEAR_LOCK" : soxxFastBrake ? "BULL_FAST_BRAKE" : "BULL_RISK_OFF"
+            array.set(workBullCoreExitReasonA, k, rsn)
+            strategy.close(bid, comment=rsn)
+        else if heldQ <= 0 and desired
+            int qbc = f_floor_qty(20000.0, close)
+            float amountBc = qbc > 0 ? qbc * close + f_fee(qbc, close) : 0.0
+            if qbc > 0 and amountBc + bullCoreReservedNext <= cash + 1e-8
+                array.set(workBullCoreEntryA, k, true)
+                array.set(workBullCoreEntryQA, k, qbc)
+                bullCoreReservedNext += amountBc
+                strategy.entry(bid, strategy.long, qty=qbc, comment=bid)
+
+
+if isRth and not na(g) and g > 0
+    // A) MINI exit decision. This bar's close becomes next bar's prior close.
+    float mq = f_mini_qty(miniQtyA)
+    float cq = f_core_qty(coreQtyA)
+    if allowMini and miniActive and mq > 0
+        // Current-close cap is an approximation to Python's next-open cap governor.
+        if mq * close > MINI_BUDGET + 1e-8 or (cq + mq + f_trend_qty(trendQtyA)) * close > SHARED_BUDGET + 1e-8
+            miniPlanExit := "CAP"
+        else if miniRiskFlag
+            miniPlanExit := "RISK"
+        else if not na(miniDeadline) and time + 5 * 60 * 1000 >= miniDeadline
+            miniPlanExit := "TIME"
+        else if fastEventNow and fastKnown
+            float cp = fastClose
+            float requiredRebound = na(miniTrough) ? na : miniTrough + 0.75 * miniOriginalATR
+            if not na(miniRearmLevel)
+                requiredRebound := na(requiredRebound) ? miniRearmLevel : math.max(requiredRebound, miniRearmLevel)
+            bool reboundFire = not na(requiredRebound) and cp >= requiredRebound
+            bool vwapExit1 = enableVWAPExitLadder and enableVWAP and miniVWAPExitStage == 0 and fastVWAPReclaim1
+            bool vwapExit2 = enableVWAPExitLadder and enableVWAP and miniVWAPExitStage == 1 and not na(fastVWAP) and not na(fastVWAPSD) and cp >= fastVWAP - 0.5 * fastVWAPSD
+            bool vwapExit3 = enableVWAPExitLadder and enableVWAP and miniVWAPExitStage >= 2 and not na(fastVWAP) and cp >= fastVWAP
+            if cp <= miniFirstPrice - 3.0 * miniOriginalATR
+                miniPlanExit := "CATASTROPHIC"
+            else if not miniSoftDone and (cp < miniFirstPrice - miniOriginalATR or (mq * cp / MINI_BUDGET >= 0.5 and fastSoftDown))
+                miniPlanExit := "SOFT"
+                miniPlanFraction := 1.0 / 3.0
+                miniSoftDone := true
+            else if vwapExit1
+                miniPlanExit := "VWAP_L1_RECLAIM"
+                miniPlanFraction := 1.0 / 3.0
+                miniVWAPExitStage := 1
+            else if vwapExit2
+                miniPlanExit := "VWAP_M05"
+                miniPlanFraction := 1.0 / 3.0
+                miniVWAPExitStage := 2
+            else if vwapExit3
+                miniPlanExit := "VWAP_MEAN"
+                miniPlanFraction := 1.0
+                miniVWAPExitStage := 3
+            else if legacyReboundAfterVWAP and reboundFire
+                miniPlanExit := "REBOUND"
+                miniPlanFraction := 1.0 / 3.0
+                miniRearmLevel := cp + 0.75 * miniOriginalATR
+        if miniPlanExit == "" and slowKnown and close >= slowEMA20
+            miniPlanExit := "SLOW_MEAN"
+            miniPlanFraction := 1.0
+
+
+    if miniPlanExit != ""
+        miniReductionStarted := true
+        miniState := "DERISK"
+        float totalQ = f_mini_qty(miniQtyA)
+        float qSell = math.min(totalQ, math.max(1.0, math.ceil(totalQ * miniPlanFraction)))
+        float need = qSell
+        workMiniExit := true
+        workMiniExitReason := miniPlanExit
+        for k = 0 to 2
+            float qk = array.get(miniQtyA, k)
+            float qq = qk > 0 and need > 0 ? math.min(need, qk) : 0.0
+            array.set(workMiniExitQ, k, qq)
+            need -= qq
+        float q0 = array.get(workMiniExitQ, 0)
+        float q1 = array.get(workMiniExitQ, 1)
+        float q2 = array.get(workMiniExitQ, 2)
+        string id0 = array.get(miniTvIdA, 0)
+        string id1 = array.get(miniTvIdA, 1)
+        string id2 = array.get(miniTvIdA, 2)
+        bool fullMiniExit = miniPlanFraction >= 0.999999
+        float pct0 = q0 > 0 and array.get(miniQtyA, 0) > 0 ? math.min(100.0, 100.0 * q0 / array.get(miniQtyA, 0)) : na
+        float pct1 = q1 > 0 and array.get(miniQtyA, 1) > 0 ? math.min(100.0, 100.0 * q1 / array.get(miniQtyA, 1)) : na
+        float pct2 = q2 > 0 and array.get(miniQtyA, 2) > 0 ? math.min(100.0, 100.0 * q2 / array.get(miniQtyA, 2)) : na
+        if q0 > 0 and id0 != ""
+            if fullMiniExit
+                strategy.close(id0, comment=miniPlanExit)
+            else
+                strategy.close(id0, qty_percent=pct0, comment=miniPlanExit)
+        if q1 > 0 and id1 != ""
+            if fullMiniExit
+                strategy.close(id1, comment=miniPlanExit)
+            else
+                strategy.close(id1, qty_percent=pct1, comment=miniPlanExit)
+        if q2 > 0 and id2 != ""
+            if fullMiniExit
+                strategy.close(id2, comment=miniPlanExit)
+            else
+                strategy.close(id2, qty_percent=pct2, comment=miniPlanExit)
+
+
+    // A2) Frozen V6 winner: CURRENT combined trend exit.
+    // The old ablation branches remain inert because TREND_EXIT_MODE is fixed.
+    float trendQNow = f_trend_qty(trendQtyA)
+    if useTrendSleeve and trendQNow > 0
+        float trendAvgNow = f_trend_avg(trendQtyA, trendEntryA)
+
+
+        bool exitFailOnly = TREND_EXIT_MODE == "FAIL_ONLY"
+        bool exitHwOnly = TREND_EXIT_MODE == "HIGHWATER_ONLY"
+        bool exitEmaOnly = TREND_EXIT_MODE == "EMA_ONLY"
+        bool exitAct2Hw = TREND_EXIT_MODE == "ACT2_HIGHWATER"
+        bool exitAct2Combined = TREND_EXIT_MODE == "ACT2_COMBINED"
+        bool exitAct2HwBe = TREND_EXIT_MODE == "ACT2_HIGHWATER_BE"
+        bool exitCurrent = TREND_EXIT_MODE == "CURRENT"
+
+
+        bool immediateTrail = exitCurrent or exitHwOnly or exitEmaOnly
+        bool activationMode = exitAct2Hw or exitAct2Combined or exitAct2HwBe
+
+
+        if exitFailOnly
+            trendTrailArmed := false
+            trendStop := na
+        else
+            if immediateTrail
+                trendTrailArmed := true
+            else if activationMode and not trendTrailArmed and slowKnown and not na(slowATR14) and slowATR14 > 0 and not na(trendHighWater) and not na(trendAvgNow)
+                if trendHighWater >= trendAvgNow + TREND_TRAIL_ACT_ATR * slowATR14
+                    trendTrailArmed := true
+
+
+            bool useHighWaterStop = exitCurrent or exitHwOnly or exitAct2Hw or exitAct2Combined or exitAct2HwBe
+            bool useEmaStop = exitCurrent or exitEmaOnly or exitAct2Combined
+
+
+            float trendTrailCandidate = trendTrailArmed and useHighWaterStop and slowKnown and not na(slowATR14) and slowATR14 > 0 and not na(trendHighWater) ? trendHighWater - TREND_TRAIL_ATR * slowATR14 : na
+            float trendEmaFloor = trendTrailArmed and useEmaStop and slowKnown and not na(slowEMA20) and not na(slowATR14) ? slowEMA20 - TREND_EMA_PAD_ATR * slowATR14 : na
+            float nextTrendStop = na(trendTrailCandidate) ? trendEmaFloor : na(trendEmaFloor) ? trendTrailCandidate : math.max(trendTrailCandidate, trendEmaFloor)
+
+
+            // Once +2 ATR has been achieved, this variant refuses to turn a
+            // profitable campaign into a price loss (fees/slippage can still matter).
+            if exitAct2HwBe and trendTrailArmed and not na(trendAvgNow)
+                nextTrendStop := na(nextTrendStop) ? trendAvgNow : math.max(nextTrendStop, trendAvgNow)
+
+
+            if not na(nextTrendStop)
+                trendStop := na(trendStop) ? nextTrendStop : math.max(trendStop, nextTrendStop)
+
+
+        bool trendStopFire = not exitFailOnly and trendTrailArmed and not na(trendStop) and close <= trendStop
+        bool trendSlowFail = slowTrendFailCount >= TREND_FAIL_BUCKETS
+        bool trendBearBreak = slowKnown and not na(slowEMA20) and close < slowEMA20 and slowDMIKnown and slowMinusDI > slowPlusDI and slowADXRising
+        if trendStopFire or trendSlowFail or trendBearBreak
+            workTrendExit := true
+            workTrendExitReason := trendStopFire ? "TREND_TRAIL" : trendBearBreak ? "TREND_BEAR_BREAK" : "TREND_65M_FAIL"
+            for k = 0 to 2
+                string tid = array.get(trendTvIdA, k)
+                if array.get(trendQtyA, k) > 0 and tid != ""
+                    strategy.close(tid, comment=workTrendExitReason)
+
+
+    // B) C0 timeout plan for next 15:55 Open (native 5m RTH session).
+    array<bool> closeCoreNext = array.new_bool(6, false)
+    array<string> closeCoreReason = array.new_string(6, "")
+    if allowCore and sessMin == 380
+        for k = 0 to 5
+            if array.get(coreQtyA, k) > 0 and sessionId - array.get(coreDayA, k) >= 10
+                array.set(closeCoreNext, k, true)
+                array.set(closeCoreReason, k, "TIMEOUT")
+                coreMarketPlanned := true
+
+
+    // B2) Adaptive stale-inventory decay: once a failed campaign has aged,
+    // remove at most one stale highest-cost tranche per session instead of
+    // carrying the whole failed inventory unchanged until day 10.
+    if useDecayShield and sessMin == 380 and not coreMarketPlanned and not slowTrendBull and not slowDeclineDecel and not fastBBReclaim
+        float coreAvgNow = f_core_avg(coreQtyA, coreEntryA)
+        if not na(coreAvgNow) and close < coreAvgNow
+            int decaySlot = -1
+            float decayBest = -1e100
+            for k = 0 to 5
+                int age = sessionId - array.get(coreDayA, k)
+                if array.get(coreQtyA, k) > 0 and age >= DECAY_START_DAYS
+                    float ep = array.get(coreEntryA, k)
+                    if ep > decayBest
+                        decayBest := ep
+                        decaySlot := k
+            if decaySlot >= 0
+                array.set(closeCoreNext, decaySlot, true)
+                array.set(closeCoreReason, decaySlot, "STALE_DECAY")
+                coreMarketPlanned := true
+
+
+    // C) C0 shared-cap plan using current Close as next-Open proxy.
+    // Mark quantities already scheduled for TIMEOUT as absent from the cap loop.
+    float tempCoreQ = 0.0
+    for k = 0 to 5
+        if array.get(coreQtyA, k) > 0 and not array.get(closeCoreNext, k)
+            tempCoreQ += array.get(coreQtyA, k)
+    float miniQNow = f_mini_qty(miniQtyA)
+    float trendQCap = f_trend_qty(trendQtyA)
+    int guard = 0
+    while allowCore and tempCoreQ > 0 and (tempCoreQ + miniQNow + trendQCap) * close > SHARED_BUDGET + 1e-8 and guard < 6
+        int ks = -1
+        float best = -1e100
+        for k = 0 to 5
+            if array.get(coreQtyA, k) > 0 and not array.get(closeCoreNext, k)
+                float ep = array.get(coreEntryA, k)
+                if ep > best
+                    best := ep
+                    ks := k
+        if ks < 0
+            break
+        array.set(closeCoreNext, ks, true)
+        array.set(closeCoreReason, ks, "CAP_REDUCTION")
+        tempCoreQ -= array.get(coreQtyA, ks)
+        coreMarketPlanned := true
+        guard += 1
+
+
+    for k = 0 to 5
+        if array.get(closeCoreNext, k)
+            array.set(workCoreMktExit, k, true)
+            array.set(workCoreMktReason, k, array.get(closeCoreReason, k))
+    for k = 0 to 5
+        if array.get(closeCoreNext, k)
+            string coreId = array.get(coreTvIdA, k)
+            if coreId != ""
+                // Full logical-tranche market exit. No absolute qty means the
+                // exact TradingView entry is closed even after corporate actions.
+                strategy.close(coreId, comment=array.get(closeCoreReason, k))
+
+
+    // C2) OFFENSE: reserve a next-open trend entry before new mean-reversion
+    // inventory. The trend sleeve pyramids only into winners and has no fixed TP.
+    float trendReservedNext = 0.0
+    if useTrendSleeve and not workTrendExit and fastEventNow and slowTrendBull and not defenseHard
+        int trendCountNow = f_trend_count(trendQtyA)
+        bool trendCooldownOK = na(trendLastExitBar) or bar_index - trendLastExitBar >= 13
+        bool trendStart = trendCountNow == 0 and trendCooldownOK and fastClose > fastEMA20 and fastClose > fastVWAP and (slowTrendBullFresh or fastTrendBreakout or fastTrendReclaim)
+        bool trendSpacingOK = na(trendLastEntryBar) or bar_index - trendLastEntryBar >= 13
+        bool trendAdd = trendCountNow > 0 and trendCountNow < math.min(TREND_SLOTS, clusterTrendCap) and trendSpacingOK and fastTrendBreakout and not na(slowATR14) and not na(trendLastPrice) and fastClose >= trendLastPrice + TREND_ADD_ATR * slowATR14
+        bool trendWant = trendStart or trendAdd
+        if trendWant and trendCountNow < math.min(TREND_SLOTS, clusterTrendCap)
+            int tslot = -1
+            for k = 0 to 2
+                if tslot < 0 and array.get(trendQtyA, k) <= 0
+                    tslot := k
+            float trendAlloc = TREND_SLOTS > 0 ? TREND_BUDGET / TREND_SLOTS * entryRiskScale : 0.0
+            int tq = f_floor_qty(trendAlloc, close)
+            float amount = tq > 0 ? tq * close + f_fee(tq, close) : 0.0
+            float liveExposure = (f_core_qty(coreQtyA) + f_mini_qty(miniQtyA) + f_trend_qty(trendQtyA)) * close
+            if tslot >= 0 and tq > 0 and liveExposure + amount <= SHARED_BUDGET + 1e-8 and amount + bullCoreReservedNext <= cash + 1e-8
+                trendTvSeq += 1
+                string tid = "TR_" + str.tostring(trendTvSeq) + "_S" + str.tostring(tslot + 1)
+                workTrendEntry := true
+                workTrendEntrySlot := tslot
+                workTrendEntryQ := tq
+                workTrendEntryId := tid
+                workTrendEntryRole := trendStart ? "TREND_START" : "TREND_ADD"
+                trendReservedNext := amount
+                strategy.entry(tid, strategy.long, qty=tq, comment=workTrendEntryRole)
+
+
+    float coreReservedNext = trendReservedNext
+    // D) C0 next-bar target + buy grid when no market reduction is planned.
+    if allowCore and not coreMarketPlanned
+        float gPlan = g
+        // At 15:59 we can know today's completed TR and therefore tomorrow's g;
+        // use it for the overnight C0 target so a next-session gap can be modeled.
+        if sessMin == 385 and dayCount == 78 and not na(priorDailyClose) and array.size(dailyTR) >= 4
+            float todayTR = math.max(dayH - dayL, math.max(math.abs(dayH - priorDailyClose), math.abs(dayL - priorDailyClose)))
+            float sum4 = 0.0
+            bool ok4 = true
+            for z = 0 to 3
+                float trv = array.get(dailyTR, array.size(dailyTR) - 1 - z)
+                if na(trv)
+                    ok4 := false
+                else
+                    sum4 += trv
+            if ok4
+                gPlan := (sum4 + todayTR) / 5.0 / 5.0
+
+
+        if f_core_count(coreQtyA) > 0 and not na(sellRef)
+            int ks = f_core_highest_cost_slot(coreQtyA, coreEntryA)
+            float target = f_round_up(sellRef + 2.0 * gPlan)
+            if ks >= 0
+                workCoreSellSlot := ks
+                workCoreSellTarget := target
+                workCoreSellQ := array.get(coreQtyA, ks)
+                string coreId = array.get(coreTvIdA, ks)
+                if coreId != ""
+                    string exitId = "TP_" + coreId
+                    workCoreSellExitId := exitId
+                    // No qty: close 100% of this exact logical tranche at target.
+                    strategy.exit(exitId, from_entry=coreId, limit=target, comment="C0_REBOUND")
+
+
+        int nextMinute = minuteOfDay + 5
+        bool nextCoreWindow = nextMinute >= 571 and nextMinute <= 945 and sessMin < 385
+        int activeCount = f_core_count(coreQtyA)
+
+
+        // Progressive C0 admission: do not auto-fill all six tranches in a persistent
+        // selloff. Stage 1 (max 2) needs a fresh/recent depression arm plus VWAP
+        // extreme/reclaim evidence. Stage 2 (max 4) needs 65m decline deceleration
+        // plus VWAP deceleration or -2SD reclaim. Stage 3 (max 6) needs stronger
+        // -1SD reclaim/acceptance while the 65m decline is decelerating.
+        bool adxBear = useADXGovernor and slowDMIKnown and slowADX >= ADX_BEAR and slowMinusDI > slowPlusDI
+        bool adxBearRising = adxBear and slowADXRising
+        bool adxBearHard = adxBearRising and slowDeclineAccel
+        bool kcRecovery = not useKeltner or fastKCReclaim or fastKCDecel
+        bool bbRecoverySelected = not useBBState ? true : BB_RECOVERY_MODE == "RECLAIM_ONLY" ? fastBBReclaim : BB_RECOVERY_MODE == "EXHAUST_ONLY" ? fastBBExhaustion : (fastBBReclaim or fastBBExhaustion)
+        bool rvolRecoveryOK = not useRelVol or na(fastRelVol) or fastRelVol < RVOL_HIGH or fastRelVolAbsorption
+        bool rvolHardPanic = useRelVol and fastRelVolPanic
+
+
+        bool c0StartEvidence = armActive and (not enableVWAP or fastVWAPExtreme or fastVWAPReclaim2 or fastVWAPDecel)
+        bool c0Unlock4 = slowKnown and slowDeclineDecel and (not enableVWAP or fastVWAPDecel or fastVWAPReclaim2) and kcRecovery and (not BB_REQUIRE_U4 or bbRecoverySelected) and rvolRecoveryOK and not adxBearHard
+        bool c0Unlock6 = slowKnown and slowDeclineDecel and (not enableVWAP or fastVWAPReclaim1 or fastVWAPAcceptance) and kcRecovery and bbRecoverySelected and rvolRecoveryOK and not adxBearRising
+        bool c0AccelVeto = c0VetoDeclineAcceleration and slowKnown and slowDeclineAccel
+
+
+        if c0ProgressiveAdmission
+            if activeCount == 0 and c0StartEvidence and not c0AccelVeto and not v7BlockStart
+                c0CampaignArmed := true
+                c0UnlockedSlots := math.max(c0UnlockedSlots, 2)
+            if activeCount > 0
+                c0CampaignArmed := true
+                c0UnlockedSlots := math.max(c0UnlockedSlots, 2)
+            if c0CampaignArmed and c0Unlock4
+                c0UnlockedSlots := math.max(c0UnlockedSlots, 4)
+            if c0CampaignArmed and c0Unlock6
+                c0UnlockedSlots := 6
+        else
+            c0CampaignArmed := true
+            c0UnlockedSlots := 6
+
+
+        int adxRegimeCap = useADXGovernor ? (adxBearHard ? 1 : adxBearRising ? 2 : 6) : 6
+        int rvolRegimeCap = rvolHardPanic ? 1 : 6
+        int regimeCap = math.min(adxRegimeCap, rvolRegimeCap)
+        regimeCap := math.min(regimeCap, clusterSlotCap)
+        regimeCap := math.min(regimeCap, v7BearCap)
+        if useHWMShield
+            int hwmSlotCap = hwmScale >= 0.99 ? 6 : hwmScale >= 0.66 ? 4 : hwmScale > 0 ? 2 : 0
+            regimeCap := math.min(regimeCap, hwmSlotCap)
+        int c0BaseAllowedSlots = c0ProgressiveAdmission ? c0UnlockedSlots : 6
+        int c0AllowedSlots = math.min(c0BaseAllowedSlots, regimeCap)
+        bool c0AddPermission = (not c0ProgressiveAdmission or c0CampaignArmed) and not c0AccelVeto and not defenseHard and not (v7BlockStart and activeCount == 0)
+
+
+        if nextCoreWindow and c0AddPermission and activeCount < c0AllowedSlots and not na(anchor)
+            array<int> freeSlots = array.new_int()
+            for k = 0 to 5
+                if array.get(coreQtyA, k) <= 0
+                    array.push(freeSlots, k)
+            array<float> seenPx = array.new_float()
+            float reserved = trendReservedNext
+            int freePtr = 0
+            for rank = activeCount + 1 to c0AllowedSlots
+                float px = f_round_down(anchor - rank * g)
+                bool duplicate = false
+                if array.size(seenPx) > 0
+                    for jx = 0 to array.size(seenPx) - 1
+                        if array.get(seenPx, jx) == px
+                            duplicate := true
+                if not duplicate and px > 0 and freePtr < array.size(freeSlots)
+                    array.push(seenPx, px)
+                    int q = f_floor_qty(SHARED_BUDGET / 6.0 * entryRiskScale, px)
+                    float amount = q > 0 ? q * px + f_fee(q, px) : 0.0
+                    float currentExposure = (f_core_qty(coreQtyA) + f_mini_qty(miniQtyA) + f_trend_qty(trendQtyA)) * close
+                    if q > 0 and amount + reserved + bullCoreReservedNext <= cash + 1e-8 and currentExposure + reserved + amount <= SHARED_BUDGET + 1e-8
+                        int slot = array.get(freeSlots, freePtr)
+                        freePtr += 1
+                        array.set(workCoreBuyActive, slot, true)
+                        array.set(workCoreBuyPx, slot, px)
+                        array.set(workCoreBuyQ, slot, q)
+                        coreTvSeq += 1
+                        string coreOrderId = "C0_" + str.tostring(coreTvSeq) + "_S" + str.tostring(slot + 1)
+                        array.set(corePendingIdA, slot, coreOrderId)
+                        reserved += amount
+                        coreReservedNext += amount
+                        strategy.entry(coreOrderId, strategy.long, qty=q, limit=px, comment="C0_BUY")
+
+
+    // E) MINI STARTER / DIP / RECOVERY after reserving C0 candidates.
+    if allowMini and miniPlanExit == "" and fastEventNow and not coreMarketPlanned
+        string role = ""
+        int nextMinute = minuteOfDay + 5
+        bool nextEntryWindow = nextMinute >= 571 and nextMinute <= 945 and sessMin < 385
+        if miniActive and miniReductionStarted
+            role := ""
+        else if armEventNow and not miniActive and nextEntryWindow
+            bool starterVWAP = not enableVWAP or fastVWAPExtreme or (vwapStarterAllowReclaim2 and fastVWAPReclaim2)
+            role := starterVWAP ? "STARTER" : ""
+        else if miniActive and f_mini_qty(miniQtyA) > 0 and miniEntryCount < 3 and nextEntryWindow
+            int nextOpenTs = time_close
+            bool spaced = not na(miniLastEntryTime) and nextOpenTs - miniLastEntryTime >= 15 * 60 * 1000
+            bool dipVWAP = not enableVWAP or (not na(fastVWAPZ) and fastVWAPZ <= VWAP_DIP_Z)
+            bool recVWAP = not enableVWAP or (vwapRecoveryRequireAcceptance ? fastVWAPAcceptance : (fastVWAPReclaim1 or fastVWAPAcceptance))
+            bool dip = armEventNow and miniDipCount < 1 and fastClose <= miniLastPrice - 0.5 * miniOriginalATR and dipVWAP
+            bool rec = fastCompositeFresh and miniRecoveryCount < 1 and fastClose >= miniLastPrice + 0.25 * miniOriginalATR and fastEMA20 - fastClose >= 0.5 * miniOriginalATR and recVWAP
+            if spaced
+                role := dip ? "DIP" : rec ? "RECOVERY" : ""
+        bool permission = slowKnown and slowDeclineDecel
+        if role != "" and not permission
+            role := ""
+        if role != ""
+            if role == "STARTER"
+                miniActive := true
+                miniReductionStarted := false
+                miniSoftDone := false
+                miniRiskFlag := false
+                miniState := "ARMED"
+                miniArmId := emittedArmId
+                miniEntryCount := 0
+                miniDipCount := 0
+                miniRecoveryCount := 0
+                miniOriginalATR := fastATR14
+                miniFirstPrice := na
+                miniLastPrice := na
+                miniLastEntryTime := na
+                miniDeadline := na
+                miniTrough := na
+                miniRearmLevel := na
+                miniVWAPExitStage := 0
+                miniRealized := 0.0
+                for k = 0 to 2
+                    array.set(miniQtyA, k, 0.0)
+                    array.set(miniEntryA, k, na)
+                    array.set(miniCostA, k, 0.0)
+                    array.set(miniTvIdA, k, "")
+            int slot = -1
+            for k = 0 to 2
+                if slot < 0 and array.get(miniQtyA, k) <= 0
+                    slot := k
+            int q = f_floor_qty(MINI_BUDGET / 3.0, fastClose)
+            float amount = q > 0 ? q * close + f_fee(q, close) : 0.0
+            float totalAtDecision = (f_core_qty(coreQtyA) + f_mini_qty(miniQtyA) + f_trend_qty(trendQtyA) + q) * close
+            float miniAtDecision = (f_mini_qty(miniQtyA) + q) * close
+            if slot >= 0 and q > 0 and amount + coreReservedNext + bullCoreReservedNext <= cash + 1e-8 and totalAtDecision + coreReservedNext <= SHARED_BUDGET + 1e-8 and miniAtDecision <= MINI_BUDGET + 1e-8 and not defenseHard
+                workMiniEntry := true
+                workMiniEntrySlot := slot
+                workMiniEntryQ := q
+                workMiniEntryRole := role
+                string miniTvId = "M" + str.tostring(miniArmId) + "_" + str.tostring(slot + 1)
+                array.set(miniTvIdA, slot, miniTvId)
+                strategy.entry(miniTvId, strategy.long, qty=q, comment=role)
+            else if role == "STARTER" and f_mini_qty(miniQtyA) <= 0
+                miniActive := false
+                miniState := "NONE"
+
+
+// ----------------------------- Plots / diagnostics ----------------------------
+int activeCore = f_core_count(coreQtyA)
+float coreTargetPlot = not na(g) and not na(sellRef) ? f_round_up(sellRef + 2.0 * g) : na
+float coreL1 = not na(g) and not na(anchor) ? f_round_down(anchor - 1 * g) : na
+float coreL2 = not na(g) and not na(anchor) ? f_round_down(anchor - 2 * g) : na
+float coreL3 = not na(g) and not na(anchor) ? f_round_down(anchor - 3 * g) : na
+float coreL4 = not na(g) and not na(anchor) ? f_round_down(anchor - 4 * g) : na
+float coreL5 = not na(g) and not na(anchor) ? f_round_down(anchor - 5 * g) : na
+float coreL6 = not na(g) and not na(anchor) ? f_round_down(anchor - 6 * g) : na
+plot(plotVWAP and isRth ? sessionVWAP : na, "RTH VWAP", color=color.new(color.yellow, 0), linewidth=2)
+plot(plotVWAP and isRth and not na(sessionVWAPSD) ? sessionVWAP - sessionVWAPSD : na, "VWAP -1SD", color=color.new(color.teal, 25), linewidth=1)
+plot(plotVWAP and isRth and not na(sessionVWAPSD) ? sessionVWAP - 2.0 * sessionVWAPSD : na, "VWAP -2SD", color=color.new(color.teal, 55), linewidth=1)
+plot(plotVWAP and isRth and not na(sessionVWAPSD) ? sessionVWAP + sessionVWAPSD : na, "VWAP +1SD", color=color.new(color.gray, 70), linewidth=1)
+plot(plotAdaptiveBands and isRth ? fastKCLower : na, "Keltner lower", color=color.new(color.aqua, 45), linewidth=1)
+plot(plotAdaptiveBands and isRth ? fastBBLower : na, "Bollinger lower", color=color.new(color.fuchsia, 55), linewidth=1)
+plotshape(fastEventNow and fastVWAPExtreme, title="VWAP extreme", style=shape.diamond, location=location.belowbar, size=size.tiny, color=color.new(color.fuchsia, 0), text="VX")
+plotshape(fastEventNow and fastVWAPReclaim1, title="VWAP -1SD reclaim", style=shape.triangleup, location=location.belowbar, size=size.tiny, color=color.new(color.yellow, 0), text="VR")
+plotshape(fastEventNow and fastVWAPAcceptance, title="VWAP acceptance", style=shape.circle, location=location.belowbar, size=size.tiny, color=color.new(color.orange, 0), text="VA")
+plotshape(fastEventNow and fastKCReclaim, title="Keltner reclaim", style=shape.triangleup, location=location.belowbar, size=size.tiny, color=color.new(color.aqua, 0), text="KR")
+plotshape(fastEventNow and fastBBReclaim, title="BB reclaim", style=shape.triangleup, location=location.belowbar, size=size.tiny, color=color.new(color.fuchsia, 0), text="BR")
+plotshape(fastEventNow and fastRelVolPanic, title="RVOL panic", style=shape.xcross, location=location.abovebar, size=size.tiny, color=color.new(color.red, 0), text="RV")
+plotshape(fastEventNow and fastRelVolAbsorption, title="RVOL absorption", style=shape.circle, location=location.belowbar, size=size.tiny, color=color.new(color.green, 0), text="RA")
+
+
+plot(showCoreLevels ? coreL1 : na, "C0 L1", color=color.new(color.blue, 15), linewidth=1)
+plot(showCoreLevels ? coreL2 : na, "C0 L2", color=color.new(color.blue, 25), linewidth=1)
+plot(showCoreLevels ? coreL3 : na, "C0 L3", color=color.new(color.blue, 35), linewidth=1)
+plot(showCoreLevels ? coreL4 : na, "C0 L4", color=color.new(color.blue, 45), linewidth=1)
+plot(showCoreLevels ? coreL5 : na, "C0 L5", color=color.new(color.blue, 55), linewidth=1)
+plot(showCoreLevels ? coreL6 : na, "C0 L6", color=color.new(color.blue, 65), linewidth=1)
+plot(coreTargetPlot, "C0 sell target", color=color.new(color.orange, 0), linewidth=2)
+plot(useTrendSleeve and f_trend_qty(trendQtyA) > 0 ? trendStop : na, "Trend defense stop", color=color.new(color.fuchsia, 0), linewidth=2)
+plotshape(useTrendSleeve and slowTrendBullFresh, title="65m bull trend fresh", style=shape.triangleup, location=location.bottom, size=size.tiny, color=color.new(color.lime, 20))
+plot(slowKnown ? slowEMA20 : na, "Completed 65m EMA20", color=color.new(color.purple, 35), linewidth=2)
+
+
+plotshape(armEventNow, title="G0 grouped arm decision", style=shape.triangleup, location=location.belowbar, size=size.tiny, color=color.new(color.lime, 0), text="ARM")
+plotshape(fastCompositeFresh and fastEventNow, title="COMPOSITE fresh decision", style=shape.circle, location=location.belowbar, size=size.tiny, color=color.new(color.aqua, 0), text="C")
+plotshape(slowKnown and slowDeclineDecel, title="65m decline deceleration", style=shape.square, location=location.bottom, size=size.tiny, color=color.new(color.green, 65))
+
+
+if showStateLabels and isRth and (lastCoreEvent != "" or lastMiniEvent != "" or lastBullCoreEvent != "")
+    string txt = (lastCoreEvent != "" ? "CORE " + lastCoreEvent : "") +
+         (lastCoreEvent != "" and (lastMiniEvent != "" or lastBullCoreEvent != "") ? "\n" : "") +
+         (lastMiniEvent != "" ? "MINI " + lastMiniEvent : "") +
+         (lastMiniEvent != "" and lastBullCoreEvent != "" ? "\n" : "") +
+         (lastBullCoreEvent != "" ? "BULL " + lastBullCoreEvent : "")
+    label.new(bar_index, high, txt, style=label.style_label_down, textcolor=color.white, color=color.new(color.black, 20), size=size.tiny)
+
+
+float virtualQty = f_core_qty(coreQtyA) + f_mini_qty(miniQtyA) + f_trend_qty(trendQtyA) + f_bull_core_qty(bullCoreQtyA)
+bool tvMismatch = math.abs(strategy.position_size - virtualQty) > 0.5
+
+
+// V15 dashboard period = the entire dataset/backtest interval processed by this
+// strategy instance, not a rolling one-year window.
+var string perfStartDate = ""
+if isRth and perfStartDate == ""
+    perfStartDate := str.tostring(year(time, TZ)) + "-" + str.tostring(month(time, TZ)) + "-" + str.tostring(dayofmonth(time, TZ))
+string perfEndDate = str.tostring(year(time, TZ)) + "-" + str.tostring(month(time, TZ)) + "-" + str.tostring(dayofmonth(time, TZ))
+float strategyTotalPnL = strategy.netprofit + strategy.openprofit
+float strategyTotalReturnPct = 100.0 * strategyTotalPnL / ACCOUNT_START
+float bhDiagReturnPct = 100.0 * bhDiagPnL / ACCOUNT_START
+float pnlVsBH = strategyTotalPnL - bhDiagPnL
+float bhCapturePct = bhDiagPnL > 0 ? 100.0 * strategyTotalPnL / bhDiagPnL : na
+float ddReductionPct = bhDiagMaxDD > 0 ? 100.0 * (bhDiagMaxDD - strategy.max_drawdown) / bhDiagMaxDD : na
+
+
+var table techDash = table.new(position.top_right, 2, 50, border_width=1)
+var table perfDash = table.new(position.bottom_right, 2, 11, border_width=1)
+
+
+if barstate.islast and showTechnicalDashboard
+    bool contractOK = is5m and (not strictSymbol or symbolOK)
+    table.cell(techDash, 0, 0, "SOXL 5m")
+    table.cell(techDash, 1, 0, contractOK ? "CONTRACT OK" : "CHECK CHART")
+    table.cell(techDash, 0, 1, "ATR5 / g")
+    table.cell(techDash, 1, 1, str.tostring(atr5Daily, format.mintick) + " / " + str.tostring(g, format.mintick))
+    table.cell(techDash, 0, 2, "Anchor")
+    table.cell(techDash, 1, 2, str.tostring(anchor, format.mintick))
+    table.cell(techDash, 0, 3, "Core lots / qty")
+    table.cell(techDash, 1, 3, str.tostring(activeCore) + " / " + str.tostring(f_core_qty(coreQtyA)))
+    table.cell(techDash, 0, 4, "sell_ref / target")
+    table.cell(techDash, 1, 4, str.tostring(sellRef, format.mintick) + " / " + str.tostring(coreTargetPlot, format.mintick))
+    table.cell(techDash, 0, 5, "5m known / score")
+    table.cell(techDash, 1, 5, str.tostring(fastKnown) + " / " + str.tostring(fastScore))
+    table.cell(techDash, 0, 6, "A B C D")
+    table.cell(techDash, 1, 6, (fastA?"1":"0") + (fastB?"1":"0") + (fastC?"1":"0") + (fastD?"1":"0"))
+    table.cell(techDash, 0, 7, "65m known / DD")
+    table.cell(techDash, 1, 7, str.tostring(slowKnown) + " / " + str.tostring(slowDeclineDecel))
+    table.cell(techDash, 0, 8, "Mini state")
+    table.cell(techDash, 1, 8, miniState)
+    table.cell(techDash, 0, 9, "Mini entries / qty")
+    table.cell(techDash, 1, 9, str.tostring(miniEntryCount) + " / " + str.tostring(f_mini_qty(miniQtyA)))
+    table.cell(techDash, 0, 10, "orig ATR")
+    table.cell(techDash, 1, 10, str.tostring(miniOriginalATR, format.mintick))
+    table.cell(techDash, 0, 11, "risk / reduced")
+    table.cell(techDash, 1, 11, str.tostring(miniRiskFlag) + " / " + str.tostring(miniReductionStarted))
+    table.cell(techDash, 0, 12, "Virtual cash")
+    table.cell(techDash, 1, 12, str.tostring(cash, "#.##"))
+    table.cell(techDash, 0, 13, "TV pos / virtual")
+    table.cell(techDash, 1, 13, str.tostring(strategy.position_size) + " / " + str.tostring(virtualQty))
+    table.cell(techDash, 0, 14, "VWAP / Z")
+    table.cell(techDash, 1, 14, str.tostring(fastVWAP, format.mintick) + " / " + str.tostring(fastVWAPZ, "#.##"))
+    table.cell(techDash, 0, 15, "VWAP state")
+    table.cell(techDash, 1, 15, (fastVWAPExtreme ? "EXT " : "") + (fastVWAPReclaim1 ? "R1 " : "") + (fastVWAPReclaim2 ? "R2 " : "") + (fastVWAPDecel ? "DEC " : "") + (fastVWAPAcceptance ? "ACC" : ""))
+    table.cell(techDash, 0, 16, "VWAP exit stage")
+    table.cell(techDash, 1, 16, str.tostring(miniVWAPExitStage))
+    table.cell(techDash, 0, 17, "Pyramiding")
+    table.cell(techDash, 1, 17, "15 (6 C0 + 3 MINI + 3 TREND + 3 SMART CORE)")
+    table.cell(techDash, 0, 18, "MINI partial")
+    table.cell(techDash, 1, 18, "ceil(total/3), FIFO")
+    table.cell(techDash, 0, 19, "VWAP layer")
+    table.cell(techDash, 1, 19, enableVWAP ? "ON" : "OFF")
+    table.cell(techDash, 0, 20, "Emulator mismatch")
+    table.cell(techDash, 1, 20, tvMismatch ? "YES" : "NO")
+    table.cell(techDash, 0, 21, "C0 unlock / accel")
+    table.cell(techDash, 1, 21, str.tostring(c0UnlockedSlots) + " / " + str.tostring(slowDeclineAccel))
+    table.cell(techDash, 0, 22, "Chart symbol")
+    table.cell(techDash, 1, 22, syminfo.ticker)
+    table.cell(techDash, 0, 23, "65m +DI / -DI")
+    table.cell(techDash, 1, 23, str.tostring(slowPlusDI, "#.##") + " / " + str.tostring(slowMinusDI, "#.##"))
+    table.cell(techDash, 0, 24, "65m ADX / rising")
+    table.cell(techDash, 1, 24, str.tostring(slowADX, "#.##") + " / " + str.tostring(slowADXRising))
+    table.cell(techDash, 0, 25, "KC Z / reclaim")
+    table.cell(techDash, 1, 25, str.tostring(fastKCZ, "#.##") + " / " + str.tostring(fastKCReclaim))
+    table.cell(techDash, 0, 26, "BB %B / width")
+    table.cell(techDash, 1, 26, str.tostring(fastBBPctB, "#.##") + " / " + str.tostring(fastBBWidth, "#.####"))
+    table.cell(techDash, 0, 27, "Frozen C0 authority")
+    table.cell(techDash, 1, 27, "BB_U4_U6")
+    table.cell(techDash, 0, 28, "RelVol / panic / absorb")
+    table.cell(techDash, 1, 28, str.tostring(fastRelVol, "#.##") + " / " + str.tostring(fastRelVolPanic) + " / " + str.tostring(fastRelVolAbsorption))
+    table.cell(techDash, 0, 29, "Orphan cleanup orders")
+    table.cell(techDash, 1, 29, str.tostring(orphanCleanupOrders))
+    table.cell(techDash, 0, 30, "Orphan grace bars")
+    table.cell(techDash, 1, 30, str.tostring(ORPHAN_GRACE_BARS))
+    table.cell(techDash, 0, 31, "MATH-A")
+    table.cell(techDash, 1, 31, "EXCLUDED")
+    table.cell(techDash, 0, 32, "Frozen offense")
+    table.cell(techDash, 1, 32, "TREND_CLUSTER + CURRENT")
+    table.cell(techDash, 0, 33, "Trend qty / slots")
+    table.cell(techDash, 1, 33, str.tostring(f_trend_qty(trendQtyA)) + " / " + str.tostring(f_trend_count(trendQtyA)))
+    table.cell(techDash, 0, 34, "Trend bull / fail / exit")
+    table.cell(techDash, 1, 34, str.tostring(slowTrendBull) + " / " + str.tostring(slowTrendFailCount))
+    table.cell(techDash, 0, 35, "Trend stop / mode")
+    table.cell(techDash, 1, 35, str.tostring(trendStop, format.mintick) + " / " + TREND_EXIT_MODE)
+    table.cell(techDash, 0, 36, "Vol / HWM scale")
+    table.cell(techDash, 1, 36, str.tostring(volScale, "#.##") + " / " + str.tostring(hwmScale, "#.##"))
+    table.cell(techDash, 0, 37, "Equity DD %")
+    table.cell(techDash, 1, 37, str.tostring(equityDDPct, "#.##"))
+    table.cell(techDash, 0, 38, "Timeout cluster")
+    table.cell(techDash, 1, 38, str.tostring(timeoutClusterCount) + " / " + str.tostring(clusterHard))
+    table.cell(techDash, 0, 39, "Trend event")
+    table.cell(techDash, 1, 39, lastTrendEvent)
+    table.cell(techDash, 0, 40, "V17 / Smart Core")
+    table.cell(techDash, 1, 40, V17_ABLATION_MODE + " / " + V12_CORE_MODE)
+    table.cell(techDash, 0, 41, "Daily EMA20 / 50")
+    table.cell(techDash, 1, 41, str.tostring(dailyEMA20, format.mintick) + " / " + str.tostring(dailyEMA50, format.mintick))
+    table.cell(techDash, 0, 42, "Daily bear20 / stack")
+    table.cell(techDash, 1, 42, str.tostring(v7DailyBear20) + " / " + str.tostring(v7DailyBearStack))
+    table.cell(techDash, 0, 43, "Selected bear / lock")
+    table.cell(techDash, 1, 43, str.tostring(selectedSecularBear) + " / " + str.tostring(soxxSecularBearLock))
+    table.cell(techDash, 0, 44, "Epoch DD / protect")
+    table.cell(techDash, 1, 44, str.tostring(v8EpochDDPct, "#.0") + "% / " + str.tostring(v8RiskLevel >= 3))
+    table.cell(techDash, 0, 45, "Rearm count")
+    table.cell(techDash, 1, 45, str.tostring(v8RearmCount))
+    table.cell(techDash, 0, 46, "Smart core target/held")
+    table.cell(techDash, 1, 46, str.tostring(bullDesiredCount) + " / " + str.tostring(f_bull_core_count(bullCoreQtyA)))
+    table.cell(techDash, 0, 47, "B&H PnL $140k")
+    table.cell(techDash, 1, 47, str.tostring(buyHoldPnL140, "#"))
+    table.cell(techDash, 0, 48, "B&H PnL $80k")
+    table.cell(techDash, 1, 48, str.tostring(buyHoldPnL80, "#"))
+    table.cell(techDash, 0, 49, "Costs")
+    table.cell(techDash, 1, 49, "4bp fee / 2t slip / 2t limit")
+
+
+if barstate.islast and showPerformanceDashboard
+    table.cell(perfDash, 0, 0, "V18 2X-FRICTION CHART")
+    table.cell(perfDash, 1, 0, V17_ABLATION_MODE)
+    table.cell(perfDash, 0, 1, "Period")
+    table.cell(perfDash, 1, 1, perfStartDate + " -> " + perfEndDate)
+    table.cell(perfDash, 0, 2, "Total PnL / Return")
+    table.cell(perfDash, 1, 2, "$" + str.tostring(strategyTotalPnL, "#") + " / " + str.tostring(strategyTotalReturnPct, "#.##") + "%")
+    table.cell(perfDash, 0, 3, "Open PnL")
+    table.cell(perfDash, 1, 3, "$" + str.tostring(strategy.openprofit, "#"))
+    table.cell(perfDash, 0, 4, "TV Max DD $ / %")
+    table.cell(perfDash, 1, 4, "$" + str.tostring(strategy.max_drawdown, "#") + " / " + str.tostring(strategy.max_drawdown_percent, "#.##") + "%")
+    table.cell(perfDash, 0, 5, "B&H PnL / Return")
+    table.cell(perfDash, 1, 5, "$" + str.tostring(bhDiagPnL, "#") + " / " + str.tostring(bhDiagReturnPct, "#.##") + "%")
+    table.cell(perfDash, 0, 6, "B&H MTM DD $ / %")
+    table.cell(perfDash, 1, 6, "$" + str.tostring(bhDiagMaxDD, "#") + " / " + str.tostring(bhDiagMaxDDPct, "#.##") + "%")
+    table.cell(perfDash, 0, 7, "Strategy - B&H")
+    table.cell(perfDash, 1, 7, "$" + str.tostring(pnlVsBH, "#"))
+    table.cell(perfDash, 0, 8, "B&H upside capture")
+    table.cell(perfDash, 1, 8, str.tostring(bhCapturePct, "#.##") + "%")
+    table.cell(perfDash, 0, 9, "DD reduction vs B&H")
+    table.cell(perfDash, 1, 9, str.tostring(ddReductionPct, "#.##") + "%")
+    table.cell(perfDash, 0, 10, "Execution")
+    table.cell(perfDash, 1, 10, "4bp / 2t slip / 2t limit")
+
+
+alertcondition(armEventNow, "SOXL 5m — grouped arm", "SOXL 5m grouped arm decision")
+alertcondition(fastEventNow and fastVWAPExtreme, "SOXL 5m — extreme", "SOXL 5m extreme negative VWAP displacement")
+alertcondition(fastEventNow and fastVWAPReclaim1, "SOXL 5m — reclaim", "SOXL 5m lower-band reclaim")
+alertcondition(fastEventNow and fastVWAPAcceptance, "SOXL 5m — acceptance", "SOXL 5m lower-band acceptance")
+alertcondition(fastEventNow and fastKCReclaim, "SOXL 5m — Keltner reclaim", "SOXL 5m Keltner lower-band reclaim")
+alertcondition(fastEventNow and fastBBReclaim, "SOXL 5m — BB reclaim", "SOXL 5m Bollinger lower-band reclaim")
+alertcondition(fastEventNow and fastRelVolPanic, "SOXL 5m — RVOL panic", "SOXL 5m elevated relative-volume panic state")
+alertcondition(fastEventNow and fastRelVolAbsorption, "SOXL 5m — RVOL absorption", "SOXL 5m elevated relative-volume absorption state")
+alertcondition(lastCoreEvent != "", "SOXL 5m — core fill", "SOXL 5m core virtual fill")
+alertcondition(lastMiniEvent != "", "SOXL 5m — mini fill", "SOXL 5m mini virtual fill")
+alertcondition(tvMismatch, "SOXL 5m — emulator mismatch", "TradingView position differs from virtual ledger")
+alertcondition(v7HardBear, "SOXL 5m — hard bear", "SOXL 5m daily + 65m hard bear state")
+alertcondition(v8RiskLevel >= 3, "SOXL 5m — protection active", "SOXL 5m DD15 start-only protection active")
+
+
+
+
+alertcondition(lastTrendEvent != "", "SOXL 5m — trend event", "SOXL 5m trend event")
+alertcondition(lastBullCoreEvent != "", "SOXL 5m — smart core event", "SOXL 5m smart-core event")

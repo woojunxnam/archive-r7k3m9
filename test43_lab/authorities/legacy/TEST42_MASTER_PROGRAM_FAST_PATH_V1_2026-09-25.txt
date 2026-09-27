@@ -1,0 +1,559 @@
+TEST42 — INDEX RANGE AUCTION FAST RESEARCH PROGRAM V1
+
+
+
+Status: ACTIVE / FAST PATH / INDEX ONLY
+
+
+
+1\. SOURCE BASIS
+
+
+
+Primary source:
+
+NQ\_OHLCV\_RANGE\_AUCTION\_RESEARCH\_GUIDELINE\_V7 uploaded by user.
+
+
+
+The source is a broad research roadmap, not one strategy.
+
+
+
+This TEST42 program adapts it to the project's current history and avoids retesting TEST41 near-neighbors unnecessarily.
+
+
+
+2\. INDEX-ONLY UNIVERSE
+
+
+
+ES -\> MES
+
+NQ -\> MNQ
+
+RTY -\> M2K
+
+YM -\> MYM
+
+
+
+Native timeframe:
+
+5m OHLCV.
+
+
+
+Long and short always reported separately.
+
+
+
+3\. WHY TEST42 IS SPLIT
+
+
+
+TEST41 already tested:
+
+
+
+\- structural range acceptance/rejection;
+
+\- prior-day / overnight / OR15 / IB60;
+
+\- rolling 3-bar local range;
+
+\- ADX/DI prove-first;
+
+\- market-state / second-entry H1/H2-L1/L2.
+
+
+
+Therefore TEST42 should focus on distinct mechanisms from the guideline.
+
+
+
+4\. TEST42 PROGRAM
+
+
+
+TEST42-A:
+
+CLOCKED TRAILING RANGE MEMORY
+
+
+
+Primary question:
+
+How much recent market memory is useful immediately before a new 30m or 60m auction block?
+
+
+
+Families:
+
+TR(10,30)
+
+TR(20,30)
+
+TR(30,30)
+
+TR(15,60)
+
+TR(30,60)
+
+TR(60,60)
+
+
+
+This is the FIRST execution target.
+
+
+
+TEST42-B:
+
+ATR AUCTION LADDER
+
+
+
+Primary question:
+
+At a new block open, do volatility-normalized distances from prior-block realized movement create stable acceptance/rejection asymmetry?
+
+
+
+Primary volatility method:
+
+exact mean True Range of the immediately preceding block.
+
+
+
+Primary levels:
+
+0.50V
+
+1.00V.
+
+
+
+0.382V and 0.618V are later sensitivity/neighbor controls only.
+
+
+
+TEST42-C:
+
+DEVELOPING RTH RANGE
+
+
+
+Primary question:
+
+Do prior-completed dynamic RTH quartiles behave as support/resistance, role-flip boundaries, or magnets as today's auction evolves?
+
+
+
+Primary levels:
+
+0.25
+
+0.50
+
+0.75.
+
+
+
+First pass emphasizes state transitions and role behavior before adding regime filters.
+
+
+
+5\. DEFERRED / NOT PRIMARY TEST42
+
+
+
+BR2 / BR4 / BR8 event-driven micro ranges:
+
+DEFERRED.
+
+
+
+Reason:
+
+the project already completed a 3-bar rolling local-range acceptance/rejection study in TEST41-B.
+
+Immediate 2/4/8 expansion risks becoming a near-neighbor formation-length search.
+
+It may return later only as a compact sensitivity/control if a new clocked or transition mechanism survives.
+
+
+
+Bollinger:
+
+DEFERRED to a separate future program.
+
+
+
+ADX:
+
+DEFERRED / saturated by EXT-ADX and TEST41-A.
+
+
+
+Triple Stochastic:
+
+DEFERRED to a separate future program.
+
+
+
+Multi-range confluence:
+
+DEFERRED until at least two component range families independently demonstrate evidence.
+
+
+
+Auction regime / previous-auction transition:
+
+RESERVED as TEST42-D only after A/B/C produce clean event-state data.
+
+
+
+6\. FAST RESEARCH PATH
+
+
+
+TEST42 returns to the project's earlier efficient workflow:
+
+
+
+IDEA
+
+\-\> short deterministic spec
+
+\-\> PineScript
+
+\-\> TradingView compile
+
+\-\> TradingView ES/NQ/RTY/YM execution
+
+\-\> export / collect data
+
+\-\> review economics and mechanism
+
+\-\> only promising candidates receive Python parity, nulls, robustness, OOS and portfolio work.
+
+
+
+No mandatory GPT1/GPT2 double audit for every first-pass idea.
+
+
+
+7\. COMMON EXECUTION CONTRACT
+
+
+
+Native 5m OHLCV only.
+
+
+
+RTH research:
+
+09:30 to 15:45 ET.
+
+
+
+No new entry at or after 15:45.
+
+
+
+Latest normal entry:
+
+15:40.
+
+
+
+All open positions hard-flat at 15:45 if their range/block expiry is later.
+
+
+
+Signals use completed bars only.
+
+
+
+Baseline entry:
+
+next 5m bar open after signal.
+
+
+
+Baseline:
+
+first classified event only per range/block instance.
+
+
+
+Ambiguous multi-direction event:
+
+MIX / no trade / range retired.
+
+
+
+No volume filter.
+
+No EMA filter.
+
+No H2/L2.
+
+No MTF.
+
+No request.security.
+
+No daily risk overlay.
+
+
+
+8\. COMMON BASE EVENT TAXONOMY
+
+
+
+Accepted High:
+
+Close \> RangeHigh
+
+\-\> LONG candidate.
+
+
+
+Accepted Low:
+
+Close \< RangeLow
+
+\-\> SHORT candidate.
+
+
+
+Failed High:
+
+High \> RangeHigh
+
+AND Close \< RangeHigh
+
+\-\> SHORT candidate.
+
+
+
+Failed Low:
+
+Low \< RangeLow
+
+AND Close \> RangeLow
+
+\-\> LONG candidate.
+
+
+
+If one bar explores both RangeHigh and RangeLow:
+
+MIX
+
+\-\> no trade
+
+\-\> retire that range instance.
+
+
+
+A touch alone is descriptive only.
+
+
+
+9\. COMMON BASE HARD BRACKET
+
+
+
+For raw first-pass strategy comparison:
+
+
+
+FAILED HIGH SHORT:
+
+SL = signal sweep high + 1 tick.
+
+
+
+FAILED LOW LONG:
+
+SL = signal sweep low - 1 tick.
+
+
+
+ACCEPTED HIGH LONG:
+
+SL = RangeHigh - 1 tick.
+
+
+
+ACCEPTED LOW SHORT:
+
+SL = RangeLow + 1 tick.
+
+
+
+Entry is next 5m open.
+
+
+
+Require stop to be on the valid adverse side of entry.
+
+Otherwise fail closed / no trade.
+
+
+
+R = absolute entry-to-stop distance.
+
+
+
+Primary TP:
+
+0.67R.
+
+
+
+Quantize target away from entry to the next valid tick.
+
+
+
+No trailing.
+
+No break-even.
+
+No partial.
+
+No scale-in.
+
+
+
+q=0.50 / 0.75 / 1.00 replay is authorized only after the entry family shows enough evidence to justify management sensitivity.
+
+
+
+10\. COSTS
+
+
+
+Retain gross and net.
+
+
+
+Use current intended-micro cost authority and realistic slippage.
+
+
+
+First-pass TradingView results must never be judged only on gross PnL.
+
+
+
+11\. FIRST-PASS PROMOTION
+
+
+
+A first-pass family is interesting only if it shows:
+
+
+
+\- adequate trade count;
+
+\- positive net expectancy after realistic costs;
+
+\- no one-year dependence;
+
+\- reasonable 2023+ survival;
+
+\- no obvious single-market fluke;
+
+\- long/short reported separately.
+
+
+
+A promising candidate then graduates to:
+
+
+
+Python reference
+
+Pine/Python parity
+
+causal null
+
+remove-top winners
+
+full / PRE\_2023 / 2023+
+
+parameter-neighbor
+
+OOS / walk-forward
+
+portfolio gate.
+
+
+
+12\. EXECUTION ORDER
+
+
+
+NOW:
+
+TEST42-A.
+
+
+
+THEN:
+
+review A.
+
+
+
+If A is informative:
+
+decide whether B should use A's best block horizon only or remain independent.
+
+
+
+Then:
+
+TEST42-B.
+
+
+
+Then:
+
+TEST42-C.
+
+
+
+Only after A/B/C:
+
+decide whether TEST42-D Auction Regime Transition activates.
+
+
+
+13\. STATUS
+
+
+
+TEST42\_STATUS = ACTIVE
+
+TEST42\_A = NEXT / EXECUTION\_READY
+
+TEST42\_B = CONCEPT\_READY
+
+TEST42\_C = CONCEPT\_READY
+
+TEST42\_D = RESERVED
+
+
+
+PORTFOLIO\_MEMBERSHIP\_CHANGED = NO
+
+LIVE\_AUTHORIZATION = NO
+
+
+
+END
+
+
