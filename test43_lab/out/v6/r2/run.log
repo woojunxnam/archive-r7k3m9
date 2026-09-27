@@ -1,0 +1,77 @@
+MNQ G MODERATE 2500 1449 89.85
+MNQ G CONSERVATIVE 2500 350 48.07
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ G AGGRESSIVE 2500 910 116.12
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES G AGGRESSIVE 2500 1401 86.62
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ E AGGRESSIVE trials 2500 feasible 1297 best 55.53 saturated False sec 250
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ A AGGRESSIVE trials 2500 feasible 1429 best 105.24 saturated False sec 360
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ C AGGRESSIVE trials 2500 feasible 1160 best 132.46 saturated False sec 448
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ F AGGRESSIVE trials 2500 feasible 1541 best 60.04 saturated False sec 372
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES G MODERATE 2500 1382 59.04
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ A MODERATE trials 2500 feasible 1123 best 104.13 saturated False sec 346
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ C MODERATE trials 2500 feasible 1226 best 42.57 saturated False sec 424
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ E MODERATE trials 2500 feasible 1180 best 33.9 saturated False sec 254
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ A CONSERVATIVE trials 2500 feasible 1599 best 23.67 saturated True sec 347
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ F MODERATE trials 2500 feasible 1377 best 115.03 saturated False sec 382
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ E CONSERVATIVE trials 2500 feasible 1137 best 28.3 saturated False sec 257
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ C CONSERVATIVE trials 2500 feasible 1876 best 28.7 saturated False sec 414
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+MNQ F CONSERVATIVE trials 2500 feasible 1344 best 26.19 saturated True sec 377
+ES A AGGRESSIVE trials 2500 feasible 1088 best 71.53 saturated False sec 367
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES E AGGRESSIVE trials 2500 feasible 1127 best 43.51 saturated True sec 249
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES C AGGRESSIVE trials 2500 feasible 1432 best 57.89 saturated False sec 416
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES A MODERATE trials 2500 feasible 1325 best 47.67 saturated False sec 360
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES F AGGRESSIVE trials 2500 feasible 1490 best 62.48 saturated False sec 392
+ES E MODERATE trials 2500 feasible 1259 best 26.25 saturated False sec 258
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES C MODERATE trials 2500 feasible 1363 best 20.87 saturated True sec 425
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES A CONSERVATIVE trials 2500 feasible 1250 best 25.75 saturated False sec 350
+/usr/local/lib/python3.11/dist-packages/optuna/_experimental.py:33: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  optuna_warn(
+ES F MODERATE trials 2500 feasible 1476 best 52.08 saturated False sec 403
+ES E CONSERVATIVE trials 2500 feasible 1193 best 13.5 saturated False sec 250
+ES C CONSERVATIVE trials 2500 feasible 1580 best 22.45 saturated False sec 441
+ES F CONSERVATIVE trials 2500 feasible 1473 best 31.07 saturated False sec 407
