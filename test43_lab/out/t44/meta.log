@@ -1,0 +1,84 @@
+RIDGE|E_ALL 0.0382561704360485
+RIDGE|E_minus_A -0.012633919266883974
+RIDGE|E_minus_B 0.032902523983880515
+RIDGE|E_minus_C 0.05724076485296373
+RIDGE|E_minus_D 0.0405612492813874
+RIDGE|A_ONLY 0.05104296056450067
+XGB_SHALLOW|E_ALL 0.03541358458807673
+XGB_REGULARIZED|E_ALL 0.03859764546919177
+XGB_REGULARIZED|E_minus_A -0.009011104816236702
+XGB_REGULARIZED|E_minus_B 0.049498106625196304
+XGB_REGULARIZED|E_minus_C 0.04736440142001586
+XGB_REGULARIZED|E_minus_D 0.054542340418991246
+XGB_REGULARIZED|A_ONLY 0.06400480794147419
+XGB_VERY_REGULARIZED|E_ALL 0.022990266495403235
+               model  features     n  IC_pooled  IC_monthly_mean  IC_monthly_t  share_positive_scores  top3_minus_bottom3_y_atr  gated_mean_y  kept_mean_y
+               RIDGE     E_ALL 10240     0.0383           0.0471        3.9119                 0.4444                    0.0113       -0.0042       0.0046
+               RIDGE E_minus_A 10240    -0.0126          -0.0086       -0.6751                 0.4081                   -0.0010       -0.0004      -0.0001
+               RIDGE E_minus_B 10240     0.0329           0.0373        2.9980                 0.4395                    0.0094       -0.0037       0.0042
+               RIDGE E_minus_C 10240     0.0572           0.0607        4.7162                 0.4900                    0.0128       -0.0059       0.0056
+               RIDGE E_minus_D 10240     0.0406           0.0467        4.0110                 0.4312                    0.0107       -0.0051       0.0061
+               RIDGE    A_ONLY 10240     0.0510           0.0547        4.4031                 0.3072                    0.0099       -0.0030       0.0059
+         XGB_SHALLOW     E_ALL 10240     0.0354           0.0353        2.4463                 0.1740                    0.0067       -0.0017       0.0064
+     XGB_REGULARIZED     E_ALL 10240     0.0386           0.0448        3.6863                 0.2107                    0.0088       -0.0017       0.0052
+     XGB_REGULARIZED E_minus_A 10240    -0.0090          -0.0054       -0.3842                 0.1130                   -0.0001        0.0004      -0.0052
+     XGB_REGULARIZED E_minus_B 10240     0.0495           0.0564        3.9776                 0.2361                    0.0115       -0.0030       0.0085
+     XGB_REGULARIZED E_minus_C 10240     0.0474           0.0481        3.1255                 0.2904                    0.0088       -0.0026       0.0054
+     XGB_REGULARIZED E_minus_D 10240     0.0545           0.0562        4.1215                 0.2404                    0.0112       -0.0036       0.0103
+     XGB_REGULARIZED    A_ONLY 10240     0.0640           0.0628        4.7543                 0.2550                    0.0138       -0.0033       0.0087
+XGB_VERY_REGULARIZED     E_ALL 10240     0.0230           0.0333        2.5990                 0.2075                    0.0059       -0.0001      -0.0010
+               model  features         usage            allocator  ML_OOS_SPAN_avg  ML_OOS_SPAN_max_dd  ML_OOS_SPAN_worst  ML_OOS_SPAN_ret_dd  ML_OOS_SPAN_excess_vs_mb  Y2022_avg  FORMER_HOLDOUT_avg  SLIP4_ML_OOS_SPAN_avg  fills_per_day
+               RIDGE     E_ALL      GATE_POS SIMPLE_BEST_FEASIBLE            6.530             5187.74           -2182.73               0.001                     2.833     -0.588              -3.725                  5.396          0.431
+               RIDGE     E_ALL      GATE_POS   BEST_MAX2_FEASIBLE            9.108             3952.99            -999.36               0.002                     6.882      0.516               5.229                  8.251          0.486
+               RIDGE     E_ALL      TOP_HALF SIMPLE_BEST_FEASIBLE           12.714             3778.92            -936.11               0.003                     8.496      3.704              16.282                 11.179          0.516
+               RIDGE     E_ALL      TOP_HALF   BEST_MAX2_FEASIBLE           17.906             2055.56            -838.62               0.009                    15.102      6.695              30.091                 16.789          0.538
+               RIDGE     E_ALL DROP_BOTTOM_Q SIMPLE_BEST_FEASIBLE           26.886             8788.01           -2482.49               0.003                    14.211     -0.102             -23.497                 25.423          0.575
+               RIDGE     E_ALL DROP_BOTTOM_Q   BEST_MAX2_FEASIBLE           35.107             5079.18           -2198.50               0.007                    26.060      4.356              30.148                 33.381          0.735
+               RIDGE E_minus_A      GATE_POS SIMPLE_BEST_FEASIBLE           13.794             8670.69           -2568.36               0.002                     5.351      1.592              -6.012                  9.032          0.343
+               RIDGE E_minus_A      GATE_POS   BEST_MAX2_FEASIBLE           11.056             9035.76           -2223.62               0.001                     3.205     -1.554             -20.229                 10.206          0.487
+               RIDGE E_minus_B      GATE_POS SIMPLE_BEST_FEASIBLE            9.950             5514.70           -2441.48               0.002                     6.519      0.538              22.008                  8.856          0.410
+               RIDGE E_minus_B      GATE_POS   BEST_MAX2_FEASIBLE            8.955             5495.34           -2031.35               0.002                     7.282      0.538              13.785                  8.000          0.484
+               RIDGE E_minus_C      GATE_POS SIMPLE_BEST_FEASIBLE            6.973             4398.28           -2487.36               0.002                     2.107     -4.094              13.474                  5.809          0.446
+               RIDGE E_minus_C      GATE_POS   BEST_MAX2_FEASIBLE           10.919             2618.23           -1048.86               0.004                     8.479      0.322              29.461                  9.940          0.513
+               RIDGE E_minus_D      GATE_POS SIMPLE_BEST_FEASIBLE            9.778             3264.33           -1185.49               0.003                     7.033     -0.773              17.248                  8.897          0.369
+               RIDGE E_minus_D      GATE_POS   BEST_MAX2_FEASIBLE           10.753             2877.52            -669.36               0.004                     9.224      1.134              13.267                 10.042          0.441
+               RIDGE    A_ONLY      GATE_POS SIMPLE_BEST_FEASIBLE           11.463             1541.91            -720.00               0.007                    10.475      2.737              39.486                 10.725          0.317
+               RIDGE    A_ONLY      GATE_POS   BEST_MAX2_FEASIBLE           10.566             1709.41            -669.36               0.006                     9.611      3.150              29.571                  9.837          0.437
+               RIDGE    A_ONLY      TOP_HALF SIMPLE_BEST_FEASIBLE           18.509             1816.23            -936.11               0.010                    14.169     -2.874              32.078                 17.037          0.501
+               RIDGE    A_ONLY      TOP_HALF   BEST_MAX2_FEASIBLE           20.454             1618.36           -1104.36               0.013                    18.196      4.788              44.836                 19.272          0.556
+               RIDGE    A_ONLY DROP_BOTTOM_Q SIMPLE_BEST_FEASIBLE           30.335             5868.63           -2416.72               0.005                    17.711    -11.447              25.581                 28.862          0.567
+               RIDGE    A_ONLY DROP_BOTTOM_Q   BEST_MAX2_FEASIBLE           36.066             3932.03           -1459.35               0.009                    27.922      0.166              55.315                 34.256          0.745
+         XGB_SHALLOW     E_ALL      GATE_POS SIMPLE_BEST_FEASIBLE            9.039             2300.04            -816.74               0.004                     7.204      0.000              17.670                  8.333          0.360
+         XGB_SHALLOW     E_ALL      GATE_POS   BEST_MAX2_FEASIBLE           10.604             2646.54            -669.36               0.004                     8.787      0.000              20.932                  9.870          0.471
+         XGB_SHALLOW     E_ALL      TOP_HALF SIMPLE_BEST_FEASIBLE           24.401             6737.10           -2487.36               0.004                    12.550    -12.185              26.279                 22.951          0.535
+         XGB_SHALLOW     E_ALL      TOP_HALF   BEST_MAX2_FEASIBLE           34.888             6491.24           -1501.87               0.005                    24.857      7.689              22.950                 33.473          0.666
+         XGB_SHALLOW     E_ALL DROP_BOTTOM_Q SIMPLE_BEST_FEASIBLE           33.296             8707.42           -2416.72               0.004                    14.646    -16.172              46.942                 28.619          0.416
+         XGB_SHALLOW     E_ALL DROP_BOTTOM_Q   BEST_MAX2_FEASIBLE           46.971             8596.46           -1678.99               0.005                    31.854      5.149              50.548                 43.378          0.702
+     XGB_REGULARIZED     E_ALL      GATE_POS SIMPLE_BEST_FEASIBLE           16.188             1956.18           -1557.50               0.008                    14.367      1.946              44.494                 15.435          0.354
+     XGB_REGULARIZED     E_ALL      GATE_POS   BEST_MAX2_FEASIBLE           13.514             2440.02            -965.24               0.006                    12.161     -1.370              31.710                 12.824          0.458
+     XGB_REGULARIZED     E_ALL      TOP_HALF SIMPLE_BEST_FEASIBLE           25.352             3514.60           -2198.50               0.007                    15.820      7.253              50.872                 23.863          0.522
+     XGB_REGULARIZED     E_ALL      TOP_HALF   BEST_MAX2_FEASIBLE           27.533             4054.41           -2198.50               0.007                    20.318      6.236              58.660                 26.210          0.613
+     XGB_REGULARIZED     E_ALL DROP_BOTTOM_Q SIMPLE_BEST_FEASIBLE           35.372             7946.80           -2492.23               0.004                    18.564     -8.874              55.766                 34.336          0.426
+     XGB_REGULARIZED     E_ALL DROP_BOTTOM_Q   BEST_MAX2_FEASIBLE           44.025             7398.93           -2198.50               0.006                    30.876      7.697              89.249                 42.528          0.670
+     XGB_REGULARIZED E_minus_A      GATE_POS SIMPLE_BEST_FEASIBLE            7.227             4102.36            -825.49               0.002                     4.619     -0.792               4.278                  6.737          0.240
+     XGB_REGULARIZED E_minus_A      GATE_POS   BEST_MAX2_FEASIBLE            6.057             3058.84            -513.62               0.002                     3.514     -0.792              14.856                  5.609          0.359
+     XGB_REGULARIZED E_minus_B      GATE_POS SIMPLE_BEST_FEASIBLE           18.221             3396.89           -1557.50               0.005                    15.477      5.349              37.714                 17.400          0.374
+     XGB_REGULARIZED E_minus_B      GATE_POS   BEST_MAX2_FEASIBLE           16.856             3720.30           -1503.74               0.005                    14.433      5.150              30.080                 16.064          0.490
+     XGB_REGULARIZED E_minus_C      GATE_POS SIMPLE_BEST_FEASIBLE           18.916             3284.59           -1472.25               0.006                    14.365     -0.559              23.752                 17.982          0.404
+     XGB_REGULARIZED E_minus_C      GATE_POS   BEST_MAX2_FEASIBLE           19.401             2830.80           -1501.87               0.007                    15.663     -0.559              24.258                 18.371          0.526
+     XGB_REGULARIZED E_minus_D      GATE_POS SIMPLE_BEST_FEASIBLE            8.842             2766.22            -892.62               0.003                     7.224     -2.026              14.639                  8.131          0.366
+     XGB_REGULARIZED E_minus_D      GATE_POS   BEST_MAX2_FEASIBLE            9.817             3720.30           -1406.24               0.003                     8.246     -2.098              11.698                  9.095          0.484
+     XGB_REGULARIZED    A_ONLY      GATE_POS SIMPLE_BEST_FEASIBLE            8.644             6849.05           -2198.50               0.001                     5.070     -4.580              16.410                  7.745          0.421
+     XGB_REGULARIZED    A_ONLY      GATE_POS   BEST_MAX2_FEASIBLE           11.596             7362.71           -2198.50               0.002                     7.938     -4.580              15.600                 10.648          0.539
+     XGB_REGULARIZED    A_ONLY      TOP_HALF SIMPLE_BEST_FEASIBLE           16.849             6961.79           -2190.37               0.002                     8.626    -13.824               9.542                 15.345          0.587
+     XGB_REGULARIZED    A_ONLY      TOP_HALF   BEST_MAX2_FEASIBLE           25.611             7179.20           -2198.50               0.004                    18.341      2.620              18.133                 24.242          0.664
+     XGB_REGULARIZED    A_ONLY DROP_BOTTOM_Q SIMPLE_BEST_FEASIBLE           24.493            10715.03           -2464.99               0.002                     9.337    -16.978              29.815                 23.064          0.570
+     XGB_REGULARIZED    A_ONLY DROP_BOTTOM_Q   BEST_MAX2_FEASIBLE           34.849            11832.88           -2198.50               0.003                    23.069      2.110              31.749                 33.107          0.747
+XGB_VERY_REGULARIZED     E_ALL      GATE_POS SIMPLE_BEST_FEASIBLE            5.494             2545.98            -816.74               0.002                     4.776      0.000              -0.071                  5.035          0.257
+XGB_VERY_REGULARIZED     E_ALL      GATE_POS   BEST_MAX2_FEASIBLE            7.697             3273.48            -669.36               0.002                     6.938      0.000               2.609                  7.215          0.376
+XGB_VERY_REGULARIZED     E_ALL      TOP_HALF SIMPLE_BEST_FEASIBLE           19.526             4232.82           -1669.73               0.005                    11.888      2.669              15.135                 18.057          0.546
+XGB_VERY_REGULARIZED     E_ALL      TOP_HALF   BEST_MAX2_FEASIBLE           22.860             4435.09           -1501.87               0.005                    16.801      6.723              18.277                 21.530          0.630
+XGB_VERY_REGULARIZED     E_ALL DROP_BOTTOM_Q SIMPLE_BEST_FEASIBLE           25.079             8097.69           -2492.23               0.003                     9.900    -17.795              33.441                 23.788          0.518
+XGB_VERY_REGULARIZED     E_ALL DROP_BOTTOM_Q   BEST_MAX2_FEASIBLE           31.007             9035.67           -1958.24               0.003                    19.328      6.724              16.201                 29.383          0.719
+NONE(simple integer)         -             - SIMPLE_BEST_FEASIBLE           37.457             8819.40           -2482.49               0.004                    15.632    -21.672              67.989                 35.788          0.319
+NONE(simple integer)         -             -   BEST_MAX2_FEASIBLE           49.697            13291.52           -2198.50               0.004                    27.810     -0.235              38.634                 48.009          0.742

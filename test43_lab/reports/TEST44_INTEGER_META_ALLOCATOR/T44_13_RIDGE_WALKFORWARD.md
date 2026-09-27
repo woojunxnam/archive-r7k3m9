@@ -1,0 +1,41 @@
+# T44_13 Ridge walk-forward
+
+TEST44 — DISCRETE CONTRACT + META ALLOCATOR LAB. Data through 2026-05-27 only. NEW_OOS_OPENED = NO.
+
+## Information (out-of-sample scores)
+| model | features | n | IC_pooled | IC_monthly_mean | IC_monthly_t | share_positive_scores | top3_minus_bottom3_y_atr | gated_mean_y | kept_mean_y |
+|---|---|---|---|---|---|---|---|---|---|
+| RIDGE | E_ALL | 10240 | 0.0383 | 0.0471 | 3.9119 | 0.4444 | 0.0113 | -0.0042 | 0.0046 |
+| RIDGE | E_minus_A | 10240 | -0.0126 | -0.0086 | -0.6751 | 0.4081 | -0.001 | -0.0004 | -0.0001 |
+| RIDGE | E_minus_B | 10240 | 0.0329 | 0.0373 | 2.998 | 0.4395 | 0.0094 | -0.0037 | 0.0042 |
+| RIDGE | E_minus_C | 10240 | 0.0572 | 0.0607 | 4.7162 | 0.49 | 0.0128 | -0.0059 | 0.0056 |
+| RIDGE | E_minus_D | 10240 | 0.0406 | 0.0467 | 4.011 | 0.4312 | 0.0107 | -0.0051 | 0.0061 |
+| RIDGE | A_ONLY | 10240 | 0.051 | 0.0547 | 4.4031 | 0.3072 | 0.0099 | -0.003 | 0.0059 |
+
+## Allocation
+| model | features | usage | allocator | ML_OOS_SPAN_avg | ML_OOS_SPAN_max_dd | ML_OOS_SPAN_ret_dd | ML_OOS_SPAN_excess_vs_mb | F2_2021_2022_avg | F3_2023_2024_avg | F4_2025_2026_avg | Y2022_avg | FORMER_HOLDOUT_avg | SLIP4_ML_OOS_SPAN_avg | fills_per_day |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| RIDGE | E_ALL | GATE_POS | SIMPLE_BEST_FEASIBLE | 6.53 | 5187.74 | 0.001 | 2.833 | 10.141 | 10.122 | 6.302 | -0.588 | -3.725 | 5.396 | 0.431 |
+| RIDGE | E_ALL | GATE_POS | BEST_MAX2_FEASIBLE | 9.108 | 3952.99 | 0.002 | 6.882 | 13.977 | 12.786 | 10.634 | 0.516 | 5.229 | 8.251 | 0.486 |
+| RIDGE | E_ALL | TOP_HALF | SIMPLE_BEST_FEASIBLE | 12.714 | 3778.92 | 0.003 | 8.496 | 13.288 | 17.903 | 12.635 | 3.704 | 16.282 | 11.179 | 0.516 |
+| RIDGE | E_ALL | TOP_HALF | BEST_MAX2_FEASIBLE | 17.906 | 2055.56 | 0.009 | 15.102 | 21.211 | 19.649 | 23.184 | 6.695 | 30.091 | 16.789 | 0.538 |
+| RIDGE | E_ALL | DROP_BOTTOM_Q | SIMPLE_BEST_FEASIBLE | 26.886 | 8788.01 | 0.003 | 14.211 | 22.662 | 41.354 | 17.088 | -0.102 | -23.497 | 25.423 | 0.575 |
+| RIDGE | E_ALL | DROP_BOTTOM_Q | BEST_MAX2_FEASIBLE | 35.107 | 5079.18 | 0.007 | 26.06 | 28.805 | 45.722 | 35.954 | 4.356 | 30.148 | 33.381 | 0.735 |
+| RIDGE | E_minus_A | GATE_POS | SIMPLE_BEST_FEASIBLE | 13.794 | 8670.69 | 0.002 | 5.351 | 14.045 | 23.268 | 10.041 | 1.592 | -6.012 | 9.032 | 0.343 |
+| RIDGE | E_minus_A | GATE_POS | BEST_MAX2_FEASIBLE | 11.056 | 9035.76 | 0.001 | 3.205 | 15.98 | 22.585 | 3.794 | -1.554 | -20.229 | 10.206 | 0.487 |
+| RIDGE | E_minus_B | GATE_POS | SIMPLE_BEST_FEASIBLE | 9.95 | 5514.7 | 0.002 | 6.519 | 11.284 | 4.969 | 20.556 | 0.538 | 22.008 | 8.856 | 0.41 |
+| RIDGE | E_minus_B | GATE_POS | BEST_MAX2_FEASIBLE | 8.955 | 5495.34 | 0.002 | 7.282 | 16.971 | 5.604 | 15.167 | 0.538 | 13.785 | 8.0 | 0.484 |
+| RIDGE | E_minus_C | GATE_POS | SIMPLE_BEST_FEASIBLE | 6.973 | 4398.28 | 0.002 | 2.107 | 4.723 | 6.709 | 16.515 | -4.094 | 13.474 | 5.809 | 0.446 |
+| RIDGE | E_minus_C | GATE_POS | BEST_MAX2_FEASIBLE | 10.919 | 2618.23 | 0.004 | 8.479 | 11.963 | 8.402 | 23.229 | 0.322 | 29.461 | 9.94 | 0.513 |
+| RIDGE | E_minus_D | GATE_POS | SIMPLE_BEST_FEASIBLE | 9.778 | 3264.33 | 0.003 | 7.033 | 10.327 | 12.092 | 14.547 | -0.773 | 17.248 | 8.897 | 0.369 |
+| RIDGE | E_minus_D | GATE_POS | BEST_MAX2_FEASIBLE | 10.753 | 2877.52 | 0.004 | 9.224 | 14.874 | 13.532 | 14.664 | 1.134 | 13.267 | 10.042 | 0.441 |
+| RIDGE | A_ONLY | GATE_POS | SIMPLE_BEST_FEASIBLE | 11.463 | 1541.91 | 0.007 | 10.475 | 10.254 | 6.754 | 26.557 | 2.737 | 39.486 | 10.725 | 0.317 |
+| RIDGE | A_ONLY | GATE_POS | BEST_MAX2_FEASIBLE | 10.566 | 1709.41 | 0.006 | 9.611 | 14.838 | 6.194 | 23.61 | 3.15 | 29.571 | 9.837 | 0.437 |
+| RIDGE | A_ONLY | TOP_HALF | SIMPLE_BEST_FEASIBLE | 18.509 | 1816.23 | 0.01 | 14.169 | 10.897 | 20.879 | 28.278 | -2.874 | 32.078 | 17.037 | 0.501 |
+| RIDGE | A_ONLY | TOP_HALF | BEST_MAX2_FEASIBLE | 20.454 | 1618.36 | 0.013 | 18.196 | 17.882 | 19.949 | 32.856 | 4.788 | 44.836 | 19.272 | 0.556 |
+| RIDGE | A_ONLY | DROP_BOTTOM_Q | SIMPLE_BEST_FEASIBLE | 30.335 | 5868.63 | 0.005 | 17.711 | 15.46 | 36.801 | 44.229 | -11.447 | 25.581 | 28.862 | 0.567 |
+| RIDGE | A_ONLY | DROP_BOTTOM_Q | BEST_MAX2_FEASIBLE | 36.066 | 3932.03 | 0.009 | 27.922 | 24.861 | 42.168 | 49.795 | 0.166 | 55.315 | 34.256 | 0.745 |
+| NONE(simple integer) | - | - | SIMPLE_BEST_FEASIBLE | 37.457 | 8819.4 | 0.004 | 15.632 | 16.587 | 39.108 | 69.829 | -21.672 | 67.989 | 35.788 | 0.319 |
+| NONE(simple integer) | - | - | BEST_MAX2_FEASIBLE | 49.697 | 13291.52 | 0.004 | 27.81 | 43.052 | 63.491 | 47.629 | -0.235 | 38.634 | 48.009 | 0.742 |
+
+Blocks: 21 refits.

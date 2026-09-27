@@ -1,0 +1,23 @@
+{
+ "FRACTIONAL_ROUNDING_WAS_MATERIAL_FAILURE_SOURCE": "YES for the former holdout (integer gross -$22.4k vs virtual fractional; PRIMARY -$6.7k realised vs +$15.7k desired), but NOT a persistent historical bias (gap 2019-2024 within +-$1.8k)",
+ "ONE_CONTRACT_BEATS_TEST43_ALLOCATOR": "NO on full-history return/DD (best D1 0.0032 vs D0 0.0059); YES only inside the former-holdout window",
+ "ONE_TWO_CONTRACT_BEATS_TEST43_ALLOCATOR": "NO on full-history return/DD (best D2 0.0041); YES only inside the former-holdout window",
+ "CLUSTER_SLOT_ADDS_VALUE": "MARGINAL (best feasible D3 0.0035 vs D1 0.0029 at max 1; lower DD, not better at max 2+)",
+ "INTEGER_TRACKING_ADDS_VALUE": "YES among integer allocators (D4 best at every contract cap; best feasible 0.0045)",
+ "RESIDUAL_ALLOCATOR_ADDS_VALUE": "NO (best feasible 0.0031 with 2-5x turnover; error diffusion re-creates the chop it was meant to avoid)",
+ "BEST_PRACTICAL_MAX_CONTRACTS": "2 (highest return inside the MODERATE envelope with every fold positive; 1 has similar return/DD; 3-4 breach the envelope)",
+ "RIDGE_ADDS_VALUE_OVER_SIMPLE_INTEGER": "YES on risk efficiency (ML span ret/DD 0.0126 vs 0.0042, MaxDD $1618 vs $8819, excess 18.2 vs 15.6/day) but LOWER absolute P&L (20.5 vs 37.5/day)",
+ "XGBOOST_ADDS_VALUE_OVER_SIMPLE_INTEGER": "WEAK YES on ret/DD (0.0083 vs 0.0042) with much lower P&L (16.2 vs 37.5/day) and lower matched-beta excess",
+ "XGBOOST_ADDS_VALUE_OVER_RIDGE": "NO (ret/DD 0.0083 vs 0.0126; excess 14.4 vs 18.2)",
+ "XGBOOST_COMPLEXITY_JUSTIFIED": "NO",
+ "CHAMPION_CONTROL_V1": "P1_CLUSTER_EQUAL_RISK|CONSERVATIVE",
+ "SIMPLE_INTEGER_CHALLENGER": "D4|off0.1|lam0.0|mu0.0|max1",
+ "RIDGE_CHALLENGER": "RIDGE|A_ONLY|TOP_HALF|D4|off0.2|lam0.0|mu0.0|max2",
+ "XGBOOST_CHALLENGER": "XGB_REGULARIZED|E_ALL|GATE_POS|D4|off0.1|lam0.0|mu0.0|max1",
+ "PRE_OOS_FREEZE_SHA256": "3401331f1668a463008f17456f1738248434bbd8cf7a86438aee84149ceeeae4",
+ "NEW_OOS_RULES_SHA256": "2f74e2cafaa96cd6051b22dac25b6cdf6cf903229db7fb0bdccd3eabbf708236",
+ "NEW_OOS_DATA_ACQUIRED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}
