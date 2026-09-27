@@ -1,0 +1,23 @@
+{
+ "instrument": "MNQ",
+ "pv": 2.0,
+ "days": 1615,
+ "net": 432891.28000040876,
+ "gross_mtm": 554950.0,
+ "beta_at_avg_pos": 500613.7940105027,
+ "timing": 54336.205989497306,
+ "commission": 67568.22,
+ "slippage": 54490.5,
+ "friction": 122058.72,
+ "avg_pos": 17.375183743249433,
+ "max_pos": 24,
+ "buy_fills": 54499,
+ "sell_fills": 54479,
+ "buy_orders": 54499.0,
+ "sell_orders": 54479.0,
+ "unfilled": 0.0,
+ "margin_util_tv10": 0.32294625581249087,
+ "min_equity": 94179.09999999762,
+ "gross_rth": 199766.5,
+ "gross_eth": 355183.5
+}

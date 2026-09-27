@@ -2,7 +2,7 @@
 import numpy as np
 PV = 5.0
 
-def decompose(b, res, start_mask=None):
+def decompose(b, res, start_mask=None, pv=PV):
     c = b["c"].values
     pos = res["pos"].astype(float)
     o = b["o"].values
@@ -10,8 +10,8 @@ def decompose(b, res, start_mask=None):
     dp_gap = np.diff(np.concatenate([[o[0]], o])) * 0  # placeholder
     prev_c = np.concatenate([[o[0]], c[:-1]])
     pos_prev = np.concatenate([[0.0], pos[:-1]])
-    mtm = (pos_prev * (o - prev_c) + pos * (c - o)) * PV
-    dp = (c - prev_c) * PV
+    mtm = (pos_prev * (o - prev_c) + pos * (c - o)) * pv
+    dp = (c - prev_c) * pv
     m = np.ones(len(c), bool) if start_mask is None else start_mask
     avg = pos[m].mean()
     gross = mtm[m].sum()

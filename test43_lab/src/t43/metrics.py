@@ -40,7 +40,7 @@ def max_drawdown(equity: np.ndarray, init: float) -> float:
 
 
 def summarize(bars: pd.DataFrame, res: dict, init: float = 150000.0, commission: float = 0.62,
-              slip_ticks: float = 1.0, label: str = "") -> dict:
+              slip_ticks: float = 1.0, label: str = "", pv: float = PV) -> dict:
     eq = res["equity"]
     pos = res["pos"]
     d = daily_table(bars, eq, pos, "session")
@@ -49,7 +49,7 @@ def summarize(bars: pd.DataFrame, res: dict, init: float = 150000.0, commission:
     total = float(eq[-1] - init)
     sides = float(res["f_qty"].sum()) if len(res["f_qty"]) else 0.0
     comm = sides * commission
-    slip = sides * slip_ticks * TICK * PV
+    slip = sides * slip_ticks * TICK * pv
     rth = bars["in_rth"].values
     on_mask = ~rth
     out = {

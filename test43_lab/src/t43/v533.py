@@ -49,7 +49,7 @@ PARAM_NAMES = [
     "failedRepairRestoreATR",
     "allowCoreRotation", "coreRotationAgeBars", "coreRotationMinLoss",
     "commission", "slippageTicks", "openprofitIncludesEntryComm",
-    "initialCapital", "marginPct", "enforceMargin",
+    "initialCapital", "marginPct", "enforceMargin", "pointValue",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 
@@ -76,7 +76,7 @@ DEFAULTS = dict(
     failedRepairRestoreATR=0.08,
     allowCoreRotation=1, coreRotationAgeBars=20, coreRotationMinLoss=250,
     commission=0.62, slippageTicks=1, openprofitIncludesEntryComm=1,
-    initialCapital=150000.0, marginPct=0.10, enforceMargin=0,
+    initialCapital=150000.0, marginPct=0.10, enforceMargin=0, pointValue=5.0,
 )
 
 REASONS = [
@@ -207,7 +207,7 @@ def _range_pos(px, lo, hi, mintick):
 def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm):
     n = o.shape[0]
     MT = 0.25
-    PV = 5.0
+    PV = prm[68]
     lotQty = int(prm[0]); intradayMaxQty = int(prm[1]); enableOvernightTrim = prm[2] > 0.5
     overnightMaxQty = int(prm[3])
     rsiExtremeLevel = prm[4]; easyAddRSI = prm[5]; fastSellRSI = prm[6]; baseSellRSI = prm[7]

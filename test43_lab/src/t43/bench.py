@@ -15,14 +15,14 @@ PV = 5.0
 TICK = 0.25
 
 
-def constant_long(bars: pd.DataFrame, n: float, comm=0.62, slip_ticks=1.0, roll_day=None, init=150000.0):
+def constant_long(bars: pd.DataFrame, n: float, comm=0.62, slip_ticks=1.0, roll_day=None, init=150000.0, pv=PV):
     o = bars["o"].values
     c = bars["c"].values
     entry = o[0] + slip_ticks * TICK
-    eq = init + n * PV * (c - entry) - n * comm
+    eq = init + n * pv * (c - entry) - n * comm
     roll_cost = 0.0
     if roll_day is not None:
-        per = 2 * (comm + slip_ticks * TICK * PV)
+        per = 2 * (comm + slip_ticks * TICK * pv)
         sess = bars["session_date"].values
         first = np.concatenate([[True], sess[1:] != sess[:-1]])
         hits = roll_day & first

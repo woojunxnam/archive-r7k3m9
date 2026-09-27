@@ -1,0 +1,23 @@
+{
+ "instrument": "ES",
+ "pv": 5.0,
+ "days": 1615,
+ "net": 93288.1000000654,
+ "gross_mtm": 277473.75,
+ "beta_at_avg_pos": 285372.49268987385,
+ "timing": -7898.742689873849,
+ "commission": 61066.9,
+ "slippage": 123118.75,
+ "friction": 184185.65,
+ "avg_pos": 17.737393687506728,
+ "max_pos": 24,
+ "buy_fills": 49256,
+ "sell_fills": 49236,
+ "buy_orders": 49256.0,
+ "sell_orders": 49236.0,
+ "unfilled": 0.0,
+ "margin_util_tv10": 0.4305902163202647,
+ "min_equity": 68841.07999999892,
+ "gross_rth": 103977.5,
+ "gross_eth": 173496.25
+}

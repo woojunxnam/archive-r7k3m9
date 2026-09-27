@@ -61,7 +61,7 @@ PARAM_NAMES = [
     "reductionLock", "rearmATR", "dayStop", "emergencyLoss", "emergencyToCore",
     "regimeMaxQty", "buyStartMod", "buyEndMod", "rollCostPerContract",
     "coreTierMode", "kBase", "kMid", "kTop", "tacticalMode",
-    "ddLimit", "ddFloorQty", "ddRearmLen",
+    "ddLimit", "ddFloorQty", "ddRearmLen", "pointValue",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 
@@ -95,7 +95,7 @@ DEFAULTS = dict(
     reductionLock=0, rearmATR=0.5, dayStop=0.0, emergencyLoss=0.0, emergencyToCore=1,
     regimeMaxQty=0, buyStartMod=570, buyEndMod=954, rollCostPerContract=0.0,
     coreTierMode=0, kBase=0, kMid=0, kTop=0, tacticalMode=1,
-    ddLimit=0.0, ddFloorQty=0, ddRearmLen=20,
+    ddLimit=0.0, ddFloorQty=0, ddRearmLen=20, pointValue=5.0,
 )
 
 REASONS = [
@@ -246,7 +246,7 @@ def _linv(p, K, span):
 def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day):
     n = o.shape[0]
     MT = 0.25
-    PV = 5.0
+    PV = prm[97]
     lotQty = int(prm[0]); intradayMaxQty = int(prm[1]); enableOvernightTrim = prm[2] > 0.5
     overnightMaxQty = int(prm[3])
     rsiExtremeLevel = prm[4]; easyAddRSI = prm[5]; fastSellRSI = prm[6]; baseSellRSI = prm[7]

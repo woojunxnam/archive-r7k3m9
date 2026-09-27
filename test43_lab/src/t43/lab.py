@@ -87,10 +87,10 @@ def envelope(st: dict) -> str:
     return "EXPLORATORY"
 
 
-def margin_util(b, a, res, pct=0.10):
+def margin_util(b, a, res, pct=0.10, pv=PV):
     """max over bars of pos*rawPrice*5*pct / equity (TV-style 10% margin); >1 = breach."""
     px = a.get("mref_c", b["c"].values)
-    req = res["pos"] * px * PV * pct
+    req = res["pos"] * px * pv * pct
     eq = res["equity"]
     util = np.where(eq > 0, req / np.maximum(eq, 1.0), np.where(req > 0, np.inf, 0.0))
     return float(util.max())
