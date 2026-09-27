@@ -1,0 +1,123 @@
+\# TEST18 Final Review — VWAP State Machine
+
+
+
+Date: 2026-09-17
+
+Status: COMPLETE
+
+Timeframe authority: 5-minute only
+
+
+
+Stage-1: 196 implementations = 24 Survivor / 10 Borderline A / 2 Borderline B / 160 Reject. All 36 required native Strategy Tester files are now reviewed.
+
+
+
+Native exports are self-identifying through TEST18|SYMBOL|CANDIDATE|DIRECTION.
+
+
+
+Previously missing YM results:
+
+\- YM T18-14 SHORT: 39 recent native trades, PF \~1.534. 2023+ actual MYM 4t+top3 PF \~0.869, combined net \~-$729.94. REJECT for shadow promotion.
+
+\- YM T18-22 SHORT: 30 recent native trades, PF \~1.454, but remove-best is negative so native frozen class becomes Reject. 2023+ actual MYM 4t+top3 PF \~0.558. REJECT.
+
+
+
+Actual-micro 4t+top3 survivors among all 36:
+
+\- NQ T18-03 LONG \~1.060
+
+\- NQ T18-09 LONG \~1.191
+
+\- NQ T18-23 LONG \~1.043
+
+\- RTY T18-10 SHORT \~1.009
+
+\- RTY T18-14 SHORT \~1.055
+
+\- RTY T18-16 SHORT \~1.142
+
+\- YM T18-16 SHORT \~1.025
+
+
+
+Final shadow decisions:
+
+
+
+TS18-S01 — RTY T18-14 SHORT -\> M2K
+
+\- Mechanism: 2σ lower-side VWAP expansion continuation.
+
+\- 2023+ actual M2K 4t+top3 PF \~1.055.
+
+\- Every observed 2023–2026 YTD year positive under 4-tick stress.
+
+\- Latest 3m/6m/12m positive.
+
+\- Core6 Sharpe-like and MaxDD improve; worst day unchanged.
+
+\- Very low overlap with LC09.
+
+\- Labels: SHADOW\_ONLY / MODERN-MARKET / VWAP-2SIGMA-EXPANSION / DIVERSIFICATION-ORIENTED / M2K.
+
+
+
+TS18-S02 — RTY T18-16 SHORT -\> M2K
+
+\- Mechanism: strongly falling RTH VWAP + price still close to VWAP + bearish bar.
+
+\- 2023+ actual M2K 4t+top3 PF \~1.142.
+
+\- Low overlap with LC09; Core6 Sharpe improves; worst day unchanged.
+
+\- 2024 slightly negative and latest 3m negative, so secondary to TS18-S01.
+
+\- Labels: SHADOW\_ONLY / MODERN-MARKET / VWAP-SLOPE-NEAR-VALUE / DIVERSIFICATION-ORIENTED / M2K / RECENT-3M-WEAK.
+
+
+
+T18-14 vs T18-16:
+
+\- signal-day Jaccard \~13.5%
+
+\- exact entry timestamps 0
+
+\- calendar daily PnL corr \~0.13
+
+\- common-day corr \~0.36
+
+\- actual position overlap \~20–25% of candidate trades
+
+They are not near-duplicates, so both may be shadowed independently. Live governance still permits only one RTY position at a time.
+
+
+
+Research watches:
+
+\- T18-W01 — NQ T18-09 LONG -\> MNQ: standalone robust but overlaps LC05 / TS16 NQ-long cluster.
+
+\- T18-W02 — YM T18-16 SHORT -\> MYM: portfolio-friendly but combined edge thin and 2023/2024 weak.
+
+\- T18-W03 — RTY T18-10 SHORT -\> M2K: combined edge too thin.
+
+
+
+Main VWAP conclusion:
+
+The broad test rejects the simplistic idea that far from VWAP automatically implies mean reversion. The strongest useful information came from VWAP state and transition: slope, one-sided acceptance, distance expansion, band-walk continuation, first-touch rejection, prior-session VWAP transitions, and selected high-cross/chop reversal states. The most portfolio-useful result was RTY short continuation around a falling VWAP state.
+
+
+
+Core6 remains unchanged.
+
+Active shadows after TEST18:
+
+TS10-S01, TS10-S02, TS13-S01, TS16-S01, TS17-S01, TS18-S01, TS18-S02.
+
+
+
+TEST18 complete. TEST19/20 remain intentionally unassigned.

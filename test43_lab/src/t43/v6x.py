@@ -60,6 +60,7 @@ PARAM_NAMES = [
     "profitRefMode", "profitZ", "profitZMinTicks",
     "reductionLock", "rearmATR", "dayStop", "emergencyLoss", "emergencyToCore",
     "regimeMaxQty", "buyStartMod", "buyEndMod", "rollCostPerContract",
+    "coreTierMode", "kBase", "kMid", "kTop",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 
@@ -92,6 +93,7 @@ DEFAULTS = dict(
     profitRefMode=0, profitZ=0.0, profitZMinTicks=4,
     reductionLock=0, rearmATR=0.5, dayStop=0.0, emergencyLoss=0.0, emergencyToCore=1,
     regimeMaxQty=0, buyStartMod=570, buyEndMod=954, rollCostPerContract=0.0,
+    coreTierMode=0, kBase=0, kMid=0, kTop=0,
 )
 
 REASONS = [
@@ -276,6 +278,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
     reductionLockOn = prm[80] > 0.5; rearmATR = prm[81]; dayStop = prm[82]; emergencyLoss = prm[83]
     emergencyToCore = prm[84] > 0.5; regimeMaxQty = int(prm[85]); buyStartMod = int(prm[86])
     buyEndMod = int(prm[87]); rollCost = prm[88]
+    coreTierMode = int(prm[89]); kBase = int(prm[90]); kMid = int(prm[91]); kTop = int(prm[92])
     M = intradayMaxQty
     span = float(M - K)
 
@@ -352,6 +355,8 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
     lastTrimSess = -1
     lastRollSess = -1
     prev_eq = initCap
+    ema20 = np.nan; ema50 = np.nan; ema20p = np.nan; ema50p = np.nan; sma200p = np.nan
+    tierState = 0
 
     for i in range(n):
         # ===================== FILL AT THIS BAR'S OPEN (order from bar i-1)
@@ -455,6 +460,31 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                 for k in range(511):
                     regC[k] = regC[k + 1]
                 regC[511] = lastRTHClose
+        if nR and not math.isnan(lastRTHClose):
+            ema20p = ema20; ema50p = ema50
+            ema20 = lastRTHClose if math.isnan(ema20) else (2.0 / 21.0) * lastRTHClose + (1 - 2.0 / 21.0) * ema20
+            ema50 = lastRTHClose if math.isnan(ema50) else (2.0 / 51.0) * lastRTHClose + (1 - 2.0 / 51.0) * ema50
+            if coreTierMode > 0:
+                medium = (not math.isnan(ema50p)) and lastRTHClose > ema50 and ema50 >= ema50p
+                strong = medium and ema20 > ema50 and (not math.isnan(ema20p)) and ema20 > ema20p
+                bear = False
+                if regN >= 201:
+                    s200 = 0.0; s200p = 0.0; s50 = 0.0
+                    for k in range(regN - 200, regN):
+                        s200 += regC[k]
+                    for k in range(regN - 201, regN - 1):
+                        s200p += regC[k]
+                    for k in range(regN - 50, regN):
+                        s50 += regC[k]
+                    s200 /= 200.0; s200p /= 200.0; s50 /= 50.0
+                    bear = lastRTHClose < s200 and s50 < s200 and s200 < s200p
+                if bear:
+                    K = 0; tierState = 0
+                else:
+                    K = kBase + (kMid if medium else 0) + (kTop if strong else 0)
+                    tierState = 1 + (1 if medium else 0) + (1 if strong else 0)
+                K = min(K, M)
+                span = float(M - K)
         bullRegime = True
         if regN >= regimeLen and regimeLen > 0:
             sm = 0.0

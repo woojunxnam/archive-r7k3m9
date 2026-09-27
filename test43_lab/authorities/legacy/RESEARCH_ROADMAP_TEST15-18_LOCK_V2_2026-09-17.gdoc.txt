@@ -1,0 +1,283 @@
+RESEARCH ROADMAP — TEST15 TO TEST18 — LOCK V2
+
+Date: 2026-09-17
+
+Status: FROZEN ROADMAP / CURRENT RESEARCH ORDER AUTHORITY
+
+Supersedes: RESEARCH\_ROADMAP\_TEST15-20\_LOCK\_V1\_2026-09-17 for future planning.
+
+
+
+PURPOSE
+
+Lock only TEST15–TEST18. TEST19 and TEST20 are intentionally unassigned and will be discussed only after TEST18 is complete.
+
+
+
+GLOBAL RULES
+
+\- TradingView/Pine-deployable research only.
+
+\- 5-minute = primary discovery timeframe.
+
+\- 15-minute = mandatory timeframe validation for native-confirmed Survivor/Borderline candidates when the mechanism is meaningful at 15m.
+
+\- New research hard flat = 15:45 ET.
+
+\- No DCA.
+
+\- One micro per virtual sleeve initially.
+
+\- No post-result rescue tuning.
+
+\- No full-history batch pre-screen.
+
+\- Native TradingView Strategy Tester = execution/PnL authority.
+
+\- Required path: recent discovery -\> frozen classification -\> native confirmation -\> full history -\> 4-tick stress -\> winner concentration -\> actual micro economics -\> portfolio gate.
+
+\- Core6 remains frozen.
+
+\- Existing active shadows remain separate from new TEST15–18 research.
+
+\- Any change after viewing results requires a new test/version; do not silently mutate a frozen definition.
+
+
+
+TEST15 — CROSS-INDEX CONFIRMATION / DIVERGENCE
+
+Status: LOCKED / NEXT TEST
+
+Markets: ES / NQ / RTY / YM
+
+Timeframes: 5m primary discovery; 15m validation
+
+Execution: RTH only; hard flat 15:45 ET
+
+Core information axis: cross-index agreement, leadership, lag and divergence.
+
+
+
+Primary mechanism families
+
+1\. 3-of-4 synchronized trend continuation.
+
+2\. Target breakout unconfirmed by peers -\> fade.
+
+3\. Cross-sectional leader pullback continuation.
+
+4\. Laggard catch-up after peer basket moves first.
+
+5\. Breadth + VWAP thrust continuation.
+
+6\. High cross-sectional dispersion -\> convergence.
+
+7\. Target new session extreme without peer confirmation -\> exhaustion.
+
+8\. Opening-gap disagreement -\> intraday convergence.
+
+9\. Target leads peer-basket reversal -\> continuation.
+
+
+
+Primary normalized features
+
+\- 30-minute return / RTH ATR.
+
+\- 60-minute return / RTH ATR.
+
+\- Above/below RTH VWAP.
+
+\- VWAP slope over frozen wall-clock window.
+
+\- Current RTH CLV.
+
+\- Session high/low break state.
+
+\- Opening gap / prior RTH ATR.
+
+\- Peer breadth: bullish/bearish count among other three indices.
+
+\- Cross-sectional dispersion.
+
+\- Target relative strength versus peer-average normalized return.
+
+
+
+Implementation rules
+
+\- Time-align ES/NQ/RTY/YM values at the decision timestamp.
+
+\- Use completed peer bars only.
+
+\- No future/unconfirmed request.security values.
+
+\- 5m factory is the Stage-1 discovery authority.
+
+\- 15m is validation, not an independent post-hoc optimization search.
+
+\- Controls should be included and excluded from promotion.
+
+
+
+TEST16 — OPEN INTEREST REGIME
+
+Status: LOCKED
+
+Core axis: confirmed futures participation/positioning change.
+
+\- Traditional CME-family futures use completed daily OI as regime context.
+
+\- No intraday OI assumption for traditional futures.
+
+\- Use prior confirmed OI only to prevent lookahead.
+
+Mechanism families:
+
+1\. Price up + OI up -\> fresh-long continuation.
+
+2\. Price up + OI down -\> short-cover exhaustion/reversal.
+
+3\. Price down + OI up -\> fresh-short continuation.
+
+4\. Price down + OI down -\> liquidation exhaustion/reversal.
+
+5\. 5-day OI acceleration/deceleration.
+
+6\. 20-day OI percentile/extreme.
+
+7\. Breakout confirmed by OI expansion.
+
+8\. Pullback/reversion conditioned on OI contraction.
+
+Execution trigger: 5m primary / 15m validation; 15:45 flat.
+
+
+
+TEST17 — FOOTPRINT / DELTA
+
+Status: LOCKED
+
+Core axis: TradingView footprint-derived buy/sell pressure and price-level participation.
+
+Prerequisite: request.footprint() availability and stable history on the user's TradingView plan/symbols.
+
+First-wave features:
+
+\- bar delta
+
+\- delta / total volume
+
+\- POC location
+
+\- VAH / VAL relation
+
+\- buy/sell imbalance count
+
+Mechanism families:
+
+1\. Price new low + bullish delta divergence -\> LONG.
+
+2\. Price new high + bearish delta divergence -\> SHORT.
+
+3\. Breakout + confirming delta -\> continuation.
+
+4\. Breakout + opposing delta -\> fade.
+
+5\. VWAP/POC reclaim with aligned delta.
+
+6\. VAH/VAL sweep and rejection.
+
+7\. Absorption / imbalance near session extremes.
+
+TradingView footprint classification is the research/production authority for this lane; do not assume exchange-native aggressor truth.
+
+
+
+TEST18 — VWAP ACCEPTANCE / RECLAIM / CROSS-STATE
+
+Status: LOCKED
+
+Core axis: HOW price interacts with VWAP over time, not merely static distance from VWAP.
+
+Do not repeat prior simple VWAP stretch/reclaim or overextension/rejection strategies.
+
+
+
+Primary features
+
+1\. VWAP cross count since RTH open.
+
+2\. Consecutive bars above/below VWAP.
+
+3\. Recent dwell fraction above/below VWAP.
+
+4\. Time since last VWAP cross.
+
+5\. VWAP slope over fixed wall-clock windows.
+
+6\. Distance from VWAP / RTH ATR.
+
+7\. Maximum excursion from VWAP before reclaim/failure.
+
+8\. First reclaim versus repeated reclaim.
+
+9\. Failed reclaim: cross VWAP then return to original side within preregistered bars.
+
+10\. Acceptance after reclaim: cross VWAP and remain on the new side for preregistered dwell.
+
+11\. VWAP chop state: many crosses + low displacement.
+
+12\. One-sided VWAP trend state: few crosses + high dwell + aligned VWAP slope.
+
+
+
+Mechanism families
+
+A. Clean reclaim + acceptance -\> continuation LONG/SHORT.
+
+B. Failed reclaim -\> continuation toward original side.
+
+C. First VWAP cross after long one-sided dwell -\> transition/mean reversion.
+
+D. Repeated VWAP cross/chop -\> fade excursion back toward VWAP.
+
+E. One-sided VWAP trend + shallow pullback -\> continuation.
+
+F. Large excursion -\> VWAP reclaim -\> continuation only after acceptance.
+
+G. VWAP slope reversal + acceptance shift -\> directional reversal.
+
+H. First reclaim fails, second reclaim succeeds -\> continuation.
+
+Timeframes: 5m primary / 15m validation.
+
+Execution: RTH only; hard flat 15:45 ET.
+
+
+
+TEST19 AND TEST20
+
+Status: UNASSIGNED / NOT LOCKED
+
+Do not carry forward the previous COT or Overnight Inventory assignments as active roadmap items.
+
+Discuss and define TEST19+ only after TEST18 is fully complete and reviewed.
+
+
+
+CURRENT ORDER
+
+TEST15 Cross-index confirmation/divergence
+
+\-\> TEST16 Open Interest regime
+
+\-\> TEST17 Footprint / Delta
+
+\-\> TEST18 VWAP Acceptance / Reclaim / Cross-State
+
+\-\> STOP AND DISCUSS NEXT ROADMAP
+
+
+
+END

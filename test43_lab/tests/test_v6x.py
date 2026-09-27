@@ -81,3 +81,9 @@ def test_roll_cost_charged(arr):
     r1 = v6x.run(a2, v6x.make_params(coreQty=5, coreBuildMode=1, rollCostPerContract=3.74))
     assert r1["counter_dict"]["rollCost"] > 0
     assert r1["equity"][-1] < r0["equity"][-1]
+
+
+def test_core_tier_mode_runs_and_respects_cap(arr):
+    b, a = arr
+    r = v6x.run(a, v6x.make_params(coreTierMode=1, kBase=4, kMid=4, kTop=4, coreBuildMode=1, intradayMaxQty=28))
+    assert r["pos"].max() <= 28 and r["pos"].min() >= 0
