@@ -1,0 +1,60 @@
+feature_name,family,formula,parameters,python_implemented,pine_implementable,causal,repaint_risk,data_dependency,computation_cost,legacy_origin,notes
+atr14,VOLATILITY,RMA(TrueRange;14) Pine ta.atr seeding,len=14,YES,YES,YES,NONE,ES 3m OHLC,LOW,V5.3.3,used for all ATR-scaled thresholds
+rsi2,PRICE_TREND,Pine ta.rsi(close;2) RMA-based,len=2,YES,YES,YES,NONE,ES 3m close,LOW,V5.3.3/TEST22,exhaustion/turn-up evidence
+wr2,PRICE_TREND,100*(close-HH2)/(HH2-LL2),len=2,YES,YES,YES,NONE,ES 3m HLC,LOW,V5.3.3,na when HH2==LL2
+rth_vwap,VWAP,sum(hlc3*v)/sum(v) reset at first RTH bar,session=0930-1600 ET,YES,YES,YES,NONE,ES 3m HLCV,LOW,V5.3.3/TEST18,RTH-only (overnight excluded)
+rth_vwap_sigma,VWAP,sqrt(max(sum(p^2 v)/sum(v)-vwap^2;0)),,YES,YES,YES,NONE,ES 3m HLCV,LOW,V5.3.3/TEST18/TEST37,volume-weighted
+vwap_z,VWAP,(close-vwap)/sigma (0 when sigma<=tick),,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3/TEST18,
+vwap_band_k,VWAP,vwap +/- k*sigma,"k in {0.5,1,1.5,2,2.5}",YES,YES,YES,NONE,ES 3m,LOW,TEST37,
+vwap_deep_reclaim,VWAP,low<=band_deep[1] and close>band_deep[1] and (close>open or close>close[1]),deep sigma=1.5,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,uses prior-bar band
+vwap_extreme_touch,VWAP,low<=band_extreme[1],extreme sigma=2.0,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+vwap_slope,VWAP,(vwap - vwap[n])/atr,n bars,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST18/TEST37,
+vwap_band_dwell,VWAP,consecutive bars with z<=-k (or >=k),k,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST37,filter not signal (Wave A)
+vwap_excursion_energy,VWAP,sum over current excursion of z (signed) or z*v/avgv,,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST35,Wave A: failed as standalone long alpha; allowed as state/filter
+recovery_elasticity,VWAP,(close - excursion extreme)/(vwap - excursion extreme),,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST35/TEST11,conceptually = RecoveryFraction vs VWAP
+roll15_hl,RANGE,max/min of prior 5 RTH 3m bars (same session),5 bars,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,pushed AFTER signals: prior bars only
+roll30_hl,RANGE,prior 10 RTH bars,10 bars,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+roll60_hl,RANGE,prior 20 RTH bars,20 bars,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+pos_x,RANGE,(close-lo)/(hi-lo) (0.5 if width<=tick),"x in {15,30,60,RTH,priorRTH,OR,5D}",YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,location/permission only (TEST42 lesson)
+prior_rth_hl,RANGE,previous completed RTH high/low,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3/TEST10,
+roll5d_hl,RANGE,current RTH + 4 completed RTH sessions,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+opening_range,RANGE,high/low of 09:30-09:42 bars (15m),15m,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3/TEST10,ready from 09:45 bar
+failed_low_break_x,RANGE,low<level and close>level,levels as above,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3/TEST10,
+failed_high_break_x,RANGE,high>level and close<level,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,drives REPAIR_SELL
+fresh_break_x,RANGE,close>level and close[1]<=level,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,continuation lane
+range_score,RANGE,count of near/failed lows across 5 levels,bottomRangePct=0.35,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+drift_location_score,RANGE+VWAP,vwap deep/reclaim/extreme + 60m low + session low + 5D low,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,controlled-drift dip
+down_pushes,PRICE_TREND,count of bearish lower-low RTH bars spaced >=0.05 ATR,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3/TEST10 three-push,
+bottom_rejection,PRICE_ACTION,lowerWick/range>=0.25 and closePct>=0.55,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+sell_climax,PRICE_ACTION,bear bar range>=1.2ATR closePct<=0.35 and exhaustion,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+micro_double_bottom,PRICE_ACTION,|low - lowest(low[1];10)|<=0.2ATR and close>open,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+strong_bull_bar,PRICE_ACTION,body>=0.6 closePct>=0.75 range>=0.8ATR,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+bull_follow_through,PRICE_ACTION,strongBull[1] and close>open and close>close[1] and close>mid[1],,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+h2,PRICE_ACTION,bull attempt -> pullback -> bull attempt (per RTH),,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,
+higher_low_break,PRICE_ACTION,low>=invLow+0.05ATR and close>max(high[1];high[2]),,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3,inventory-relative
+sixty_breakout_pullback,PRICE_ACTION,60m break -> touch within 0.2ATR held -> continuation 1/2,,YES,YES,YES,NONE,ES 3m,LOW,V5.3.3/TEST10 breakout->retest,
+ema_n,PRICE_TREND,Pine ta.ema(close;n),"n in {5,10,20,50,100,200}",PLANNED,YES,YES,NONE,ES 3m,LOW,TEST22,confirmation/regime only (TEST22: 139/168 classic lanes rejected)
+ema_slope,PRICE_TREND,(ema-ema[k])/atr,,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST22,
+macd_signal_cross_snapback,PRICE_TREND,MACD cross up while below VWAP (snapback toward VWAP),12/26/9,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST22,strongest reusable TEST22 idea
+adx_di,PRICE_TREND,custom RMA ADX/DI(14),,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST41/EXT-ADX,saturated as edge; regime only
+efficiency_ratio,PRICE_TREND,|close-close[n]|/sum|diff|,n,PLANNED,YES,YES,NONE,ES 3m,LOW,TEST35 path smoothness,
+bb_width_pct,VOLATILITY,percentile of BB width over lookback,,PLANNED,YES,YES,NONE,ES 3m,MED,TEST22,
+atr_percentile,VOLATILITY,percentrank(atr;N),,PLANNED,YES,YES,NONE,ES 3m,MED,,vol regime
+session_close_ema20_50,REGIME_DAILY,EMA of completed RTH session closes (updated at new RTH),20/50,YES,YES,YES,NONE,ES 3m,LOW,SOXL smart core,tiered core MEDIUM/STRONG
+secular_bear_sma_stack,REGIME_DAILY,C_D1<SMA200_D1 and SMA50_D1<SMA200_D1 and SMA200 falling,50/200 sessions,YES,YES,YES,NONE,ES 3m,LOW,SOXL smart core,core zero state
+regime_close_sma,REGIME_DAILY,close > SMA(N completed RTH closes),N=20,YES,YES,YES,NONE,ES 3m,LOW,TEST43 lab,O3 overnight / regime cap
+overnight_return,SESSION,RTH open - prior RTH close (in ATR/points),,PLANNED,YES,YES,NONE,ES 3m,LOW,,
+gap_atr,SESSION,(open0930 - priorRTHClose)/dailyATR,,PLANNED,YES,YES,NONE,ES 3m,LOW,,
+time_of_day,SESSION,minute of day buckets,,YES,YES,YES,NONE,clock,LOW,TEST42 late-RTH gap,buy window params
+rel_volume_same_clock,VOLUME,volume / mean(volume same clock last N sessions),N=20,PLANNED,YES,YES,NONE,ES 3m volume,MED,TEST14/Wave A,
+obv_slope,VOLUME,slope of OBV,,PLANNED,YES,YES,NONE,ES 3m volume,LOW,,
+inv_pos_over_max,INVENTORY,position/max,,YES,YES,YES,NONE,strategy state,LOW,TEST43,
+inv_avgcost_dist,INVENTORY,(close-avgPrice)/atr,,YES,YES,YES,NONE,strategy state,LOW,V5.3.3,FIFO avg (TV semantics)
+recovery_fraction,INVENTORY,(close-recentLow)/max(avgCost-recentLow;eps),"lookback, thr in {0.382,0.5,0.618}",YES,YES,YES,NONE,strategy state,LOW,TEST43 prompt / TEST11,repair sell gate
+tactical_ledger_hi_lo_cost,INVENTORY,highest/lowest/avg cost of logical tactical units,,YES,YES,YES,NONE,strategy state,LOW,SOXL highest-cost-first,profit reference modes
+reduction_lock,INVENTORY,block overlay adds after reduction until rearm (price -X ATR / new RTH / pos<=base),rearmATR,YES,YES,YES,NONE,strategy state,LOW,SOXL MINI DERISK,
+day_stop,RISK,session MTM <= -X -> sell to core and block buys for session,X $,YES,YES,YES,NONE,strategy equity,LOW,TEST43 lab,worst-day envelope
+emergency,RISK,openprofit<=-X -> sell to core/flat,X $,YES,YES,YES,NONE,strategy equity,LOW,V5.3.3 optional,
+peer_norm_return_30_60,CROSS_INDEX,peer 30/60m return / peer ATR (completed peer bars),,NOT_YET,YES (request.security),YES if completed bars,LOW if lookahead_off + [1],NQ/RTY/YM parquet,MED,TEST15,blocked: peer data also >10MB
+peer_vwap_breadth,CROSS_INDEX,count of peers above own RTH VWAP,,NOT_YET,YES (request.security),YES,LOW,NQ/RTY/YM,MED,TEST15,blocked: peer data
+footprint_delta,EXCLUDED,-,-,NO,NO,UNCERTAIN,HIGH,order flow,-,-,EXCLUDED per program rules
