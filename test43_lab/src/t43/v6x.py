@@ -61,7 +61,7 @@ PARAM_NAMES = [
     "reductionLock", "rearmATR", "dayStop", "emergencyLoss", "emergencyToCore",
     "regimeMaxQty", "buyStartMod", "buyEndMod", "rollCostPerContract",
     "coreTierMode", "kBase", "kMid", "kTop", "tacticalMode",
-    "ddLimit", "ddFloorQty", "ddRearmLen", "pointValue",
+    "ddLimit", "ddFloorQty", "ddRearmLen", "pointValue", "disableMask", "maxActionsPerSess",
 ]
 P = {n: i for i, n in enumerate(PARAM_NAMES)}
 
@@ -95,7 +95,7 @@ DEFAULTS = dict(
     reductionLock=0, rearmATR=0.5, dayStop=0.0, emergencyLoss=0.0, emergencyToCore=1,
     regimeMaxQty=0, buyStartMod=570, buyEndMod=954, rollCostPerContract=0.0,
     coreTierMode=0, kBase=0, kMid=0, kTop=0, tacticalMode=1,
-    ddLimit=0.0, ddFloorQty=0, ddRearmLen=20, pointValue=5.0,
+    ddLimit=0.0, ddFloorQty=0, ddRearmLen=20, pointValue=5.0, disableMask=0, maxActionsPerSess=0,
 )
 
 REASONS = [
@@ -247,6 +247,9 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
     n = o.shape[0]
     MT = 0.25
     PV = prm[97]
+    disableMask = int(prm[98])
+    maxActs = int(prm[99])
+    actCount = 0
     lotQty = int(prm[0]); intradayMaxQty = int(prm[1]); enableOvernightTrim = prm[2] > 0.5
     overnightMaxQty = int(prm[3])
     rsiExtremeLevel = prm[4]; easyAddRSI = prm[5]; fastSellRSI = prm[6]; baseSellRSI = prm[7]
@@ -433,6 +436,7 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
                     nf += 1
 
         if i == 0 or sess[i] != sess[i - 1]:
+            actCount = 0
             sessStartEq = prev_eq
             dayStopped = False
             emergencyActive = False
@@ -1124,12 +1128,28 @@ def run_kernel(o, h, l, c, v, hh, mm, in_rth, new_rth, prm, sess, mref, roll_day
         if (overnightMode == 0 or enableOvernightTrim) and trimDecisionBar and posNow > overnightMaxQty and (not sellOrderSubmitted) and (not buyOrderSubmitted):
             sellOrderSubmitted = True; sellOrderQty = posNow - overnightMaxQty; sellOrderReason = 18; cnt[22] += 1
 
+        if maxActs > 0 and actCount >= maxActs:
+            if buyOrderSubmitted:
+                buyOrderSubmitted = False
+                if pendingInitialOrder and pendingInitialBar == i:
+                    pendingInitialOrder = False; pendingInitialBar = -1
+            if sellOrderSubmitted and not (sellOrderReason == 18 or sellOrderReason >= 21):
+                sellOrderSubmitted = False
+        if disableMask != 0:
+            if buyOrderSubmitted and ((disableMask >> buyOrderReason) & 1) == 1:
+                buyOrderSubmitted = False
+                if pendingInitialOrder and pendingInitialBar == i:
+                    pendingInitialOrder = False; pendingInitialBar = -1
+            if sellOrderSubmitted and ((disableMask >> sellOrderReason) & 1) == 1:
+                sellOrderSubmitted = False
         if buyOrderSubmitted and buyOrderQty > 0:
             safe = min(buyOrderQty, max(Meff - posNow, 0))
             if safe > 0:
                 cnt[5] += 1
                 lastInventoryActionBar = i
                 pendingOrderSide = 1; pendingOrderReason = buyOrderReason; pendingOrderQty = safe; pendingOrderBar = i
+        if (buyOrderSubmitted and buyOrderQty > 0) or (sellOrderSubmitted and sellOrderQty > 0 and posNow > 0):
+            actCount += 1
         if sellOrderSubmitted and sellOrderQty > 0 and posNow > 0:
             safe = min(sellOrderQty, posNow)
             cnt[6] += 1

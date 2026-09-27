@@ -76,6 +76,13 @@ def space(t, inst, arch):
 
 
 ROBUST = os.environ.get("T43_ROBUST", "0") == "1"
+ROBUST2 = os.environ.get("T43_ROBUST", "0") == "2"
+from t43 import robust  # noqa: E402
+
+
+def n_modules(p):
+    keys = ("dd1", "dayStop", "gapK", "shockK", "dipOn", "redOn", "volBudgetON", "volBudget")
+    return sum(1 for k in keys if p.get(k))
 
 
 def score_row(o, env):
@@ -105,10 +112,10 @@ def main(inst, arch, env, n, seed, out):
 
     def obj(t):
         p = space(t, inst, arch)
-        o = v6lab.evaluate(inst, dict(p), end=lab.DEV_END, periods=("DEV", "F1", "F2", "F3") if ROBUST else ("DEV",))
-        sc, feas = score_row(o, env)
+        o = v6lab.evaluate(inst, dict(p), end=lab.DEV_END, periods=("DEV", "F1", "F2", "F3") if (ROBUST or ROBUST2) else ("DEV",))
+        sc, feas = robust.score2(o, env, n_modules(p)) if ROBUST2 else score_row(o, env)
         rows.append({"trial": t.number, "inst": inst, "arch": arch, "env": env, "score": sc, "feasible": feas,
-                     **{k: o[k] for k in o if k.startswith(("DEV_", "F1_avg", "F2_avg", "F3_avg"))}, "peak_margin_util": o["peak_margin_util"],
+                     **{k: o[k] for k in o if k.startswith(("DEV_", "F1_", "F2_", "F3_"))}, "peak_margin_util": o["peak_margin_util"],
                      "min_equity": o["min_equity"], "fills": o["fills"], "friction": o["friction"],
                      "params": json.dumps(p)})
         if t.number % 100 == 99:

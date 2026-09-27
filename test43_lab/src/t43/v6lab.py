@@ -43,12 +43,38 @@ def daily(b, r):
     return lab.daily(b, {"equity": r["equity"], "pos": r["pos"]})
 
 
-def evaluate(inst, cfg, end=lab.VAL_END, periods=("DEV", "VAL", "DV", "PRE23", "P23", "Y2020", "Y2022"), keep=False):
-    b, f = load(inst, end)
-    p = inst_params(inst); p.update({k: v for k, v in cfg.items() if not k.startswith("_")})
-    r = v6a.run(b, f, v6a.make_params(**p))
-    d = daily(b, r)
-    out = {"inst": inst, "label": cfg.get("_label", "")}
+_C1 = {}
+
+
+def const1_daily(inst, end=lab.VAL_END):
+    """Constant 1-contract long (entry at first bar, roll cost, commission+1 tick) daily table."""
+    key = (inst, str(end))
+    if key not in _C1:
+        from . import bench
+        b, _ = load(inst, end)
+        p = instruments.PROFILES[PROF[inst]]
+        rd = b.roll_adjacent.fillna(False).astype(bool).values
+        eq, pos, _ = bench.constant_long(b, 1, roll_day=rd, pv=p["point_value"], comm=p["commission_side"])
+        _C1[key] = lab.daily(b, {"equity": eq, "pos": pos})
+    return _C1[key]
+
+
+def matched_beta(inst, d, per, end=lab.VAL_END):
+    """Constant long with the SAME average exposure over the SAME period."""
+    s, e = PERIODS[per]
+    c1 = const1_daily(inst, end)
+    x = d if s is None else d[d.index >= s]
+    x = x if e is None else x[x.index <= e]
+    y = c1.loc[x.index]
+    n = float(x["avg_pos"].mean())
+    y = y.copy(); y["pnl"] = y["pnl"] * n; y["avg_pos"] = n; y["max_pos"] = n; y["end_pos"] = n
+    st = lab.period_stats(y)
+    return {"mb_avg": st["avg_daily"], "mb_dd": st["max_dd"], "mb_worst": st["worst_day"], "mb_n": n,
+            "mb_ret_dd": st["avg_daily"] / st["max_dd"] if st["max_dd"] > 0 else np.nan}
+
+
+def period_block(inst, d, periods, end=lab.VAL_END, mb=True):
+    out = {}
     for per in periods:
         s, e = PERIODS[per]
         st = lab.period_stats(d, s, e)
@@ -56,6 +82,24 @@ def evaluate(inst, cfg, end=lab.VAL_END, periods=("DEV", "VAL", "DV", "PRE23", "
                   "max_mes", "avg_ex_top5", "ret_dd"):
             out[f"{per}_{k}"] = st.get(k)
         out[f"{per}_env"] = lab.envelope(st) if st else None
+        if mb and st:
+            m = matched_beta(inst, d, per, end)
+            for k, v in m.items():
+                out[f"{per}_{k}"] = v
+            out[f"{per}_excess_vs_mb"] = st["avg_daily"] - m["mb_avg"]
+            out[f"{per}_dd_ratio_vs_mb"] = st["max_dd"] / m["mb_dd"] if m["mb_dd"] > 0 else np.nan
+            cr = st["avg_daily"] / st["max_dd"] if st["max_dd"] > 0 else np.nan
+            out[f"{per}_retdd_gain_vs_mb"] = cr / m["mb_ret_dd"] if m["mb_ret_dd"] and m["mb_ret_dd"] > 0 else np.nan
+    return out
+
+
+def evaluate(inst, cfg, end=lab.VAL_END, periods=("DEV", "VAL", "DV", "PRE23", "P23", "Y2020", "Y2022"), keep=False, mb=False):
+    b, f = load(inst, end)
+    p = inst_params(inst); p.update({k: v for k, v in cfg.items() if not k.startswith("_")})
+    r = v6a.run(b, f, v6a.make_params(**p))
+    d = daily(b, r)
+    out = {"inst": inst, "label": cfg.get("_label", "")}
+    out.update(period_block(inst, d, periods, end, mb=mb))
     # IBKR-style margin check: intraday frac in RTH, overnight frac outside
     rawpx = (b.c - b.cum_adjustment.astype(float)).values
     frac = np.where(b.in_rth.values, p["mIntraFrac"], p["mOnFrac"])
