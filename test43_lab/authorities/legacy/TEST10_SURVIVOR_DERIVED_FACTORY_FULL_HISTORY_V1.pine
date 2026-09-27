@@ -1,0 +1,583 @@
+//@version=6
+strategy("TEST10 Full-History Native Factory V1 | 8 Markets | 5m | Flat 15:45 ET",
+     overlay=true, pyramiding=0,
+     process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false,
+     use_bar_magnifier=false, slippage=1,
+     commission_type=strategy.commission.cash_per_contract, commission_value=2.24)
+
+// TEST10 — FROZEN FULL-HISTORY VALIDATION FACTORY V1
+// Mechanical derivative of TEST10_SURVIVOR_DERIVED_FACTORY_V1_1.pine.
+// Source SHA256: 9dbdf0eaaa7eb17193f149bb46f09ccdc62324986a436b2b2fd24fefd641acc3
+// ONLY economic change from native-confirmed V1.1: Stage-1 date gate removed.
+// Signals may occur across all historical bars loaded by TradingView.
+// All thresholds, directions, triggers, stops, maximum hold, session rules, friction, and 15:45 ET hard-flat are unchanged.
+// Existing Core6 / Shadow strategies remain unchanged.
+// Stage-1 universe addendum: ES / NQ / RTY / YM / BTC / CL / GC / SI.
+// Exactly 5-minute chart.
+// Standardized portfolio research session: 09:30-15:45 America/New_York.
+// All state/indicators update only from bars inside that session.
+// Signal on completed 5m bar -> next-bar market entry.
+// Max 1 entry/day.
+// 2 x RTH-only ATR(14) catastrophe stop.
+// No take-profit. Max hold 120 minutes. Forced flat at 15:45 ET.
+// No tuning during first-pass screen.
+// HTF context is manually constructed from completed 5m RTH bars.
+
+string TZ = "America/New_York"
+string RTH = "0930-1545:23456"
+string FIRST_BAR = "0930-0935:23456"
+string FIRST30 = "0930-1000:23456"
+string W_1000_1430 = "1000-1430:23456"
+string W_1000_1330 = "1000-1330:23456"
+string W_1000_1130 = "1000-1130:23456"
+string W_1030_1430 = "1030-1430:23456"
+string FLATTEN_TRIGGER = "1540-1545:23456"
+
+if barstate.isfirst and timeframe.in_seconds() != 300
+    runtime.error("TEST10 requires exactly a 5-minute chart.")
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+bool firstRthBar = not na(time(timeframe.period, FIRST_BAR, TZ))
+bool inFirst30 = not na(time(timeframe.period, FIRST30, TZ))
+bool w1000_1430 = not na(time(timeframe.period, W_1000_1430, TZ))
+bool w1000_1330 = not na(time(timeframe.period, W_1000_1330, TZ))
+bool w1000_1130 = not na(time(timeframe.period, W_1000_1130, TZ))
+bool w1030_1430 = not na(time(timeframe.period, W_1030_1430, TZ))
+bool flattenTrigger = not na(time(timeframe.period, FLATTEN_TRIGGER, TZ))
+
+string candidate = input.string("T10-01 PDH breakout -> retest hold LONG", "Candidate",
+     options=[
+       "T10-01 PDH breakout -> retest hold LONG",
+       "T10-02 PDL breakdown -> retest reject SHORT",
+       "T10-03 OR breakout -> retest hold LONG",
+       "T10-04 OR breakdown -> retest reject SHORT",
+       "T10-05 PDH breakout -> failed acceptance SHORT",
+       "T10-06 PDL breakdown -> failed acceptance LONG",
+       "T10-07 Gap-up partial-fill failure -> continuation LONG",
+       "T10-08 Gap-down partial-fill failure -> continuation SHORT",
+       "T10-09 Confirmed 60m bull -> 5m pullback recovery LONG",
+       "T10-10 Confirmed 60m bear -> 5m bounce rejection SHORT",
+       "T10-11 Confirmed 60m bull -> failed new-high continuation SHORT",
+       "T10-12 Confirmed 60m bear -> failed new-low continuation LONG",
+       "T10-13 Confirmed 30m compression -> expansion LONG",
+       "T10-14 Confirmed 30m compression -> expansion SHORT",
+       "T10-15 Confirmed 60m bull + PDL sweep/reclaim LONG",
+       "T10-16 Confirmed 60m bear + PDH sweep/reject SHORT",
+       "T10-17 Three-push upside exhaustion SHORT",
+       "T10-18 Three-push downside exhaustion LONG",
+       "T10-19 Previous-week high breakout -> retest hold LONG",
+       "T10-20 Previous-week low breakdown -> retest reject SHORT"
+     ])
+
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int minutesFromOpen = hh * 60 + mm - 570
+
+// ---------- Daily / weekly state ----------
+var int entriesToday = 0
+
+var float sessionOpen = na
+var float sessionHigh = na
+var float sessionLow = na
+var float sessionClose = na
+
+var float prevRthOpen = na
+var float prevRthHigh = na
+var float prevRthLow = na
+var float prevRthClose = na
+var float prevRthRange = na
+var float prevRthCloseLoc = na
+
+var int currentWeekKey = na
+var float weekOpen = na
+var float weekHigh = na
+var float weekLow = na
+var float weekClose = na
+
+var float prevWeekOpen = na
+var float prevWeekHigh = na
+var float prevWeekLow = na
+var float prevWeekClose = na
+var float prevWeekRange = na
+var float prevWeekCloseLoc = na
+
+var int pdhBreakBar = na
+var int pdlBreakBar = na
+var int orUpBreakBar = na
+var int orDnBreakBar = na
+var int pwHighBreakBar = na
+var int pwLowBreakBar = na
+
+var float todayOpen = na
+var float orHigh = na
+var float orLow = na
+var float frozenOrHigh = na
+var float frozenOrLow = na
+
+var bool gapUpPartialFail = false
+var bool gapDownPartialFail = false
+
+int thisWeekKey = year(time, TZ) * 100 + weekofyear(time)
+
+if firstRthBar
+    if not na(sessionHigh) and not na(sessionLow) and not na(sessionClose)
+        prevRthOpen := sessionOpen
+        prevRthHigh := sessionHigh
+        prevRthLow := sessionLow
+        prevRthClose := sessionClose
+        prevRthRange := sessionHigh - sessionLow
+        prevRthCloseLoc := prevRthRange > 0 ? (sessionClose - sessionLow) / prevRthRange : na
+
+    if na(currentWeekKey)
+        currentWeekKey := thisWeekKey
+    else if thisWeekKey != currentWeekKey
+        if not na(weekHigh) and not na(weekLow) and not na(weekClose)
+            prevWeekOpen := weekOpen
+            prevWeekHigh := weekHigh
+            prevWeekLow := weekLow
+            prevWeekClose := weekClose
+            prevWeekRange := weekHigh - weekLow
+            prevWeekCloseLoc := prevWeekRange > 0 ? (weekClose - weekLow) / prevWeekRange : na
+        currentWeekKey := thisWeekKey
+        weekOpen := na
+        weekHigh := na
+        weekLow := na
+        weekClose := na
+
+    entriesToday := 0
+    pdhBreakBar := na
+    pdlBreakBar := na
+    orUpBreakBar := na
+    orDnBreakBar := na
+    pwHighBreakBar := na
+    pwLowBreakBar := na
+
+    todayOpen := open
+    sessionOpen := open
+    sessionHigh := high
+    sessionLow := low
+    sessionClose := close
+
+    orHigh := high
+    orLow := low
+    frozenOrHigh := na
+    frozenOrLow := na
+
+    gapUpPartialFail := false
+    gapDownPartialFail := false
+
+    if na(weekOpen)
+        weekOpen := open
+        weekHigh := high
+        weekLow := low
+        weekClose := close
+else if inRth
+    sessionHigh := math.max(nz(sessionHigh, high), high)
+    sessionLow := math.min(nz(sessionLow, low), low)
+    sessionClose := close
+
+if inRth
+    if na(weekOpen)
+        weekOpen := open
+        weekHigh := high
+        weekLow := low
+    weekHigh := math.max(nz(weekHigh, high), high)
+    weekLow := math.min(nz(weekLow, low), low)
+    weekClose := close
+
+// ---------- RTH-only ATR14 and EMA20/EMA50 ----------
+var float prevRthBarClose = na
+var array<float> trHist = array.new_float()
+var float rthAtr = na
+var float ema20 = na
+var float ema50 = na
+
+if inRth
+    float trNow = na(prevRthBarClose) ? (high - low) :
+         math.max(high - low, math.max(math.abs(high - prevRthBarClose), math.abs(low - prevRthBarClose)))
+    array.push(trHist, trNow)
+    if array.size(trHist) > 14
+        array.shift(trHist)
+    rthAtr := array.size(trHist) >= 14 ? array.avg(trHist) : na
+
+    float a20 = 2.0 / 21.0
+    float a50 = 2.0 / 51.0
+    ema20 := na(ema20) ? close : a20 * close + (1.0 - a20) * ema20
+    ema50 := na(ema50) ? close : a50 * close + (1.0 - a50) * ema50
+
+    prevRthBarClose := close
+
+float barRange = math.max(high - low, syminfo.mintick)
+float closeLocation = (close - low) / barRange
+
+// ---------- RTH-only VWAP ----------
+var float pvCum = na
+var float vCum = na
+
+if firstRthBar
+    pvCum := hlc3 * nz(volume)
+    vCum := nz(volume)
+else if inRth
+    pvCum := nz(pvCum) + hlc3 * nz(volume)
+    vCum := nz(vCum) + nz(volume)
+
+float rthVwap = inRth and vCum > 0 ? pvCum / vCum : na
+
+// ---------- Same-time-of-day RVOL ----------
+const int SLOTS = 75
+const int TOD_DAYS = 20
+const int TOD_MIN = 10
+
+var array<float> todHist = array.new<float>(SLOTS * TOD_DAYS, na)
+var array<float> todSums = array.new<float>(SLOTS, 0.0)
+var array<int> todCounts = array.new<int>(SLOTS, 0)
+var int todDayPtr = 0
+var bool todSeenFirstDay = false
+
+if firstRthBar
+    if todSeenFirstDay
+        todDayPtr := (todDayPtr + 1) % TOD_DAYS
+    else
+        todSeenFirstDay := true
+
+int slot = int(math.floor(minutesFromOpen / 5.0))
+float todAvg = na
+float todRvol = na
+
+if inRth and slot >= 0 and slot < SLOTS
+    int ringIndex = todDayPtr * SLOTS + slot
+    float oldValue = array.get(todHist, ringIndex)
+    float priorSum = array.get(todSums, slot)
+    int priorCount = array.get(todCounts, slot)
+
+    todAvg := priorCount >= TOD_MIN ? priorSum / priorCount : na
+    todRvol := not na(todAvg) and todAvg > 0 ? volume / todAvg : na
+
+    float newSum = priorSum - (na(oldValue) ? 0.0 : oldValue) + nz(volume)
+    int newCount = priorCount - (na(oldValue) ? 0 : 1) + 1
+
+    array.set(todHist, ringIndex, nz(volume))
+    array.set(todSums, slot, newSum)
+    array.set(todCounts, slot, newCount)
+
+// ---------- Opening 30 minutes ----------
+if inFirst30
+    orHigh := math.max(nz(orHigh, high), high)
+    orLow := math.min(nz(orLow, low), low)
+
+bool first30EndBar = inRth and hh == 9 and mm == 55
+
+if first30EndBar
+    frozenOrHigh := orHigh
+    frozenOrLow := orLow
+
+    if not na(prevRthClose) and not na(prevRthRange) and prevRthRange > 0
+        float gapUp = todayOpen - prevRthClose
+        float gapDown = prevRthClose - todayOpen
+
+        if gapUp >= 0.25 * prevRthRange and gapUp > 0
+            float fillFracUp = (todayOpen - orLow) / gapUp
+            gapUpPartialFail := fillFracUp >= 0.25 and fillFracUp <= 0.75 and orLow > prevRthClose
+
+        if gapDown >= 0.25 * prevRthRange and gapDown > 0
+            float fillFracDn = (orHigh - todayOpen) / gapDown
+            gapDownPartialFail := fillFracDn >= 0.25 and fillFracDn <= 0.75 and orHigh < prevRthClose
+
+// ---------- Custom confirmed 30-minute bars ----------
+var float cur30Open = na
+var float cur30High = na
+var float cur30Low = na
+var float cur30Close = na
+
+var float last30Open = na
+var float last30High = na
+var float last30Low = na
+var float last30Close = na
+var bool last30Compressed = false
+var int last30BarIndex = na
+var int cur30Count = 0
+var array<float> range30Hist = array.new_float()
+
+bool start30 = inRth and minutesFromOpen >= 0 and minutesFromOpen < 360 and minutesFromOpen % 30 == 0
+bool end30 = inRth and minutesFromOpen >= 0 and minutesFromOpen < 360 and minutesFromOpen % 30 == 25
+
+if start30
+    cur30Open := open
+    cur30High := high
+    cur30Low := low
+    cur30Close := close
+    cur30Count := 1
+else if inRth and not na(cur30Open)
+    cur30High := math.max(cur30High, high)
+    cur30Low := math.min(cur30Low, low)
+    cur30Close := close
+    cur30Count += 1
+
+if end30 and not na(cur30Open)
+    bool complete30 = cur30Count == 6
+    if complete30
+        float range30 = cur30High - cur30Low
+        float prior4Avg30 = array.size(range30Hist) >= 4 ? array.avg(range30Hist) : na
+
+        last30Open := cur30Open
+        last30High := cur30High
+        last30Low := cur30Low
+        last30Close := cur30Close
+        last30Compressed := not na(prior4Avg30) and prior4Avg30 > 0 and range30 <= 0.75 * prior4Avg30
+        last30BarIndex := bar_index
+
+        array.push(range30Hist, range30)
+        if array.size(range30Hist) > 4
+            array.shift(range30Hist)
+
+    cur30Open := na
+    cur30High := na
+    cur30Low := na
+    cur30Close := na
+    cur30Count := 0
+
+// ---------- Custom confirmed 60-minute bars ----------
+var float cur60Open = na
+var float cur60High = na
+var float cur60Low = na
+var float cur60Close = na
+
+var float last60Open = na
+var float last60High = na
+var float last60Low = na
+var float last60Close = na
+var bool last60Bull = false
+var bool last60Bear = false
+var int last60BarIndex = na
+var int cur60Count = 0
+
+bool start60 = inRth and minutesFromOpen >= 0 and minutesFromOpen < 360 and minutesFromOpen % 60 == 0
+bool end60 = inRth and minutesFromOpen >= 0 and minutesFromOpen < 360 and minutesFromOpen % 60 == 55
+
+if start60
+    cur60Open := open
+    cur60High := high
+    cur60Low := low
+    cur60Close := close
+    cur60Count := 1
+else if inRth and not na(cur60Open)
+    cur60High := math.max(cur60High, high)
+    cur60Low := math.min(cur60Low, low)
+    cur60Close := close
+    cur60Count += 1
+
+if end60 and not na(cur60Open)
+    bool complete60 = cur60Count == 12
+    if complete60
+        float range60 = math.max(cur60High - cur60Low, syminfo.mintick)
+        float body60 = math.abs(cur60Close - cur60Open) / range60
+        float cl60 = (cur60Close - cur60Low) / range60
+
+        last60Open := cur60Open
+        last60High := cur60High
+        last60Low := cur60Low
+        last60Close := cur60Close
+        last60Bull := cur60Close > cur60Open and body60 >= 0.50 and cl60 >= 0.70
+        last60Bear := cur60Close < cur60Open and body60 >= 0.50 and cl60 <= 0.30
+        last60BarIndex := bar_index
+
+    cur60Open := na
+    cur60High := na
+    cur60Low := na
+    cur60Close := na
+    cur60Count := 0
+
+bool valid60State = not na(last60BarIndex) and bar_index > last60BarIndex and bar_index - last60BarIndex <= 12
+bool valid30State = not na(last30BarIndex) and bar_index > last30BarIndex and bar_index - last30BarIndex <= 6
+
+// ---------- Fresh breakout arming ----------
+if inRth and not na(rthAtr) and rthAtr > 0
+    if w1000_1430 and not na(prevRthHigh) and na(pdhBreakBar) and close > prevRthHigh + 0.10 * rthAtr and close[1] <= prevRthHigh
+        pdhBreakBar := bar_index
+    if w1000_1430 and not na(prevRthLow) and na(pdlBreakBar) and close < prevRthLow - 0.10 * rthAtr and close[1] >= prevRthLow
+        pdlBreakBar := bar_index
+    if w1000_1330 and not na(frozenOrHigh) and na(orUpBreakBar) and close > frozenOrHigh + 0.10 * rthAtr and close[1] <= frozenOrHigh
+        orUpBreakBar := bar_index
+    if w1000_1330 and not na(frozenOrLow) and na(orDnBreakBar) and close < frozenOrLow - 0.10 * rthAtr and close[1] >= frozenOrLow
+        orDnBreakBar := bar_index
+    if w1000_1430 and not na(prevWeekHigh) and na(pwHighBreakBar) and close > prevWeekHigh + 0.10 * rthAtr and close[1] <= prevWeekHigh
+        pwHighBreakBar := bar_index
+    if w1000_1430 and not na(prevWeekLow) and na(pwLowBreakBar) and close < prevWeekLow - 0.10 * rthAtr and close[1] >= prevWeekLow
+        pwLowBreakBar := bar_index
+
+bool pdhArmed6 = not na(pdhBreakBar) and bar_index > pdhBreakBar and bar_index - pdhBreakBar <= 6
+bool pdlArmed6 = not na(pdlBreakBar) and bar_index > pdlBreakBar and bar_index - pdlBreakBar <= 6
+bool orUpArmed6 = not na(orUpBreakBar) and bar_index > orUpBreakBar and bar_index - orUpBreakBar <= 6
+bool orDnArmed6 = not na(orDnBreakBar) and bar_index > orDnBreakBar and bar_index - orDnBreakBar <= 6
+bool pwHighArmed12 = not na(pwHighBreakBar) and bar_index > pwHighBreakBar and bar_index - pwHighBreakBar <= 12
+bool pwLowArmed12 = not na(pwLowBreakBar) and bar_index > pwLowBreakBar and bar_index - pwLowBreakBar <= 12
+
+// ---------- Candidate rules ----------
+// A — daily breakout -> retest -> acceptance
+bool t01 = w1000_1430 and pdhArmed6 and not na(prevRthHigh) and
+     low <= prevRthHigh and close > prevRthHigh and close > open and closeLocation >= 0.60 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t02 = w1000_1430 and pdlArmed6 and not na(prevRthLow) and
+     high >= prevRthLow and close < prevRthLow and close < open and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+// B — opening-range breakout -> retest -> acceptance
+bool t03 = w1000_1330 and orUpArmed6 and not na(frozenOrHigh) and
+     low <= frozenOrHigh and close > frozenOrHigh and close > open and closeLocation >= 0.60 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t04 = w1000_1330 and orDnArmed6 and not na(frozenOrLow) and
+     high >= frozenOrLow and close < frozenOrLow and close < open and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+// C — failed acceptance of prior-day breakout
+bool t05 = w1000_1330 and pdhArmed6 and not na(prevRthHigh) and
+     close < prevRthHigh and close < open and closeLocation <= 0.35
+
+bool t06 = w1000_1330 and pdlArmed6 and not na(prevRthLow) and
+     close > prevRthLow and close > open and closeLocation >= 0.65
+
+// D — gap continuation after partial-fill attempt fails
+bool t07 = w1000_1130 and gapUpPartialFail and
+     close > todayOpen and close > high[1] and close > open and closeLocation >= 0.65 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t08 = w1000_1130 and gapDownPartialFail and
+     close < todayOpen and close < low[1] and close < open and closeLocation <= 0.35 and
+     not na(todRvol) and todRvol >= 0.80
+
+// E — confirmed 60m trend -> 5m pullback recovery
+bool t09 = w1030_1430 and valid60State and last60Bull and
+     close[1] < open[1] and close > high[1] and close > open and close > rthVwap and closeLocation >= 0.60 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t10 = w1030_1430 and valid60State and last60Bear and
+     close[1] > open[1] and close < low[1] and close < open and close < rthVwap and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+// F — confirmed 60m trend -> failed continuation
+bool t11 = w1030_1430 and valid60State and last60Bull and
+     high > last60High and close < last60High and close < open and closeLocation <= 0.35
+
+bool t12 = w1030_1430 and valid60State and last60Bear and
+     low < last60Low and close > last60Low and close > open and closeLocation >= 0.65
+
+// G — confirmed 30m compression -> 5m expansion
+bool t13 = w1000_1430 and valid30State and last30Compressed and not na(rthAtr) and
+     close > last30High + 0.10 * rthAtr and close > open and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t14 = w1000_1430 and valid30State and last30Compressed and not na(rthAtr) and
+     close < last30Low - 0.10 * rthAtr and close < open and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// H — confirmed 60m state + previous-day failed auction
+bool t15 = w1030_1430 and valid60State and last60Bull and not na(prevRthLow) and
+     low < prevRthLow and close > prevRthLow and close > open and closeLocation >= 0.60
+
+bool t16 = w1030_1430 and valid60State and last60Bear and not na(prevRthHigh) and
+     high > prevRthHigh and close < prevRthHigh and close < open and closeLocation <= 0.40
+
+// I — three-push diminishing-progress exhaustion
+float upPush1 = high[1] - high[2]
+float upPush2 = high - high[1]
+bool t17 = w1000_1430 and
+     high[2] < high[1] and high[1] < high and
+     upPush1 > 0 and upPush2 > 0 and upPush2 <= 0.75 * upPush1 and
+     close < low[1] and close < open and closeLocation <= 0.35
+
+float dnPush1 = low[2] - low[1]
+float dnPush2 = low[1] - low
+bool t18 = w1000_1430 and
+     low[2] > low[1] and low[1] > low and
+     dnPush1 > 0 and dnPush2 > 0 and dnPush2 <= 0.75 * dnPush1 and
+     close > high[1] and close > open and closeLocation >= 0.65
+
+// J — previous-week breakout -> retest -> acceptance
+bool t19 = w1000_1430 and pwHighArmed12 and not na(prevWeekHigh) and
+     low <= prevWeekHigh and close > prevWeekHigh and close > open and closeLocation >= 0.60 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t20 = w1000_1430 and pwLowArmed12 and not na(prevWeekLow) and
+     high >= prevWeekLow and close < prevWeekLow and close < open and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool isLong =
+     candidate == "T10-01 PDH breakout -> retest hold LONG" or
+     candidate == "T10-03 OR breakout -> retest hold LONG" or
+     candidate == "T10-06 PDL breakdown -> failed acceptance LONG" or
+     candidate == "T10-07 Gap-up partial-fill failure -> continuation LONG" or
+     candidate == "T10-09 Confirmed 60m bull -> 5m pullback recovery LONG" or
+     candidate == "T10-12 Confirmed 60m bear -> failed new-low continuation LONG" or
+     candidate == "T10-13 Confirmed 30m compression -> expansion LONG" or
+     candidate == "T10-15 Confirmed 60m bull + PDL sweep/reclaim LONG" or
+     candidate == "T10-18 Three-push downside exhaustion LONG" or
+     candidate == "T10-19 Previous-week high breakout -> retest hold LONG"
+
+bool rawEvent =
+     candidate == "T10-01 PDH breakout -> retest hold LONG" ? t01 :
+     candidate == "T10-02 PDL breakdown -> retest reject SHORT" ? t02 :
+     candidate == "T10-03 OR breakout -> retest hold LONG" ? t03 :
+     candidate == "T10-04 OR breakdown -> retest reject SHORT" ? t04 :
+     candidate == "T10-05 PDH breakout -> failed acceptance SHORT" ? t05 :
+     candidate == "T10-06 PDL breakdown -> failed acceptance LONG" ? t06 :
+     candidate == "T10-07 Gap-up partial-fill failure -> continuation LONG" ? t07 :
+     candidate == "T10-08 Gap-down partial-fill failure -> continuation SHORT" ? t08 :
+     candidate == "T10-09 Confirmed 60m bull -> 5m pullback recovery LONG" ? t09 :
+     candidate == "T10-10 Confirmed 60m bear -> 5m bounce rejection SHORT" ? t10 :
+     candidate == "T10-11 Confirmed 60m bull -> failed new-high continuation SHORT" ? t11 :
+     candidate == "T10-12 Confirmed 60m bear -> failed new-low continuation LONG" ? t12 :
+     candidate == "T10-13 Confirmed 30m compression -> expansion LONG" ? t13 :
+     candidate == "T10-14 Confirmed 30m compression -> expansion SHORT" ? t14 :
+     candidate == "T10-15 Confirmed 60m bull + PDL sweep/reclaim LONG" ? t15 :
+     candidate == "T10-16 Confirmed 60m bear + PDH sweep/reject SHORT" ? t16 :
+     candidate == "T10-17 Three-push upside exhaustion SHORT" ? t17 :
+     candidate == "T10-18 Three-push downside exhaustion LONG" ? t18 :
+     candidate == "T10-19 Previous-week high breakout -> retest hold LONG" ? t19 :
+     t20
+
+// ---------- Common execution shell ----------
+bool signal = rawEvent and inRth and not na(rthAtr) and rthAtr > 0 and
+     strategy.position_size == 0 and entriesToday < 1
+
+int stopTicks = not na(rthAtr) ? math.max(1, int(math.round(2.0 * rthAtr / syminfo.mintick))) : 1
+
+if signal
+    if isLong
+        strategy.entry("L", strategy.long, comment=candidate)
+        strategy.exit("LX", "L", loss=stopTicks, comment_loss="SL")
+    else
+        strategy.entry("S", strategy.short, comment=candidate)
+        strategy.exit("SX", "S", loss=stopTicks, comment_loss="SL")
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.opentrades > 0
+    int entryTime = strategy.opentrades.entry_time(0)
+    bool timeExit = time_close >= entryTime + 120 * 60 * 1000
+    if timeExit
+        strategy.close_all(comment="TIME", immediately=true)
+
+if flattenTrigger and strategy.position_size != 0
+    strategy.close_all(comment="1545_FLAT", immediately=true)
+
+// ---------- Debug / export ----------
+plot(inRth ? rthAtr : na, "DBG_RTH_ATR14", display=display.data_window)
+plot(inRth ? ema20 : na, "DBG_RTH_EMA20", display=display.data_window)
+plot(inRth ? ema50 : na, "DBG_RTH_EMA50", display=display.data_window)
+plot(inRth ? rthVwap : na, "DBG_RTH_VWAP", display=display.data_window)
+plot(prevRthHigh, "DBG_PREV_RTH_HIGH", display=display.data_window)
+plot(prevRthLow, "DBG_PREV_RTH_LOW", display=display.data_window)
+plot(prevRthClose, "DBG_PREV_RTH_CLOSE", display=display.data_window)
+plot(prevWeekHigh, "DBG_PREV_WEEK_HIGH", display=display.data_window)
+plot(prevWeekLow, "DBG_PREV_WEEK_LOW", display=display.data_window)
+plot(last30High, "DBG_LAST30_HIGH", display=display.data_window)
+plot(last30Low, "DBG_LAST30_LOW", display=display.data_window)
+plot(last30Compressed ? 1 : 0, "DBG_LAST30_COMPRESSED", display=display.data_window)
+plot(last60Bull ? 1 : 0, "DBG_LAST60_BULL", display=display.data_window)
+plot(last60Bear ? 1 : 0, "DBG_LAST60_BEAR", display=display.data_window)
+plot(todRvol, "DBG_TOD_RVOL", display=display.data_window)
+plot(rawEvent ? 1 : 0, "DBG_RAW_EVENT", display=display.data_window)
+plot(signal ? 1 : 0, "DBG_ACCEPTED_SIGNAL", display=display.data_window)
+
+plot(1, "DBG_FULL_HISTORY_ENABLED", display=display.data_window)

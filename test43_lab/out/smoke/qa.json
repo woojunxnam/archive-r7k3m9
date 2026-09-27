@@ -1,0 +1,93 @@
+{
+ "file": "out/smoke/s.parquet",
+ "sha256": "3c121e2fbe475f311e04185ee33d9d8d2f09e51d835227d921f3281721585fe0",
+ "rows": 40981,
+ "schema": {
+  "dt": "timestamp[us]",
+  "o": "double",
+  "h": "double",
+  "l": "double",
+  "c": "double",
+  "v": "double",
+  "contract": "large_string",
+  "cum_adjustment": "double",
+  "roll_adjacent": "bool"
+ },
+ "columns": [
+  "dt",
+  "o",
+  "h",
+  "l",
+  "c",
+  "v",
+  "contract",
+  "cum_adjustment",
+  "roll_adjacent"
+ ],
+ "dt_tz": "None",
+ "first_dt": "2024-01-07 18:01:00",
+ "last_dt": "2024-02-16 17:00:00",
+ "out_of_order_rows": 0,
+ "duplicate_dt": 0,
+ "bad_ohlc_rows": 0,
+ "nonpositive_price_rows": 0,
+ "nan_price_rows": 0,
+ "zero_volume_rows": 0,
+ "negative_volume_rows": 0,
+ "nan_volume_rows": 0,
+ "off_tick_close_rows": 0,
+ "hour17_rows": 28,
+ "rows_17_01_to_18_00": 0,
+ "sessions": 30,
+ "sessions_with_rth": 30,
+ "median_rows_per_session": 1366.5,
+ "median_rth_rows": 385.5,
+ "full_rth_sessions_390": 0,
+ "partial_rth_sessions_lt_380": 0,
+ "short_rth_sessions_le_225": 0,
+ "missing_rth_minutes_total": 133,
+ "rth_intra_session_gaps_gt1m": 131,
+ "rth_intra_session_gaps_gt5m": 0,
+ "rth_first_minute_mode": 571,
+ "rth_first_minute_not_0931": 0,
+ "volume_spike_minute_by_month_unique": [
+  606,
+  629
+ ],
+ "contracts": 2,
+ "contract_switches": 1,
+ "contract_switch_list": [
+  "2024-01-07 18:01:00 ESH4",
+  "2024-01-26 16:55:00 ESM4"
+ ],
+ "cum_adjustment_unique": 2,
+ "cum_adjustment_first_last": [
+  -10.0,
+  0.0
+ ],
+ "roll_adjacent_rows": 0,
+ "roll_adjacent_sessions": 0,
+ "abs_1m_close_change_gt_40pts": 0,
+ "abs_1m_close_change_top5": [
+  [
+   "2024-01-12 15:38:00",
+   2.25
+  ],
+  [
+   "2024-01-23 12:24:00",
+   2.25
+  ],
+  [
+   "2024-01-25 14:39:00",
+   2.25
+  ],
+  [
+   "2024-02-07 10:11:00",
+   2.25
+  ],
+  [
+   "2024-02-07 14:11:00",
+   2.25
+  ]
+ ]
+}

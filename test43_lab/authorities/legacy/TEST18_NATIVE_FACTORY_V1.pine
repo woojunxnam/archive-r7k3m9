@@ -1,0 +1,230 @@
+//@version=6
+strategy("TEST18 Native Factory V1 | VWAP State Machine | 5m", overlay=true, pyramiding=0, process_orders_on_close=false, commission_type=strategy.commission.cash_per_contract, commission_value=2.24, slippage=1)
+
+string TZ = "America/New_York"
+string RTH = "0930-1545:23456"
+string target = syminfo.root
+int tfSec = timeframe.in_seconds()
+
+if barstate.isfirst and tfSec != 300
+    runtime.error("TEST18 requires exactly 5-minute chart.")
+if barstate.isfirst and syminfo.session != "us_regular"
+    runtime.error("TEST18 requires chart Session = Regular Trading Hours.")
+if barstate.isfirst and (target != "ES" and target != "NQ" and target != "RTY" and target != "YM" and target != "GC" and target != "SI" and target != "CL")
+    runtime.error("TEST18 supports ES/NQ/RTY/YM/GC/SI/CL only.")
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh * 60 + mm
+bool firstRth = inRth and hh == 9 and mm == 30
+bool flattenNow = inRth and hour(time_close, TZ) == 15 and minute(time_close, TZ) == 45
+bool signalWindow = inRth and mod >= 600 and mod < 870
+
+// Prior completed RTH ATR14.
+var float activeHigh = na
+var float activeLow = na
+var float activeClose = na
+var float prevSessClose = na
+var float atr14 = na
+var int atrCount = 0
+var int rthBarCount = 0
+
+if firstRth
+    if not na(activeHigh) and not na(activeLow) and not na(activeClose)
+        float trPrev = na(prevSessClose) ? activeHigh - activeLow : math.max(activeHigh - activeLow, math.max(math.abs(activeHigh - prevSessClose), math.abs(activeLow - prevSessClose)))
+        atr14 := na(atr14) ? trPrev : (atr14 * 13.0 + trPrev) / 14.0
+        atrCount += 1
+        prevSessClose := activeClose
+    activeHigh := high
+    activeLow := low
+    activeClose := close
+    rthBarCount := 1
+else if inRth
+    rthBarCount += 1
+    activeHigh := math.max(nz(activeHigh, high), high)
+    activeLow := math.min(nz(activeLow, low), low)
+    activeClose := close
+
+float atrPrev = atrCount >= 14 ? atr14 : na
+
+// RTH session VWAP + volume-weighted standard deviation.
+var float cumV = 0.0
+var float cumPV = 0.0
+var float cumPV2 = 0.0
+var float lastSessionVwap = na
+var float prevDayVwap = na
+
+// Week-to-date RTH VWAP.
+var float weekCumV = 0.0
+var float weekCumPV = 0.0
+
+if firstRth
+    prevDayVwap := lastSessionVwap
+    cumV := 0.0
+    cumPV := 0.0
+    cumPV2 := 0.0
+    if dayofweek == dayofweek.monday
+        weekCumV := 0.0
+        weekCumPV := 0.0
+
+float tp = hlc3
+if inRth
+    cumV += nz(volume)
+    cumPV += tp * nz(volume)
+    cumPV2 += tp * tp * nz(volume)
+    weekCumV += nz(volume)
+    weekCumPV += tp * nz(volume)
+
+float vwap = inRth and cumV > 0 ? cumPV / cumV : na
+float variance = inRth and cumV > 0 ? math.max(cumPV2 / cumV - vwap * vwap, 0.0) : na
+float vwapSd = not na(variance) ? math.sqrt(variance) : na
+float wvwap = inRth and weekCumV > 0 ? weekCumPV / weekCumV : na
+
+if inRth and not na(vwap)
+    lastSessionVwap := vwap
+
+float distAtr = inRth and not na(atrPrev) and atrPrev > 0 ? (close - vwap) / atrPrev : na
+float z = inRth and not na(vwapSd) and vwapSd > 0 ? (close - vwap) / vwapSd : na
+float slope6Atr = inRth and rthBarCount > 6 and not na(atrPrev) and atrPrev > 0 ? (vwap - vwap[6]) / atrPrev : na
+float spreadChange3Atr = inRth and rthBarCount > 3 and not na(atrPrev) and atrPrev > 0 ? ((close - vwap) - (close[3] - vwap[3])) / atrPrev : na
+
+int side = not inRth or na(vwap) ? 0 : close > vwap ? 1 : close < vwap ? -1 : 0
+bool crossUp = inRth and not firstRth and side == 1 and side[1] <= 0
+bool crossDown = inRth and not firstRth and side == -1 and side[1] >= 0
+bool crossEvent = crossUp or crossDown
+
+float cross12 = inRth and rthBarCount >= 12 ? math.sum(crossEvent ? 1.0 : 0.0, 12) : na
+float aboveFrac12 = inRth and rthBarCount >= 12 ? math.sum(side > 0 ? 1.0 : 0.0, 12) / 12.0 : na
+float belowFrac12 = inRth and rthBarCount >= 12 ? math.sum(side < 0 ? 1.0 : 0.0, 12) / 12.0 : na
+
+var int signedStreak = 0
+if firstRth
+    signedStreak := side
+else if inRth
+    if side > 0
+        signedStreak := signedStreak > 0 ? signedStreak + 1 : 1
+    else if side < 0
+        signedStreak := signedStreak < 0 ? signedStreak - 1 : -1
+    else
+        signedStreak := 0
+
+bool failedBearBreak = signalWindow and rthBarCount >= 4 and crossUp and (((side[1] == -1) and (side[2] == 1)) or ((side[1] == -1) and (side[2] == -1) and (side[3] == 1)))
+bool failedBullReclaim = signalWindow and rthBarCount >= 4 and crossDown and (((side[1] == 1) and (side[2] == -1)) or ((side[1] == 1) and (side[2] == 1) and (side[3] == -1)))
+
+bool ready = signalWindow and not na(atrPrev) and atrPrev > 0 and not na(vwap) and not na(vwapSd) and vwapSd > 0
+float prevCloseSameSession = rthBarCount > 1 ? close[1] : na
+
+bool s01 = ready and rthBarCount >= 13 and crossUp and belowFrac12[1] >= 10.0/12.0
+bool s02 = ready and rthBarCount >= 13 and crossDown and aboveFrac12[1] >= 10.0/12.0
+bool s03 = ready and signedStreak == 8 and slope6Atr >= 0.04
+bool s04 = ready and signedStreak == -8 and slope6Atr <= -0.04
+bool s05 = ready and failedBearBreak
+bool s06 = ready and failedBullReclaim
+bool s07 = ready and cross12 >= 3 and z <= -1.0 and close > open
+bool s08 = ready and cross12 >= 3 and z >= 1.0 and close < open
+bool s09 = ready and cross12 <= 1 and aboveFrac12 >= 10.0/12.0 and z >= 1.0 and z <= 2.0 and slope6Atr >= 0.04 and close > open
+bool s10 = ready and cross12 <= 1 and belowFrac12 >= 10.0/12.0 and z <= -1.0 and z >= -2.0 and slope6Atr <= -0.04 and close < open
+bool s11 = ready and z <= -1.6 and close > open and spreadChange3Atr >= 0.03
+bool s12 = ready and z >= 1.6 and close < open and spreadChange3Atr <= -0.03
+bool s13 = ready and z >= 2.0 and slope6Atr >= 0.07 and close > open and close > high[1]
+bool s14 = ready and z <= -2.0 and slope6Atr <= -0.07 and close < open and close < low[1]
+bool s15 = ready and distAtr >= 0 and distAtr <= 0.10 and slope6Atr >= 0.04 and close > open
+bool s16 = ready and distAtr <= 0 and distAtr >= -0.10 and slope6Atr <= -0.04 and close < open
+bool s17 = ready and rthBarCount > 3 and distAtr <= -0.10 and distAtr[1] <= -0.25 and spreadChange3Atr >= 0.10 and close > open
+bool s18 = ready and rthBarCount > 3 and distAtr >= 0.10 and distAtr[1] >= 0.25 and spreadChange3Atr <= -0.10 and close < open
+bool s19 = ready and distAtr >= 0.20 and spreadChange3Atr >= 0.10 and slope6Atr >= 0.04 and close > open
+bool s20 = ready and distAtr <= -0.20 and spreadChange3Atr <= -0.10 and slope6Atr <= -0.04 and close < open
+bool s21 = ready and signedStreak[1] >= 12 and low <= vwap and close > vwap and close > open
+bool s22 = ready and signedStreak[1] <= -12 and high >= vwap and close < vwap and close < open
+bool s23 = ready and rthBarCount > 1 and z[1] <= -1.5 and z > -1.0 and close > open
+bool s24 = ready and rthBarCount > 1 and z[1] >= 1.5 and z < 1.0 and close < open
+bool s25 = ready and crossUp and close > wvwap and vwap > wvwap and slope6Atr >= 0
+bool s26 = ready and crossDown and close < wvwap and vwap < wvwap and slope6Atr <= 0
+bool s27 = ready and not na(prevDayVwap) and not na(prevCloseSameSession) and prevCloseSameSession <= prevDayVwap and close > prevDayVwap and close > vwap and slope6Atr >= 0
+bool s28 = ready and not na(prevDayVwap) and not na(prevCloseSameSession) and prevCloseSameSession >= prevDayVwap and close < prevDayVwap and close < vwap and slope6Atr <= 0
+
+string candidate = input.string("T18-01", "Candidate", options=["T18-01","T18-02","T18-03","T18-04","T18-05","T18-06","T18-07","T18-08","T18-09","T18-10","T18-11","T18-12","T18-13","T18-14","T18-15","T18-16","T18-17","T18-18","T18-19","T18-20","T18-21","T18-22","T18-23","T18-24","T18-25","T18-26","T18-27","T18-28"])
+
+bool selectedSignal = switch candidate
+    "T18-01" => s01
+    "T18-02" => s02
+    "T18-03" => s03
+    "T18-04" => s04
+    "T18-05" => s05
+    "T18-06" => s06
+    "T18-07" => s07
+    "T18-08" => s08
+    "T18-09" => s09
+    "T18-10" => s10
+    "T18-11" => s11
+    "T18-12" => s12
+    "T18-13" => s13
+    "T18-14" => s14
+    "T18-15" => s15
+    "T18-16" => s16
+    "T18-17" => s17
+    "T18-18" => s18
+    "T18-19" => s19
+    "T18-20" => s20
+    "T18-21" => s21
+    "T18-22" => s22
+    "T18-23" => s23
+    "T18-24" => s24
+    "T18-25" => s25
+    "T18-26" => s26
+    "T18-27" => s27
+    "T18-28" => s28
+    => false
+
+bool selectedLong = candidate=="T18-01" or candidate=="T18-03" or candidate=="T18-05" or candidate=="T18-07" or candidate=="T18-09" or candidate=="T18-11" or candidate=="T18-13" or candidate=="T18-15" or candidate=="T18-17" or candidate=="T18-19" or candidate=="T18-21" or candidate=="T18-23" or candidate=="T18-25" or candidate=="T18-27"
+
+var int entriesToday = 0
+var int entryTime = na
+var float pendingStopDist = na
+var float activeStopDist = na
+
+if firstRth
+    entriesToday := 0
+    if strategy.position_size == 0
+        pendingStopDist := na
+
+bool canEnter = inRth and not session.islastbar and strategy.position_size == 0 and entriesToday == 0 and not flattenNow and selectedSignal and not na(atrPrev) and atrPrev > 0
+
+string entryId = "TEST18|" + target + "|" + candidate + (selectedLong ? "|LONG" : "|SHORT")
+
+if canEnter and selectedLong
+    pendingStopDist := math.max(syminfo.mintick, math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick)
+    strategy.entry(entryId, strategy.long, comment=entryId)
+    entriesToday += 1
+else if canEnter and not selectedLong
+    pendingStopDist := math.max(syminfo.mintick, math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick)
+    strategy.entry(entryId, strategy.short, comment=entryId)
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+    entryTime := time
+    activeStopDist := pendingStopDist
+    pendingStopDist := na
+
+if strategy.position_size > 0 and not na(activeStopDist)
+    strategy.exit("TEST18|STOP", stop=strategy.position_avg_price - activeStopDist, comment="TEST18|STOP")
+if strategy.position_size < 0 and not na(activeStopDist)
+    strategy.exit("TEST18|STOP", stop=strategy.position_avg_price + activeStopDist, comment="TEST18|STOP")
+
+bool maxHoldNow = strategy.position_size != 0 and not na(entryTime) and time_close >= entryTime + 120 * 60 * 1000
+if maxHoldNow
+    strategy.close_all(comment="TEST18|" + target + "|" + candidate + "|MAXHOLD", immediately=true)
+if flattenNow
+    strategy.close_all(comment="TEST18|" + target + "|" + candidate + "|1545_FLAT", immediately=true)
+if session.islastbar and strategy.position_size != 0
+    strategy.close_all(comment="TEST18|" + target + "|" + candidate + "|SESSION_LAST", immediately=true)
+
+if strategy.position_size == 0 and strategy.position_size[1] != 0
+    entryTime := na
+    activeStopDist := na
+
+plot(vwap, "RTH VWAP")
+plot(wvwap, "WTD VWAP")
+plot(vwap + vwapSd, "VWAP +1sd")
+plot(vwap - vwapSd, "VWAP -1sd")
