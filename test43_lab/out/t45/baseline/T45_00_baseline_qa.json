@@ -1,0 +1,167 @@
+{
+ "authority_hashes": {
+  "out/t44/freeze/TEST44_PRE_OOS_FREEZE.json": {
+   "expected": "3401331f1668a463008f17456f1738248434bbd8cf7a86438aee84149ceeeae4",
+   "actual": "3401331f1668a463008f17456f1738248434bbd8cf7a86438aee84149ceeeae4",
+   "ok": true
+  },
+  "out/t44/freeze/TEST44_NEW_OOS_ACCEPTANCE_RULES.json": {
+   "expected": "2f74e2cafaa96cd6051b22dac25b6cdf6cf903229db7fb0bdccd3eabbf708236",
+   "actual": "2f74e2cafaa96cd6051b22dac25b6cdf6cf903229db7fb0bdccd3eabbf708236",
+   "ok": true
+  },
+  "out/t44/oos_protocol/TEST44_OOS_DATA_PROTOCOL.json": {
+   "expected": "f50902babcbc848574984abb59c4e9cd435e2a3d20878a66955686b6429d7cc3",
+   "actual": "f50902babcbc848574984abb59c4e9cd435e2a3d20878a66955686b6429d7cc3",
+   "ok": true
+  },
+  "out/t44/oos_protocol/TEST44_OOS_DATA_PROTOCOL.md": {
+   "expected": "a7e846c4fdfbef214cbd46cb4dc08a661d3344b3b48328ea212f121628decdc3",
+   "actual": "a7e846c4fdfbef214cbd46cb4dc08a661d3344b3b48328ea212f121628decdc3",
+   "ok": true
+  },
+  "src/t44_oos_evaluator.py": {
+   "expected": "dde908ea03ae93d31f827c21366f7a2088c8027ab711f86d64dbce37fafa3b29",
+   "actual": "dde908ea03ae93d31f827c21366f7a2088c8027ab711f86d64dbce37fafa3b29",
+   "ok": true
+  },
+  "out/p/freeze/TEST43P_FINAL_PORTFOLIOS.json": {
+   "expected": "3269dc94f5972854ac99ae1c7a45a6cc44b00987b46b279ddb2e16b13dc66fe7",
+   "actual": "3269dc94f5972854ac99ae1c7a45a6cc44b00987b46b279ddb2e16b13dc66fe7",
+   "ok": true
+  },
+  "out/p/freeze/TEST43P_HOLDOUT_ACCEPTANCE_RULES.json": {
+   "expected": "62e5faf2e59702158470b8cf45a1f65ce4d1425229e0317bbd7e634e92e124d0",
+   "actual": "62e5faf2e59702158470b8cf45a1f65ce4d1425229e0317bbd7e634e92e124d0",
+   "ok": true
+  },
+  "out/p/freeze/TEST43P_PRE_VAL_FREEZE.json": {
+   "expected": "18d3507d7978f98b8000b51a0ab4a375f80f7226d27b6a7b4403781b77a7d817",
+   "actual": "18d3507d7978f98b8000b51a0ab4a375f80f7226d27b6a7b4403781b77a7d817",
+   "ok": true
+  },
+  "data/canonical_1m_ES.parquet": {
+   "expected": "2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116",
+   "actual": "2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116",
+   "ok": true
+  },
+  "data/canonical_1m_MNQ.parquet": {
+   "expected": "66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2",
+   "actual": "66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2",
+   "ok": true
+  }
+ },
+ "reproduction_ok": true,
+ "new_oos_dirs_present": [],
+ "rows": [
+  {
+   "candidate": "CHAMPION_CONTROL_V1",
+   "daily_pnl_max_abs_diff": 4.547473508864641e-13,
+   "all_daily_columns_max_abs_diff": 5.820766091346741e-11,
+   "days": 1780,
+   "ALL_days": 1780,
+   "ALL_total": 93609.78000000067,
+   "ALL_avg": 52.5897640449442,
+   "ALL_max_dd": 6193.4299999995565,
+   "ALL_worst": -1722.9899999999907,
+   "ALL_best": 2275.0199999999895,
+   "ALL_ret_dd": 0.008491217959183839,
+   "ALL_ex_top3_avg": 48.96411797752847,
+   "ALL_active_share": 0.7870786516853933,
+   "ALL_sharpe_ann": 1.8638856355451243,
+   "FH_days": 165,
+   "FH_total": 9690.710000000632,
+   "FH_avg": 58.73157575757959,
+   "FH_max_dd": 6193.4299999995565,
+   "FH_worst": -1523.359999999986,
+   "FH_best": 2055.1300000000047,
+   "FH_ret_dd": 0.009482883597228644,
+   "FH_ex_top3_avg": 23.351878787882477,
+   "FH_active_share": 0.7515151515151515,
+   "FH_sharpe_ann": 1.660072632683409,
+   "peak_margin_util": 0.07866944694100558,
+   "positions_max_abs_diff_vs_frozen": 0.0
+  },
+  {
+   "candidate": "SIMPLE_INTEGER_CHALLENGER",
+   "daily_pnl_max_abs_diff": 2.2737367544323206e-13,
+   "all_daily_columns_max_abs_diff": 5.820766091346741e-11,
+   "days": 1780,
+   "ALL_days": 1780,
+   "ALL_total": 70346.72999999949,
+   "ALL_avg": 39.520634831460384,
+   "ALL_max_dd": 8819.400000000198,
+   "ALL_worst": -2482.49000000002,
+   "ALL_best": 1874.1300000000047,
+   "ALL_ret_dd": 0.004481102436839184,
+   "ALL_ex_top3_avg": 36.452865168539034,
+   "ALL_active_share": 0.9764044943820225,
+   "ALL_sharpe_ann": 1.3151132196469384,
+   "FH_days": 165,
+   "FH_total": 11218.249999999825,
+   "FH_avg": 67.98939393939288,
+   "FH_max_dd": 8819.400000000198,
+   "FH_worst": -2482.49000000002,
+   "FH_best": 1874.1300000000047,
+   "FH_ret_dd": 0.007709072492390793,
+   "FH_ex_top3_avg": 37.297696969695885,
+   "FH_active_share": 0.8787878787878788,
+   "FH_sharpe_ann": 1.641918644213942,
+   "peak_margin_util": 0.046209173984286006
+  },
+  {
+   "candidate": "RIDGE_CHALLENGER",
+   "daily_pnl_max_abs_diff": 2.2737367544323206e-13,
+   "all_daily_columns_max_abs_diff": 5.820766091346741e-11,
+   "days": 1780,
+   "ALL_days": 1780,
+   "ALL_total": 56185.0699999989,
+   "ALL_avg": 31.56464606741511,
+   "ALL_max_dd": 5464.999999999971,
+   "ALL_worst": -1785.25,
+   "ALL_best": 1736.25,
+   "ALL_ret_dd": 0.005775781531091542,
+   "ALL_ex_top3_avg": 28.687606741572413,
+   "ALL_active_share": 0.5747191011235955,
+   "ALL_sharpe_ann": 1.65999954131482,
+   "FH_days": 165,
+   "FH_total": 7398.019999999815,
+   "FH_avg": 44.83648484848373,
+   "FH_max_dd": 1618.3600000000733,
+   "FH_worst": -1104.3600000000151,
+   "FH_best": 1473.7600000000093,
+   "FH_ret_dd": 0.027704889424158836,
+   "FH_ex_top3_avg": 21.1075757575747,
+   "FH_active_share": 0.49696969696969695,
+   "FH_sharpe_ann": 2.6444897573055868,
+   "peak_margin_util": 0.05879185644399982
+  },
+  {
+   "candidate": "XGBOOST_CHALLENGER",
+   "daily_pnl_max_abs_diff": 2.2737367544323206e-13,
+   "all_daily_columns_max_abs_diff": 5.820766091346741e-11,
+   "days": 1780,
+   "ALL_days": 1780,
+   "ALL_total": 42404.570000000036,
+   "ALL_avg": 23.82279213483148,
+   "ALL_max_dd": 5169.709999999992,
+   "ALL_worst": -1785.25,
+   "ALL_best": 1862.75,
+   "ALL_ret_dd": 0.004608148645636122,
+   "ALL_ex_top3_avg": 20.94203370786519,
+   "ALL_active_share": 0.5314606741573034,
+   "ALL_sharpe_ann": 1.4023784819852585,
+   "FH_days": 165,
+   "FH_total": 7341.509999999747,
+   "FH_avg": 44.49399999999847,
+   "FH_max_dd": 1956.1800000001094,
+   "FH_worst": -1557.5,
+   "FH_best": 1723.75,
+   "FH_ret_dd": 0.02274535063235284,
+   "FH_ex_top3_avg": 16.55612121211968,
+   "FH_active_share": 0.48484848484848486,
+   "FH_sharpe_ann": 2.176955049005542,
+   "peak_margin_util": 0.052901862908961234
+  }
+ ]
+}

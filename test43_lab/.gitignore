@@ -14,3 +14,4 @@ out/t44/sleeves/
 out/t44/*.npy
 out/t44/oos_eval/*/bars/
 out/t44/oos_eval/*/sleeves/
+out/t45/panel.npz
