@@ -1,0 +1,105 @@
+# TEST44 OOS DATA PROTOCOL (frozen)
+
+No data after 2026-05-27 was acquired, downloaded, parsed or inspected.
+
+Pre-OOS freeze `3401331f1668a463008f17456f1738248434bbd8cf7a86438aee84149ceeeae4`; new-OOS rules `2f74e2cafaa96cd6051b22dac25b6cdf6cf903229db7fb0bdccd3eabbf708236` (unchanged).
+
+## Construction rules (identical to the frozen canonical ES / MNQ files)
+* **source_and_lineage**: same upstream data source, fields and pipeline version that produced the frozen canonical files (TEST32 lineage audit: M0 MASSIVE_NATIVE artifact, back-adjusted, VOL_XOVER_T+1 roll). The data owner must record the upstream vendor/API identity and pipeline version with the delivery; any change of vendor, feed or pipeline version = protocol violation (fail closed).
+* **instruments**: {"ES": "ES front chain (research series; executed as MES)", "MNQ": "MNQ front chain (executed as MNQ)"}
+* **file_format**: ONE parquet per instrument containing the FULL history 2019-05-05 18:01 .. OOS end (append-only), same columns and dtypes as the frozen file
+* **columns**: {"dt": "datetime64[ns]", "session_date": "datetime64[ns]", "o": "float64", "h": "float64", "l": "float64", "c": "float64", "v": "int64", "contract": "str", "cum_adjustment": "float64", "session_date_plus6h": "datetime64[ns]", "cal_date": "datetime64[ns]", "roll_adjacent": "bool"}
+* **timestamp**: dt = tz-naive America/New_York, bar END minute (a 1m bar stamped 09:31 covers [09:30, 09:31)); whole minutes only
+* **session_convention**: CME Globex session: bars ending 18:01 .. 17:00 next day; nothing ends in (17:00, 18:00] (no fabricated maintenance-hour bars)
+* **session_date**: canonical holiday-aware CME trading date (session_date); session_date_plus6h = floor(dt + 6h); cal_date = floor(dt); holiday/early-close sessions keep the canonical trading date
+* **gaps**: genuine gaps preserved; no interpolation, no forward-filled bars, no synthetic zero-volume bars
+* **contract_selection_and_roll**: front chain with a causal volume-crossover roll VOL_XOVER_T+1: the switch to the next contract happens at the first bar (18:01) of the session AFTER the crossover is observed; roll_adjacent = True on every bar of that switch session and only there
+* **back_adjustment**: forward-anchored additive: adj = raw + cum_adjustment; the first contract (ESM9/MNQM9 era) has cum_adjustment 0; each new contract era gets a constant cum_adjustment = previous era value minus the switch spread; historical rows NEVER change when new data are appended
+* **raw_prices**: raw (unadjusted) = adj - cum_adjustment; raw prices used ONLY for notional and margin
+* **research_pnl**: adjusted prices
+* **aggregation**: deterministic 1m -> 3m: t = floor((dt - 1 min), 3 min) (open-stamped, clock-aligned); o first, h max, l min, c last, v sum, n1m count, contract last, cum_adjustment last, roll_adjacent max, canon session_date last; empty buckets do not exist (src/t43/bars.py aggregate_3m/add_clock, unchanged)
+* **next_expected_rolls**: ESM6 -> ESU6 and MNQM6 -> MNQU6 around mid-June 2026 inside the OOS; handled by the same rule
+
+## Validators (fail closed)
+1. raw file SHA256 recorded before parsing; file size recorded
+2. schema: identical column names and dtypes
+3. PREFIX: rows with session_date <= 2026-05-27 are value-identical (all columns) to the frozen canonical file (ES 2b4f41b1..., MNQ 66204b12...)
+4. rows appended only after 2026-05-27 17:00; dt strictly increasing; no duplicate dt; whole minutes
+5. no bar ending in (17:00, 18:00]; volume > 0 on every bar
+6. session_date_plus6h == floor(dt+6h) for every row; cal_date == floor(dt)
+7. cum_adjustment constant within each contract; first new contract era continues the frozen chain (ESM6 / MNQM6 value unchanged until the next switch)
+8. every contract switch occurs at an 18:01 bar; roll_adjacent sessions == switch sessions exactly
+9. adjusted gap at each new switch <= 2x the historical maximum (ES 34.5 pts, MNQ 53.0 pts) - otherwise fail closed for review
+10. OHLC sanity: l <= min(o,c), h >= max(o,c), positive prices
+11. 3m bars rebuilt from the delivered 1m file reproduce the frozen 3m research bars for session_date <= 2026-05-27 exactly
+
+## Evaluation gate
+* {"minimum_completed_RTH_sessions": 120, "completed_RTH_session": "a session_date >= 2026-05-28 whose ES AND MNQ 1m data both contain the 16:00 RTH closing bar", "rule": "the evaluator refuses to compute or display any OOS economics before 120 completed RTH sessions exist (not weakened)"}
+
+## Historical reference invariants (frozen files, <= 2026-05-27)
+### ES
+* file: data/canonical_1m_ES.parquet
+* sha256: 2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116
+* rows: 2486058
+* first_dt: 2019-05-05 18:01:00
+* last_dt: 2026-05-27 17:00:00
+* n_rolls: 28
+* last_contract: ESM6
+* last_cum_adjustment: -696.25
+* cum_adjustment_constant_within_contract: True
+* first_contract_cum_adjustment: 0.0
+* roll_switch_minute: ['18:01']
+* roll_adjacent_equals_switch_session: True
+* adjusted_gap_at_switch_pts_max: 17.25
+* adjusted_gap_at_switch_pts_median: 1.25
+* duplicate_dt: 0
+* monotonic_dt: True
+* nonzero_seconds: 0
+* bars_ending_17:01_to_18:00: 0
+* nonpositive_volume: 0
+* session_date_plus6h_equals_floor_dt_plus_6h: 1.0
+* cal_date_equals_floor_dt: 1.0
+* session_date_equals_plus6h_share: 0.9792659704640841
+* full_390_minute_RTH_share: 0.9504225352112676
+* trading_dates: 1780
+* contracts (29): ESM9, ESU9, ESZ9, ESH0, ESM0, ESU0, ESZ0, ESH1, ESM1, ESU1, ESZ1, ESH2, ESM2, ESU2, ESZ2, ESH3, ESM3, ESU3, ESZ3, ESH4, ESM4, ESU4, ESZ4, ESH5, ESM5, ESU5, ESZ5, ESH6, ESM6
+### MNQ
+* file: data/canonical_1m_MNQ.parquet
+* sha256: 66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2
+* rows: 2479514
+* first_dt: 2019-05-05 18:04:00
+* last_dt: 2026-05-27 17:00:00
+* n_rolls: 28
+* last_contract: MNQM6
+* last_cum_adjustment: -3143.5
+* cum_adjustment_constant_within_contract: True
+* first_contract_cum_adjustment: 0.0
+* roll_switch_minute: ['18:01']
+* roll_adjacent_equals_switch_session: True
+* adjusted_gap_at_switch_pts_max: 26.5
+* adjusted_gap_at_switch_pts_median: 6.0
+* duplicate_dt: 0
+* monotonic_dt: True
+* nonzero_seconds: 0
+* bars_ending_17:01_to_18:00: 0
+* nonpositive_volume: 0
+* session_date_plus6h_equals_floor_dt_plus_6h: 1.0
+* cal_date_equals_floor_dt: 1.0
+* session_date_equals_plus6h_share: 0.9798516967437974
+* full_390_minute_RTH_share: 0.9498873873873874
+* trading_dates: 1780
+* contracts (29): MNQM9, MNQU9, MNQZ9, MNQH0, MNQM0, MNQU0, MNQZ0, MNQH1, MNQM1, MNQU1, MNQZ1, MNQH2, MNQM2, MNQU2, MNQZ2, MNQH3, MNQM3, MNQU3, MNQZ3, MNQH4, MNQM4, MNQU4, MNQZ4, MNQH5, MNQM5, MNQU5, MNQZ5, MNQH6, MNQM6
+
+## Canonical pipeline code SHA256
+* `t43/bars.py` 400d5f6be3639ee796d30fe18efc1358faeb7f136018827afcd6104048f8095c
+* `t44_common.py` 0805a6f07708ed57f4742aed371ecdc08a61ecd107edae69b5cedbd60385463d
+* `t43/v6lab.py` b3451ead1d2bb1e7542110b43de4ecc002a008b9417e7b6d9b036cf7b0ae213b
+* `t43/features.py` 5470e3db652c65851d37d878d67d6780859d0618e591d231541ae1eff2ea8490
+* `t43/lab.py` 9d7852dcb876457fb366071e7c6e954102b3b70cb1c2bc72c427dd1467f46dd1
+* `t43/instruments.py` f2131b35da0bdbc44a239a0f2c778ac304baf77232bcbafed6d5cd0765fff7e8
+* `t43/portfolio.py` e2da1d5d1d1ac3d6c60165309a2d6b67efbf14d2565cc47be2283bfe3744f2c3
+* `t43/intport.py` cbce2950e789e7dc9d9a4bd6af3a8daf74e9d07b6e2e11aa078647f0d2e18bcf
+* `t44_alloc.py` 96bc4881fbd71482bfbb0d77e8ce3e738767ebf9050fc6950c535b5b90e3b67e
+* `t44_04_meta.py` be6a2868449fac7a458987c8a31e14a973c26497b69e346feec690433fd66024
+
+Note: the upstream vendor/API identity and the contract-selection implementation live with the data owner (TEST32 lineage). This protocol requires that exact pipeline version and enforces every observable invariant above; any deviation fails closed.
