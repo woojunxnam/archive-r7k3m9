@@ -1,0 +1,347 @@
+//@version=6
+strategy("TEST43 V6A Allocator — State/Exposure/Risk", overlay = true, initial_capital = 150000, currency = currency.USD, pyramiding = 1, commission_type = strategy.commission.cash_per_contract, commission_value = 0.62, slippage = 1, margin_long = 5, margin_short = 5, calc_on_order_fills = false, calc_on_every_tick = false, process_orders_on_close = false)
+// =====================================================================
+// TEST43 V6A — low-turnover exposure allocator (Python authority: test43_lab/src/t43/v6a.py + features.py)
+// STATE -> TARGET EXPOSURE -> RISK GOVERNOR.  Signals on completed 3m bars; market orders fill next open.
+// Long only.  One net position via strategy.order().  margin_long here is only a TradingView simulation
+// permission; the sizing authority is the custom IBKR-style margin governor below.
+// =====================================================================
+// ---------------- INSTRUMENT PROFILE (external constraints; VERIFY_BEFORE_LIVE)
+string instAuto = syminfo.root
+bool isMNQ = str.contains(instAuto, "MNQ") or str.contains(instAuto, "NQ")
+string instName = isMNQ ? "MNQ" : "MES"
+float pointValue = syminfo.pointvalue
+float tickSz = syminfo.mintick
+float ibkrIntraMES = input.float(2502.605, "IBKR MES intraday initial $ (VERIFY_BEFORE_LIVE)", group = "Instrument")
+float ibkrOnMES = input.float(3575.15, "IBKR MES overnight initial $ (VERIFY_BEFORE_LIVE)", group = "Instrument")
+float ibkrIntraMNQ = input.float(4833.22, "IBKR MNQ intraday initial $ (VERIFY_BEFORE_LIVE)", group = "Instrument")
+float ibkrOnMNQ = input.float(6904.59, "IBKR MNQ overnight initial $ (VERIFY_BEFORE_LIVE)", group = "Instrument")
+float refPxMES = input.float(7800.0, "MES margin reference price", group = "Instrument")
+float refPxMNQ = input.float(31105.0, "MNQ margin reference price", group = "Instrument")
+float ibkrIntra = isMNQ ? ibkrIntraMNQ : ibkrIntraMES
+float ibkrOn = isMNQ ? ibkrOnMNQ : ibkrOnMES
+float refPx = isMNQ ? refPxMNQ : refPxMES
+float mIntraFrac = ibkrIntra / (refPx * pointValue)
+float mOnFrac = ibkrOn / (refPx * pointValue)
+// ---------------- ALLOCATOR PARAMETERS (defaults overwritten by frozen finalist values)
+int capRTH = input.int(4, "Hard cap RTH contracts", minval = 0, group = "Caps")
+int capON = input.int(4, "Hard cap overnight contracts", minval = 0, group = "Caps")
+float marginU = input.float(0.5, "Account margin utilisation ceiling", minval = 0.05, maxval = 1.0, group = "Caps")
+float volBudget = input.float(0.0, "Vol budget $ per ATR20-day (0=off)", minval = 0, group = "Caps")
+float volBudgetON = input.float(0.0, "Overnight vol budget $ (0=use RTH)", minval = 0, group = "Caps")
+float fBear = input.float(1.0, "Exposure frac BEAR tier", minval = 0, maxval = 1, group = "Regime")
+float fNeut = input.float(1.0, "Exposure frac NEUTRAL tier", minval = 0, maxval = 1, group = "Regime")
+float fMed = input.float(1.0, "Exposure frac MEDIUM tier", minval = 0, maxval = 1, group = "Regime")
+float fStrong = input.float(1.0, "Exposure frac STRONG tier", minval = 0, maxval = 1, group = "Regime")
+float trendMult = input.float(1.0, "Multiplier when RTH close <= EMA20(daily)", minval = 0, maxval = 1, group = "Regime")
+bool dipOn = input.bool(false, "Dip boost (bottom evidence)", group = "Tactical")
+float dipZ = input.float(2.0, "Dip VWAP z <= -x", group = "Tactical")
+float dipPos5d = input.float(0.15, "Dip 5D range pos <=", group = "Tactical")
+float dipBoost = input.float(0.0, "Dip boost frac", group = "Tactical")
+bool dipNeedRev = input.bool(true, "Dip needs reversal evidence", group = "Tactical")
+float dipExitZ = input.float(0.0, "Dip exit VWAP z >=", group = "Tactical")
+int dipMaxBars = input.int(60, "Dip max bars", group = "Tactical")
+bool redOn = input.bool(false, "Upper reduction", group = "Tactical")
+float redZ = input.float(2.0, "Reduce when VWAP z >=", group = "Tactical")
+float redPosRth = input.float(0.9, "... and RTH range pos >=", group = "Tactical")
+float redCut = input.float(0.0, "Reduction frac", group = "Tactical")
+float redExitZ = input.float(0.5, "Reduction exit VWAP z <", group = "Tactical")
+int onMode = input.int(1, "Overnight mode 0..5", minval = 0, maxval = 5, group = "Overnight")
+float onFrac = input.float(1.0, "Overnight frac", minval = 0, maxval = 1, group = "Overnight")
+int onMinTier = input.int(2, "Overnight min tier (O3/O5)", minval = 0, maxval = 3, group = "Overnight")
+float dd1 = input.float(0.0, "DD tier1 $ (0=off)", group = "Governor")
+float dd2 = input.float(0.0, "DD tier2 $", group = "Governor")
+float dd3 = input.float(0.0, "DD tier3 $", group = "Governor")
+float ddM1 = input.float(1.0, "DD tier1 multiplier", group = "Governor")
+float ddM2 = input.float(1.0, "DD tier2 multiplier", group = "Governor")
+float ddM3 = input.float(0.0, "DD tier3 multiplier", group = "Governor")
+int ddRearmTier = input.int(2, "DD rearm min tier", group = "Governor")
+int ddCooldown = input.int(1, "DD rearm cooldown RTH sessions", group = "Governor")
+float dayStop = input.float(0.0, "Session loss stop $ (0=off)", group = "Governor")
+float gapK = input.float(0.0, "Gap-down emergency ATR (0=off)", group = "Governor")
+float shockK = input.float(0.0, "Bar-range shock ATR (0=off)", group = "Governor")
+float riskFloorFrac = input.float(0.0, "Risk-cut floor frac", minval = 0, maxval = 1, group = "Governor")
+int minDelta = input.int(1, "Min contracts per rebalance", minval = 1, group = "Execution")
+int cooldownBars = input.int(0, "Bars between rebalances", minval = 0, group = "Execution")
+int buyStartMod = input.int(570, "Buy window start (min of day ET)", group = "Execution")
+int buyEndMod = input.int(954, "Buy window end (min of day ET)", group = "Execution")
+float rollCost = input.float(0.0, "Roll cost $/contract (Python research only; TV continuous has no roll event)", group = "Execution")
+bool showDash = input.bool(true, "Dashboard", group = "Display")
+// ---------------- WEBHOOK
+string stratId = input.string("TEST43_V6A", "Webhook strategy_id", group = "Webhook")
+string versionTag = "V6A"
+// ---------------- CLOCK
+if barstate.isfirst and timeframe.in_seconds() != 180
+    runtime.error("TEST43 V6A requires a native 3-minute chart.")
+int hh = hour(time, "America/New_York")
+int mn = minute(time, "America/New_York")
+int modNow = hh * 60 + mn
+bool inRTH = modNow >= 570 and modNow < 960
+bool newRTH = inRTH and not inRTH[1]
+bool newSess = timeframe.change("D")
+// ---------------- INTRADAY FEATURES
+float atr14 = ta.atr(14)
+float rsi2 = ta.rsi(close, 2)
+float srcV = hlc3
+var float cumV = 0.0
+var float cumPV = 0.0
+var float cumP2V = 0.0
+var float rthHi = na
+var float rthLo = na
+if newRTH
+    cumV := volume
+    cumPV := volume * srcV
+    cumP2V := volume * srcV * srcV
+    rthHi := high
+    rthLo := low
+else if inRTH
+    cumV += volume
+    cumPV += volume * srcV
+    cumP2V += volume * srcV * srcV
+    rthHi := math.max(rthHi, high)
+    rthLo := math.min(rthLo, low)
+float vwap = inRTH and cumV > 0 ? cumPV / cumV : na
+float vsig = inRTH and cumV > 0 ? math.sqrt(math.max(cumP2V / cumV - vwap * vwap, 0.0)) : na
+float vwapZ = (inRTH and cumV > 0 and vsig > 0.25) ? (close - vwap) / vsig : 0.0
+float posRth = (inRTH and rthHi - rthLo > 0.25) ? (close - rthLo) / (rthHi - rthLo) : 0.5
+// ---------------- COMPLETED-SESSION STATE (values for this session use sessions < this one)
+var float sessH = na
+var float sessL = na
+var float sessC = na
+var float lastRTHClose = na
+var float lastRTHHigh = na
+var float lastRTHLow = na
+var float prevSessC = na
+var array<float> trArr = array.new_float()
+var array<float> rcArr = array.new_float()
+var array<float> rhArr = array.new_float()
+var array<float> rlArr = array.new_float()
+var float ema20 = na
+var float ema50 = na
+var float ema20p = na
+var float ema50p = na
+var float sma200p = na
+var float d_ATR20 = na
+var int d_TIER = 1
+var bool d_TREND20 = true
+var float d_RC = na
+var float d_H5 = na
+var float d_L5 = na
+var float sessRTHHigh = na
+var float sessRTHLow = na
+f_mean(array<float> a, int n) =>
+    int sz = array.size(a)
+    int cnt = math.min(sz, n)
+    float s = 0.0
+    if cnt > 0
+        for k = sz - cnt to sz - 1
+            s += array.get(a, k)
+    cnt > 0 ? s / cnt : na
+if newSess and not na(sessC)
+    // close out the completed session
+    float trv = math.max(sessH, na(prevSessC) ? sessH : prevSessC) - math.min(sessL, na(prevSessC) ? sessL : prevSessC)
+    array.push(trArr, trv)
+    float rc = na(lastRTHClose) ? (array.size(rcArr) > 0 ? array.get(rcArr, array.size(rcArr) - 1) : na) : lastRTHClose
+    if not na(rc)
+        array.push(rcArr, rc)
+        ema20p := ema20
+        ema50p := ema50
+        ema20 := na(ema20) ? rc : (2.0 / 21.0) * rc + (1 - 2.0 / 21.0) * ema20
+        ema50 := na(ema50) ? rc : (2.0 / 51.0) * rc + (1 - 2.0 / 51.0) * ema50
+    array.push(rhArr, sessRTHHigh)
+    array.push(rlArr, sessRTHLow)
+    int nrc = array.size(rcArr)
+    float s200 = nrc >= 200 ? f_mean(rcArr, 200) : na
+    float s50 = nrc >= 50 ? f_mean(rcArr, 50) : na
+    bool med = (not na(ema50p)) and rc > ema50 and ema50 >= ema50p
+    bool strong = med and ema20 > ema50 and (not na(ema20p)) and ema20 > ema20p
+    bool bear = (not na(s200)) and (not na(sma200p)) and rc < s200 and s50 < s200 and s200 < sma200p
+    d_TIER := bear ? 0 : strong ? 3 : med ? 2 : 1
+    d_TREND20 := rc > ema20
+    sma200p := s200
+    int ntr = array.size(trArr)
+    d_ATR20 := ntr >= 5 ? f_mean(trArr, 20) : na
+    d_RC := rc
+    float h5 = na
+    float l5 = na
+    int nh = array.size(rhArr)
+    for k = math.max(0, nh - 5) to nh - 1
+        float hv = array.get(rhArr, k)
+        float lv = array.get(rlArr, k)
+        if not na(hv)
+            h5 := na(h5) ? hv : math.max(h5, hv)
+        if not na(lv)
+            l5 := na(l5) ? lv : math.min(l5, lv)
+    d_H5 := h5
+    d_L5 := l5
+    prevSessC := sessC
+    lastRTHClose := na
+    sessRTHHigh := na
+    sessRTHLow := na
+if newSess
+    sessH := high
+    sessL := low
+else
+    sessH := math.max(sessH, high)
+    sessL := math.min(sessL, low)
+sessC := close
+if inRTH
+    lastRTHClose := close
+    sessRTHHigh := na(sessRTHHigh) ? high : math.max(sessRTHHigh, high)
+    sessRTHLow := na(sessRTHLow) ? low : math.min(sessRTHLow, low)
+float hi5 = na(d_H5) ? (inRTH ? rthHi : na) : (inRTH ? math.max(d_H5, rthHi) : d_H5)
+float lo5 = na(d_L5) ? (inRTH ? rthLo : na) : (inRTH ? math.min(d_L5, rthLo) : d_L5)
+float pos5d = (not na(hi5) and not na(lo5) and hi5 - lo5 > 0.25) ? (close - lo5) / (hi5 - lo5) : 0.5
+float gapAtr = (not na(d_RC) and d_ATR20 > 0) ? (open - d_RC) / d_ATR20 : 0.0
+float barRangeAtr = d_ATR20 > 0 ? (high - low) / d_ATR20 : 0.0
+// ---------------- ALLOCATOR STATE
+var float hwm = strategy.initial_capital
+var int ddLevel = 0
+var int ddSince = 0
+var bool dipActive = false
+var int dipBars = 0
+var bool redActive = false
+var float sessStartEq = strategy.initial_capital
+var bool riskCut = false
+var int lastTradeBar = -100000
+var string lastReason = ""
+int pos = int(strategy.position_size)
+float eq = strategy.equity
+if newSess
+    sessStartEq := eq[1]
+    riskCut := false
+    dipActive := false
+    redActive := false
+if eq > hwm and ddLevel == 0
+    hwm := eq
+float ddNow = hwm - eq
+int lvl = (dd3 > 0 and ddNow >= dd3) ? 3 : (dd2 > 0 and ddNow >= dd2) ? 2 : (dd1 > 0 and ddNow >= dd1) ? 1 : 0
+if lvl > ddLevel
+    ddLevel := lvl
+    ddSince := 0
+if newRTH and ddLevel > 0
+    ddSince += 1
+    if ddSince >= ddCooldown and d_TIER >= ddRearmTier
+        ddLevel := 0
+        hwm := eq
+float ddMult = ddLevel == 1 ? ddM1 : ddLevel == 2 ? ddM2 : ddLevel == 3 ? ddM3 : 1.0
+bool lastR = (inRTH and modNow >= 957) or ((not inRTH) and inRTH[1])
+bool onSide = (not inRTH) or lastR
+float rawPx = close
+int hardCap = onSide ? capON : capRTH
+float mFrac = onSide ? mOnFrac : mIntraFrac
+int mCap = rawPx > 0 ? int(math.floor(marginU * math.max(eq, 0.0) / (rawPx * pointValue * mFrac))) : 0
+int allowed = math.min(hardCap, mCap)
+float vb = onSide ? (volBudgetON > 0 ? volBudgetON : volBudget) : volBudget
+if vb > 0 and d_ATR20 > 0
+    allowed := math.min(allowed, int(math.floor(vb / (pointValue * d_ATR20))))
+allowed := math.max(allowed, 0)
+int t = d_TIER
+float fTier = t == 0 ? fBear : t == 1 ? fNeut : t == 2 ? fMed : fStrong
+float frac = fTier
+if not d_TREND20
+    frac *= trendMult
+if inRTH
+    if dipOn
+        if not dipActive
+            bool dcond = vwapZ <= -dipZ or pos5d <= dipPos5d
+            bool drev = dipNeedRev ? ((close > high[1]) or (rsi2 > rsi2[1] and rsi2[1] < 15.0)) : true
+            if dcond and drev
+                dipActive := true
+                dipBars := 0
+        else
+            dipBars += 1
+            if vwapZ >= dipExitZ or dipBars >= dipMaxBars
+                dipActive := false
+        if dipActive
+            frac += dipBoost
+    if redOn
+        if not redActive
+            if vwapZ >= redZ and posRth >= redPosRth
+                redActive := true
+        else if vwapZ < redExitZ
+            redActive := false
+        if redActive
+            frac -= redCut
+frac *= ddMult
+frac := math.max(0.0, math.min(1.0, frac))
+if not riskCut
+    if dayStop > 0 and eq - sessStartEq <= -dayStop
+        riskCut := true
+    if gapK > 0 and newRTH and gapAtr <= -gapK
+        riskCut := true
+    if shockK > 0 and barRangeAtr >= shockK
+        riskCut := true
+if riskCut
+    frac := math.min(frac, riskFloorFrac)
+int target = int(math.floor(frac * allowed + 0.5))
+if onSide
+    int onT = target
+    if onMode == 0
+        onT := 0
+    else if onMode == 1
+        onT := int(math.floor(fTier * math.min(capON, allowed) * onFrac + 0.5))
+    else if onMode == 2
+        onT := int(math.floor(math.min(frac, onFrac) * allowed + 0.5))
+    else if onMode == 3
+        onT := t >= onMinTier ? target : int(math.floor(onFrac * target + 0.5))
+    else if onMode == 4
+        onT := target
+    else
+        onT := (t >= onMinTier and ddLevel == 0) ? target : int(math.floor(onFrac * target + 0.5))
+    if riskCut
+        onT := math.min(onT, int(math.floor(riskFloorFrac * allowed + 0.5)))
+    target := lastR ? onT : math.min(onT, pos)
+    target := math.max(target, 0)
+int delta = target - pos
+bool riskMode = riskCut or ddLevel > 0 or lastR or (not inRTH)
+string reason = ""
+if delta < 0
+    if riskMode or (math.abs(delta) >= minDelta and bar_index - lastTradeBar >= cooldownBars)
+        reason := riskCut ? "DAYSTOP" : (ddLevel > 0 and not lastR) ? "DD_CUT" : (lastR or not inRTH) ? "ON_TRIM" : "REBAL_DOWN"
+else if delta > 0
+    if inRTH and not lastR and modNow >= buyStartMod and modNow <= buyEndMod and math.abs(delta) >= minDelta and bar_index - lastTradeBar >= cooldownBars and not riskCut
+        reason := "REBAL_UP"
+if reason != ""
+    string act = delta > 0 ? "BUY" : "SELL"
+    string key = stratId + "_" + str.tostring(time) + "_" + str.tostring(bar_index)
+    string msg = "{\"strategy_id\":\"" + stratId + "\",\"version\":\"" + versionTag + "\",\"timestamp\":\"" + str.format_time(time_close, "yyyy-MM-dd'T'HH:mm:ssZ", "America/New_York") + "\",\"symbol\":\"" + syminfo.ticker + "\",\"action\":\"" + act + "\",\"qty\":" + str.tostring(math.abs(delta)) + ",\"target_position\":" + str.tostring(target) + ",\"reason\":\"" + reason + "\",\"campaign_state\":\"DD" + str.tostring(ddLevel) + "_T" + str.tostring(t) + "\",\"core_qty\":" + str.tostring(math.min(target, int(math.floor(fTier * allowed + 0.5)))) + ",\"tactical_qty\":" + str.tostring(math.max(target - int(math.floor(fTier * allowed + 0.5)), 0)) + ",\"ref_price\":" + str.tostring(close) + ",\"order_key\":\"" + key + "\"}"
+    strategy.order(delta > 0 ? "V6_BUY" : "V6_SELL", delta > 0 ? strategy.long : strategy.short, qty = math.abs(delta), comment = reason, alert_message = msg)
+    lastReason := reason
+if pos != pos[1]
+    lastTradeBar := bar_index
+// ---------------- DASHBOARD (compact, instrument aware)
+var float peakUtil = 0.0
+float reqMargin = math.abs(pos) * close * pointValue * (inRTH ? mIntraFrac : mOnFrac)
+float util = eq > 0 ? reqMargin / eq : 0.0
+peakUtil := math.max(peakUtil, util)
+var int maxPos = 0
+maxPos := math.max(maxPos, pos)
+var table dash = table.new(position.top_right, 2, 20, border_width = 1)
+if barstate.islast and showDash
+    table.cell(dash, 0, 0, "VERSION")
+    table.cell(dash, 1, 0, versionTag + " " + instName)
+    table.cell(dash, 0, 1, "Total P&L")
+    table.cell(dash, 1, 1, str.tostring(strategy.netprofit + strategy.openprofit, "#,###"))
+    table.cell(dash, 0, 2, "MaxDD")
+    table.cell(dash, 1, 2, str.tostring(strategy.max_drawdown, "#,###"))
+    table.cell(dash, 0, 3, "Position " + instName)
+    table.cell(dash, 1, 3, str.tostring(pos) + " / tgt " + str.tostring(target))
+    table.cell(dash, 0, 4, "Max " + instName)
+    table.cell(dash, 1, 4, str.tostring(maxPos))
+    table.cell(dash, 0, 5, "Allowed RTH / ON")
+    table.cell(dash, 1, 5, str.tostring(capRTH) + " / " + str.tostring(capON) + " (now " + str.tostring(allowed) + ")")
+    table.cell(dash, 0, 6, "Tier / DD level")
+    table.cell(dash, 1, 6, str.tostring(t) + " / " + str.tostring(ddLevel))
+    table.cell(dash, 0, 7, "Point / Tick value")
+    table.cell(dash, 1, 7, "$" + str.tostring(pointValue) + " / $" + str.tostring(pointValue * tickSz))
+    table.cell(dash, 0, 8, "Contract notional")
+    table.cell(dash, 1, 8, "$" + str.tostring(close * pointValue, "#,###"))
+    table.cell(dash, 0, 9, "IBKR intra / ON ref")
+    table.cell(dash, 1, 9, "$" + str.tostring(ibkrIntra, "#,###") + " / $" + str.tostring(ibkrOn, "#,###"))
+    table.cell(dash, 0, 10, "Margin util now / peak")
+    table.cell(dash, 1, 10, str.tostring(util * 100, "#.0") + "% / " + str.tostring(peakUtil * 100, "#.0") + "%")
+    table.cell(dash, 0, 11, "Closed trades")
+    table.cell(dash, 1, 11, str.tostring(strategy.closedtrades))
+    table.cell(dash, 0, 12, "Last reason")
+    table.cell(dash, 1, 12, lastReason)

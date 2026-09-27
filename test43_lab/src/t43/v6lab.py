@@ -14,6 +14,9 @@ PERIODS = {
     "PRE23": (None, pd.Timestamp("2022-12-31")), "P23": (pd.Timestamp("2023-01-01"), lab.VAL_END),
     "Y2020": (pd.Timestamp("2020-01-01"), pd.Timestamp("2020-12-31")),
     "Y2022": (pd.Timestamp("2022-01-01"), pd.Timestamp("2022-12-31")),
+    "F1": (None, pd.Timestamp("2020-12-31")),
+    "F2": (pd.Timestamp("2021-01-01"), pd.Timestamp("2022-12-31")),
+    "F3": (pd.Timestamp("2023-01-01"), pd.Timestamp("2024-12-31")),
 }
 _S = {}
 

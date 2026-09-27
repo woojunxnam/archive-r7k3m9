@@ -75,10 +75,17 @@ def space(t, inst, arch):
     return p
 
 
+ROBUST = os.environ.get("T43_ROBUST", "0") == "1"
+
+
 def score_row(o, env):
     L, W = ENV[env]
     avg = o.get("DEV_avg_daily") or -1e3
     ex5 = o.get("DEV_avg_ex_top5") or -1e3
+    if ROBUST:
+        folds = [o.get(f"F{k}_avg_daily") or -1e3 for k in (1, 2, 3)]
+        avg = 0.4 * float(np.mean(folds)) + 0.6 * float(np.min(folds))
+        ex5 = avg
     dd = o.get("DEV_max_dd") or 1e9
     wd = -(o.get("DEV_worst_day") or -1e9)
     pen = 0.0
@@ -98,10 +105,10 @@ def main(inst, arch, env, n, seed, out):
 
     def obj(t):
         p = space(t, inst, arch)
-        o = v6lab.evaluate(inst, dict(p), end=lab.DEV_END, periods=("DEV",))
+        o = v6lab.evaluate(inst, dict(p), end=lab.DEV_END, periods=("DEV", "F1", "F2", "F3") if ROBUST else ("DEV",))
         sc, feas = score_row(o, env)
         rows.append({"trial": t.number, "inst": inst, "arch": arch, "env": env, "score": sc, "feasible": feas,
-                     **{k: o[k] for k in o if k.startswith("DEV_")}, "peak_margin_util": o["peak_margin_util"],
+                     **{k: o[k] for k in o if k.startswith(("DEV_", "F1_avg", "F2_avg", "F3_avg"))}, "peak_margin_util": o["peak_margin_util"],
                      "min_equity": o["min_equity"], "fills": o["fills"], "friction": o["friction"],
                      "params": json.dumps(p)})
         if t.number % 100 == 99:
