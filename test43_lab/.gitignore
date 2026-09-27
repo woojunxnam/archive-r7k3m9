@@ -5,3 +5,4 @@ __pycache__/
 authorities/legacy/*.bin
 out/p123/*.parquet
 out/opt/log_*.txt
+out/v6/*_5m_bars.parquet
