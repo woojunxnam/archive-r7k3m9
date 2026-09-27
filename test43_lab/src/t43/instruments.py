@@ -11,7 +11,7 @@ PROFILES = {
                 ref_price=7800.0),
     "MNQ": dict(symbol="MNQ", data="MNQ", point_value=2.0, tick=0.25, tick_value=0.50,
                 commission_side=0.62, ibkr_intraday=4833.22, ibkr_overnight=6904.59,
-                ref_price=None),  # filled from data (raw close on the last canonical session)
+                ref_price=31105.0),  # 30125 raw on 2026-05-27 x (7800/7554.25): same relative ES->Sep-26 level assumption
 }
 
 
