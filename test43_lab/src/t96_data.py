@@ -75,10 +75,22 @@ def load(names=("ES", "MNQ", "NQ", "YM", "RTY")):
     import t47_engine as E
     if "I" not in _C:
         Is = dict(B.load()); P = panel()
+        _C["M"] = {}
         for i in ("NQ", "YM", "RTY"):
-            Is[i] = B.Inst(E.Mkt(P, i), i)
+            _C["M"][i] = E.Mkt(P, i); Is[i] = B.Inst(_C["M"][i], i)
         _C["I"] = Is
     return {k: _C["I"][k] for k in names}
+
+
+def mkt(name):
+    """t47_engine.Mkt object (5m arrays, bull / volt state) for NQ / YM / RTY; ES / MNQ via t47_engine.setup()."""
+    load()
+    if name in _C["M"]:
+        return _C["M"][name]
+    import t47_engine as E
+    if "ES_MNQ" not in _C:
+        _C["ES_MNQ"] = E.setup()
+    return _C["ES_MNQ"][0 if name == "ES" else 1]
 
 
 if __name__ == "__main__":

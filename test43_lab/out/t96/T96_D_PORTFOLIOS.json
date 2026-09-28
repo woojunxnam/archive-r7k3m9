@@ -1,0 +1,70 @@
+{
+ "bundle_rule": "Stage-A STANDALONE_PASS or DIVERSIFIER_PASS; lots by $ATR ratio pre-2021",
+ "FIXED_YM_TRANSFER_BUNDLE": {
+  "members": [
+   "T68_YM",
+   "T67_YM"
+  ],
+  "lots_each": 1,
+  "median_$ATR_MES_pre2021": 208.39285714285717,
+  "median_$ATR_YM_micro_pre2021": 183.89285714285714
+ },
+ "FIXED_RTY_TRANSFER_BUNDLE": {
+  "members": [],
+  "lots_each": 1,
+  "median_$ATR_MES_pre2021": 208.39285714285717,
+  "median_$ATR_RTY_micro_pre2021": 151.6071428571431
+ },
+ "P1_MAIN+YM_PASS_PORTFOLIO": false,
+ "P1_MAIN+YM_PASS_DIVERSIFIER": false,
+ "P2_MAIN+RTY_PASS_PORTFOLIO": false,
+ "P2_MAIN+RTY_PASS_DIVERSIFIER": false,
+ "P3_MAIN+YM+RTY_PASS_PORTFOLIO": false,
+ "P3_MAIN+YM+RTY_PASS_DIVERSIFIER": false,
+ "table": [
+  {
+   "portfolio": "P0_CURRENT_MAIN",
+   "avg_day": 143.2070661720334,
+   "incr_avg_day": 0.0,
+   "incr_avg_day_2021": 0.0,
+   "max_dd": 13936.302365193056,
+   "worst_day": -4666.439999999971,
+   "ret_dd": 0.010275829443088406,
+   "ret_dd_2021": 0.01089094598770062,
+   "corr_add_to_main": NaN
+  },
+  {
+   "portfolio": "P1_MAIN+YM",
+   "avg_day": 146.22162102556587,
+   "incr_avg_day": 3.0145548535324505,
+   "incr_avg_day_2021": 3.278985294117645,
+   "max_dd": 15345.982365193078,
+   "worst_day": -4666.439999999971,
+   "ret_dd": 0.009528332402962861,
+   "ret_dd_2021": 0.010104175668375282,
+   "corr_add_to_main": 0.2984596349114733
+  },
+  {
+   "portfolio": "P2_MAIN+RTY",
+   "avg_day": 143.2070661720334,
+   "incr_avg_day": 0.0,
+   "incr_avg_day_2021": 0.0,
+   "max_dd": 13936.302365193056,
+   "worst_day": -4666.439999999971,
+   "ret_dd": 0.010275829443088406,
+   "ret_dd_2021": 0.01089094598770062,
+   "corr_add_to_main": NaN
+  },
+  {
+   "portfolio": "P3_MAIN+YM+RTY",
+   "avg_day": 146.22162102556587,
+   "incr_avg_day": 3.0145548535324505,
+   "incr_avg_day_2021": 3.278985294117645,
+   "max_dd": 15345.982365193078,
+   "worst_day": -4666.439999999971,
+   "ret_dd": 0.009528332402962861,
+   "ret_dd_2021": 0.010104175668375282,
+   "corr_add_to_main": 0.2984596349114733
+  }
+ ]
+}

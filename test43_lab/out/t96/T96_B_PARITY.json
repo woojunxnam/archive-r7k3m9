@@ -1,0 +1,24 @@
+[
+ {
+  "seed": "LC03_NQ",
+  "ledger_entries_window": 198,
+  "engine_entries_window": 198,
+  "matched": 198,
+  "ledger_recall": 1.0,
+  "engine_precision": 1.0,
+  "price_within_1tick_share": 0.9343434343434344,
+  "median_abs_price_diff": 0.0,
+  "PARITY": "BLOCKED"
+ },
+ {
+  "seed": "LC05_NQ",
+  "ledger_entries_window": 602,
+  "engine_entries_window": 609,
+  "matched": 562,
+  "ledger_recall": 0.9335548172757475,
+  "engine_precision": 0.922824302134647,
+  "price_within_1tick_share": 0.9501779359430605,
+  "median_abs_price_diff": 0.0,
+  "PARITY": "BLOCKED"
+ }
+]
