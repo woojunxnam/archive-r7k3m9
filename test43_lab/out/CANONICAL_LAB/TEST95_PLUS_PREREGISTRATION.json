@@ -1,0 +1,109 @@
+{
+ "written_utc": "2026-09-28T19:08:34+00:00",
+ "program": "TEST95+ CANONICAL MOMENTUM / TREND / BREAKOUT + INDEX6 INTEGRATION",
+ "research_data_end": "2026-05-27",
+ "baseline": "MAIN_GROWTH_V1 = T61-R1C_ATOMIC_CAP6 + FIXED_CLUE_BASKET_V1 (both frozen, unmodified)",
+ "source_audit": "reports/CANONICAL_LAB/CANONICAL_SOURCE_AUDIT.md ([SOURCE] vs [FORMAL] vs [HYP])",
+ "instruments": {
+  "ES": "ES full-contract signal -> 1 MES",
+  "NQ": "NQ signal from MNQ prices (canonical NQ file TRANSFER-BLOCKED; price proxy, no volume used) -> 1 MNQ"
+ },
+ "TOM": {
+  "T1_HTF_LTF": {
+   "HTF [FORMAL]": "60-min bars (RTH, chained across sessions); swing = 3-bar fractal (1 bar each side, confirmed when the right bar completes); HTF_UP iff last two confirmed swing highs rising AND last two swing lows rising AND no completed 60m close below the last swing low since; permission only (never a score term)",
+   "LTF patterns (5m, decisions 09:40-15:30, fill next 1m open)": {
+    "P_ENGULF": "green 5m bar whose body engulfs the prior red body [SOURCE pattern]",
+    "P_RESUME": ">= 2 consecutive lower 5m highs (short-term counter move) then a 5m close above the prior bar high [FORMAL of 'fade the short-term trend']",
+    "P_BREAK": "5m close above the prior session high [FORMAL]"
+   },
+   "management [SOURCE principle, FORMAL numbers]": "stop = low of signal bar and prior bar; breakeven after +1R; then trail to the lowest low of the last 3 completed 5m bars; flat 16:15",
+   "trades": "one position at a time per pattern, max 2 entries per pattern per session",
+   "plateau": {
+    "fractal_bars": [
+     2
+    ],
+    "trail_bars": [
+     2,
+     4
+    ],
+    "breakeven_R": [
+     0.5,
+     1.5
+    ]
+   }
+  },
+  "T2_PREMARKET_BREAKOUT": {
+   "range [SOURCE]": "high of the 59 pre-market minutes 08:30-09:29 ET (bars END-stamped 08:31..09:29)",
+   "entry [SOURCE long side]": "buy stop at the pre-market high, active 09:30-10:30 [FORMAL window]; gap above -> open fill",
+   "T2A [SOURCE ratio, FORMAL scale]": "stop entry - 0.06 ATR_d, target entry + 0.04 ATR_d (Dow 9 / 6 points / ~150-pt ATR); same-bar stop+target -> stop",
+   "T2B runner [SOURCE 'go for more', FORMAL]": "stop entry - 0.06 ATR_d; breakeven once +0.04 ATR_d; then trail lowest low of last 3 completed 5m bars; 16:15",
+   "controls": {
+    "C_ORB": "RTH OR5 (first 5 minutes) high breakout, same T2B management (prior generic ORB family)",
+    "matched": "A matched long + B momentum-null at the fill / exit minutes"
+   },
+   "plateau": {
+    "window": [
+     "30m 09:00-09:29",
+     "90m 08:00-09:29"
+    ],
+    "stop_ATR": [
+     0.04,
+     0.08
+    ],
+    "target_ATR": [
+     0.03,
+     0.06
+    ]
+   }
+  },
+  "T3_WINNER_PRESS_RISK": "ONLY if a T1/T2 base passes: +1 unit when the base is in profit, trend valid, and all stops can be raised so that total open risk after the add <= open risk before it (size up faster than risk); ADD1 marginal EV must be > 0 before larger ladders"
+ },
+ "LIVERMORE": {
+  "L1_MARKET_KEY [SOURCE rules 1-8, FORMAL scale]": {
+   "bars": "daily RTH bars; rising columns use the daily high, falling columns the daily low",
+   "R": "2.0 x ATR_d (20-session mean true range), neighbours 1.5 / 2.5 ('about six points')",
+   "C": "R / 2 (source 3 / 6)",
+   "states": [
+    "UPWARD_TREND",
+    "NATURAL_REACTION",
+    "SECONDARY_REACTION",
+    "NATURAL_RALLY",
+    "SECONDARY_RALLY",
+    "DOWNWARD_TREND"
+   ],
+   "pivots": "last UP price (red) when a Natural Reaction starts; reaction low when the next rally starts; last DOWN price (black) when a Natural Rally starts; rally high when the next reaction starts"
+  },
+  "L2_PRIMARY_PIVOT": "after a Downward Trend: buy stop at (black-lined Natural Rally pivot + C) (rule 5a -> Upward Trend); L2B [SOURCE example]: reaction fails to pierce the Downward-Trend pivot by C -> buy stop at reaction low + C",
+  "L3_CONTINUATION_PIVOT": "Upward Trend -> Natural Reaction (red-lined UP pivot P) -> buy stop at P + C (rule 8a resumption)",
+  "L4_SIT_TIGHT": "hold through reactions; exit stop at (last Natural-Reaction pivot low - C) or state -> DOWNWARD_TREND (rule 8b; ambiguity of 8b wording resolved to the reaction-low pivot [FORMAL]); controls: fixed 1 / 5 / 10-session holds and same-day 16:00 / 16:15",
+  "L5_STAGED": "probe 1 unit at L2 / L3; +1 unit at each later L3 confirmation while the campaign is in profit; max 4; exit all at L4; per-unit ledger",
+  "INTRADAY_ADAPTATION [HYP]": "same machine on 5m RTH bars, R = 0.5 ATR_d (0.35 / 0.7), C = R/2; L3 entries; state exit vs fixed 60m / 120m / 16:00 / 16:15; flat 16:15",
+  "execution": "entries / exits are resting stop orders at levels known from completed bars; fill = max(open, level) + 1 tick slippage (exits min(open, level))"
+ },
+ "costs": "0.62 + 1 tick per side; SLIP4 = 4 ticks",
+ "capacity": "MNQ: T61 + basket + module <= 6 at entry and while held (module cut first); MES: <= 8",
+ "gate_standalone": [
+  "net > 0",
+  "matched A excess > 0",
+  "momentum-null B excess > 0 (intraday single-entry families)",
+  ">= 4/5 outer folds net > 0",
+  "remove-top3 > 0",
+  "SLIP4 > 0",
+  "+1 bar delay > 0",
+  "plateau: all neighbours > 0 and >= 60% of base",
+  "sample: intraday >= 300 trades & >= 40 / fold; daily Livermore >= 150 trades & >= 15 / fold"
+ ],
+ "gate_portfolio_vs_MAIN": "incremental >= +10 $/day (2019-07+ and 2021+) AND (MAIN + X) ret/DD >= MAIN ret/DD AND MaxDD <= 1.10 x MAIN AND worst >= -5,000; report corr, loss Jaccard, tail overlap, margin, peaks, turnover",
+ "ML_GA": "only on a deterministic family with positive matched excess and net; economic targets; GA separate Tom / Livermore lanes, nested",
+ "stopping": "robust survivor, or >= 4 distinct canonical families fail without new clue, or near-neighbour saturation, or hard blocker",
+ "TRACK_B_C_STATUS_AT_PREREG": {
+  "data": "canonical NQ / YM / RTY exist on Drive (manifest hashes NQ e6298965, YM edde4419, RTY 7539af44) but 7.5 MB chunks fail the Drive connector transfer (session expiry); only NQ part005 retrieved (hash OK) -> LC05 / LC03 NQ retries, T30 (YM / RTY) and all YM research are DATA-TRANSFER BLOCKED until re-chunked <= ~1-4 MB",
+  "INDEX6": "no economics before exact parity; parity thresholds unchanged (T46_01)",
+  "TEST20 / T20V1": "Pine + ledgers on Drive; L2-only semantics live in Google Docs dated after 2026-05-27 whose content may disclose sealed-window results -> not read without a sealed / quarantined extraction (TEST46 incident rule)"
+ },
+ "prior_budget": {
+  "hypotheses": 3300,
+  "ml_configs": 225,
+  "genomes": 777629
+ }
+}
