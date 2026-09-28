@@ -1,0 +1,94 @@
+ES done
+MNQ done
+    inst              setup                     conf  exit  trades_2021  avg_trade  excess_trade  t_excess  t_excess_2021  matched_excess_day  folds_pos  fold_median  delta_excess_day_vs_immediate  corr_C43   PASS
+1     ES              S1_N3            CF0_IMMEDIATE  X120          547      -5.50         -2.81     -0.59          -0.83               -1.85          0        -1.14                           0.00      0.19  False
+4     ES              S1_N3    CF1_LOWER_LOW_RECLAIM  X120          435      -2.96         -0.09     -0.02          -0.42               -0.77          2        -1.99                           1.07      0.18  False
+7     ES              S1_N3  CF2_HIGHER_LOW_BREAKOUT  X120           55      -3.60         -2.17     -0.14          -0.67               -0.52          2        -0.18                           1.33      0.02  False
+10    ES              S1_N3        CF3_EXPANSION_BAR  X120          378      -0.12          1.75      0.30          -0.29               -0.56          3         0.08                           1.29      0.17  False
+13    ES              S1_N3          CF4_15M_CONFIRM  X120          268       0.94          4.09      0.58           0.71                1.23          2        -0.07                           3.07      0.09  False
+16    ES              S1_N3         CF5_OTHER_FAMILY  X120          195      -4.30         -1.63     -0.25          -0.77               -0.82          2        -1.44                           1.03      0.09  False
+19    ES       S2_PDL_BREAK            CF0_IMMEDIATE  X120          519       1.11          3.79      0.75           0.80                1.82          3         0.50                           0.00      0.14  False
+22    ES       S2_PDL_BREAK    CF1_LOWER_LOW_RECLAIM  X120          359       3.32          5.59      0.99           1.00                1.76          2        -0.27                          -0.06      0.13  False
+25    ES       S2_PDL_BREAK  CF2_HIGHER_LOW_BREAKOUT  X120          105      -3.04         -2.15     -0.23           0.72                0.64          3         1.13                          -1.18      0.03  False
+28    ES       S2_PDL_BREAK        CF3_EXPANSION_BAR  X120          356       4.50          5.68      0.97           1.07                1.98          2        -0.13                           0.16      0.15  False
+31    ES       S2_PDL_BREAK          CF4_15M_CONFIRM  X120          282      -2.46         -0.55     -0.10           0.65                0.90          3         1.40                          -0.92      0.11  False
+34    ES       S2_PDL_BREAK         CF5_OTHER_FAMILY  X120          275       0.94          4.35      0.65           0.89                1.48          2        -0.30                          -0.33      0.11  False
+37    ES  S3_UPDAY_PULLBACK            CF0_IMMEDIATE  X120          163     -10.04         -8.01     -0.83          -1.00               -1.34          0        -1.28                           0.00      0.09  False
+40    ES  S3_UPDAY_PULLBACK    CF1_LOWER_LOW_RECLAIM  X120          117      -3.16         -1.41     -0.15           0.13                0.12          2        -1.12                           1.46      0.07  False
+43    ES  S3_UPDAY_PULLBACK  CF2_HIGHER_LOW_BREAKOUT  X120           18       9.88         12.12      0.51           0.47                0.16          1        -0.18                           1.49     -0.00  False
+46    ES  S3_UPDAY_PULLBACK        CF3_EXPANSION_BAR  X120          100      -4.48         -1.25     -0.10           0.34                0.35          2        -0.45                           1.69      0.07  False
+49    ES  S3_UPDAY_PULLBACK          CF4_15M_CONFIRM  X120           79       8.87         10.78      0.61           0.97                1.13          3         0.64                           2.47      0.02  False
+52    ES  S3_UPDAY_PULLBACK         CF5_OTHER_FAMILY  X120           59      -5.91         -5.08     -0.35          -0.28               -0.21          1        -0.43                           1.12      0.09  False
+55    ES             S4_ORB            CF0_IMMEDIATE  X120          923      -1.79          0.41      0.13           0.71                1.80          4         0.94                           0.00      0.22  False
+58    ES             S4_ORB    CF1_LOWER_LOW_RECLAIM  X120          361      -0.79          1.67      0.38           0.99                1.42          3         0.51                          -0.38      0.15  False
+61    ES             S4_ORB  CF2_HIGHER_LOW_BREAKOUT  X120          411      -1.96          0.70      0.18           0.61                0.83          3         0.98                          -0.97      0.15  False
+64    ES             S4_ORB        CF3_EXPANSION_BAR  X120          357      -4.73         -2.22     -0.38           0.66                1.20          3         0.30                          -0.60      0.11  False
+67    ES             S4_ORB          CF4_15M_CONFIRM  X120          754      -0.26          1.75      0.56           0.91                1.91          4         1.55                           0.11      0.21  False
+70    ES             S4_ORB         CF5_OTHER_FAMILY  X120          493      -2.72          0.23      0.06           0.10                0.17          3         0.84                          -1.63      0.15  False
+73    ES     S5_COMPRESSION            CF0_IMMEDIATE  X120         1334      -2.69          0.37      0.14          -0.17               -0.53          2        -0.05                           0.00      0.21  False
+76    ES     S5_COMPRESSION    CF1_LOWER_LOW_RECLAIM  X120          865      -3.54         -0.69     -0.26          -0.57               -1.14          1        -1.26                          -0.62      0.19  False
+79    ES     S5_COMPRESSION  CF2_HIGHER_LOW_BREAKOUT  X120          367       0.58          4.23      0.75           0.67                1.26          4         1.41                           1.79      0.11  False
+82    ES     S5_COMPRESSION        CF3_EXPANSION_BAR  X120          502      -1.74          1.22      0.24           0.29                0.65          2        -0.53                           1.18      0.10  False
+85    ES     S5_COMPRESSION          CF4_15M_CONFIRM  X120          858      -2.33          0.18      0.06           0.27                0.65          3         0.22                           1.17      0.14  False
+88    ES     S5_COMPRESSION         CF5_OTHER_FAMILY  X120          273      -2.31          0.48      0.07           0.26                0.47          2        -0.09                           0.99      0.11  False
+91   MNQ              S1_N3            CF0_IMMEDIATE  X120          574      -7.21         -6.15     -0.79          -0.99               -3.92          2        -0.41                           0.00      0.20  False
+94   MNQ              S1_N3    CF1_LOWER_LOW_RECLAIM  X120          461      -5.16         -2.67     -0.36          -0.50               -1.51          2        -2.89                           2.41      0.17  False
+97   MNQ              S1_N3  CF2_HIGHER_LOW_BREAKOUT  X120           54     -16.28        -17.83     -0.74          -0.76               -1.00          4         0.22                           2.92      0.08  False
+100  MNQ              S1_N3        CF3_EXPANSION_BAR  X120          376      -9.72         -8.29     -0.86          -0.99               -3.22          2        -1.84                           0.70      0.20  False
+103  MNQ              S1_N3          CF4_15M_CONFIRM  X120          277      -2.98         -3.06     -0.32           0.03                0.06          2        -1.74                           3.98      0.11  False
+106  MNQ              S1_N3         CF5_OTHER_FAMILY  X120          234      -9.98         -7.02     -0.68          -1.23               -2.47          2        -2.07                           1.44      0.13  False
+109  MNQ       S2_PDL_BREAK            CF0_IMMEDIATE  X120          518       2.52          1.94      0.22           0.26                1.03          3         1.17                           0.00      0.15  False
+112  MNQ       S2_PDL_BREAK    CF1_LOWER_LOW_RECLAIM  X120          366       4.86          5.18      0.50           0.51                1.62          4         3.14                           0.59      0.14  False
+115  MNQ       S2_PDL_BREAK  CF2_HIGHER_LOW_BREAKOUT  X120          100     -18.48        -19.09     -1.28          -0.93               -1.27          2        -2.10                          -2.30      0.05  False
+118  MNQ       S2_PDL_BREAK        CF3_EXPANSION_BAR  X120          361       8.12          7.69      0.74           0.88                2.89          4         2.52                           1.85      0.14  False
+121  MNQ       S2_PDL_BREAK          CF4_15M_CONFIRM  X120          264      -5.41         -6.03     -0.58          -0.17               -0.41          2        -1.70                          -1.44      0.11  False
+124  MNQ       S2_PDL_BREAK         CF5_OTHER_FAMILY  X120          292       2.00          2.44      0.21           0.57                1.64          4         3.95                           0.61      0.07  False
+127  MNQ  S3_UPDAY_PULLBACK            CF0_IMMEDIATE  X120          173      -6.43         -7.12     -0.50          -0.45               -0.96          2        -1.85                           0.00      0.10  False
+130  MNQ  S3_UPDAY_PULLBACK    CF1_LOWER_LOW_RECLAIM  X120          136       2.62          0.52      0.04           0.31                0.51          3         0.19                           1.47      0.08  False
+133  MNQ  S3_UPDAY_PULLBACK  CF2_HIGHER_LOW_BREAKOUT  X120           17     -32.13        -35.74     -0.89          -0.38               -0.20          3         0.22                           0.76      0.07  False
+136  MNQ  S3_UPDAY_PULLBACK        CF3_EXPANSION_BAR  X120           93       5.75          5.89      0.30           0.58                0.95          3         0.49                           1.91      0.07  False
+139  MNQ  S3_UPDAY_PULLBACK          CF4_15M_CONFIRM  X120           85       0.30         -1.72     -0.07           0.62                1.17          2        -0.12                           2.13      0.04  False
+142  MNQ  S3_UPDAY_PULLBACK         CF5_OTHER_FAMILY  X120           61      45.00         41.95      1.02           0.93                2.11          5         0.78                           3.07      0.03  False
+145  MNQ             S4_ORB            CF0_IMMEDIATE  X120          874       4.57          4.29      0.77           0.89                4.00          4         7.37                           0.00      0.23  False
+148  MNQ             S4_ORB    CF1_LOWER_LOW_RECLAIM  X120          361      12.12         12.90      1.61           1.57                4.25          4         4.66                           0.25      0.16  False
+151  MNQ             S4_ORB  CF2_HIGHER_LOW_BREAKOUT  X120          398       4.80          4.15      0.64           1.13                2.55          4         2.64                          -1.45      0.21  False
+154  MNQ             S4_ORB        CF3_EXPANSION_BAR  X120          383      -8.11         -9.21     -0.96          -0.28               -0.90          4         2.94                          -4.91      0.15  False
+157  MNQ             S4_ORB          CF4_15M_CONFIRM  X120          736       7.28          7.32      1.24           1.43                5.72          5         5.15                           1.72      0.21  False
+160  MNQ             S4_ORB         CF5_OTHER_FAMILY  X120          475       4.51          4.23      0.64           0.38                1.07          3         0.19                          -2.93      0.15  False
+163  MNQ     S5_COMPRESSION            CF0_IMMEDIATE  X120         1341      -0.45         -0.71     -0.17          -0.28               -1.41          4         1.68                           0.00      0.24  False
+166  MNQ     S5_COMPRESSION    CF1_LOWER_LOW_RECLAIM  X120          910      -1.85         -2.82     -0.63          -0.44               -1.58          3         4.24                          -0.17      0.21  False
+169  MNQ     S5_COMPRESSION  CF2_HIGHER_LOW_BREAKOUT  X120          353      12.69         11.93      1.25           0.98                3.00          5         3.85                           4.42      0.10  False
+172  MNQ     S5_COMPRESSION        CF3_EXPANSION_BAR  X120          530       2.97          2.22      0.28           0.35                1.33          2        -1.39                           2.75      0.10  False
+175  MNQ     S5_COMPRESSION          CF4_15M_CONFIRM  X120          885       2.83          2.98      0.59           0.42                1.73          2        -1.34                           3.14      0.18  False
+178  MNQ     S5_COMPRESSION         CF5_OTHER_FAMILY  X120          269     -15.33        -15.91     -1.50          -1.71               -4.47          1        -3.55                          -3.06      0.16  False
+    inst              setup                     conf   exit  trades_2021  avg_trade  excess_trade  t_excess  t_excess_2021  matched_excess_day  folds_pos  fold_median  delta_excess_day_vs_immediate  corr_C43   PASS
+149  MNQ             S4_ORB    CF1_LOWER_LOW_RECLAIM  X1600          361      25.15         23.75      2.14           2.11                7.81          4         9.75                           2.22      0.22  False
+156  MNQ             S4_ORB          CF4_15M_CONFIRM    X60          736       6.62          8.34      1.85           1.85                5.67          5         3.26                           0.23      0.14  False
+147  MNQ             S4_ORB    CF1_LOWER_LOW_RECLAIM    X60          361       8.97         10.52      1.68           1.63                3.37          3         2.68                          -2.07      0.14  False
+66    ES             S4_ORB          CF4_15M_CONFIRM    X60          754       0.71          3.75      1.62           1.84                2.81          4         1.23                           0.40      0.16  False
+148  MNQ             S4_ORB    CF1_LOWER_LOW_RECLAIM   X120          361      12.12         12.90      1.61           1.57                4.25          4         4.66                           0.25      0.16  False
+143  MNQ  S3_UPDAY_PULLBACK         CF5_OTHER_FAMILY  X1600           61      95.46         90.34      1.59           1.50                4.70          3         3.53                           1.44      0.02  False
+144  MNQ             S4_ORB            CF0_IMMEDIATE    X60          874       4.35          6.64      1.49           1.52                5.44          3         4.92                           0.00      0.16  False
+170  MNQ     S5_COMPRESSION  CF2_HIGHER_LOW_BREAKOUT  X1600          353      25.14         18.54      1.37           1.18                5.16          4         1.24                           6.40      0.19  False
+14    ES              S1_N3          CF4_15M_CONFIRM  X1600          269      11.10         13.95      1.31           0.96                2.56          3         0.46                           3.03      0.11  False
+131  MNQ  S3_UPDAY_PULLBACK    CF1_LOWER_LOW_RECLAIM  X1600          136      38.00         36.25      1.29           1.47                4.93          4         1.89                           1.66      0.04  False
+135  MNQ  S3_UPDAY_PULLBACK        CF3_EXPANSION_BAR    X60           92      16.18         15.07      1.28           1.16                1.11          3         1.05                           3.03      0.07  False
+169  MNQ     S5_COMPRESSION  CF2_HIGHER_LOW_BREAKOUT   X120          353      12.69         11.93      1.25           0.98                3.00          5         3.85                           4.42      0.10  False
+157  MNQ             S4_ORB          CF4_15M_CONFIRM   X120          736       7.28          7.32      1.24           1.43                5.72          5         5.15                           1.72      0.21  False
+59    ES             S4_ORB    CF1_LOWER_LOW_RECLAIM  X1600          361       5.49          7.08      1.14           1.44                2.89          4         3.40                           0.57      0.22  False
+87    ES     S5_COMPRESSION         CF5_OTHER_FAMILY    X60          273       3.23          6.27      1.11           1.28                1.84          5         1.71                           3.23      0.07  False
+57    ES             S4_ORB    CF1_LOWER_LOW_RECLAIM    X60          361       0.05          3.58      1.11           1.69                1.75          2        -0.36                          -0.67      0.12  False
+141  MNQ  S3_UPDAY_PULLBACK         CF5_OTHER_FAMILY    X60           61      21.11         20.39      1.10           0.49                0.46          3         0.17                           2.39      0.05  False
+35    ES       S2_PDL_BREAK         CF5_OTHER_FAMILY  X1600          275       7.71          9.47      1.03           0.70                1.60          5         1.84                           0.24      0.15  False
+142  MNQ  S3_UPDAY_PULLBACK         CF5_OTHER_FAMILY   X120           61      45.00         41.95      1.02           0.93                2.11          5         0.78                           3.07      0.03  False
+22    ES       S2_PDL_BREAK    CF1_LOWER_LOW_RECLAIM   X120          359       3.32          5.59      0.99           1.00                1.76          2        -0.27                          -0.06      0.13  False
+finalists 0 PASS 0
+                        delta_excess_day_vs_immediate                  
+                                                 mean median <lambda_0>
+conf                                                                   
+CF0_IMMEDIATE                                   0.000  0.000      0.000
+CF1_LOWER_LOW_RECLAIM                           0.080  0.281      0.533
+CF2_HIGHER_LOW_BREAKOUT                         0.351  0.666      0.567
+CF3_EXPANSION_BAR                               0.518  0.901      0.700
+CF4_15M_CONFIRM                                 1.277  1.188      0.733
+CF5_OTHER_FAMILY                                0.037  0.573      0.600

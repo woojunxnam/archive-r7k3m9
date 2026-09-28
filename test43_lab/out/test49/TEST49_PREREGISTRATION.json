@@ -1,0 +1,38 @@
+{
+ "test": "TEST49",
+ "written_utc": "2026-09-28T03:31:58Z",
+ "research_data_end": "2026-05-27",
+ "question": "Does causal intraday STRENGTH (trend persistence) predict further long returns to the close or to the next open, beyond matched long beta?",
+ "why_mechanism_could_exist": "Institutional order flow is split over hours (VWAP/TWAP execution, rebalancing), so a day that has been persistently bid (efficient path, price held above its session mean, near session highs) tends to keep receiving buy flow into the close; close-strength may also carry into the next open (overnight continuation of unfinished demand).",
+ "prior_result_motivating_it": "ALPHA_GAP_MAP_V1 (discovery 2019-07..2020-12 only): strength features IC 0.10-0.16 vs next-open excess (clue G1); intraday features carry ~no information at +60m (G3) -> use longer horizons.  TEST48: MNQ ORB continuation positive in 4-5/5 folds (reused evidence -> stricter threshold for ORB-derived rules).",
+ "difference_from_failed_families": "All rejected families were mean-reversion (buy weakness/rebounds) or UNCONDITIONAL overnight carry.  TEST49 buys STRENGTH and holds to the close / next open only CONDITIONAL on intraday trend persistence.",
+ "falsification": "No family has positive matched-long excess with >= 4/5 positive outer folds, or the conditional overnight excess vs matched ordinary overnight long is <= 0, or GA-CT fails nested outer generalisation.",
+ "families": {
+  "T1_OPENING_DRIVE": "at the 10:00 / 10:30 decision: return since open >= k ATRd (k in {0.25, 0.5}) and path efficiency >= 0.5 -> long",
+  "T2_TREND_DAY": "first decision 11:00..14:00 with above-TWAP share of 5m closes >= 0.8, position in session range >= 0.7, return since open >= 0.5 ATRd",
+  "T3_LATE_STRENGTH": "at 14:30 / 15:00: return since open >= 0.5 ATRd and position in range >= 0.8",
+  "T4_CLOSE_STRENGTH_CARRY": "at 16:14 (fill 16:15): return since open >= 0.5 ATRd and close in top 25% of the session range -> hold to next 09:31 open",
+  "T5_BREAKOUT_RETENTION": "ORB (close above 30m high) that never closes back inside the range for 6 bars (prove-first) -> long after the 6th bar"
+ },
+ "exits": {
+  "intraday": [
+   "X1600",
+   "X1615"
+  ],
+  "overnight": [
+   "NEXTOPEN (next 09:31 open)",
+   "NEXT1000 (next 10:00)"
+  ]
+ },
+ "primary_exit": "X1615 for T1/T2/T3/T5, NEXTOPEN for T4",
+ "overnight_rule": "position locked 16:15 -> next 09:31; no overnight stop; overnight lots accounted on the exit session",
+ "matched_null": "same instrument, fill minute, year, vol tercile, HTF trend, same exit (overnight: matched ordinary 16:15->next-open long)",
+ "program_gate": "prog_common.evaluate_module G1..G9",
+ "multiple_testing": "simple grid = 5 families x variants (~12) x exits x 2 instruments (~60 combos); finalist needs t >= 3.0 (ORB-derived T5: t >= 3.5, reused-evidence penalty) AND program gate.",
+ "ga_lane": {
+  "name": "GA-CT",
+  "genes": "decision window start/end, strength measure (ret_open / efficiency / above-TWAP share / pos-in-range), thresholds, vol permission, HTF permission, exit incl. NEXTOPEN, instrument",
+  "budget": "POP 64, GENS 40, 2 seeds x 3 islands, 6 folds",
+  "novelty": "|corr C43| <= 0.5"
+ }
+}

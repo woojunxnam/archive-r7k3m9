@@ -1,0 +1,65 @@
+{
+ "POP": 64,
+ "GENS": 40,
+ "SEEDS": [
+  11,
+  22
+ ],
+ "ISL": 3,
+ "unique_per_fold": {
+  "O1_2021": 14908,
+  "O2_2022": 14788,
+  "O3_2023": 14816,
+  "O4_2024": 14943,
+  "O5_2025_26": 14950,
+  "FINAL_ALL_TO_2026-05-27": 14896
+ },
+ "total_unique": 89301,
+ "space": [
+  [
+   "inst",
+   "cat",
+   "['ES', 'MNQ']"
+  ],
+  [
+   "setup",
+   "cat",
+   "['S1_N3', 'S2_PDL_BREAK', 'S3_UPDAY_PULLBACK', 'S4_ORB', 'S5_COMPRESSION']"
+  ],
+  [
+   "xm",
+   "num",
+   "(0.5, 2.0)"
+  ],
+  [
+   "conf",
+   "cat",
+   "['CF0_IMMEDIATE', 'CF1_LOWER_LOW_RECLAIM', 'CF2_HIGHER_LOW_BREAKOUT', 'CF3_EXPANSION_BAR', 'CF4_15M_CONFIRM', 'CF5_OTHER_FAMILY']"
+  ],
+  [
+   "W",
+   "cat",
+   "[6, 12, 24]"
+  ],
+  [
+   "expx",
+   "num",
+   "(0.5, 2.0)"
+  ],
+  [
+   "exit",
+   "cat",
+   "['X60', 'X120', 'X1600']"
+  ],
+  [
+   "bull",
+   "cat",
+   "[0, 1]"
+  ],
+  [
+   "volt_max",
+   "cat",
+   "[0.5, 0.8, 1.0]"
+  ]
+ ]
+}
