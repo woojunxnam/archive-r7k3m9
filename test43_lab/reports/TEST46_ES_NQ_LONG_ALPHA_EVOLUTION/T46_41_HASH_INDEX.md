@@ -1,0 +1,184 @@
+# T46_41 Hash index
+
+Final status:
+
+|                                             | 0                                                                                                                                       |
+|:--------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------|
+| LEGACY_LEDGER_RECOVERY_SOURCE               | Google Drive FULL_HISTORY/batched exports -> undisplayed quarantine -> mechanical sanitizer (authority-hash evidence files unreachable) |
+| LC02_RAW_HASH_MATCH                         | NO (different export)                                                                                                                   |
+| LC03_RAW_HASH_MATCH                         | NO (different export)                                                                                                                   |
+| LC05_RAW_HASH_MATCH                         | NO (different export)                                                                                                                   |
+| TS16_RAW_HASH_MATCH                         | NOT RECOVERED                                                                                                                           |
+| TS22_RAW_HASH_MATCH                         | NOT RECOVERED (Drive session failures)                                                                                                  |
+| T30_RAW_HASH_MATCH                          | NO (batched export, T30-L1 selector)                                                                                                    |
+| SANITIZED_INDEX6_LEDGER_COUNT               | 4                                                                                                                                       |
+| ALL_SANITIZED_MAX_DATE_LE_20260527          | YES                                                                                                                                     |
+| TEST46_ORIGINAL_OOS_INTEGRITY               | PARTIALLY_COMPROMISED_LC03                                                                                                              |
+| TEST46_RESEARCH_DATA_END                    | 2026-05-27                                                                                                                              |
+| TEST46_NEW_OOS_START                        | 2026-09-28                                                                                                                              |
+| TEST46_NEW_OOS_OPENED                       | NO                                                                                                                                      |
+| INDEX6_PARITY_PASS                          | NO (all seeds PARITY_BLOCKED; LC02 closest)                                                                                             |
+| INDEX6_AVG_DAY                              | 7.77                                                                                                                                    |
+| INDEX6_MAX_DD                               | 3231.0                                                                                                                                  |
+| INDEX6_WORST_DAY                            | -599.0                                                                                                                                  |
+| INDEX5_NOOI_AVG_DAY                         | 7.77                                                                                                                                    |
+| INDEX5_NOOI_MAX_DD                          | 3231.0                                                                                                                                  |
+| BEST_EXISTING_SEED                          | LC03 NQ-NOON (best PF/trade in canonical replay; research-only)                                                                         |
+| BEST_SEED_EXIT_EXTENSION                    | LC03 hold to 16:00 (matched excess t 2.37; research-only)                                                                               |
+| EXIT_EXTENSION_ADDS_ALPHA                   | YES research-only / NOT PROMOTABLE                                                                                                      |
+| STRATEGY_SPECIFIC_OVERNIGHT_ADDS_ALPHA      | NO                                                                                                                                      |
+| BEST_OVERNIGHT_SEED                         | LC02 (excess +$9.6/trade, t 0.99, not significant)                                                                                      |
+| CONFIRMATION_PYRAMID_ADDS_VALUE             | NO (t 1.44)                                                                                                                             |
+| WINNER_PYRAMID_ADDS_VALUE                   | NO                                                                                                                                      |
+| RECLAIM_PYRAMID_ADDS_VALUE                  | NO                                                                                                                                      |
+| BLIND_DCA_ADDS_VALUE                        | NO                                                                                                                                      |
+| BEST_PYRAMID_ARCHITECTURE                   | NONE                                                                                                                                    |
+| FAILED_BREAKDOWN_EDGE_ES                    | NO                                                                                                                                      |
+| FAILED_BREAKDOWN_EDGE_NQ                    | NO                                                                                                                                      |
+| VWAP_BAND_RECLAIM_EDGE_ES                   | NO                                                                                                                                      |
+| VWAP_BAND_RECLAIM_EDGE_NQ                   | NO (significantly negative)                                                                                                             |
+| OR_FAILED_BREAK_EDGE_ES                     | NO                                                                                                                                      |
+| OR_FAILED_BREAK_EDGE_NQ                     | NO                                                                                                                                      |
+| RANGE_EXHAUSTION_EDGE_ES                    | NO (n=40, t 1.27)                                                                                                                       |
+| RANGE_EXHAUSTION_EDGE_NQ                    | NO                                                                                                                                      |
+| HTF_BULL_PULLBACK_EDGE_ES                   | NO                                                                                                                                      |
+| HTF_BULL_PULLBACK_EDGE_NQ                   | NO                                                                                                                                      |
+| RELATIVE_EXHAUSTION_ADDS_VALUE              | NO (n=9)                                                                                                                                |
+| BEST_NEW_REBOUND_MECHANISM                  | NONE                                                                                                                                    |
+| MATCHED_LONG_EXCESS_POSITIVE                | NO                                                                                                                                      |
+| BEST_LINEAR_MODEL                           | RIDGE (ML-A rank-IC 0.038; +$5.3k 2021-26)                                                                                              |
+| BEST_TREE_MODEL                             | EXTRA_TREES (ML-A rank-IC 0.034)                                                                                                        |
+| BEST_REGIME_MODEL                           | none (TEST45 HMM no value)                                                                                                              |
+| ML_ADDS_VALUE                               | NO (Ridge beats the simple control but fails the gate)                                                                                  |
+| GA_ADDS_VALUE                               | NO                                                                                                                                      |
+| GA_OUTER_GENERALIZATION                     | FAIL (3/5 blocks, median +$0.8/day)                                                                                                     |
+| GA_RULE_RECURRENCE                          | WEAK                                                                                                                                    |
+| GA_PARAMETER_PLATEAU_PASS                   | NO                                                                                                                                      |
+| GP_ADDS_VALUE                               | NOT RUN (not justified)                                                                                                                 |
+| BEST_PRACTICAL_MAX_MES                      | 0 adopted                                                                                                                               |
+| BEST_PRACTICAL_MAX_MNQ                      | 0 adopted                                                                                                                               |
+| BEST_TEST46_INCREMENTAL_AVG_DAY             | 0 verified (best unverified: ML-A Ridge +3.87)                                                                                          |
+| C43_PLUS_TEST46_AVG_DAY                     | 52.59                                                                                                                                   |
+| C43_PLUS_TEST46_MAX_DD                      | 6193                                                                                                                                    |
+| C43_PLUS_TEST46_WORST_DAY                   | -1723                                                                                                                                   |
+| C43_PLUS_TEST46_MATCHED_BETA_EXCESS         | unchanged (C43 only)                                                                                                                    |
+| ALPHA_FROM_HOLD_EXTENSION                   | 0                                                                                                                                       |
+| ALPHA_FROM_PYRAMID                          | 0                                                                                                                                       |
+| ALPHA_FROM_OVERNIGHT                        | 0                                                                                                                                       |
+| ALPHA_FROM_NEW_REBOUND                      | 0                                                                                                                                       |
+| ALPHA_FROM_ML_GA                            | 0                                                                                                                                       |
+| TOTAL_VERIFIED_INCREMENTAL_HISTORICAL_ALPHA | 0                                                                                                                                       |
+| FINAL_TEST46_CHALLENGER                     | NONE                                                                                                                                    |
+| TEST46_PRE_OOS_FREEZE_SHA256                | e0724e207aea45c16416207379a540e4e44550434eeaefb4440911732dd334ce                                                                        |
+| TEST46_NEW_OOS_RULES_SHA256                 | b0c16814f78b197a5d0414ee597e1212568ef05fe51546c228f01da1bf0d97a8                                                                        |
+| TEST44_AUTHORITIES_UNCHANGED                | YES                                                                                                                                     |
+| TEST45_AUTHORITIES_UNCHANGED                | YES                                                                                                                                     |
+| NEW_OOS_DATA_ACQUIRED                       | NO                                                                                                                                      |
+| NEW_OOS_OPENED (TEST44/45 evaluation)       | NO                                                                                                                                      |
+| PORTFOLIO_MEMBERSHIP_CHANGED                | NO                                                                                                                                      |
+| LIVE_AUTHORIZATION                          | NO                                                                                                                                      |
+
+|     | file                                                                            | sha256                                                           |   bytes |
+|----:|:--------------------------------------------------------------------------------|:-----------------------------------------------------------------|--------:|
+|   0 | authorities/index6/FROZEN_FACTORY_T07_LC03.pine                                 | 475603d478264d11b997d241a71144cc01bae35f795867266da16d4f146545fe |   15840 |
+|   1 | authorities/index6/FROZEN_STRATEGY_LC02.pine                                    | 9b8a76daceb91c2234fbf129008628307882f29551238904e67aa805a3115a11 |    5621 |
+|   2 | authorities/index6/TEST30_REGIME_CONTEXT_MASTER_V1_PRECOMPILE.pine              | cc45143a3de77d1c54f077e199890e7843b3a69bf6fee1b8334dac9086d9897f |   37852 |
+|   3 | data_legacy/LC02_TO_20260527.csv                                                | 218f898c7e6e77e5c20d0ab71d3a1711ffd03f6dfefd356682ab087874f28dda |   90033 |
+|   4 | data_legacy/LC03_TO_20260527.csv                                                | b4cbb6339bcaf2c9fa4b48867c12341d197d7707d7511cd1c74cc47eeafa97bf |  114737 |
+|   5 | data_legacy/LC05_TO_20260527.csv                                                | 24243f1481a72c1b059cfcad9691b51c0304f43c8ae0cfddbbe437eed81f09bc |  356310 |
+|   6 | data_legacy/SANITIZER_REPORT.json                                               | 9b9af7a836adea990a6285bcf51a2e102a3ec4d9f6cf68cce8408a68849701c0 |    1370 |
+|   7 | data_legacy/T30_W01_TO_20260527.csv                                             | 048e1e4a86b5dcd18538f93a512c0f6f9fdac1bdc908cbc789dd6ad2703bb2ab |  389170 |
+|   8 | out/t46/T46_01_parity.json                                                      | 3d4d600ffcbb63af6ac4541108417c854f313bc109991e10668f789b58867d26 |     865 |
+|   9 | out/t46/T46_INCIDENT_SEALED_WINDOW_EXPOSURE.md                                  | de7b2bc2998efac5b2f7363a70877597ed5b1141350f82dbbb3eb29f3eadd8f2 |    1441 |
+|  10 | out/t46/T46_final_status.json                                                   | 468c2e4f0ccb75e619284c4a0cc06cd77696afc64dfcb4855f996a4838cb8271 |    3496 |
+|  11 | out/t46/engine_trades_LC02.parquet                                              | 04329684679817f1f8842669b51d8e17bc969c6bab4cbfb82d547de568a8197e |   14680 |
+|  12 | out/t46/engine_trades_LC03.parquet                                              | 6a3ebf50df9018c744df66cca694e2fd3ff0a95eb0bbf42e4658cf4bc633139c |   15544 |
+|  13 | out/t46/engine_trades_LC05.parquet                                              | df243bcf5e88a994d0634d65e9a414015283fad7cbb9f00c4c6ef41e28cd275f |   36013 |
+|  14 | out/t46/final/T46_36_incremental_gate.csv                                       | 195d3732505cb376bcfff1bc27c24b162bb0911b2a456de47ec0fe1ab99b8ea8 |    2873 |
+|  15 | out/t46/final/T46_38_final_selection.json                                       | 20688ca605fe47e9b94fbbb850c416863c2b60d006ba86ed11fd5e69d8adf248 |     262 |
+|  16 | out/t46/freeze/TEST46_FREEZE.sha256                                             | 929dd66c528212909042ade3ce552f3455d17b897494a9d2db03b2b875acd5d8 |     196 |
+|  17 | out/t46/freeze/TEST46_NEW_OOS_ACCEPTANCE_RULES.json                             | b0c16814f78b197a5d0414ee597e1212568ef05fe51546c228f01da1bf0d97a8 |    1170 |
+|  18 | out/t46/freeze/TEST46_PRE_OOS_FREEZE.json                                       | e0724e207aea45c16416207379a540e4e44550434eeaefb4440911732dd334ce |    6375 |
+|  19 | out/t46/gaA/T46_25_gaA_spec.json                                                | 947812d6831634a78ae532737c1f70e43ec55430275003f6df9caf17e8abd6e4 |    1076 |
+|  20 | out/t46/gaA/T46_26_gaA_selected.csv                                             | 05d4ae75fc235228c39451a2fb412d0b065ae15d1bbf2cdf66a00674ff642773 |   15814 |
+|  21 | out/t46/gaA/archive_FINAL_ALL_TO_2026-05-27.parquet                             | 448df8aa43922efee8cc1bc99508de8d11f6d4c15a744d108b1b2bfa7a938c8b | 7781894 |
+|  22 | out/t46/gaA/archive_O1_2021.parquet                                             | 169ca80d6cc364e2a467efaef99be8d306e372d920a3a1c2fdb8ec50705cd4f2 | 7639303 |
+|  23 | out/t46/gaA/archive_O2_2022.parquet                                             | ed522e3df2618a825638017e568748b0e11c27433bc20847d61805e233ece6d0 | 7802859 |
+|  24 | out/t46/gaA/archive_O3_2023.parquet                                             | c1a3fc9040f673295cadebb9b2ff4f8eb79d10df3a4731638629f739d612e01e | 7715809 |
+|  25 | out/t46/gaA/archive_O4_2024.parquet                                             | 574919547fe2487107870f54912e892da500332c462d1692802920136d415696 | 7624879 |
+|  26 | out/t46/gaA/archive_O5_2025_26.parquet                                          | a75c3a70179119214fbf6178f075b9845259625daacb11b321052250e3197f44 | 7857722 |
+|  27 | out/t46/gaA/front_FINAL_ALL_TO_2026-05-27.parquet                               | 97585e462ddedd5939fc60228e1e0471d17e3036d9afedd1ebac3664776a791b |   63052 |
+|  28 | out/t46/gaA/front_O1_2021.parquet                                               | 2b4094f6318440e1b38b2bc291dd0f4bfa32552834059747fed79dc3ea4d74d8 |   62308 |
+|  29 | out/t46/gaA/front_O2_2022.parquet                                               | e52da1e1162194ac9ea88357c8ebfb0533cbe8a5b064a9719369c66d24bf27b7 |   64502 |
+|  30 | out/t46/gaA/front_O3_2023.parquet                                               | 2aac50319897aaad37d68decf38745e4ba4d7e361a5926ce756049ea01ace538 |   66647 |
+|  31 | out/t46/gaA/front_O4_2024.parquet                                               | c3968b50eb697ce4e5a56405bdbb717ccea53c75363dcae0986429ca1eb16c2b |   68061 |
+|  32 | out/t46/gaA/front_O5_2025_26.parquet                                            | 31b1f1541fd176152bd4e5c8bafc189d6483e3d353a3c63dd8271bbf5e51b507 |   67786 |
+|  33 | out/t46/laneA/T46_04_exit_response.csv                                          | 5c5f490e5ad6c421f65409be767a33235b28a70503bff2f4ff9b444ff4641ce1 |    5867 |
+|  34 | out/t46/laneA/T46_05_hold_extension.csv                                         | 4bd1d9a53ee088640520b1453e370889f19ad60c10246f350da826690fb16c19 |    5737 |
+|  35 | out/t46/laneA/T46_06_strategy_overnight.csv                                     | c0140ed997efbb325dd72329dda43c2cb96fdfca499eca802f19a0ce8159d930 |     663 |
+|  36 | out/t46/laneA/T46_07_10_pyramids.csv                                            | 1f5577bb922f5c89aeb70e857729fed77e22162be070f46925d6090baf79aef3 |    1691 |
+|  37 | out/t46/laneA/laneA_trades.parquet                                              | 0ce6e74c58fd37d02ba676c2bae4e940e72a5f0e96cd400e4deca30fb60b3343 |   88032 |
+|  38 | out/t46/laneB/T46_11_grammar_ablation.csv                                       | c9781433ec7f693c80b74c5e1534eb4aa6aae7b943ffb5093a328310e06318de |   32556 |
+|  39 | out/t46/laneB/T46_18_event_forward_default.csv                                  | fc5aeb2bab3ccba5fad25cff7f2b2fe4549c67dc202c09dbcabd54b1cdb58dae |    7981 |
+|  40 | out/t46/laneB/T46_20_multiyear_recurrence.csv                                   | ea46c21584fa0895d738df4bf890274d3463afbc818a1492c44129dc662563f3 |    6781 |
+|  41 | out/t46/laneB/T46_21_simple_controls.csv                                        | ed60cb124582fb84c8965b1f5843df8321865c374f69d2aaf0c824dbd1ee1654 |   15867 |
+|  42 | out/t46/laneB/T46_minimum_sample_rules.json                                     | da576a64e81c61e59a30f471d8b5428261fdd5a11bdc1942161b905fa0369d34 |     201 |
+|  43 | out/t46/laneB/events_default.parquet                                            | 5c0ebfa0dba434bfe077b77eee3c8934d45c890b8c76f7c8392f4ee87efb89d7 |  340801 |
+|  44 | out/t46/ml/T46_23_ml_walkforward.csv                                            | a1d7872a80222f5dc10d833e7b05d86c29c53e1adfa283c8eb45176ac0c02c04 |    1981 |
+|  45 | out/t46/ml/T46_24_ml_ablation.csv                                               | 24235d5b33f57fe498b77b21e159d1f891f410f50678c324e6eed839e3a67204 |     686 |
+|  46 | out/t46/ml/mlA_event_pool.parquet                                               | 43652d85463e007371f50426006bede608023c44f38f62672728d003ba83bf52 |  223516 |
+|  47 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_00_AUTHORITY_INDEX.md             | a3cc2b041a86030e8db60ae825fd9005bfb546beb22cddc31614d1c1354c333a |    5870 |
+|  48 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_01_INDEX6_BASELINE_PARITY.md      | 575e5fda97b080aaab2e94b2cf19d3f6795533cc30e17e18cbd42c23e5810ea0 |    2166 |
+|  49 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_02_INDEX6_PORTFOLIO_BASELINE.md   | 48ad7867873b7c08276a68665137d2a09a344cd393bdb2df72dfed1760b3a934 |    2210 |
+|  50 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_03_INDEX5_NOOI_BASELINE.md        | 76ec9a67360126f728824e588d5a22b2898cc982f3c2b57661a79c209e3776a3 |    2033 |
+|  51 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_04_EXIT_RESPONSE_CURVES.md        | b1115e13e29d815db13eedf52222e92d38f73cc9e2063110adacefbf211d67f6 |    6714 |
+|  52 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_05_HOLD_EXTENSION.md              | bd2cf6c64ceddc536478daa69896516625b3f8bfb50a666892598b64a5c3f874 |    7253 |
+|  53 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_06_STRATEGY_SPECIFIC_OVERNIGHT.md | 1b189c9b981e57a8804f82e3758450013d326d28778c979560756e92b4cc2068 |    1425 |
+|  54 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_07_CONFIRMATION_PYRAMID.md        | 12f2ec6d06909823b3b324674f6beaca004b4fa1e8d1e89e2090e83bbcc72160 |     827 |
+|  55 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_08_WINNER_PYRAMID.md              | 8f36068e0cc931495be63148ccdbc1908690c49542a01a4d6db18c1353d06751 |    1337 |
+|  56 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_09_RECLAIM_PYRAMID.md             | 11b59c21d73c203bd5a167630a9ed006203234029e1d4024d638686b72ee88be |    1338 |
+|  57 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_10_BLIND_DCA_CONTROL.md           | c7017ab5e54c2dd22a49888f8da4ac22110673084cab6829b82aef47f45913df |    1191 |
+|  58 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_11_STRUCTURAL_REBOUND_GRAMMAR.md  | 4cb1b7f4821d4bb8e937ba82faac39a521cccec14673d6fccf85c5cd29552524 |   37312 |
+|  59 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_12_FAILED_BREAKDOWN.md            | 026a0357ce775b2f4eb951aecb05a7295667ec20a54357169151084308add0f0 |    9755 |
+|  60 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_13_VWAP_BAND_RECLAIM.md           | 8ac591cdc55ca8e413848cfee50affdcf1a801cd975ee48ce180de7e5632658a |    6032 |
+|  61 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_14_OR_FAILED_BREAKDOWN.md         | e68b2f00f123e2bac23f8a28ef37a3f4424b9be8eccb3ea6da2933813c44bbf1 |    6030 |
+|  62 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_15_RANGE_EXHAUSTION.md            | 34a50e2685e34d6fc1e3f5cd0fdda85c319408cc48797d80ce543339a38fae5f |    6051 |
+|  63 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_16_HTF_BULL_PULLBACK.md           | c76f829d7036f58b00618f56482f633b9dc5b8a490c0dff3c66a7528129665da |    5972 |
+|  64 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_17_RELATIVE_EXHAUSTION.md         | dea89a44c9b401d81965fd8b67de2696ef5b4284b8dc9987c4e8b444aa782695 |    8821 |
+|  65 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_18_EVENT_FORWARD_RETURNS.md       | c85b35a919817dcb85b8042b0c26483d9eccc4b67b24444139bb0ea43d19d9ef |    9573 |
+|  66 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_19_MATCHED_LONG_BASELINES.md      | 9b88854e765ae9c29ef224f58b563f21849fa1e67ff6d647909c8fd8739f3a5c |    4965 |
+|  67 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_20_MULTIYEAR_RECURRENCE.md        | a234f4c2727a7ee603c0734e6fde3171513b6c6e15f6f4cbee444bb7596bf731 |    2310 |
+|  68 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_21_SIMPLE_CONTROLS.md             | 0fbe69f0d52c7c8859ff438d2498ebdedd479a2bd320280e83e1f418669a8b03 |   18256 |
+|  69 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_22_ML_MODEL_ZOO.md                | 3a723eead24a30a377f3a4d965f0fef15f12ae131efd94bb875cc7f2ce7334fd |     380 |
+|  70 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_23_ML_WALKFORWARD.md              | 483e8a22abaa56952da9d65c3e9a048ed3c16f69c9519dd6ce0b529d930ed7d8 |    5128 |
+|  71 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_24_ML_ABLATION.md                 | af5488d6d784c54e53d2a6f1a5510c8266be837152f83791329f049cfbd008d0 |    1129 |
+|  72 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_25_GA_SPEC.md                     | 938bdd3546715745e88a541726938f5377073c7f0f659fa03706213e54c92043 |    1441 |
+|  73 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_26_GA_NESTED_RESULTS.md           | a9aaff48698d1a279fcdea4b2cfc24a45a8ac760dbc4373968aa0488f85e8a2b |    8451 |
+|  74 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_27_GA_PARETO.md                   | 1a7aa7fce64135bc288aef6375173c7f15eef00c7241b74bd312be3f164cd88a |     125 |
+|  75 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_28_GA_RECURRENCE.md               | 3722c32fe2c8a58f6c64189b0f76407a2d1ed07ae065d24b23f165b2be3a46a0 |     309 |
+|  76 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_29_GA_PARAMETER_PLATEAU.md        | e0df010964b62ff537121f27ecdf2b729db4fe681a97ac5cef31a9b07aa37d0f |     158 |
+|  77 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_30_GP_DIAGNOSTIC.md               | d24a74a8c588c98cdc70a466b3a51a1d886803a3487073ce46f1f9070d99633b |     192 |
+|  78 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_31_INTEGER_ALLOCATOR.md           | 073a8e5b7ca35b98c08f98b454533f997f2137d53fa005f942e37c2142bb6ecc |     202 |
+|  79 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_32_OVERNIGHT_RISK_GOVERNOR.md     | 9cae6d2d1443c3922e7c396853d2cb5588b22f1f2e03449f1060176ccc215bf7 |     304 |
+|  80 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_33_EXECUTION_STRESS.md            | 087948e573f2bbaf517c3575c9243bcad21a25d2fc00cb6f0752495311605ec5 |    5316 |
+|  81 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_34_MODULE_COMBINATION.md          | b130e2892f995fb582d6b071626130e7716c0bccb612e417c86a3b6ee94450a3 |    1214 |
+|  82 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_35_ALPHA_ATTRIBUTION.md           | 8abfa54c3e83a14ebb30752f631f791a89812bb63aae71ab723ab5dde40bc48f |    1082 |
+|  83 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_36_PORTFOLIO_INCREMENTAL_GATE.md  | cdbe0e54493869d1f0b7157a57b04710bd9ad23113487b42fb0e0be63c3741ec |    4774 |
+|  84 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_37_SCALING_FRONTIER.md            | 95e1cfc0740e6ddd6bab8240fa52a9d77aa2d2d1825e9862c14c124b08941bf0 |     207 |
+|  85 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_38_FINAL_TEST46_CANDIDATE.md      | c4e4ac527043f0bde0e6b53ebd1c1f67687df3236a880b8d74e9d327483cec8a |     333 |
+|  86 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_39_PRE_OOS_FREEZE.md              | 9fae98dd2c1fc8180871670ff25810c52ad07ddae5787f3913485c5a047ed903 |    6491 |
+|  87 | reports/TEST46_ES_NQ_LONG_ALPHA_EVOLUTION/T46_40_NEW_OOS_ACCEPTANCE_RULES.md    | bd8bbfb4983681c55387bec2a338e1c28b2a0e43648c574a8f0134bcbed36596 |    1296 |
+|  88 | src/t46_01_parity.py                                                            | 3ff5438f29fe7b042967320ab119abf43554f9396e01600cf019087e839dc828 |    3487 |
+|  89 | src/t46_02_laneA.py                                                             | 9c37962b5e581e040852c5785b8be95b09ac7d8f1de396588377832169603bd9 |   11635 |
+|  90 | src/t46_03_laneB.py                                                             | 0d9865aa4371a50624104dc343c05fbd3cf53c82319166ea81efab9c48908614 |   10693 |
+|  91 | src/t46_05_gaA.py                                                               | 25f2a61ca2be98a794928f9defb00079d9c5fcf0adae1445d2dade9c78d516ea |   11607 |
+|  92 | src/t46_06_ml.py                                                                | f3a2e5a77c50601acd2d143d6ea4d2a3af6ba514bb39611dad78dbb2c866d947 |    7256 |
+|  93 | src/t46_07_select.py                                                            | ddcb06b1c22f9989ad6622a4293ca633810822e1804bf2371f744236a7f848ed |    6651 |
+|  94 | src/t46_08_freeze_report.py                                                     | c251a56defce599f92f2a29de5d561d1d77159de906a449781cf47bbf8db5fed |   22696 |
+|  95 | src/t46_common.py                                                               | 9e4477ff4c09d3817f8f08896fd00d77c02292e755e2dcd60c21704aa5187a9d |    4230 |
+|  96 | src/t46_quarantine_ingest.py                                                    | 002a5c06156826a70ff3359dd4443665687dd6e028d10bf6a476e1a535a2ef8f |     754 |
+|  97 | src/t46_rebound.py                                                              | e1b55662ea040a4d3609f1eccad340cf7688aeb6cad1f24a90910b97e1b1e342 |    9195 |
+|  98 | src/t46_sanitize_ledgers.py                                                     | 3f773023a4336250c1cfd601735215a3539b765b9acef826a866c59c864a007e |    4396 |
+|  99 | src/t46_seeds.py                                                                | aa56246a7a303e8b10fed7a94fe8c5d1aed3e56a609cfcec6def1bb855294d0f |    6549 |
+| 100 | src/t46_zip_scan.py                                                             | 53ff2c8e4f8ee7060d1dfc7a45d067d6ef18bdd07338f74e6b81558a0f2ab66a |     941 |
+

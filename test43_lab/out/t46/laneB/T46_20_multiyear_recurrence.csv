@@ -1,0 +1,92 @@
+family,inst,window,events,excess_to1600_atr
+B1 failed break of prior-day low,ES,W2019_20,21,0.021047557048548052
+B1 failed break of prior-day low,ES,W2020_21,39,0.04262765961795758
+B1 failed break of prior-day low,ES,W2021_22,36,0.007259654903943375
+B1 failed break of prior-day low,ES,W2022_23,25,-0.11107878009375463
+B1 failed break of prior-day low,ES,W2023_24,35,-0.003834953764706658
+B1 failed break of prior-day low,ES,W2024_25,42,-0.031053259592047158
+B1 failed break of prior-day low,ES,W2025_26,32,-0.0930200064358993
+B1 failed break of prior-day low,MNQ,W2019_20,27,-0.010642879842080852
+B1 failed break of prior-day low,MNQ,W2020_21,45,-0.08283385972169142
+B1 failed break of prior-day low,MNQ,W2021_22,46,-0.0623256064814381
+B1 failed break of prior-day low,MNQ,W2022_23,30,-0.1883914353818493
+B1 failed break of prior-day low,MNQ,W2023_24,38,-0.07298061990661796
+B1 failed break of prior-day low,MNQ,W2024_25,40,-0.013941298494888343
+B1 failed break of prior-day low,MNQ,W2025_26,24,-0.11702285469745609
+B1 failed break of 5-session low,ES,W2019_20,14,-0.046389626023393714
+B1 failed break of 5-session low,ES,W2020_21,29,-0.04041321192218148
+B1 failed break of 5-session low,ES,W2021_22,28,-0.04391105737660309
+B1 failed break of 5-session low,ES,W2022_23,19,-0.04701843614120687
+B1 failed break of 5-session low,ES,W2023_24,18,-0.0873210850224157
+B1 failed break of 5-session low,ES,W2024_25,23,-0.1280174732270859
+B1 failed break of 5-session low,ES,W2025_26,21,0.026838742327826712
+B1 failed break of 5-session low,MNQ,W2019_20,16,0.1520058968491487
+B1 failed break of 5-session low,MNQ,W2020_21,31,0.07475375351401402
+B1 failed break of 5-session low,MNQ,W2021_22,27,0.041634510393352385
+B1 failed break of 5-session low,MNQ,W2022_23,18,-0.20037047712754635
+B1 failed break of 5-session low,MNQ,W2023_24,18,-0.20518749991871854
+B1 failed break of 5-session low,MNQ,W2024_25,20,-0.05609892867234795
+B1 failed break of 5-session low,MNQ,W2025_26,15,-0.1461644112342443
+B2 VWAP lower-band excursion + reclaim,ES,W2019_20,88,-0.024930333981500522
+B2 VWAP lower-band excursion + reclaim,ES,W2020_21,117,0.006366465200062471
+B2 VWAP lower-band excursion + reclaim,ES,W2021_22,129,-0.03523387079034492
+B2 VWAP lower-band excursion + reclaim,ES,W2022_23,119,-0.10191352676727734
+B2 VWAP lower-band excursion + reclaim,ES,W2023_24,126,-0.015358659165415551
+B2 VWAP lower-band excursion + reclaim,ES,W2024_25,138,0.0009690295236316627
+B2 VWAP lower-band excursion + reclaim,ES,W2025_26,97,-0.02956930991655909
+B2 VWAP lower-band excursion + reclaim,MNQ,W2019_20,101,-0.0055852918752751215
+B2 VWAP lower-band excursion + reclaim,MNQ,W2020_21,138,-0.06911795198951051
+B2 VWAP lower-band excursion + reclaim,MNQ,W2021_22,142,-0.13106095873415324
+B2 VWAP lower-band excursion + reclaim,MNQ,W2022_23,124,-0.1305553380429248
+B2 VWAP lower-band excursion + reclaim,MNQ,W2023_24,134,-0.0484721139681848
+B2 VWAP lower-band excursion + reclaim,MNQ,W2024_25,142,-0.0329702188901396
+B2 VWAP lower-band excursion + reclaim,MNQ,W2025_26,98,-0.04767466945827501
+B3 opening-range (30m) failed breakdown,ES,W2019_20,92,0.008298019006446057
+B3 opening-range (30m) failed breakdown,ES,W2020_21,119,0.04043316908981258
+B3 opening-range (30m) failed breakdown,ES,W2021_22,118,0.044212073409593225
+B3 opening-range (30m) failed breakdown,ES,W2022_23,112,-0.04524689140283139
+B3 opening-range (30m) failed breakdown,ES,W2023_24,126,-0.011205999223336987
+B3 opening-range (30m) failed breakdown,ES,W2024_25,124,0.05760618298774573
+B3 opening-range (30m) failed breakdown,ES,W2025_26,84,0.020908588706966966
+B3 opening-range (30m) failed breakdown,MNQ,W2019_20,93,0.04034445392221559
+B3 opening-range (30m) failed breakdown,MNQ,W2020_21,141,-0.03368515709489232
+B3 opening-range (30m) failed breakdown,MNQ,W2021_22,141,-0.055519263249221046
+B3 opening-range (30m) failed breakdown,MNQ,W2022_23,132,-0.04808514895151197
+B3 opening-range (30m) failed breakdown,MNQ,W2023_24,142,-0.01983602367182224
+B3 opening-range (30m) failed breakdown,MNQ,W2024_25,140,0.020172775065561914
+B3 opening-range (30m) failed breakdown,MNQ,W2025_26,93,-0.0018714385705164997
+B4 range exhaustion + structural reversal,ES,W2019_20,9,-0.06946325009872609
+B4 range exhaustion + structural reversal,ES,W2020_21,15,0.16327059855296078
+B4 range exhaustion + structural reversal,ES,W2021_22,13,0.23245509003482512
+B4 range exhaustion + structural reversal,ES,W2022_23,6,0.12044434857409066
+B4 range exhaustion + structural reversal,ES,W2023_24,10,0.03247065231612598
+B4 range exhaustion + structural reversal,ES,W2024_25,14,0.08705270689259836
+B4 range exhaustion + structural reversal,ES,W2025_26,8,0.19117223518176024
+B4 range exhaustion + structural reversal,MNQ,W2019_20,12,-0.09647076988002495
+B4 range exhaustion + structural reversal,MNQ,W2020_21,18,0.036194980036409335
+B4 range exhaustion + structural reversal,MNQ,W2021_22,11,0.10276061803897794
+B4 range exhaustion + structural reversal,MNQ,W2022_23,4,-0.19806015522841072
+B4 range exhaustion + structural reversal,MNQ,W2023_24,8,-0.09912072387020732
+B4 range exhaustion + structural reversal,MNQ,W2024_25,18,-0.09232262316329848
+B4 range exhaustion + structural reversal,MNQ,W2025_26,19,-0.06119455177452195
+B5 HTF-bull pullback + VWAP reclaim,ES,W2019_20,36,-0.035239128820564895
+B5 HTF-bull pullback + VWAP reclaim,ES,W2020_21,48,0.0016847635526305489
+B5 HTF-bull pullback + VWAP reclaim,ES,W2021_22,33,-0.012773046137195243
+B5 HTF-bull pullback + VWAP reclaim,ES,W2022_23,15,0.1020023193005926
+B5 HTF-bull pullback + VWAP reclaim,ES,W2023_24,40,-0.08014139485205328
+B5 HTF-bull pullback + VWAP reclaim,ES,W2024_25,50,-0.12632250617969235
+B5 HTF-bull pullback + VWAP reclaim,ES,W2025_26,31,-0.012564900685662937
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2019_20,44,0.027567826331635344
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2020_21,60,-0.011455106426806428
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2021_22,35,-0.07077505673024663
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2022_23,29,0.029184072709674626
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2023_24,62,0.009271078052478133
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2024_25,57,0.0016733573958603067
+B5 HTF-bull pullback + VWAP reclaim,MNQ,W2025_26,27,0.034110979938313475
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2019_20,2,0.3786087381523259
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2020_21,7,0.2278263415648531
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2021_22,5,0.16751338292986395
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2022_23,0,
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2023_24,1,-0.020124456892993393
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2024_25,1,-0.020124456892993393
+B6 NQ relative exhaustion (vs ES) + reclaim,MNQ,W2025_26,1,-0.025843992395704504

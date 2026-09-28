@@ -1,0 +1,7 @@
+{
+ "min_events": 150,
+ "min_years_with_10_events": 5,
+ "max_single_year_share_of_pnl": 0.4,
+ "remove_top3_positive": true,
+ "note": "predeclared before any Lane-B result (T46_33 minimum-sample rule)"
+}
