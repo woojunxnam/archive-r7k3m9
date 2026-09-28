@@ -1,0 +1,42 @@
+{
+ "candidate": "T61_PLUS_FIXED_CLUE_BASKET_V1",
+ "status": "FORWARD SHADOW CANDIDATE ONLY (historical preregistered gate PASS; SELECTION-BIASED members; recent-year concentrated)",
+ "freeze_utc": "2026-09-28T18:20:07+00:00",
+ "BASKET_OOS_START": "2026-09-29",
+ "T61": "unchanged, frozen; basket is a separate overlay with T61 priority on capacity",
+ "members": [
+  "T66_ML_OPENING",
+  "T68_RAW_BREAKS",
+  "T67_TOM_INTRADAY",
+  "PG12_ML"
+ ],
+ "sizes": {
+  "T66_ML_OPENING": "1 MNQ",
+  "T68_RAW_BREAKS": "1 MNQ",
+  "T67_TOM_INTRADAY": "2 MES",
+  "PG12_ML": "1 MNQ"
+ },
+ "capacity": "MNQ T61 + basket <= 6 (T61 priority, latest basket trade cut at the same fill); MES T61 + basket <= 8; no shared governor",
+ "forward_models": {
+  "PG12_train_events": 337,
+  "T66_train_rows": 1721,
+  "T66_threshold": 0.2921342048816138
+ },
+ "historical": {
+  "basket_avg_day": 18.12426191843768,
+  "basket_avg_day_2021": 23.255852941176464,
+  "basket_maxdd": 3501.119999999999,
+  "basket_worst": -2344.96,
+  "t61_plus_avg_day": 143.2070661720334,
+  "t61_plus_maxdd": 13936.302365193056,
+  "t61_plus_worst": -4666.439999999971,
+  "t61_plus_ret_dd": 0.010275829443088406,
+  "t61_ret_dd": 0.009921930739495157,
+  "basket_corr_to_t61": 0.25014078480883645
+ },
+ "forward_gate": ">= 250 OOS sessions; basket incremental > 0 and >= +10 $/day; T61+basket ret/DD >= T61 forward ret/DD; MaxDD <= 20k; worst >= -5k; no retuning",
+ "forward_runner": "NOT YET BUILT: member generators + frozen models are packaged; a forward-shadow integration into shadow/forward_shadow.py is a pending task",
+ "hash_index_sha256": "8f54a1cca350240c3e736b62206531e353d78532e6f915dd1b4c2689aa291817",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}

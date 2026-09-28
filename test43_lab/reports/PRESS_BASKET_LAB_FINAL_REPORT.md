@@ -1,0 +1,63 @@
+# TEST94+ VALIDATED-WINNER PRESS + FIXED CLUE-BASKET - final report
+
+```json
+{
+ "T61_R1C_FROZEN": "YES",
+ "T61_OOS_START": "2026-09-29",
+ "T61_OOS_USED": "NO",
+ "PRESS1_RESULT": "FAIL (0/18 cells): marginal extra MNQ unit is positive (best F_PURE_PROFIT +23.6 $/trade, +7.4 $/day, 4/5 folds) BUT waiting for market proof LOSES to frontloading the same unit at campaign entry (-22.7 $/day) and adds ~0 vs random timing -> no timing value; value = extra exposure to the T61 campaign",
+ "BEST_SPONSOR_BASE": "C43-derived campaigns: highest overlay EV per trade (A_NEW_HIGH: C43 +44, MIXED +29, TEST53 +15 $/trade; attribution only, not selected)",
+ "BEST_PRESS1_TRIGGER": "F_PURE_PROFIT (MNQ, non-passing)",
+ "PRESS1_EVENTS": 545,
+ "PRESS1_TRADES_PER_DAY": 0.313,
+ "PRESS1_MARGINAL_AVG_DAY": 7.4,
+ "PRESS1_MARGINAL_EV_PER_TRADE": 23.62,
+ "PRESS1_FOLDS_POS": 4,
+ "PRESS1_REMOVE_TOP3": 7343,
+ "PRESS1_SLIP4_DAY": 6.46,
+ "PRESS1_FRONTLOAD_EXCESS": -22.72,
+ "PRESS1_MATCHED_TIMING_EXCESS": "random-timing +0.59 / matched-long +5.34 $/day",
+ "PRESS1_CORR_TO_T61": 0.24,
+ "PRESS1_INCREMENTAL_MAXDD": 2802,
+ "PRESS1_INCREMENTAL_WORST_DAY": -853,
+ "PRESS1_CAP_BLOCK_RATE": 0.011,
+ "PRESS1_UNCONSTRAINED_AVG_DAY": 8.93,
+ "PRESS1_EV_IF_CAMPAIGN_WINS / LOSES": "+112.2 / -63.5 $/trade (labels only)",
+ "PRESS1_PASS": "NO",
+ "PRESS2_RUN": "NO",
+ "PRESS_ML": "NO (timing value absent)",
+ "PRESS_GA": "NO",
+ "FIXED_CLUE_BASKET_MEMBERS": [
+  "T66_ML_OPENING",
+  "T68_RAW_BREAKS",
+  "T67_TOM_INTRADAY",
+  "PG12_ML"
+ ],
+ "BASKET_STANDALONE_AVG_DAY": 18.12,
+ "BASKET_STANDALONE_AVG_DAY_2021": 23.26,
+ "BASKET_FOLDS_POS": 4,
+ "BASKET_CORR_TO_T61": 0.25,
+ "BASKET_LOSS_JACCARD": 0.441,
+ "T61_PLUS_BASKET_AVG_DAY": 143.21,
+ "T61_PLUS_BASKET_INCREMENTAL_DAY": 18.12,
+ "T61_PLUS_BASKET_MAXDD": 13936,
+ "T61_PLUS_BASKET_WORST_DAY": -4666,
+ "T61_PLUS_BASKET_RET_DD": 0.01028,
+ "T61_PLUS_BASKET_MARGIN": "23.7% NLV (T61 21.4%)",
+ "T61_PLUS_BASKET_SLIP4": 13.75,
+ "FIXED_CLUE_BASKET_PASS": "YES (preregistered historical gate) - FORWARD SHADOW CANDIDATE ONLY",
+ "BASKET_CAVEATS": [
+  "members selected after their individual results were known (selection bias across ~3,300 prior hypotheses)",
+  "recent-year concentration: 2025-26 ~ 72% of basket P&L; 2024 -3.3 $/day; 2019 -15.9 $/day; max-year-share check passed narrowly (~0.47)",
+  "T61+basket MaxDD +10.5% (13,936 vs 12,607); worst day -4,666 vs -4,347",
+  "robustness (report-only): +1 min delay +16.9 $/day, 20% missed +14.3 $/day, remove-top5 total +16.3k of 31.6k"
+ ],
+ "FINAL_SELECTION": "FIXED CLUE BASKET ONLY (forward shadow); PRESS1 none",
+ "BASKET_OOS_START": "2026-09-29",
+ "BASKET_FREEZE_MANIFEST_SHA256": "84a509f3c99c976ad90a7df827a9d3cc6e1865c0380a83df36cbeb6c6fdeb61b",
+ "PROFILE_NQ_RESEARCH": "DATA-LIMITED",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}
+```
+

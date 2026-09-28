@@ -1,0 +1,72 @@
+{
+ "FIXED_CLUE_BASKET_MEMBERS": [
+  "T66_ML_OPENING",
+  "T68_RAW_BREAKS",
+  "T67_TOM_INTRADAY",
+  "PG12_ML"
+ ],
+ "basket_avg_day": 18.12426191843768,
+ "basket_avg_day_2021": 23.255852941176464,
+ "basket_maxdd": 3501.119999999999,
+ "basket_worst": -2344.96,
+ "basket_folds_pos": 4,
+ "basket_corr_to_t61": 0.25014078480883645,
+ "loss_day_jaccard": 0.44052044609665425,
+ "t61_plus_avg_day": 143.2070661720334,
+ "t61_plus_incr_day": 18.12426191843768,
+ "t61_plus_incr_day_2021": 23.255852941176464,
+ "t61_plus_maxdd": 13936.302365193056,
+ "t61_plus_worst": -4666.439999999971,
+ "t61_plus_ret_dd": 0.010275829443088406,
+ "t61_ret_dd": 0.009921930739495157,
+ "t61_plus_ret_dd_2021": 0.01089094598770062,
+ "t61_ret_dd_2021": 0.01019486966346486,
+ "peak_margin_pct_t61_plus": 23.737134900249707,
+ "peak_margin_pct_t61": 21.41296852249144,
+ "t61_plus_slip4_incr_day": 13.752636415852956,
+ "matched_excess_day": 14.937722468781793,
+ "turnover_sides_per_day": 1.790924755887421,
+ "priority_cuts": 29,
+ "gate_items": {
+  "g_incr_pos": true,
+  "g_folds": true,
+  "g_risk": true,
+  "g_retdd": true,
+  "g_corr": true,
+  "g_excess": true,
+  "g_slip4": true,
+  "g_top5": true,
+  "g_regime": true,
+  "g_plateau": true,
+  "g_delay": true,
+  "g_caps": true
+ },
+ "per_member": {
+  "T66_ML_OPENING": {
+   "avg_day": 1.9609534750143587,
+   "avg_day_2021": 2.51030882352941,
+   "trades": 202,
+   "corr_to_t61": 0.11064791630332706
+  },
+  "T68_RAW_BREAKS": {
+   "avg_day": 4.614773118897183,
+   "avg_day_2021": 5.9075882352941145,
+   "trades": 557,
+   "corr_to_t61": 0.20025974500640617
+  },
+  "T67_TOM_INTRADAY": {
+   "avg_day": 5.908397472716827,
+   "avg_day_2021": 7.6177499999999965,
+   "trades": 326,
+   "corr_to_t61": 0.21889485965679795
+  },
+  "PG12_ML": {
+   "avg_day": 5.640137851809305,
+   "avg_day_2021": 7.220205882352941,
+   "trades": 148,
+   "corr_to_t61": 0.08271382641543171
+  }
+ },
+ "MEANINGFUL_INCREMENT": true,
+ "FIXED_CLUE_BASKET_PASS": true
+}

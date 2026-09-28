@@ -1,0 +1,55 @@
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+/home/user/archive-r7k3m9/test43_lab/src/t94a_press1.py:114: RuntimeWarning: invalid value encountered in cast
+  al = lambda a: np.where(ix[:, None] >= 0, a[np.clip(ix, 0, None)], 0).astype(np.int64)
+MNQ A_NEW_HIGH 529 6.91 22.75 4 -23.95 -0.86 4.92 False
+MNQ B_SECOND_IMPULSE 380 3.33 15.24 5 -30.03 -6.52 1.87 False
+MNQ C_SHALLOW_PULLBACK 377 2.71 12.5 3 -31.71 -7.11 1.67 False
+MNQ D_T61_ADDS 174 3.28 32.84 4 -17.46 -2.49 2.68 False
+MNQ E_VALUE_PROXY 237 0.63 4.66 3 -17.76 -2.95 0.17 False
+MNQ F_PURE_PROFIT 545 7.4 23.62 4 -22.72 0.59 5.34 False
+MES A_NEW_HIGH 50 0.32 11.11 3 -1.37 -0.06 0.25 False
+MES B_SECOND_IMPULSE 48 -0.05 -1.73 2 -2.31 -0.45 -0.04 False
+MES C_SHALLOW_PULLBACK 48 -0.29 -10.38 2 -2.45 -0.35 -0.2 False
+MES D_T61_ADDS 25 0.39 26.86 3 -0.28 0.3 0.2 False
+MES E_VALUE_PROXY 42 -0.05 -1.89 3 -2.54 -0.36 -0.09 False
+MES F_PURE_PROFIT 50 0.16 5.71 3 -1.25 0.13 0.09 False
+MES_ON_MNQ_CROSS A_NEW_HIGH 270 2.98 19.25 5 -16.63 -3.61 2.81 False
+MES_ON_MNQ_CROSS B_SECOND_IMPULSE 80 0.44 9.65 4 -5.4 -1.37 0.58 False
+MES_ON_MNQ_CROSS C_SHALLOW_PULLBACK 113 0.73 11.3 4 -7.16 -1.96 0.64 False
+MES_ON_MNQ_CROSS D_T61_ADDS 18 0.32 31.19 4 -0.82 -0.03 0.25 False
+MES_ON_MNQ_CROSS E_VALUE_PROXY 74 0.68 15.89 5 -4.83 -0.48 0.55 False
+MES_ON_MNQ_CROSS F_PURE_PROFIT 310 2.57 14.41 5 -17.4 -3.89 2.42 False
+                 leg             trigger  events  cap_block_rate  trades_per_day  marginal_avg_day  marginal_ev_trade  folds_pos  remove_top3  slip4_day  frontload_excess_day  random_timing_excess_day  matched_excess_day  EV_if_campaign_wins  EV_if_campaign_loses  src_C43_ev  src_TEST53_ev  src_MIXED_ev                                                   plateau  unconstrained_avg_day  t61_plus_ret_dd  PRESS1_PASS
+0                MNQ          A_NEW_HIGH     529           0.013           0.304             6.912             22.747          4      6664.76      6.000               -23.952                    -0.856               4.925              107.459               -63.117      44.185         14.995        28.558  {'theta=0.0': 9834, 'theta=0.25': 9570, 'exit=E1': 7430}                  8.475            0.009        False
+1                MNQ    B_SECOND_IMPULSE     380           0.048           0.218             3.326             15.239          5      3400.52      2.671               -30.030                    -6.524               1.872               63.514               -42.812      40.675          1.375        26.866  {'theta=0.0': 3838, 'theta=0.25': 5247, 'exit=E1': 5636}                  4.384            0.009        False
+2                MNQ  C_SHALLOW_PULLBACK     377           0.038           0.217             2.706             12.497          3      -216.76      2.057               -31.712                    -7.110               1.672               70.107               -57.411      31.254          4.016        16.493  {'theta=0.0': 5283, 'theta=0.25': 4796, 'exit=E1': 3030}                  3.599            0.009        False
+3                MNQ          D_T61_ADDS     174           0.070           0.100             3.282             32.843          4      3008.96      2.983               -17.462                    -2.492               2.684               97.688               -27.296      24.385         32.056        34.177  {'theta=0.0': 4222, 'theta=0.25': 3759, 'exit=E1': 5515}                  4.213            0.010        False
+4                MNQ       E_VALUE_PROXY     237           0.021           0.136             0.635              4.663          3     -1091.66      0.226               -17.759                    -2.950               0.172               84.315               -89.314       9.930         -5.197        22.215  {'theta=0.0': -557, 'theta=0.25': 3266, 'exit=E1': 1286}                  1.577            0.009        False
+5                MNQ       F_PURE_PROFIT     545           0.011           0.313             7.395             23.623          4      7343.42      6.456               -22.718                     0.588               5.343              112.182               -63.466      52.390         14.342        23.185  {'theta=0.0': 9275, 'theta=0.25': 9783, 'exit=E1': 9059}                  8.932            0.009        False
+6                MES          A_NEW_HIGH      50           0.000           0.029             0.319             11.110          3       -87.03      0.104                -1.368                    -0.063               0.252               49.818                 1.503      11.110            NaN           NaN    {'theta=0.0': -599, 'theta=0.25': 679, 'exit=E1': 739}                  0.319            0.010        False
+7                MES    B_SECOND_IMPULSE      48           0.000           0.028            -0.048             -1.735          2      -555.80     -0.255                -2.313                    -0.453              -0.036               11.356                -6.608      -1.735            NaN           NaN    {'theta=0.0': -732, 'theta=0.25': 125, 'exit=E1': -23}                 -0.048            0.010        False
+8                MES  C_SHALLOW_PULLBACK      48           0.000           0.028            -0.286            -10.381          2      -935.80     -0.493                -2.453                    -0.353              -0.199               -3.932               -13.703     -10.381            NaN           NaN  {'theta=0.0': -492, 'theta=0.25': -247, 'exit=E1': -218}                 -0.286            0.010        False
+9                MES          D_T61_ADDS      25           0.000           0.014             0.386             26.860          3      -141.03      0.278                -0.278                     0.301               0.200              126.260                 2.010      26.860            NaN           NaN    {'theta=0.0': 668, 'theta=0.25': 1388, 'exit=E1': 415}                  0.386            0.010        False
+10               MES       E_VALUE_PROXY      42           0.000           0.024            -0.046             -1.895          3      -578.36     -0.227                -2.535                    -0.360              -0.091                5.779                -4.142      -1.895            NaN           NaN      {'theta=0.0': 10, 'theta=0.25': 140, 'exit=E1': -20}                 -0.046            0.010        False
+11               MES       F_PURE_PROFIT      50           0.000           0.029             0.164              5.710          3      -357.03     -0.051                -1.251                     0.128               0.090               37.222                -1.448       5.710            NaN           NaN    {'theta=0.0': -287, 'theta=0.25': 634, 'exit=E1': 469}                  0.164            0.010        False
+12  MES_ON_MNQ_CROSS          A_NEW_HIGH     270           0.000           0.155             2.985             19.246          5      4131.42      1.822               -16.634                    -3.612               2.806               35.635                -3.599      30.688         11.827        24.546  {'theta=0.0': 4308, 'theta=0.25': 2946, 'exit=E1': 4059}                  2.985            0.010        False
+13  MES_ON_MNQ_CROSS    B_SECOND_IMPULSE      80           0.000           0.046             0.443              9.651          4       260.77      0.099                -5.396                    -1.373               0.581                9.760                 6.837      16.885         -9.990        19.885     {'theta=0.0': 708, 'theta=0.25': 459, 'exit=E1': 320}                  0.443            0.010        False
+14  MES_ON_MNQ_CROSS  C_SHALLOW_PULLBACK     113           0.000           0.065             0.734             11.304          4       572.35      0.247                -7.161                    -1.959               0.639               13.442                10.435       5.410         10.743        14.078    {'theta=0.0': 1282, 'theta=0.25': 811, 'exit=E1': 840}                  0.734            0.010        False
+15  MES_ON_MNQ_CROSS          D_T61_ADDS      18           0.000           0.010             0.322             31.191          4       162.65      0.245                -0.825                    -0.027               0.253               15.427                42.624     -24.990        137.510        28.057     {'theta=0.0': 539, 'theta=0.25': 320, 'exit=E1': 523}                  0.322            0.010        False
+16  MES_ON_MNQ_CROSS       E_VALUE_PROXY      74           0.000           0.043             0.675             15.888          5       459.46      0.357                -4.835                    -0.476               0.546               20.785                -0.697      -8.740         35.456        11.432    {'theta=0.0': 805, 'theta=0.25': 1002, 'exit=E1': 771}                  0.675            0.010        False
+17  MES_ON_MNQ_CROSS       F_PURE_PROFIT     310           0.000           0.178             2.566             14.413          5      3270.57      1.231               -17.395                    -3.894               2.420               36.017               -11.411      30.663          5.609        20.201  {'theta=0.0': 4510, 'theta=0.25': 3595, 'exit=E1': 3912}                  2.566            0.010        False
