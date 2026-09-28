@@ -10,7 +10,7 @@ G = pd.read_csv(os.path.join(D, "G_FT2_NULL_ROBUSTNESS.csv"))
 S = {"CORRECTION": "TEST97_AUDIT_CORRECTION_1", "PREREG_COMMIT": "85f5bdc", **R["B"],
      "TEST97_PORTFOLIO_SURVIVOR": "NO",
      "FT2_STATUS": "DOWNGRADED - EVENT CLUE NOT ROBUST: 5,000-rep precision audit puts the h12 CI lower bound below 0 even with the original null "
-                   "(-0.0009) and with causal monthly-expanding edges (-0.0033); strategy remains rejected; selection-exposed",
+                   "(-0.0009) and with the CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY (prior-session bin edges only; matched-return pool remains a research control) (-0.0033); strategy remains rejected; selection-exposed",
      "W3_V1_STATUS": "CORRECTED_HISTORICAL_CLUE (not promoted): with the preregistered k=0 family null, k=0.2 and k=0.3 at 16:15 show +0.029 ATR over "
                      "the close-above-open population (CI lower bound +0.0016, 8/8 and 7/8 years, gross > cost); 30 / 60-min horizons and k=0.1/0.5/0.75 "
                      "do not; vs null A the same events are only +0.007 ATR; 15 (k x horizon) cells tested",

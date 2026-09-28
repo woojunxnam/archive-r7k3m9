@@ -316,7 +316,7 @@
     "years_pos": 4.0
    },
    {
-    "method": "CAUSAL_monthly_expanding_edges",
+    "method": "CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY",
     "horizon": "h6",
     "n": 420,
     "mean": 0.023379081088268798,
@@ -325,7 +325,7 @@
     "years_pos": 5.0
    },
    {
-    "method": "CAUSAL_monthly_expanding_edges",
+    "method": "CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY",
     "horizon": "h12",
     "n": 415,
     "mean": 0.037001497247185315,
@@ -334,7 +334,7 @@
     "years_pos": 6.0
    },
    {
-    "method": "CAUSAL_monthly_expanding_edges",
+    "method": "CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY",
     "horizon": "h1615",
     "n": 420,
     "mean": 0.057331310245056194,

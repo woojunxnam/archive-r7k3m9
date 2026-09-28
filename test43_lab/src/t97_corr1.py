@@ -192,7 +192,7 @@ def y2022(I, D, bk, d):
     dur = (D22.j_x - D22.j_in).clip(lower=0).sum() if len(D22) else 0
     return {"y2022_pnl": pnl, "y2022_matched_long_pnl": matched, "y2022_excess_A": exA, "y2022_loss_capture": (pnl / matched) if matched < 0 else np.nan,
             "y2022_maxdd": B.risk(d[y])["max_dd"], "y2022_worst_day": float(d[y].min()), "y2022_avg_exposure_contracts": float(dur / (y.sum() * B.J15)),
-            "peak_exposure_contracts": 1, "recovery_date": str(I.sess[after[0]].date()) if len(after) else "not recovered"}
+            "peak_exposure_contracts": "NOT_COMPUTED / VIRTUAL_DIAGNOSTIC_ONLY", "recovery_date": str(I.sess[after[0]].date()) if len(after) else "not recovered"}
 
 
 def section_f():
@@ -218,7 +218,7 @@ def section_f():
         port.append({"label": f"FT2_{nm}_4INDEX (VIRTUAL_ADDITIVE_DIAGNOSTIC - not capacity valid)", "standalone_avg_day": float(x[full].mean()),
                      "main_plus_avg_day": rc["avg_day"], "main_plus_maxdd": rc["max_dd"], "main_plus_worst": rc["worst_day"], "main_plus_ret_dd": rc["ret_dd"], "main_ret_dd": rm["ret_dd"],
                      "corr": float(np.corrcoef(x[full], main[full])[0, 1]), "loss_jaccard": float(((x < 0) & (main < 0) & am).sum() / max(((x < 0) | (main < 0))[am].sum(), 1)),
-                     "bottom5_overlap": float(((x < 0) & bot).sum() / max(bot.sum(), 1)), "active_days": int(am.sum()), "peak_MES_MNQ_MYM_M2K": "1 / 1 / 1 / 1 (virtual)"})
+                     "bottom5_overlap": float(((x < 0) & bot).sum() / max(bot.sum(), 1)), "active_days": int(am.sum()), "peak_MES_MNQ_MYM_M2K": "NOT_COMPUTED / VIRTUAL_DIAGNOSTIC_ONLY"})
     PT = pd.DataFrame(port); T.to_csv(os.path.join(OUTD, "F_FT2_POPULATION_AUDIT.csv"), index=False); PT.to_csv(os.path.join(OUTD, "F_FT2_VIRTUAL_PORTFOLIO.csv"), index=False)
     OUT["F"] = {"explanation": "Wave-2 EVENT_EDGE used the common population (confirmation bar <= 67, all bar horizons complete): 431 pooled; Phase 3 used "
                                "every RTH FT2 event with entry before 16:15 (no bar cap): ~602; Phase-3 'X60' clipped late events at 16:15 -> relabelled X60_CLIPPED",
@@ -249,7 +249,7 @@ def null_custom(m, key, ev, dd, rt):
 
 def section_g():
     rows = []
-    for method in ("OLD_full_sample_edges", "CAUSAL_monthly_expanding_edges"):
+    for method in ("OLD_full_sample_edges", "CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY"):
         for key in KEYS:
             parts = {}
             for i in INSTS:

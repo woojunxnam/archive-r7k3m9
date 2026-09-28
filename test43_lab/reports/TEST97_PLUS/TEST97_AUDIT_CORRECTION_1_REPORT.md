@@ -10,7 +10,7 @@
  "TOTAL_TEST97_GA_GENOMES": 0,
  "note": "each distinct definition normally yields ES / NQ / YM / RTY / POOLED rows; 570 are ledger rows, not distinct variants",
  "TEST97_PORTFOLIO_SURVIVOR": "NO",
- "FT2_STATUS": "DOWNGRADED - EVENT CLUE NOT ROBUST: 5,000-rep precision audit puts the h12 CI lower bound below 0 even with the original null (-0.0009) and with causal monthly-expanding edges (-0.0033); strategy remains rejected; selection-exposed",
+ "FT2_STATUS": "DOWNGRADED - EVENT CLUE NOT ROBUST: 5,000-rep precision audit puts the h12 CI lower bound below 0 even with the original null (-0.0009) and with the CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY (prior-session bin edges only; matched-return pool remains a research control) (-0.0033); strategy remains rejected; selection-exposed",
  "W3_V1_STATUS": "CORRECTED_HISTORICAL_CLUE (not promoted): with the preregistered k=0 family null, k=0.2 and k=0.3 at 16:15 show +0.029 ATR over the close-above-open population (CI lower bound +0.0016, 8/8 and 7/8 years, gross > cost); 30 / 60-min horizons and k=0.1/0.5/0.75 do not; vs null A the same events are only +0.007 ATR; 15 (k x horizon) cells tested",
  "W3_V3_FIRST_PULLBACK_STATUS": "NO SIGNIFICANT DIFFERENCE (previous 'worse than chase' RETRACTED - it compared different populations): on 3,763 matched sessions pullback-minus-chase at the same exit = +0.0058 ATR (CI -0.0045..+0.0161, 6/8 years); own 60-min horizons -0.003; ES / NQ negative, YM / RTY positive; pullback entry has lower 60-min MAE (0.18 vs 0.21 ATR)",
  "FOLLOW_THROUGH_INFORMATION_STATUS": "VALID CLUE (weak): confirmed minus unconfirmed at the same minute B +0.012 (h6, CI>0) / +0.014 (h12, CI>0); F +0.034 (h12, CI lower +0.0007); E and D CIs include 0",
@@ -194,8 +194,8 @@ Note: at a common exit minute the paired difference equals the entry-price diffe
 
 |    | label                                                                    |   standalone_avg_day |   main_plus_avg_day |   main_plus_maxdd |   main_plus_worst |   main_plus_ret_dd |   main_ret_dd |   corr |   loss_jaccard |   bottom5_overlap |   active_days | peak_MES_MNQ_MYM_M2K    |
 |---:|:-------------------------------------------------------------------------|---------------------:|--------------------:|------------------:|------------------:|-------------------:|--------------:|-------:|---------------:|------------------:|--------------:|:------------------------|
-|  0 | FT2_STRICT_X60_4INDEX (VIRTUAL_ADDITIVE_DIAGNOSTIC - not capacity valid) |               2.3862 |            145.5932 |        13386.8424 |        -4666.4400 |             0.0109 |        0.0103 | 0.1665 |         0.2988 |            0.0682 |           276 | 1 / 1 / 1 / 1 (virtual) |
-|  1 | FT2_X1615_ALL_4INDEX (VIRTUAL_ADDITIVE_DIAGNOSTIC - not capacity valid)  |               3.4470 |            146.6541 |        13136.0300 |        -4666.4400 |             0.0112 |        0.0103 | 0.2326 |         0.3627 |            0.0909 |           348 | 1 / 1 / 1 / 1 (virtual) |
+|  0 | FT2_STRICT_X60_4INDEX (VIRTUAL_ADDITIVE_DIAGNOSTIC - not capacity valid) |               2.3862 |            145.5932 |        13386.8424 |        -4666.4400 |             0.0109 |        0.0103 | 0.1665 |         0.2988 |            0.0682 |           276 | NOT_COMPUTED / VIRTUAL_DIAGNOSTIC_ONLY |
+|  1 | FT2_X1615_ALL_4INDEX (VIRTUAL_ADDITIVE_DIAGNOSTIC - not capacity valid)  |               3.4470 |            146.6541 |        13136.0300 |        -4666.4400 |             0.0112 |        0.0103 | 0.2326 |         0.3627 |            0.0909 |           348 | NOT_COMPUTED / VIRTUAL_DIAGNOSTIC_ONLY |
 
 ## G. FT2 null robustness (5,000-rep date-clustered bootstrap)
 
@@ -204,9 +204,9 @@ Note: at a common exit minute the paired difference equals the entry-price diffe
 |  4 | FT2_OLD_full_sample_edges_h6             | POOLED       | 429 | 0.0244 | OLD_full_sample_edges          | h6        | -0.0025 |  0.0519 |      5.0000 |  8.0000 |
 |  9 | FT2_OLD_full_sample_edges_h12            | POOLED       | 423 | 0.0365 | OLD_full_sample_edges          | h12       | -0.0009 |  0.0746 |      6.0000 |  8.0000 |
 | 14 | FT2_OLD_full_sample_edges_h1615          | POOLED       | 429 | 0.0526 | OLD_full_sample_edges          | h1615     | -0.0016 |  0.1047 |      4.0000 |  8.0000 |
-| 19 | FT2_CAUSAL_monthly_expanding_edges_h6    | POOLED       | 420 | 0.0234 | CAUSAL_monthly_expanding_edges | h6        | -0.0045 |  0.0510 |      5.0000 |  8.0000 |
-| 24 | FT2_CAUSAL_monthly_expanding_edges_h12   | POOLED       | 415 | 0.0370 | CAUSAL_monthly_expanding_edges | h12       | -0.0033 |  0.0765 |      6.0000 |  8.0000 |
-| 29 | FT2_CAUSAL_monthly_expanding_edges_h1615 | POOLED       | 420 | 0.0573 | CAUSAL_monthly_expanding_edges | h1615     |  0.0034 |  0.1127 |      5.0000 |  8.0000 |
+| 19 | FT2_CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY_h6    | POOLED       | 420 | 0.0234 | CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY | h6        | -0.0045 |  0.0510 |      5.0000 |  8.0000 |
+| 24 | FT2_CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY_h12   | POOLED       | 415 | 0.0370 | CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY | h12       | -0.0033 |  0.0765 |      6.0000 |  8.0000 |
+| 29 | FT2_CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY_h1615 | POOLED       | 420 | 0.0573 | CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY | h1615     |  0.0034 |  0.1127 |      5.0000 |  8.0000 |
 
 ## H. Position management governance
 
@@ -218,3 +218,11 @@ Note: at a common exit minute the paired difference equals the entry-price diffe
 }
 ```
 
+
+## Bookkeeping patch (non-economic, after result commit 9cc4cf2)
+- peak_exposure_contracts was hard-coded to 1 and peak_MES_MNQ_MYM_M2K to "1 / 1 / 1 / 1" although the FT2 simulation allows overlapping event rows and
+  does not enforce non-overlap -> both replaced by NOT_COMPUTED / VIRTUAL_DIAGNOSTIC_ONLY.  Any F-table cell showing 1 in the peak column is superseded by this note.
+- Section G "causal" variant renamed CAUSAL_BIN_EDGE_MATCHING_SENSITIVITY: only the displacement / range bin boundaries use prior sessions; the
+  matched-return pool remains a contemporaneous research control (not a fully causal null).  The preregistration text (85f5bdc) is left unchanged as
+  the historical record.
+- No economics were rerun or reinterpreted.
