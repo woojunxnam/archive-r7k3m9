@@ -1,0 +1,3 @@
+portfolio,time_intraday_margin_lt_20%,time_intraday_margin_lt_30%,time_intraday_margin_lt_40%,time_intraday_margin_lt_50%,sessions_overnight_margin_lt_20%,sessions_overnight_margin_lt_30%,sessions_overnight_margin_lt_40%,sessions_overnight_margin_lt_50%
+C43-CORE,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+"C43-GROWTH (C43 + TEST53, 2021+ ensemble)",1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0

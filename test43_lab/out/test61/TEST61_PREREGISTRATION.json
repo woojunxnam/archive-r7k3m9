@@ -1,0 +1,12 @@
+{
+ "test": "TEST61",
+ "written_utc": "2026-09-28T12:24:26Z",
+ "research_data_end": "2026-05-27",
+ "question": "Does an integer 2x C43 core (same validated rules, doubled contracts) with TEST53 filling residual MNQ capacity (total <= 2x C43 peak = 6) pass the GROWTH lane, and does it dominate TEST55 on avg/day at comparable ret/DD?",
+ "rationale": "The account is risk-tail limited, not margin limited; the most risk-efficient validated return source is C43 itself (ret/DD 0.0085). Doubling it keeps ret/DD and stays inside the GROWTH envelope (known before TEST55: prior program scaling table 2x MaxDD 12.4k, worst -3.4k).",
+ "disclosure": "The TEST55+ close-out printed a REPORT-ONLY composition frontier in which 'C43x2 + T53x1' appeared (constructed with 1x-C43 residual capacity). TEST61 re-implements it with the correct residual architecture (total MNQ <= 6 with C43x2 priority) and is evaluated only by the fixed hx gate.",
+ "architecture": "C43 daily P&L x2 (integer contract doubling; approximation: C43 internal governor thresholds scaled equally); TEST53 frozen modules/governor; ensemble lots taken while ensemble count < min(2, 6 - 2 x C43 MNQ)",
+ "gate": "hx_gate_spec GROWTH lane with base C43-CORE (1x); plateau = governor {-800,-900,-1100,-1200} and total cap {5,7}",
+ "selection_rule": "FINAL_GROWTH = the GROWTH-passing candidate with the higher full-history avg/day among {TEST55, TEST61}; if TEST61 fails, TEST55.",
+ "control": "C43 x2 alone (report)"
+}

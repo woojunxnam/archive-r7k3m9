@@ -1,0 +1,32 @@
+                                    portfolio                                       metric       mean        p50        p75         p90         p95         p99         max
+0                                    C43-CORE                  MES contracts (RTH minutes)      0.749      1.000      1.000       1.000       2.000       2.000       3.000
+1                                    C43-CORE                  MNQ contracts (RTH minutes)      0.799      1.000      1.000       2.000       2.000       2.000       3.000
+2                                    C43-CORE                    MES-equivalent risk units      2.185      2.501      3.305       4.648       5.162       5.926       8.775
+3                                    C43-CORE                intraday initial margin / NLV      0.020      0.020      0.030       0.042       0.052       0.069       0.103
+4                                    C43-CORE  overnight initial margin / NLV (16:15 lock)      0.026      0.023      0.039       0.054       0.064       0.088       0.123
+5                                    C43-CORE                      ATR-dollar exposure ($)    564.116    493.821    848.696    1220.071    1483.393    2305.839    4331.214
+6                                    C43-CORE                        notional exposure ($)  41573.565  40820.000  62229.750   86538.000  105638.500  142613.750  213603.750
+7   C43-GROWTH (C43 + TEST53, 2021+ ensemble)                  MES contracts (RTH minutes)      0.749      1.000      1.000       1.000       2.000       2.000       3.000
+8   C43-GROWTH (C43 + TEST53, 2021+ ensemble)                  MNQ contracts (RTH minutes)      1.397      1.000      2.000       3.000       3.000       4.000       5.000
+9   C43-GROWTH (C43 + TEST53, 2021+ ensemble)                    MES-equivalent risk units      3.326      3.056      4.801       6.946       7.981       9.742      11.447
+10  C43-GROWTH (C43 + TEST53, 2021+ ensemble)                intraday initial margin / NLV      0.031      0.025      0.044       0.067       0.078       0.101       0.137
+11  C43-GROWTH (C43 + TEST53, 2021+ ensemble)  overnight initial margin / NLV (16:15 lock)      0.040      0.034      0.058       0.083       0.099       0.134       0.196
+12  C43-GROWTH (C43 + TEST53, 2021+ ensemble)                      ATR-dollar exposure ($)    895.482    794.464   1273.446    1831.268    2206.679    3382.821    5411.679
+13  C43-GROWTH (C43 + TEST53, 2021+ ensemble)                        notional exposure ($)  62141.088  50284.000  89569.000  135366.000  155531.250  201757.500  271856.500
+                                   portfolio  time_intraday_margin_lt_20%  time_intraday_margin_lt_30%  time_intraday_margin_lt_40%  time_intraday_margin_lt_50%  sessions_overnight_margin_lt_20%  sessions_overnight_margin_lt_30%  sessions_overnight_margin_lt_40%  sessions_overnight_margin_lt_50%
+0                                   C43-CORE                          1.0                          1.0                          1.0                          1.0                               1.0                               1.0                               1.0                               1.0
+1  C43-GROWTH (C43 + TEST53, 2021+ ensemble)                          1.0                          1.0                          1.0                          1.0                               1.0                               1.0                               1.0                               1.0
+                                         candidate  avg_day_full  avg_day_2021  incr_avg_day_2021   max_dd  worst_day  ret_dd  folds_pos  fold_median  remove_top3_incr  max_year_share  peak_on_margin_frac  peak_total_MNQ  timing_value_day     c1     c2    c3     c4     c5    c6    c7   CORE  GROWTH  AGGRESSIVE_REPORT
+0                                         C43 only       53.3579       52.5057             0.0000  6193.43 -1722.9900  0.0086          0       0.0000               NaN          0.0000               0.1232             NaN            0.0000  False  False  True  False  False  True  True  False   False              False
+1  C43 + TEST53 (no total cap) = C43-GROWTH shadow       71.9012       76.2438            23.7381  9519.96 -2692.1369  0.0076          4      21.9861        25197.5422          0.2734               0.1964             5.0           10.7704   True   True  True  False   True  True  True  False   False              False
+2                            total MNQ<=2 (TEST54)       63.5898       65.6040            13.0983  9794.00 -2688.4700  0.0065          4       7.3022        10727.3787          0.4252               0.1529             4.0            5.9019   True   True  True  False   True  True  True  False   False              False
+3                             total MNQ<=3 PRIMARY       70.1308       73.9773            21.4717  9519.96 -2692.1369  0.0074          4      17.6809        22115.1610          0.3347               0.1629             5.0            9.8501   True   True  True   True   True  True  True  False    True               True
+4                       total MNQ<=4 (report only)       72.0112       76.3846            23.8789  9519.96 -2692.1369  0.0076          4      22.7601        25389.0222          0.2719               0.1964             5.0           10.9380   True   True  True  False   True  True  True  False   False              False
+5                         total MNQ<=5 (reference)       71.9012       76.2438            23.7381  9519.96 -2692.1369  0.0076          4      21.9861        25197.5422          0.2734               0.1964             5.0           10.7704   True   True  True  False   True  True  True  False   False              False
+0                                           NaN
+1                                           NaN
+2                                           NaN
+3    [26396, 28810, 31698, 32007, 17814, 32475]
+4                                           NaN
+5                                           NaN
+Name: plateau_totals, dtype: str

@@ -1,0 +1,22 @@
+"""TEST58 preregistration: UPTREND-PARTICIPATION SIZING = lot-size ladder of the fixed TEST53 growth modules (residual architecture)."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+import prog_common as P  # noqa: E402
+
+SPEC = {
+    "question": "Do the TEST53 uptrend-participation states (M1-M4) justify MORE SIZE per signal (k MNQ per module lot) inside the residual architecture, "
+                "and is the marginal value of extra size positive and roughly linear (no diminishing returns / tail blow-up)?",
+    "rationale": "The account is risk-gate (tail) limited, not margin limited (C43 peak overnight margin 12% NLV).  TEST53 signals are low-correlated with C43 and "
+                 "mostly intraday (except M2 overnight), so scaling them uses idle capacity with intraday rather than gap tails.",
+    "difference": "No new signal; module internals and governor frozen; only the lot multiplier k and the residual caps scale together.",
+    "architecture": "per module lot = k MNQ; ensemble cap = 2k MNQ; total MNQ cap = 3 + 2(k-1) i.e. C43 priority with residual 2k; governor scaled -1000*k",
+    "ladder": {"k": [1, 2, 3, 5], "primary": 2, "plateau_neighbours": [1, 3], "k5": "report only (aggressive research)"},
+    "gate": "hx lanes with base C43-CORE; GROWTH requires c1..c7 + MaxDD<=30k, worst>=-6k, incr>=20/day, ret/DD>=0.6 C43",
+    "marginal_curve": "report incremental $/day, MaxDD, worst day per k (MARGINAL_EXPOSURE_CURVE)",
+    "falsification": "k=2 fails GROWTH or marginal value of k=2 over k=1 <= 0",
+}
+
+if __name__ == "__main__":
+    print(P.prereg("TEST58", SPEC))

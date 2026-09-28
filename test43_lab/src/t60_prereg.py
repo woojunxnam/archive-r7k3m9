@@ -1,0 +1,23 @@
+"""TEST60 preregistration: MARGINAL-EXPOSURE ML (value of adding / removing carrier units at the daily decision)."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+import prog_common as P  # noqa: E402
+
+SPEC = {
+    "question": "Can causal daily state predict the VALUE OF ADDITIONAL (or removed) beta exposure for the next holding period (open -> next open)?",
+    "rationale": "Deterministic state maps had negative timing (TEST56); a learned marginal-value model may still capture conditional drift.",
+    "difference": "targets the incremental P&L of exposure changes (ML-B add, ML-C reduce), not direction of an entry",
+    "label": "next open->next open P&L of 1 MES-equivalent unit (half ES, half MNQ by ATR$), minus the training-window mean (research label only)",
+    "features": "ret 1/5/20d (ATRd), distance to SMA20/50/100 (ATRd), 60d drawdown (ATRd), ATR20 percentile, ATR change 5d, prior-day close location, "
+                "prior-day range/ATR, C43 prior-session end positions, weekday",
+    "models": "RIDGE, LOGISTIC, EXTRA_TREES, HIST_GB (TEST45 presets) + consensus (RIDGE>0 AND LOGISTIC>0) ; yearly expanding walk-forward, test 2021..2026-05-27",
+    "policies": {"ML-B_ADD": "base 3 units; 5 units when prediction > 0", "ML-C_REDUCE": "base 3 units; 1 unit when prediction < 0",
+                 "CONTROL": "constant 3 units"},
+    "gate": "timing value of the policy vs CONST 3 > 0 in >= 4/5 outer years AND hx GROWTH lane with base C43 (plateau: base units 2/5)",
+    "offline_bandit": "run only if ML-B or ML-C shows positive outer timing in >= 4/5 years",
+}
+
+if __name__ == "__main__":
+    print(P.prereg("TEST60", SPEC))

@@ -1,0 +1,21 @@
+"""TEST59 preregistration: HOLD / OVERNIGHT INVENTORY value (conditional on already-validated long state)."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+import prog_common as P  # noqa: E402
+
+SPEC = {
+    "question": "What is the incremental value of carrying already-validated long inventory overnight vs closing at 16:15, per unit of added gap-tail risk?",
+    "rationale": "TEST56 showed the worst day (and hence the growth limit) is driven by locked overnight gaps; if overnight value per unit of tail is low, "
+                 "capacity is better spent intraday.",
+    "difference": "Not unconditional carry (TEST45): (a) the TEST53 M2 module (validated-state overnight hold) vs a 16:15 exit inside the TEST55 residual "
+                  "architecture; (b) constant-exposure beta carrier intraday-only vs overnight (diagnostic of the value/tail exchange rate).",
+    "candidates": {"A_M2_EXIT_1615": "TEST55 architecture with M2 exiting at 16:15 instead of the next open (other modules unchanged)"},
+    "diagnostics": {"CONST_units_intraday_vs_overnight": [1, 2, 3, 5]},
+    "report": "avg/day, worst day, p5/p1/p0.5 locked-overnight P&L per unit, MaxDD; incremental hold value = overnight - intraday",
+    "gate": "hx lanes (base C43-CORE) for A; diagnostics are report-only",
+}
+
+if __name__ == "__main__":
+    print(P.prereg("TEST59", SPEC))

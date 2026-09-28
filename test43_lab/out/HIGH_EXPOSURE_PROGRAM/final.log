@@ -1,0 +1,147 @@
+{
+ "C43_CORE_AVG_DAY": 53.36,
+ "C43_CORE_MAXDD": 6193,
+ "C43_CORE_WORST_DAY": -1723,
+ "C43_GROWTH_AVG_DAY": 70.13,
+ "C43_GROWTH_AVG_DAY_2021": 73.98,
+ "C43_GROWTH_MAXDD": 9520,
+ "C43_GROWTH_WORST_DAY": -2692,
+ "C43_GROWTH_FORWARD_STATUS": "FORWARD_SHADOW (TEST55 GROWTH-lane PASS; unopened OOS); superseded as FINAL_GROWTH by TEST61 per predeclared rule",
+ "C43_CURRENT_PEAK_MES": 3,
+ "C43_CURRENT_PEAK_MNQ": 3,
+ "C43_PEAK_MARGIN_USAGE": 0.123,
+ "C43_AVG_MARGIN_USAGE": 0.026,
+ "ACCOUNT_IS_MARGIN_CONSTRAINED": "NO",
+ "ACCOUNT_IS_RISK_CONSTRAINED": "YES",
+ "TEST55_RESULT": "GROWTH-QUALITY PASS (incr +21.5 $/day, MaxDD 9.5k, worst -2.7k, ret/DD 0.0074, plateau+stress PASS); CORE fail (ret/DD < C43)",
+ "TEST56_RESULT": "NO GROWTH/CORE PASS; timing value NEGATIVE for every state map (-4.7..-27.7 $/day); DD governor worsens (whipsaw)",
+ "TEST61_RESULT": "GROWTH-QUALITY PASS (125.5 $/day full, 129 $/day 2021+, MaxDD 12.6k, worst -4.3k, ret/DD 0.0100 > C43, plateau+stress PASS, margin 31%); CORE fail (worst day)",
+ "TEST57_RESULT": "FAIL (outer folds 3/5, timing value -9.0 $/day; 2022 -59 $/day; selections = MNQ beta 5 units)",
+ "TEST58_RESULT": "k=2 FAIL GROWTH on the preregistered k-neighbour plateau (linear scaling makes k=1 < 60% of k=2 by construction); ret/DD 0.0074->0.0053->0.0041->0.0030",
+ "TEST59_RESULT": "M2 overnight hold > 16:15 exit (TEST55 kept); beta carrier: overnight >> intraday-only in return, worst day barely improves",
+ "TEST60_RESULT": "NO (rank-IC <= 0.025; best Ridge add +7.5 $/day timing carried by 2 years; offline bandit reduces to the same sign policy)",
+ "BEST_ADAPTIVE_EXPOSURE_POLICY": "NONE (every state/ML/GA exposure policy had timing value <= 0 or failed nested folds)",
+ "BEST_AVG_MES": 1.5,
+ "BEST_MAX_MES": 6,
+ "BEST_AVG_MNQ": 2.2,
+ "BEST_MAX_MNQ": 8,
+ "BEST_MARGIN_UTILIZATION": 0.306,
+ "BEST_BETA_CARRIER_AVG_DAY": 44.17,
+ "BEST_BETA_CARRIER_MAXDD": 23877,
+ "BEST_BETA_CARRIER_TIMING_VALUE": "<= 0 (constant carriers ~0 by construction; every adaptive carrier negative)",
+ "BEST_BETA_CARRIER_MATCHED_BETA_EXCESS": 0,
+ "BEST_GROWTH_PORTFOLIO_COMPONENTS": "C43-GROWTH-T61 (C43x2 + TEST53 residual, total MNQ<=6)",
+ "BEST_GROWTH_PORTFOLIO_AVG_DAY": 125.5,
+ "BEST_GROWTH_PORTFOLIO_MAXDD": 12607,
+ "BEST_GROWTH_PORTFOLIO_WORST_DAY": -4347,
+ "BEST_GROWTH_PORTFOLIO_RET_DD": 0.01,
+ "INCREMENT_VS_C43": 76.55,
+ "MAX_$150K_AVG_DAY_CORE_ENVELOPE": {
+  "label": "C43x1 + T53x1 + BETA0",
+  "avg_day_full": 70.13,
+  "avg_day_2021": 73.98,
+  "max_dd": 9520,
+  "worst_day": -2692
+ },
+ "MAX_$150K_AVG_DAY_GROWTH_ENVELOPE": {
+  "label": "C43x2 + T53x1 + BETA2",
+  "avg_day_full": 156.58,
+  "avg_day_2021": 158.61,
+  "max_dd": 24051,
+  "worst_day": -5279
+ },
+ "MAX_$150K_AVG_DAY_AGGRESSIVE_ENVELOPE": {
+  "label": "C43x2 + T53x3 + BETA5",
+  "avg_day_full": 209.65,
+  "avg_day_2021": 218.41,
+  "max_dd": 44880,
+  "worst_day": -9973
+ },
+ "MAX_$150K_AVG_DAY_MARGIN_ONLY": {
+  "ES": {
+   "contracts": 24,
+   "avg_day_full": 269.41,
+   "max_dd": 145110,
+   "worst_day": -38910
+  },
+  "MNQ": {
+   "contracts": 15,
+   "avg_day_full": 332.3,
+   "max_dd": 181065,
+   "worst_day": -34860
+  }
+ },
+ "24_MES_CAP_EVER_SELECTED": "NO",
+ "24_MNQ_CAP_EVER_SELECTED": "NO",
+ "WHY_HIGH_EXPOSURE_IS_OR_IS_NOT_USEFUL": "Margin is not binding (C43 <=12% NLV). The binding constraint is the locked-overnight / crash-day tail (~-2k worst day per MES-eq unit of beta). Extra exposure only adds beta; no state, ML or GA policy produced positive timing value, because the best up-days cluster inside high-vol drawdowns. High exposure raises return linearly and tail/DD linearly: useful only as a capital/risk-tolerance choice, not as alpha.",
+ "V533_AVG_DAY": 75.98,
+ "V533_MAXDD": 135092,
+ "V533_TIMING_VALUE": "NEGATIVE",
+ "BEST_POLICY_VS_V533": "C43-GROWTH 125.5 $/day at MaxDD 12607 vs V5.3.3 75.98 $/day at MaxDD 135092",
+ "$600_DAY_POSSIBLE_WITH_$150K_CORE": "NO",
+ "$600_DAY_POSSIBLE_WITH_$150K_GROWTH": "NO",
+ "$600_DAY_POSSIBLE_WITH_$150K_AGGRESSIVE": "NO",
+ "ESTIMATED_CAPITAL_FOR_$600_AT_BEST_NEW_POLICY": 717000.0,
+ "BUDGET": {
+  "TOTAL_HYPOTHESES": 1354,
+  "TOTAL_ML_CONFIGS": 175,
+  "TOTAL_GA_GENOMES": 777629,
+  "HX_PROGRAM_HYPOTHESES": 25,
+  "HX_PROGRAM_GENOMES": 90453,
+  "HX_PROGRAM_ML_CONFIGS": 5
+ },
+ "OFFLINE_BANDIT": {
+  "condition_met": true,
+  "note": "reward is linear in exposure, so the contextual bandit's greedy action is always the max or min tier by the sign of the predicted return: it reduces to ML-B/ML-C sign policies already evaluated (best RIDGE ML-B timing +7.5 $/day, rank-IC 0.025, 2/6 years carry it)",
+  "result": "NO robust state-dependent marginal exposure value"
+ },
+ "FINAL_CORE_PORTFOLIO": "C43-CORE",
+ "FINAL_GROWTH_PORTFOLIO": "C43-GROWTH-T61 (C43x2 + TEST53 residual, total MNQ<=6)",
+ "FINAL_AGGRESSIVE_RESEARCH_PORTFOLIO": "C43 + TEST53 x3 residual (report-only)",
+ "FINAL_GROWTH_PROGRAM_PRE_OOS_FREEZE_SHA256": "cb90e447548cfd34f0fd6ae4fcf8b73b5769527dd1c64312cf5d7f1a3cc578e5",
+ "FINAL_GROWTH_PROGRAM_OOS_RULES_SHA256": "b8ed111952a8e16bb27851a3d516c2a43206648c2329faed5bd9c72d62d830eb",
+ "FINAL_GROWTH_PROGRAM_OOS_START": "2026-09-28",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}
+                     label  avg_day_full  avg_day_2021     max_dd  worst_day  ret_dd  peak_on_margin_frac  CORE_env  GROWTH_env  AGGR_env
+0    C43x1 + T53x0 + BETA0        53.358        52.506    6193.43  -1722.990   0.009                0.123      True        True      True
+6    C43x1 + T53x1 + BETA0        70.131        73.977    9519.96  -2692.137   0.007                0.163      True        True      True
+30   C43x2 + T53x0 + BETA0       106.716       105.011   12386.86  -3445.980   0.009                0.246     False        True      True
+36   C43x2 + T53x1 + BETA0       123.489       126.483   12606.70  -4347.367   0.010                0.286     False        True      True
+31   C43x2 + T53x0 + BETA2       139.806       137.138   20656.75  -5235.730   0.007                0.308     False        True      True
+42   C43x2 + T53x2 + BETA0       140.007       147.629   19039.92  -5384.274   0.007                0.326     False        True      True
+37   C43x2 + T53x1 + BETA2       156.579       158.610   24050.75  -5278.617   0.007                0.348     False        True      True
+48   C43x2 + T53x3 + BETA0       156.653       168.938   25642.76  -6421.181   0.006                0.366     False       False      True
+33   C43x2 + T53x0 + BETA5       159.712       154.482   28486.36  -7025.480   0.006                0.330     False       False      True
+43   C43x2 + T53x2 + BETA2       173.098       179.756   29466.19  -6315.524   0.006                0.388     False       False      True
+39   C43x2 + T53x1 + BETA5       176.485       175.954   31291.70  -7898.867   0.006                0.370     False       False      True
+49   C43x2 + T53x3 + BETA2       189.743       201.065   34881.63  -7352.431   0.005                0.427     False       False      True
+54   C43x2 + T53x5 + BETA0       189.944       211.556   41046.66  -8494.994   0.005                0.502     False       False      True
+45   C43x2 + T53x2 + BETA5       193.004       197.100   36492.44  -8935.774   0.005                0.409     False       False      True
+50   C43x2 + T53x3 + BETA3       200.826       212.221   44374.92  -9972.681   0.005                0.449     False       False      True
+51   C43x2 + T53x3 + BETA5       209.649       218.409   44879.78  -9972.681   0.005                0.449     False       False      True
+55   C43x2 + T53x5 + BETA2       223.035       243.682   51799.47 -10184.950   0.004                0.549     False       False     False
+46   C43x2 + T53x2 + BETA8       235.562       238.353   59126.34 -11368.460   0.004                0.493     False       False     False
+57   C43x2 + T53x5 + BETA5       242.941       261.026   62148.46 -12046.494   0.004                0.583     False       False     False
+52   C43x2 + T53x3 + BETA8       252.208       259.662   66221.08 -11835.181   0.004                0.533     False       False     False
+35  C43x2 + T53x0 + BETA12       254.326       244.611   74372.50 -17172.500   0.003                0.497     False       False     False
+41  C43x2 + T53x1 + BETA12       271.099       266.083   79008.66 -17172.500   0.003                0.537     False       False     False
+58   C43x2 + T53x5 + BETA8       285.499       302.280   82317.14 -13908.994   0.003                0.664     False       False     False
+47  C43x2 + T53x2 + BETA12       287.617       287.229   85192.96 -17172.500   0.003                0.576     False       False     False
+53  C43x2 + T53x3 + BETA12       304.263       308.538   92234.98 -17172.500   0.003                0.616     False       False     False
+59  C43x2 + T53x5 + BETA12       337.554       351.155  108411.08 -17460.494   0.003                0.745     False       False     False
+                           portfolio  ...  ALPHA_TIMING_day
+0                           C43-CORE  ...             29.72
+1  TEST53 residual increment (2021+)  ...              6.53
+2               BETA carrier CONST 3  ...             -0.28
+
+[3 rows x 4 columns]
+                                           portfolio  ...       timing_value_day
+0                                           C43-CORE  ...  C43 alpha (validated)
+1  C43-GROWTH-T55 (C43 + TEST53 residual total MN...  ...               9.850115
+2  C43-GROWTH-T61 (C43x2 + TEST53 residual, total...  ...              11.132838
+3               V5.3.3 (MES full history, reference)  ...               negative
+4               constant matched long 3 units (beta)  ...                    0.0
+
+[5 rows x 6 columns]

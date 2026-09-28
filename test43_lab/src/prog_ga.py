@@ -67,6 +67,8 @@ def evaluate(g):
 
 
 def fitness(g, win):
+    if hasattr(_ctx["L"], "fitness"):
+        return _ctx["L"].fitness(g, _ctx, win)
     res = evaluate(g)
     s0, s1 = win
     x = res[0][s0:s1]
@@ -146,6 +148,8 @@ def island(args):
 
 
 def outer_eval(g, s0, s1):
+    if hasattr(_ctx["L"], "outer_eval"):
+        return _ctx["L"].outer_eval(g, _ctx, s0, s1)
     res = evaluate(g)
     x = res[0][s0:s1]
     xe = excess_window(res, s0, s1, 20, s0)

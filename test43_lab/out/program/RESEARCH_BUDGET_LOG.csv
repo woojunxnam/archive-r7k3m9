@@ -14,3 +14,10 @@ TEST51,2,10,0,0,sizing meta-labeling on C43,2026-09-28T03:41:28
 TEST53,1,0,0,0,capped ensemble,2026-09-28T03:45:00
 TEST53,1,0,0,0,capped ensemble,2026-09-28T03:45:30
 TEST54,1,0,0,0,ensemble in total MNQ<=2,2026-09-28T03:46:36
+TEST55,1,0,0,1,residual capacity allocator,2026-09-28T12:03:31
+TEST56,20,0,0,0,state ladder carrier controls,2026-09-28T12:06:03
+TEST58,1,0,0,0,TEST53 lot ladder,2026-09-28T12:08:23
+TEST59,1,0,0,0,hold/overnight,2026-09-28T12:09:19
+TEST60,2,5,0,0,marginal exposure ML,2026-09-28T12:12:32
+TEST57,0,0,90453,0,nested GA lane lane_hx,2026-09-28T12:21:17
+TEST61,1,0,0,1,scaled core + residual growth,2026-09-28T12:24:43

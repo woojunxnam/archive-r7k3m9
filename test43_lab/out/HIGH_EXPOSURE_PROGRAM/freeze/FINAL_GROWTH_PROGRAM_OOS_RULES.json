@@ -1,0 +1,14 @@
+{
+ "FINAL_GROWTH_PROGRAM_OOS_START": "2026-09-28",
+ "rule": "first full RTH session strictly after the freeze timestamp",
+ "freeze_timestamp_utc": "2026-09-28T12:25:27+00:00",
+ "evaluate": {
+  "C43-CORE": "monitor",
+  "FINAL_GROWTH": "forward shadow: promote to live consideration only after >= 250 full RTH OOS sessions with incremental avg/day > 0 vs C43, combined MaxDD <= 15k, worst day >= -3k, total MNQ at entry <= 3, no margin breach, and matched excess > 0",
+  "AGGRESSIVE": "report only, never promoted from this program",
+  "ALTERNATE_GROWTH_T55": "forward shadow (report)"
+ },
+ "no_retuning": true,
+ "excluded": "2026-05-28 .. OOS_START-1 never used",
+ "live_authorization": "NO"
+}
