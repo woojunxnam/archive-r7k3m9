@@ -1,0 +1,42 @@
+141a776d4c1157edf46e91ef66d8eb9a2abd68f1b30cd50c76a89535326f4ede
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+MNQ 192 campaigns {('R0', 'CONSTANT_1'): 0.15, ('R0', 'CONSTANT_2'): 0.29, ('R1', 'CONSTANT_1'): 0.37, ('R1', 'CONSTANT_2'): 0.51}
+ES 143 campaigns {('R0', 'CONSTANT_1'): -0.05, ('R0', 'CONSTANT_2'): -0.09, ('R1', 'CONSTANT_1'): -0.05, ('R1', 'CONSTANT_2'): -0.09}
+                               ADD1_MARGINAL_EV  ADD2_MARGINAL_EV  ADD3_MARGINAL_EV  pyramid_vs_frontload_day  pyramid_vs_constant1_day  avg_day
+instrument trigger                                                                                                                              
+ES         A_NEW_HIGH                     -6.58             -8.94             -9.72                     -0.74                     -0.81    -0.86
+           B_SECOND_IMPULSE                2.18            -16.04            -11.64                     -0.44                     -0.44    -0.49
+           C_SHALLOW_PULLBACK            -25.60              5.63            -49.99                     -0.53                     -0.53    -0.58
+           D_VALUE_ACCEPT                  0.18             18.50              2.20                      0.30                      0.30     0.25
+           E_CROSS_INDEX                 -27.78             -7.85              3.76                     -0.28                     -0.28    -0.33
+MNQ        A_NEW_HIGH                    -15.50            -15.00            -16.39                     -1.67                     -1.52    -1.24
+           B_SECOND_IMPULSE               -2.25             -4.71            -28.40                     -0.50                     -0.41    -0.23
+           C_SHALLOW_PULLBACK            -13.48            -67.77            -97.74                     -0.58                     -0.58    -0.23
+           D_VALUE_ACCEPT                 -7.25              1.05             22.72                     -0.62                     -0.50    -0.27
+           E_CROSS_INDEX                 -18.97             11.91             -4.70                     -0.52                     -0.43    -0.18
+    instrument         trigger ladder   speed  spacing exit  avg_day  slip4_avg_day   max_dd  worst_day  PROBE_EV  ADD1_MARGINAL_EV  ADD2_MARGINAL_EV  ADD3_MARGINAL_EV  win_rate  payoff  loser_avg_max_units  winner_avg_max_units  big_winner_avg_max_units  violations  giveback_fraction  pyramid_vs_frontload_day  pyramid_vs_constant1_day  folds_pos  remove_top3_day
+277        MNQ  D_VALUE_ACCEPT     L4  MEDIUM     0.00   R1     1.35           0.55  8233.44   -2164.72      3.32             -0.89             -8.94             -0.39      0.19    4.75                 2.01                  4.25                      5.10           0               0.96                      0.84                      0.99          4         -7723.26
+269        MNQ  D_VALUE_ACCEPT     L3    SLOW     0.25   R1     1.19           0.75  4427.74   -1680.98      3.32            -25.31            187.63            235.52      0.21    4.42                 1.13                  2.05                      2.40           0               0.94                      0.82                      0.82          3         -4896.12
+276        MNQ  D_VALUE_ACCEPT     L4  MEDIUM     0.00   R0     1.13           0.33  8284.44   -1971.72      1.33             -0.89             -8.94             -0.39      0.19    4.69                 2.04                  4.11                      5.10           0               0.97                      0.84                      0.99          3         -8106.26
+355        MNQ   E_CROSS_INDEX     L4    SLOW     0.00   R1     1.02           0.51  2993.64    -370.72      3.32             23.83            -11.02              8.68      0.20    4.49                 1.19                  2.85                      3.15           0               0.95                      0.50                      0.65          3         -2237.46
+268        MNQ  D_VALUE_ACCEPT     L3    SLOW     0.25   R0     0.97           0.53  4410.82   -1487.98      1.33            -25.31            187.63            235.52      0.23    3.71                 1.18                  1.80                      2.30           0               0.95                      0.82                      0.82          2         -5279.12
+617         ES  D_VALUE_ACCEPT     L3    FAST     0.25   R1     0.71          -0.14   994.68    -233.69     -0.55              0.18            126.27             75.64      0.19    5.26                 1.20                  2.15                      2.67           0               0.93                      0.76                      0.76          2         -2400.69
+616         ES  D_VALUE_ACCEPT     L3    FAST     0.25   R0     0.71          -0.14   963.44    -227.48     -0.58              0.18            126.27             75.64      0.23    4.11                 1.21                  1.94                      2.60           0               0.93                      0.76                      0.76          3         -2404.44
+625         ES  D_VALUE_ACCEPT     L3    SLOW     0.00   R1     0.58          -0.66  1950.62    -313.71     -0.55              1.91             37.00             -7.86      0.17    5.62                 1.67                  3.75                      4.20           0               0.96                      0.67                      0.63          3         -2902.27
+624         ES  D_VALUE_ACCEPT     L3    SLOW     0.00   R0     0.58          -0.67  1940.63    -313.71     -0.58              1.91             37.00             -7.86      0.20    4.47                 1.66                  3.45                      4.20           0               0.96                      0.67                      0.63          3         -2906.02
+621         ES  D_VALUE_ACCEPT     L3  MEDIUM     0.10   R1     0.58          -0.65  1716.97    -497.46     -0.55             -4.19              8.08            114.52      0.19    4.82                 1.56                  3.81                      4.27           0               0.96                      0.67                      0.62          3         -3454.84

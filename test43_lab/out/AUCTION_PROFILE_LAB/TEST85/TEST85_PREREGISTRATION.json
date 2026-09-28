@@ -1,0 +1,12 @@
+{
+ "test": "TEST85",
+ "written_utc": "2026-09-28T17:58:39+00:00",
+ "program_prereg_sha256": "9caacd4a6ebb03b70770cbd7158aa10a267770356e9bb2e42ff7d1d47b6e3bf1",
+ "events": "exactly the program preregistration lists (profile PA1..PJ, momentum M1..M68); first occurrence per session",
+ "qualification_rule_clarified_before_run": "profile cell (event x instrument x horizon) QUALIFIES iff >= 2 of 3 proxies each satisfy ALL: net > 0, SLIP4 net > 0, B > 0 and >= 4/5 folds, A > 0, C > 0, D > 0, n >= 300, min fold n >= 40.  Momentum cell: same without the proxy / C requirement.",
+ "PH_PRICE_NULL": "P4-window high-low range 30 min earlier < 0.20 ATR_d AND the 60m range midpoint up >= 0.05 ATR_d since",
+ "M4_DECAY_EXIT": "diagnostic: M3_PERSIST entries, exit at the first 1m close below session VWAP (next open) vs hold to 16:15",
+ "budget": {
+  "hypotheses": "profile 20 event types x 3 proxies x 2 instruments x 9 horizons; momentum 21 event types x 2 x 9 (reported)"
+ }
+}

@@ -1,0 +1,6 @@
+clue_id,clue
+PG12_DOWN_STACK,"MNQ, 12:00 developing value below prior value -> long to 16:00: +17.7 $/trade, 5/5 folds, SLIP4 positive, ML meta-selection consistent (+7.7 $/day 2021+, 8/9 models); REBOUND-PROXIMATE; forward monitor only"
+PI_DIVERGE,"new session high WITHOUT developing POC following -> 60m continuation (+4.4 $/trade, 5/5 folds) - opposite of the confirmation hypothesis"
+HVN_TARGET_BAD_EXIT,profile HVN targets are bad exits (same lesson as box tops)
+M68_DECEL,"MNQ second hour weaker than first (both up) -> 16:00 +36.6 $/event, B +21.5, 4/5, n 257 (sample < 300)"
+PRESS_NO_CONVEX_EDGE,adding after market proof on M1 has negative marginal EV; exposure convexity achieved (losers ~1.2-1.8 units) but adds lose

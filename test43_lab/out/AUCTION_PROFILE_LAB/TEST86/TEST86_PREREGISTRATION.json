@@ -1,0 +1,42 @@
+{
+ "test": "TEST86",
+ "written_utc": "2026-09-28T18:00:36+00:00",
+ "program_prereg_sha256": "9caacd4a6ebb03b70770cbd7158aa10a267770356e9bb2e42ff7d1d47b6e3bf1",
+ "candidates": {
+  "PG12_DOWN_STACK": {
+   "inst": "MNQ",
+   "horizon": "h1600",
+   "base_proxy": "VP-B"
+  },
+  "PI_DIVERGE": {
+   "inst": "MNQ",
+   "horizon": "h60",
+   "base_proxy": "VP-C"
+  }
+ },
+ "excluded": {
+  "ES PH_PRICE_NULL": "price-range null of the rejected generic-compression family; qualifies only at next open"
+ },
+ "note": "PG12_DOWN_STACK = long at 12:00 when the developing value area lies entirely below the prior RTH value area: flagged REBOUND-PROXIMATE (evaluated honestly; must beat the session-return momentum null, which it does at TEST85)",
+ "base_proxy_rule": "qualifying proxy with the largest fold-median B at the chosen horizon; horizon = qualifying structural RTH horizon with the largest fold-median B (next open excluded)",
+ "entry_speed": {
+  "IMMEDIATE": "next 1m open after the 5m decision",
+  "ACCEPT1": "condition still true at the next 5m close, fill after it"
+ },
+ "plateau": {
+  "value_area": [
+   0.65,
+   0.75
+  ],
+  "bin_f": [
+   0.015,
+   0.03
+  ],
+  "proxy": "other two proxies",
+  "horizon": "adjacent structural horizons"
+ },
+ "gate": "program standalone gate + T61 incremental gate + minimum meaningful increment >= +10 $/day (2019-07+ and 2021+)",
+ "budget": {
+  "hypotheses": 2
+ }
+}

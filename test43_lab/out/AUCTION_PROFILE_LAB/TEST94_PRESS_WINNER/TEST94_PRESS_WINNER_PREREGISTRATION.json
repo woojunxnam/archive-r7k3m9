@@ -1,0 +1,64 @@
+{
+ "test": "TEST94_PRESS_WINNER",
+ "written_utc": "2026-09-28T18:02:22+00:00",
+ "program_prereg_sha256": "9caacd4a6ebb03b70770cbd7158aa10a267770356e9bb2e42ff7d1d47b6e3bf1",
+ "status": "NON-PROMOTABLE DIAGNOSTIC (no qualifying momentum base at TEST85; base = M1_OPEN_IMPULSE as preregistered)",
+ "grid": {
+  "triggers": [
+   "A_NEW_HIGH",
+   "B_SECOND_IMPULSE",
+   "C_SHALLOW_PULLBACK",
+   "D_VALUE_ACCEPT",
+   "E_CROSS_INDEX"
+  ],
+  "ladders": {
+   "L1": [
+    1,
+    2,
+    3
+   ],
+   "L2": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "L3": [
+    1,
+    2,
+    4,
+    6
+   ],
+   "L4": [
+    1,
+    2,
+    3,
+    4,
+    6
+   ]
+  },
+  "speed": {
+   "FAST": 0,
+   "MEDIUM": 5,
+   "SLOW": 15
+  },
+  "spacing_ATR": [
+   0.0,
+   0.1,
+   0.25
+  ],
+  "exits": [
+   "R0",
+   "R1"
+  ]
+ },
+ "controls": [
+  "FRONTLOAD",
+  "CONSTANT_1",
+  "CONSTANT_2"
+ ],
+ "note": "overnight carry not studied (RTH press must pass first)",
+ "budget": {
+  "hypotheses": 360
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "test": "TEST91",
+ "written_utc": "2026-09-28T18:03:54+00:00",
+ "program_prereg_sha256": "9caacd4a6ebb03b70770cbd7158aa10a267770356e9bb2e42ff7d1d47b6e3bf1",
+ "candidates": {
+  "PG12_DOWN_STACK": {
+   "inst": "MNQ",
+   "horizon": "h1600",
+   "base_proxy": "VP-B"
+  },
+  "PI_DIVERGE": {
+   "inst": "MNQ",
+   "horizon": "h60",
+   "base_proxy": "VP-C"
+  }
+ },
+ "features": {
+  "ret_open": "close(j) vs RTH open / ATR (bars <= j)",
+  "eff": "path efficiency since open (bars <= j)",
+  "dist_vwap": "close - session VWAP (bars <= j) / ATR",
+  "ret15": "15m return / ATR",
+  "ret60": "60m return / ATR",
+  "relvol30": "last-30m volume / median same window prior 20 sessions",
+  "p2_poc_rel": "close - developing POC / ATR (P2 at slot b, bars <= j)",
+  "p2_width": "developing VA width / ATR",
+  "p4_poc_chg30": "P4 POC change over 30m / ATR",
+  "p1_vah_rel": "close - prior VAH / ATR (prior session)",
+  "p1_val_rel": "close - prior VAL / ATR",
+  "above_p1vah": "share of P2 volume above prior VAH",
+  "prior_day": "prior RTH return / ATR",
+  "gap": "open - prior close / ATR",
+  "volt": "vol tercile (prior)",
+  "bull": "HTF bull (prior)",
+  "tod": "decision minute / 405"
+ },
+ "audit": {
+  "availability": "every feature computed from bars with index <= decision minute j of the current session and completed prior sessions",
+  "can_change_after_event": "NO for all features",
+  "rejected": "none needed (no box life / future node survival / final profile inputs)",
+  "prefix_invariance": "profile features verified in TEST84 (1,800 samples, 0 mismatches); price features read C/H/L/V[:, :j+1] only"
+ },
+ "target": "net $ of the deterministic event at its horizon",
+ "models": "PRIMARY HistGB; reported Ridge, ElasticNet, Logistic(sign), ExtraTrees, RandomForest, XGBoost, CatBoost, LightGBM (fixed presets)",
+ "trade": "predicted net > 0 (Logistic: p > 0.5)",
+ "plateau": "thresholds -0.5 $ / +1.0 $",
+ "oracle_bound_$day": {
+  "PG12_DOWN_STACK": 19.96,
+  "PI_DIVERGE": 21.57
+ },
+ "ML_ADDS_VALUE": "primary passes (folds >= 4/5 net, B excess > 0, SLIP4 > 0, remove-top3 > 0, plateau) AND T61 incremental >= +10 $/day and ret/DD >= T61",
+ "budget": {
+  "ml_configs": 18
+ }
+}

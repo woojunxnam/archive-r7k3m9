@@ -1,0 +1,6 @@
+test,hypotheses,ml_configs,valid_genomes,note,utc
+TEST84,0,0,0,data / approximation QA (no hypotheses),2026-09-28T17:56:59+00:00
+TEST86,2,0,0,2 qualifying profile mechanisms x 2 entry speeds (+ plateau),2026-09-28T18:01:08+00:00
+TEST94_PRESS_WINNER,720,0,0,press-winner diagnostic grid (non-promotable),2026-09-28T18:02:43+00:00
+TEST91,0,18,0,"ML-B trade/skip, 9 presets x 2 mechanisms",2026-09-28T18:04:11+00:00
+TEST85,1482,0,0,atlas cells,2026-09-28T18:05:45+00:00

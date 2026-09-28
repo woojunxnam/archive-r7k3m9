@@ -1,0 +1,12 @@
+test,result
+TEST84,QA PASS: prefix invariance 1800 samples / 0 mismatches; ES full-contract volume clean; NQ signal = MNQ volume PROXY
+TEST85,"ATLAS: 2 profile mechanisms qualify (MNQ PG12_DOWN_STACK 16:00 / 30m, MNQ PI_DIVERGE 60m; >= 2/3 proxies); 0 momentum mechanisms qualify; ES PH_PRICE_NULL (next open) excluded as a null of a rejected family"
+TEST86,"FAIL: PG12 +3.42 $/day (5/5 folds, SLIP4 +2.84) plateau fails at 60m hold + year share 0.55; PI_DIVERGE +2.45 $/day plateau fails; T61 increments +2.96 / +1.65 < +10"
+TEST87,NOT RUN: POC migration (PA1 / PA2 / PC1 / PC2) did not qualify at TEST85
+TEST88,NOT RUN: HVN / LVN travel (PD / PE) did not qualify (profile target exits negative)
+TEST89,NOT RUN: prior-VAH acceptance (PB1-PB4) did not qualify
+TEST90,NOT RUN: rising-POC pullback (PF) did not qualify
+TEST91,"ML-B (economic target) on the 2 qualifying events: PG12 HGB +6.01 $/day (+7.69 2021+), 5/5 folds, 8/9 models standalone-pass, T61 increment +6.01 < +10 -> not a survivor; PI_DIVERGE <= +2.3 $/day"
+TEST92,NOT RUN: GA not justified (no deterministic survivor)
+TEST93,no survivor to add; T61 incremental gates computed inside TEST86 / TEST91
+TEST94_PRESS_WINNER,diagnostic: adds negative marginal EV; pyramid < frontload / constant
