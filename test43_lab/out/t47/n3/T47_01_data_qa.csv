@@ -1,0 +1,3 @@
+inst,sessions,first,last,last_le_cutoff,full_81bar_sessions,u5_median_pts,atrd_median_pts,canonical_sha256,volume_used_by_signals
+ES,1780,2019-05-06,2026-05-27,True,1769,5.0774691358024695,55.9375,2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116,NO
+MNQ,1780,2019-05-06,2026-05-27,True,1770,23.395987654320987,252.47321428571428,66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2,NO

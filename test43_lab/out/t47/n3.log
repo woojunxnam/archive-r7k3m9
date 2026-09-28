@@ -1,0 +1,171 @@
+  inst  perturb_from_bar  events_before  identical
+0   ES                20            438       True
+1   ES                40            718       True
+2   ES                60            958       True
+3  MNQ                20            485       True
+4  MNQ                40            788       True
+5  MNQ                60           1000       True
+  inst config  events  ...  +60m_t_exc  to16:00_excess  to16:00_t_exc
+0   ES     T1    1102  ...      -2.158          -0.029         -1.113
+1   ES     T2     978  ...      -1.152          -0.013         -0.507
+2   ES     T3    1878  ...      -1.681          -0.013         -0.699
+3   ES     T4     670  ...      -1.231          -0.037         -1.030
+4  MNQ     T1    1124  ...      -0.849          -0.023         -1.061
+5  MNQ     T2     977  ...      -1.217          -0.018         -0.825
+6  MNQ     T3    1914  ...      -1.293          -0.014         -0.898
+7  MNQ     T4     659  ...      -0.985          -0.010         -0.337
+
+[8 rows x 8 columns]
+  inst config  trades  avg_trade  excess_trade  t_excess  folds_pos
+0   ES     T1     949      -8.17         -4.60     -1.43          0
+1   ES     T2     865      -6.29         -2.63     -0.82          0
+2   ES     T3    1574      -8.01         -4.49     -2.14          0
+3   ES     T4     569      -6.42         -2.71     -0.66          1
+4  MNQ     T1     985      -4.91         -3.22     -0.64          1
+5  MNQ     T2     880      -6.32         -4.46     -0.84          1
+6  MNQ     T3    1622      -5.43         -4.67     -1.31          2
+7  MNQ     T4     555     -10.90         -7.99     -1.12          0
+{'inst': 'ES', 'leg': 'T1', 'windows': 105864, 'real_triggers': 876, 'real_fwd_excess_atr': -0.023406760967450348, 'shuffled_mean': -0.011321395615940824, 'shuffled_sd': 0.008229543423457608, 'order_effect': -0.012085365351509524, 'perm_p_one_sided': 0.9}
+{'inst': 'ES', 'leg': 'T4', 'windows': 105864, 'real_triggers': 542, 'real_fwd_excess_atr': -0.012027242472070319, 'shuffled_mean': -0.015469302649473817, 'shuffled_sd': 0.00991433525076139, 'order_effect': 0.0034420601774034984, 'perm_p_one_sided': 0.4}
+{'inst': 'MNQ', 'leg': 'T1', 'windows': 105872, 'real_triggers': 872, 'real_fwd_excess_atr': -0.010110461375207587, 'shuffled_mean': -0.0058021966239293005, 'shuffled_sd': 0.007204179150132598, 'order_effect': -0.004308264751278286, 'perm_p_one_sided': 0.75}
+{'inst': 'MNQ', 'leg': 'T4', 'windows': 105872, 'real_triggers': 542, 'real_fwd_excess_atr': -0.005534113769306533, 'shuffled_mean': -0.0077328521957042064, 'shuffled_sd': 0.01033969476275822, 'order_effect': 0.0021987384263976737, 'perm_p_one_sided': 0.5}
+  inst leg  events_matched  +30m_event  +30m_ctrl  +30m_order_excess  +30m_t  median_controls_per_event  +60m_event  +60m_ctrl  +60m_order_excess  +60m_t  to16:00_event  to16:00_ctrl  to16:00_order_excess  to16:00_t
+0   ES  T1            1002      -0.019     -0.002             -0.018  -2.317                       53.0      -0.028     -0.010             -0.017  -1.536         -0.024        -0.003                -0.021     -0.837
+1   ES  T2             886      -0.001     -0.004              0.002   0.324                       51.0      -0.006     -0.011              0.005   0.527          0.002        -0.005                 0.007      0.304
+2   ES  T3            1782      -0.010     -0.001             -0.009  -1.715                       93.5      -0.011     -0.008             -0.004  -0.512         -0.007        -0.004                -0.004     -0.206
+3   ES  T4             546       0.004     -0.004              0.008   0.707                       27.0      -0.018     -0.017             -0.001  -0.069         -0.019        -0.019                -0.000     -0.001
+4  MNQ  T1            1027      -0.001      0.003             -0.004  -0.619                       59.0      -0.002     -0.000             -0.002  -0.176         -0.013         0.005                -0.018     -0.861
+5  MNQ  T2             887      -0.001      0.003             -0.005  -0.734                       56.0      -0.006      0.001             -0.007  -0.714         -0.008         0.007                -0.015     -0.733
+6  MNQ  T3            1818      -0.002      0.000             -0.003  -0.650                      106.0      -0.005     -0.003             -0.002  -0.338         -0.006         0.004                -0.010     -0.608
+7  MNQ  T4             558      -0.009      0.009             -0.018  -1.854                       25.0      -0.018      0.011             -0.029  -1.999         -0.012         0.013                -0.024     -0.856
+   inst leg  ntick  events  +60m_excess  +60m_t_exc  order_excess_60  order_t_60  pnl_excess_trade  pnl_t_excess
+0    ES  T1      2    2463       -0.012      -1.414            0.005       0.684            -1.804        -0.851
+1    ES  T1      3    1102       -0.027      -2.158           -0.017      -1.536            -4.595        -1.426
+2    ES  T1      4     588       -0.016      -0.963            0.001       0.058            -1.118        -0.298
+3    ES  T2      2    2163       -0.015      -1.612           -0.002      -0.197            -3.437        -1.577
+4    ES  T2      3     978       -0.015      -1.152            0.005       0.527            -2.626        -0.822
+5    ES  T2      4     485       -0.006      -0.334            0.012       0.809            -0.721        -0.175
+6    ES  T3      2    3966       -0.013      -1.988           -0.006      -1.061            -3.129        -2.041
+7    ES  T3      3    1878       -0.014      -1.681           -0.004      -0.512            -4.486        -2.137
+8    ES  T3      4     966       -0.013      -1.140            0.001       0.124            -0.924        -0.328
+9    ES  T4      2    2250       -0.015      -1.342           -0.006      -0.668            -1.812        -0.694
+10   ES  T4      3     670       -0.028      -1.231           -0.001      -0.069            -2.715        -0.657
+11   ES  T4      4     238       -0.006      -0.176            0.038       1.213             4.195         0.615
+12  MNQ  T1      2    2478       -0.004      -0.637            0.007       1.069            -1.474        -0.398
+13  MNQ  T1      3    1124       -0.009      -0.849           -0.002      -0.176            -3.219        -0.644
+14  MNQ  T1      4     578       -0.002      -0.170           -0.000      -0.024             0.308         0.046
+15  MNQ  T2      2    2220       -0.004      -0.501            0.005       0.746            -1.911        -0.515
+16  MNQ  T2      3     977       -0.013      -1.217           -0.007      -0.714            -4.457        -0.838
+17  MNQ  T2      4     506       -0.002      -0.159           -0.004      -0.304            -0.096        -0.013
+18  MNQ  T3      2    4040       -0.004      -0.814            0.002       0.464            -1.671        -0.614
+19  MNQ  T3      3    1914       -0.009      -1.293           -0.002      -0.338            -4.668        -1.307
+20  MNQ  T3      4    1022       -0.002      -0.254            0.002       0.242            -2.854        -0.648
+21  MNQ  T4      2    2295       -0.005      -0.528           -0.003      -0.379            -1.916        -0.445
+22  MNQ  T4      3     659       -0.016      -0.985           -0.029      -1.999            -7.991        -1.125
+23  MNQ  T4      4     257        0.012       0.423            0.039       1.704            10.533         0.884
+   inst entry  trades  avg_trade  excess_trade  t_excess  folds_pos
+0    ES    E1     949      -8.17         -4.60     -1.43          0
+1    ES    E2     529     -10.86         -7.64     -1.89          0
+2    ES    E3     939      -7.82         -4.39     -1.43          0
+3    ES    E4     829      -6.76         -2.98     -0.98          0
+4    ES    E5     348      -3.47         -0.36     -0.06          2
+5    ES    NB     925      -7.30         -4.06     -1.29          0
+6   MNQ    E1     985      -4.91         -3.22     -0.64          1
+7   MNQ    E2     577      -2.58         -0.68     -0.10          2
+8   MNQ    E3     982      -9.47         -7.58     -1.57          0
+9   MNQ    E4     846      -7.01         -4.13     -0.82          0
+10  MNQ    E5     394       2.86          5.60      0.72          2
+11  MNQ    NB     969      -7.24         -5.33     -1.15          1
+   inst entry              subset  trades  avg_trade  excess_trade  t_excess  years_exc_pos  folds_pos
+0    ES    E1                 ALL     949      -8.17         -4.60     -1.43              2          0
+1    ES    E1  DECEL (leg3<=leg2)     542      -9.65         -5.94     -1.30              1          1
+2    ES    E1   ACCEL (not decel)     470      -5.37         -1.98     -0.46              3          1
+3    ES    NB                 ALL     925      -7.30         -4.06     -1.29              4          0
+4    ES    NB  DECEL (leg3<=leg2)     527      -5.78         -2.47     -0.59              3          1
+5    ES    NB   ACCEL (not decel)     449      -9.34         -6.30     -1.46              3          2
+6   MNQ    E1                 ALL     985      -4.91         -3.22     -0.64              2          1
+7   MNQ    E1  DECEL (leg3<=leg2)     555      -8.29         -6.23     -0.97              3          2
+8   MNQ    E1   ACCEL (not decel)     497      -2.71         -1.27     -0.18              5          2
+9   MNQ    NB                 ALL     969      -7.24         -5.33     -1.15              2          1
+10  MNQ    NB  DECEL (leg3<=leg2)     542     -12.84        -10.49     -1.72              1          1
+11  MNQ    NB   ACCEL (not decel)     481      -4.57         -2.83     -0.43              2          1
+   inst                    veto    side  trades  avg_trade  excess_trade  t_excess  folds_pos
+0    ES                 no veto    kept     949      -8.17         -4.60     -1.43          0
+1    ES                   accel    kept     880      -8.46         -4.89     -1.50          0
+2    ES                   accel  vetoed     102      11.19         14.61      1.43          2
+3    ES                 cum>=10    kept     941      -7.85         -4.21     -1.33          0
+4    ES                 cum>=10  vetoed      13     -51.82        -50.38     -1.24          1
+5    ES               gap<=-1.5    kept     920      -7.34         -3.79     -1.15          0
+6    ES               gap<=-1.5  vetoed      29     -34.34        -30.08     -2.51          1
+7    ES                ret5<=-3    kept     880     -10.26         -6.70     -2.24          0
+8    ES                ret5<=-3  vetoed      69      18.52         22.22      0.99          5
+9    ES                vol>=0.9    kept     829     -12.88         -9.39     -3.26          0
+10   ES                vol>=0.9  vetoed     120      24.35         28.55      1.86          2
+11   ES  ANY (predeclared veto)    kept     702     -12.66         -9.18     -3.01          0
+12   ES  ANY (predeclared veto)  vetoed     277       5.43          9.22      1.20          4
+13  MNQ                 no veto    kept     985      -4.91         -3.22     -0.64          1
+14  MNQ                   accel    kept     926      -4.71         -2.99     -0.58          1
+15  MNQ                   accel  vetoed      86     -11.97         -8.74     -0.48          1
+16  MNQ                 cum>=10    kept     980      -4.30         -2.59     -0.52          1
+17  MNQ                 cum>=10  vetoed       8     -74.30        -78.70     -0.95          0
+18  MNQ               gap<=-1.5    kept     974      -5.27         -3.59     -0.71          1
+19  MNQ               gap<=-1.5  vetoed      11      27.08         29.71      1.02          2
+20  MNQ                ret5<=-3    kept     925      -7.99         -6.56     -1.33          1
+21  MNQ                ret5<=-3  vetoed      60      42.58         48.28      1.65          5
+22  MNQ                vol>=0.9    kept     847      -8.15         -7.17     -1.38          1
+23  MNQ                vol>=0.9  vetoed     138      14.97         21.05      1.35          2
+24  MNQ  ANY (predeclared veto)    kept     756      -8.81         -7.89     -1.47          1
+25  MNQ  ANY (predeclared veto)  vetoed     254       3.20          7.73      0.69          3
+  inst entry  trades  avg_trade  excess_trade  t_excess  years_exc_pos  folds_pos
+0   ES    E1     949      -8.17         -4.60     -1.43              2          0
+1   ES    E4     829      -6.76         -2.98     -0.98              3          0
+2   ES    NB     925      -7.30         -4.06     -1.29              4          0
+3  MNQ    E1     985      -4.91         -3.22     -0.64              2          1
+4  MNQ    E4     846      -7.01         -4.13     -0.82              1          0
+5  MNQ    NB     969      -7.24         -5.33     -1.15              2          1
+   inst              context  trades  avg_trade  excess_trade  t_excess  folds_pos
+0    ES                  ALL     949      -8.17         -4.60     -1.43          0
+1    ES  15m bullish confirm     191     -15.23        -11.57     -1.78          1
+2    ES      15m not bullish     789      -5.59         -2.03     -0.55          1
+3    ES         >=2 15m legs     408      -4.47         -1.72     -0.33          2
+4    ES     slow/low-vol seq     354     -10.09         -6.01     -1.48          0
+5    ES   slow & 15m>=2 legs     166      -5.68         -2.85     -0.45          1
+6    ES    slow & 15m<2 legs     210     -11.65         -6.82     -1.48          0
+7   MNQ                  ALL     985      -4.91         -3.22     -0.64          1
+8   MNQ  15m bullish confirm     151       0.21          2.52      0.24          3
+9   MNQ      15m not bullish     863      -5.10         -3.49     -0.60          1
+10  MNQ         >=2 15m legs     332       0.42          0.75      0.09          2
+11  MNQ     slow/low-vol seq     343      -4.24         -2.78     -0.42          2
+12  MNQ   slow & 15m>=2 legs     115       8.07          8.75      0.87          4
+13  MNQ    slow & 15m<2 legs     248      -6.80         -4.28     -0.54          2
+   inst                   control   exit  trades  avg_trade  avg_day_2021  excess_trade  t_excess  folds_pos  remove_top3
+0    ES             C0 3 red bars    X60    4757      -3.32        -10.55         -0.54     -0.52          0    -17667.46
+1    ES             C0 3 red bars  X1600    1717      -0.47         -0.16         -0.17     -0.04          2     -4907.86
+2    ES             C0 3 red bars  REC50    3922      -2.50         -5.76          0.38      0.26          1    -12085.81
+3    ES      C1 3 meaningful legs    X60    1139      -7.99         -5.74         -4.32     -1.53          0    -10556.14
+4    ES      C1 3 meaningful legs  X1600     820      -2.31         -1.64         -0.31     -0.05          1     -6026.83
+5    ES      C1 3 meaningful legs  REC50     956      -4.97         -3.38         -1.48     -0.37          1     -5552.97
+6    ES      C2 C1+sideways reset    X60     949      -8.17         -4.73         -4.60     -1.43          0     -9205.54
+7    ES      C2 C1+sideways reset  X1600     703      -0.85         -0.93          1.01      0.13          2     -4730.50
+8    ES      C2 C1+sideways reset  REC50     815      -5.20         -2.86         -1.82     -0.41          0     -5040.63
+9    ES  C3 C2+bullish 5m confirm    X60     939      -7.82         -4.73         -4.39     -1.43          0     -8739.39
+10   ES  C3 C2+bullish 5m confirm  X1600     701      -1.19         -1.26          0.81      0.11          1     -4799.27
+11   ES  C3 C2+bullish 5m confirm  REC50     810      -4.87         -2.64         -1.63     -0.39          1     -4688.18
+12   ES    C4 C2+true-bottom (NB)    X60     925      -7.30         -4.61         -4.06     -1.29          0     -8412.03
+13   ES    C4 C2+true-bottom (NB)  X1600     693      -0.50         -0.98          1.39      0.19          1     -4351.85
+14   ES    C4 C2+true-bottom (NB)  REC50     803      -4.30         -2.25         -1.16     -0.28          1     -4243.25
+15  MNQ             C0 3 red bars    X60    5051      -2.88        -10.29         -1.97     -1.10          2    -17424.52
+16  MNQ             C0 3 red bars  X1600    1723       1.82          2.73         -2.83     -0.39          3     -3559.80
+17  MNQ             C0 3 red bars  REC50    4079      -0.20         -1.17          0.99      0.41          2     -3042.24
+18  MNQ      C1 3 meaningful legs    X60    1157      -5.93         -4.69         -4.44     -0.99          1     -9322.96
+19  MNQ      C1 3 meaningful legs  X1600     846      -8.81         -5.45        -11.52     -1.19          3    -10942.32
+20  MNQ      C1 3 meaningful legs  REC50     980      -8.98         -6.09         -7.55     -1.12          3     -9808.48
+21  MNQ      C2 C1+sideways reset    X60     985      -4.91         -3.31         -3.22     -0.64          1     -7294.18
+22  MNQ      C2 C1+sideways reset  X1600     740      -9.37         -5.26        -12.52     -1.17          1    -10418.88
+23  MNQ      C2 C1+sideways reset  REC50     852      -8.05         -5.19         -6.43     -0.86          1     -7869.76
+24  MNQ  C3 C2+bullish 5m confirm    X60     982      -9.47         -6.17         -7.58     -1.57          0    -11315.46
+25  MNQ  C3 C2+bullish 5m confirm  X1600     738     -14.65         -7.61        -17.37     -1.69          2    -14174.90
+26  MNQ  C3 C2+bullish 5m confirm  REC50     849     -12.60         -7.41        -10.75     -1.52          0    -11961.04
+27  MNQ    C4 C2+true-bottom (NB)    X60     969      -7.24         -5.30         -5.33     -1.15          1     -8996.84
+28  MNQ    C4 C2+true-bottom (NB)  X1600     730     -14.96         -8.09        -17.50     -1.72          1    -14175.98
+29  MNQ    C4 C2+true-bottom (NB)  REC50     841     -13.19         -7.90        -11.44     -1.64          1    -12349.12

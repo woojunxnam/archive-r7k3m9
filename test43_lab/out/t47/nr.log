@@ -1,0 +1,156 @@
+ES E1 X60 done
+ES E1 REC50 done
+ES E1 X1615 done
+ES NB X60 done
+ES NB REC50 done
+ES NB X1615 done
+MNQ E1 X60 done
+MNQ E1 REC50 done
+MNQ E1 X1615 done
+MNQ NB X60 done
+MNQ NB REC50 done
+MNQ NB X1615 done
+   inst entry   exit                                config  campaigns  adds  trims  avg_day_2021  excess_day_2021  incr_avg_day  incr_t  delta_ret_dd  delta_worst_day  worst_campaign  remove_top3_campaigns  folds_pos
+0    ES    E1    X60                            R0 one lot        904     0      0         -3.99            -2.22           NaN     NaN           NaN              NaN         -513.74               -8247.24          1
+1    ES    E1    X60             NR-A confirmed second buy        904   453      0         -5.46            -2.72         -1.47   -1.40           0.0          -327.49         -627.48              -11040.23          1
+2    ES    E1    X60    NR-B blind DCA (-2u5) [diagnostic]        904   353      0         -3.96            -1.47          0.03    0.02           0.0          -656.23         -863.73               -9274.98          2
+3    ES    E1    X60                 NR-C confirmed + trim        904   453    210         -5.74            -3.02         -1.75   -1.95          -0.0          -327.49         -627.48              -10491.48          1
+4    ES    E1    X60                     NR-D full recycle        904   469    211         -5.85            -3.10         -1.86   -2.08          -0.0          -327.49         -627.48              -10843.82          1
+5    ES    E1    X60  NR-B+trim blind recycle [diagnostic]        904   447    217         -4.13            -1.50         -0.14   -0.14           0.0          -617.47         -863.73               -9152.79          2
+6    ES    E1  REC50                            R0 one lot        802     0      0         -2.61            -1.87           NaN     NaN           NaN              NaN        -1098.74               -4634.51          0
+7    ES    E1  REC50             NR-A confirmed second buy        802   470      0         -3.31            -2.26         -0.70   -0.35           0.0         -1002.49        -2101.23               -5873.59          1
+8    ES    E1  REC50    NR-B blind DCA (-2u5) [diagnostic]        802   381      0         -1.77            -0.76          0.84    0.40           0.0          -946.24        -2044.98               -4116.98          1
+9    ES    E1  REC50                 NR-C confirmed + trim        802   470    323         -4.37            -2.92         -1.76   -1.20          -0.0          -531.24        -1629.98               -7069.84          0
+10   ES    E1  REC50                     NR-D full recycle        802   590    406         -5.80            -4.21         -3.19   -1.86          -0.0          -832.48        -1931.22               -9389.90          0
+11   ES    E1  REC50  NR-B+trim blind recycle [diagnostic]        802   637    494         -3.73            -1.99         -1.12   -0.63           0.0          -744.98        -1843.72               -5955.68          1
+12   ES    E1  X1615                            R0 one lot        703     0      0         -0.35            -0.46           NaN     NaN           NaN              NaN        -1098.74               -4146.75          1
+13   ES    E1  X1615             NR-A confirmed second buy        703   512      0         -0.13            -0.24          0.22    0.09           0.0         -1002.49        -2101.23               -5661.65          2
+14   ES    E1  X1615    NR-B blind DCA (-2u5) [diagnostic]        703   427      0          0.76             0.61          1.11    0.44           0.0          -946.24        -2044.98               -4053.75          2
+15   ES    E1  X1615                 NR-C confirmed + trim        703   512    393         -1.22            -0.55         -0.87   -0.60          -0.0          -531.24        -1629.98               -5017.89          1
+16   ES    E1  X1615                     NR-D full recycle        703   704    520         -2.97            -2.06         -2.62   -1.47          -0.0          -832.48        -1931.22               -8335.98          1
+17   ES    E1  X1615  NR-B+trim blind recycle [diagnostic]        703   725    557         -1.91            -0.99         -1.56   -0.84          -0.0          -744.98        -1843.72               -5794.53          1
+18   ES    NB    X60                            R0 one lot        887     0      0         -3.03            -1.54           NaN     NaN           NaN              NaN         -359.99               -6298.67          1
+19   ES    NB    X60             NR-A confirmed second buy        887   360      0         -3.09            -0.93         -0.06   -0.07           0.0          -234.97         -576.23               -6822.58          1
+20   ES    NB    X60    NR-B blind DCA (-2u5) [diagnostic]        887   344      0         -1.92             0.08          1.12    1.26           0.0          -267.49         -608.73               -5427.74          1
+21   ES    NB    X60                 NR-C confirmed + trim        887   360    140         -3.85            -1.63         -0.82   -1.15           0.0          -234.97         -576.23               -7552.57          1
+22   ES    NB    X60                     NR-D full recycle        887   367    140         -3.86            -1.65         -0.83   -1.17           0.0          -234.97         -576.23               -7573.75          1
+23   ES    NB    X60  NR-B+trim blind recycle [diagnostic]        887   421    196         -2.21            -0.07          0.82    1.11           0.0          -228.73         -608.73               -5299.47          1
+24   ES    NB  REC50                            R0 one lot        784     0      0         -1.48            -0.78           NaN     NaN           NaN              NaN        -1002.49               -3425.94          2
+25   ES    NB  REC50             NR-A confirmed second buy        784   367      0         -1.32            -0.33          0.17    0.10           0.0          -906.24        -1908.73               -4557.30          2
+26   ES    NB  REC50    NR-B blind DCA (-2u5) [diagnostic]        784   327      0         -0.85             0.06          0.63    0.35           0.0          -816.24        -1818.73               -3900.20          2
+27   ES    NB  REC50                 NR-C confirmed + trim        784   367    260         -2.70            -1.54         -1.22   -0.93          -0.0          -906.24        -1908.73               -5409.80          1
+28   ES    NB  REC50                     NR-D full recycle        784   467    330         -2.89            -1.58         -1.40   -0.98          -0.0          -906.24        -1908.73               -5746.31          2
+29   ES    NB  REC50  NR-B+trim blind recycle [diagnostic]        784   548    416         -1.84            -0.35         -0.36   -0.24           0.0          -716.23        -1718.72               -4135.52          3
+30   ES    NB  X1615                            R0 one lot        686     0      0          0.67             0.63           NaN     NaN           NaN              NaN        -1002.49               -2180.67          2
+31   ES    NB  X1615             NR-A confirmed second buy        686   466      0          1.09             1.15          0.42    0.19          -0.0          -906.24        -1908.73               -3643.53          2
+32   ES    NB  X1615    NR-B blind DCA (-2u5) [diagnostic]        686   397      0          0.72             0.69          0.05    0.02          -0.0          -816.24        -1818.73               -3859.22          2
+33   ES    NB  X1615                 NR-C confirmed + trim        686   466    350         -0.36             0.16         -1.03   -0.73          -0.0          -906.24        -1908.73               -3593.51          2
+34   ES    NB  X1615                     NR-D full recycle        686   619    447         -1.19            -0.47         -1.86   -1.19          -0.0          -906.24        -1908.73               -5496.98          2
+35   ES    NB  X1615  NR-B+trim blind recycle [diagnostic]        686   672    502         -0.05             0.73         -0.72   -0.45          -0.0          -716.23        -1718.72               -3620.23          1
+36  MNQ    E1    X60                            R0 one lot        937     0      0         -3.79            -2.86           NaN     NaN           NaN              NaN        -1046.74               -7590.66          1
+37  MNQ    E1    X60             NR-A confirmed second buy        937   455      0         -6.84            -4.75         -3.05   -1.84          -0.0          -116.74        -1266.98              -12131.38          1
+38  MNQ    E1    X60    NR-B blind DCA (-2u5) [diagnostic]        937   349      0         -4.34            -3.01         -0.54   -0.29           0.0         -1060.48        -1900.98               -8695.44          1
+39  MNQ    E1    X60                 NR-C confirmed + trim        937   455    188         -5.91            -4.13         -2.12   -1.47          -0.0          -116.74        -1266.98              -11090.62          1
+40  MNQ    E1    X60                     NR-D full recycle        937   470    190         -6.02            -4.22         -2.23   -1.54          -0.0          -116.74        -1266.98              -11295.22          1
+41  MNQ    E1    X60  NR-B+trim blind recycle [diagnostic]        937   439    208         -3.34            -1.96          0.45    0.27           0.0         -1060.48        -1900.98               -7460.28          2
+42  MNQ    E1  REC50                            R0 one lot        840     0      0         -5.49            -6.21           NaN     NaN           NaN              NaN        -1785.24               -7930.38          1
+43  MNQ    E1  REC50             NR-A confirmed second buy        840   486      0         -7.74            -8.64         -2.26   -0.64           0.0         -1478.74        -3263.98              -11738.80          3
+44  MNQ    E1  REC50    NR-B blind DCA (-2u5) [diagnostic]        840   380      0         -7.27            -8.92         -1.78   -0.50           0.0         -1592.74        -3377.98              -10953.86          3
+45  MNQ    E1  REC50                 NR-C confirmed + trim        840   486    331         -7.68            -8.21         -2.19   -0.79           0.0         -1478.74        -3263.98              -12581.80          2
+46  MNQ    E1  REC50                     NR-D full recycle        840   611    416         -8.08            -8.58         -2.59   -0.87           0.0         -1478.74        -3263.98              -13377.58          2
+47  MNQ    E1  REC50  NR-B+trim blind recycle [diagnostic]        840   664    504         -5.47            -5.99          0.01    0.00           0.0         -1592.74        -3377.98               -8542.32          2
+48  MNQ    E1  X1615                            R0 one lot        740     0      0         -4.45            -6.96           NaN     NaN           NaN              NaN        -1785.24               -8986.38          2
+49  MNQ    E1  X1615             NR-A confirmed second buy        740   534      0         -8.33           -11.70         -3.88   -0.95          -0.0         -1478.74        -3263.98              -16068.82          2
+50  MNQ    E1  X1615    NR-B blind DCA (-2u5) [diagnostic]        740   442      0         -5.88            -9.76         -1.43   -0.36           0.0         -1592.74        -3377.98              -11525.98          2
+51  MNQ    E1  X1615                 NR-C confirmed + trim        740   534    393         -5.66            -7.95         -1.21   -0.43          -0.0         -1478.74        -3263.98              -12167.80          2
+52  MNQ    E1  X1615                     NR-D full recycle        740   718    515         -6.40            -8.74         -1.95   -0.63          -0.0         -1478.74        -3263.98              -13294.46          2
+53  MNQ    E1  X1615  NR-B+trim blind recycle [diagnostic]        740   766    572         -4.31            -6.73          0.13    0.04           0.0         -1592.74        -3377.98               -9114.74          3
+54  MNQ    NB    X60                            R0 one lot        931     0      0         -6.20            -5.13           NaN     NaN           NaN              NaN         -695.74               -9607.98          1
+55  MNQ    NB    X60             NR-A confirmed second buy        931   389      0         -3.72            -2.29          2.47    1.68           0.0          -455.98         -852.48               -6988.86          2
+56  MNQ    NB    X60    NR-B blind DCA (-2u5) [diagnostic]        931   353      0         -4.51            -3.42          1.68    1.13           0.0          -491.50        -1229.98               -6958.72          1
+57  MNQ    NB    X60                 NR-C confirmed + trim        931   389    153         -6.04            -4.45          0.16    0.14           0.0          -279.98         -852.48               -9230.36          1
+58  MNQ    NB    X60                     NR-D full recycle        931   398    153         -6.03            -4.43          0.17    0.15           0.0          -279.98         -852.48               -9244.02          1
+59  MNQ    NB    X60  NR-B+trim blind recycle [diagnostic]        931   416    185         -4.41            -3.14          1.78    1.32           0.0          -413.24        -1151.72               -6500.84          1
+60  MNQ    NB  REC50                            R0 one lot        825     0      0         -8.02            -8.33           NaN     NaN           NaN              NaN        -1589.74              -12452.78          1
+61  MNQ    NB  REC50             NR-A confirmed second buy        825   393      0         -9.12           -10.00         -1.09   -0.34           0.0         -1632.74        -3222.48              -16353.38          1
+62  MNQ    NB  REC50    NR-B blind DCA (-2u5) [diagnostic]        825   342      0         -9.64           -11.26         -1.62   -0.51           0.0         -1347.24        -2936.98              -16767.14          1
+63  MNQ    NB  REC50                 NR-C confirmed + trim        825   393    281         -8.00            -8.41          0.02    0.01           0.0         -1632.74        -3222.48              -12645.38          1
+64  MNQ    NB  REC50                     NR-D full recycle        825   496    344         -7.62            -8.01          0.40    0.16           0.0         -1632.74        -3222.48              -13307.36          1
+65  MNQ    NB  REC50  NR-B+trim blind recycle [diagnostic]        825   576    428         -8.89            -9.38         -0.87   -0.31           0.0         -1347.24        -2936.98              -13973.82          1
+66  MNQ    NB  X1615                            R0 one lot        726     0      0         -6.88            -8.94           NaN     NaN           NaN              NaN        -1589.74              -12146.52          2
+67  MNQ    NB  X1615             NR-A confirmed second buy        726   497      0         -6.87           -10.75          0.01    0.00           0.0         -1632.74        -3222.48              -15262.08          2
+68  MNQ    NB  X1615    NR-B blind DCA (-2u5) [diagnostic]        726   419      0         -8.68           -12.62         -1.80   -0.49           0.0         -1347.24        -2936.98              -17400.60          2
+69  MNQ    NB  X1615                 NR-C confirmed + trim        726   497    371         -6.44            -8.89          0.44    0.17           0.0         -1632.74        -3222.48              -12180.56          2
+70  MNQ    NB  X1615                     NR-D full recycle        726   652    467         -5.91            -8.39          0.97    0.35           0.0         -1632.74        -3222.48              -12711.76          2
+71  MNQ    NB  X1615  NR-B+trim blind recycle [diagnostic]        726   712    518         -8.87           -11.26         -1.98   -0.66           0.0         -1347.24        -2936.98              -15334.42          2
+   inst entry config  trades  avg_trade  excess_trade  t_excess  folds_pos
+0    ES    E1    X30    1049      -6.70         -3.03     -1.41          0
+1    ES    E1    X60     949      -8.17         -4.60     -1.43          0
+2    ES    E1   X120     854      -6.54         -3.92     -0.82          0
+3    ES    E1  X1600     703      -0.85          1.01      0.13          2
+4    ES    E1  X1615     703       0.16          0.69      0.09          1
+5    ES    E1  REC50     815      -5.20         -1.82     -0.41          0
+6    ES    E1   TWAP     821      -6.49         -3.06     -0.72          0
+7    ES    E1   OPEN     783      -7.38         -3.90     -0.75          1
+8    ES    E1    REF     750      -8.56         -5.23     -0.95          0
+9    ES    NB    X30     996      -6.39         -2.71     -1.28          0
+10   ES    NB    X60     925      -7.30         -4.06     -1.29          0
+11   ES    NB   X120     835      -4.18         -1.57     -0.35          2
+12   ES    NB  X1600     693      -0.50          1.39      0.19          1
+13   ES    NB  X1615     693       0.74          1.29      0.18          1
+14   ES    NB  REC50     803      -4.30         -1.16     -0.28          1
+15   ES    NB   TWAP     803      -5.96         -2.89     -0.75          0
+16   ES    NB   OPEN     759      -7.34         -4.16     -0.84          0
+17   ES    NB    REF     738      -6.52         -3.44     -0.66          2
+18  MNQ    E1    X30    1080      -0.51          0.72      0.21          2
+19  MNQ    E1    X60     985      -4.91         -3.22     -0.64          1
+20  MNQ    E1   X120     884      -5.48         -4.82     -0.69          2
+21  MNQ    E1  X1600     740      -9.37        -12.52     -1.17          1
+22  MNQ    E1  X1615     740      -7.20        -12.27     -1.12          2
+23  MNQ    E1  REC50     852      -8.05         -6.43     -0.86          1
+24  MNQ    E1   TWAP     861      -3.93         -2.09     -0.29          2
+25  MNQ    E1   OPEN     819     -12.71        -10.81     -1.28          0
+26  MNQ    E1    REF     781     -12.59        -10.71     -1.17          0
+27  MNQ    NB    X30    1040      -7.83         -5.33     -1.56          1
+28  MNQ    NB    X60     969      -7.24         -5.33     -1.15          1
+29  MNQ    NB   X120     864      -8.19         -6.95     -1.01          2
+30  MNQ    NB  X1600     730     -14.96        -17.50     -1.72          1
+31  MNQ    NB  X1615     730     -12.50        -16.92     -1.63          2
+32  MNQ    NB  REC50     841     -13.19        -11.44     -1.64          1
+33  MNQ    NB   TWAP     847      -9.03         -6.98     -1.06          0
+34  MNQ    NB   OPEN     798     -18.84        -17.02     -2.11          0
+35  MNQ    NB    REF     771     -17.39        -15.57     -1.81          1
+                                    0        1
+inst                               ES      MNQ
+unresolved_campaigns              280      306
+share_of_campaigns               0.35     0.37
+avg_overnight_$                 -0.26    -8.88
+matched_ordinary_overnight_$    -0.47     5.48
+conditional_excess_$             0.21   -14.38
+t                                0.02    -0.91
+worst_overnight_$            -1053.74  -925.74
+years_excess_pos                    4        2
+years                               8        8
+hold_incr_avg_day               -0.15    -1.75
+hold_incr_total               -203.75  -2377.5
+hold_incr_max_dd               2600.0  6003.74
+hold_incr_worst_day          -1244.99 -1709.24
+hold_incr_t                     -0.04    -0.28
+hold_delta_worst_day            31.26     92.5
+hold_delta_max_dd              445.94   3914.7
+year         2019   2020   2021   2022   2023   2024   2025   2026
+inst ntick                                                        
+ES   2     -0.006  0.002 -0.012  0.006 -0.017 -0.043 -0.012 -0.020
+     3      0.003 -0.020 -0.018 -0.008 -0.056 -0.063 -0.012 -0.034
+     4      0.112 -0.018 -0.008  0.009 -0.028 -0.056 -0.051 -0.020
+MNQ  2     -0.004 -0.015  0.003 -0.001 -0.010 -0.012  0.006  0.004
+     3     -0.004  0.004  0.033 -0.002 -0.044 -0.049 -0.003 -0.015
+     4      0.001 -0.008  0.037 -0.033 -0.007 -0.035  0.018  0.024
+year         2019   2020   2021   2022   2023   2024   2025   2026
+inst ntick                                                        
+ES   2     -0.042 -0.026  0.040  0.006 -0.046  0.028 -0.040  0.018
+     3     -0.177 -0.019  0.018  0.007 -0.041  0.005 -0.003 -0.054
+     4     -0.232 -0.093  0.002 -0.035 -0.104  0.033  0.069 -0.055
+MNQ  2      0.070 -0.093  0.084  0.039 -0.028  0.020  0.027  0.025
+     3     -0.143 -0.034 -0.027 -0.008  0.049  0.061 -0.032 -0.080
+     4     -0.076 -0.011  0.021  0.015 -0.028 -0.076  0.003 -0.146
