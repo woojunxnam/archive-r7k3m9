@@ -1,0 +1,353 @@
+{
+ "B": {
+  "TOTAL_TEST97_LEDGER_ROWS": 570,
+  "TOTAL_TEST97_DISTINCT_VARIANTS": 114,
+  "TOTAL_TEST97_ML_CONFIGS": 0,
+  "TOTAL_TEST97_GA_GENOMES": 0,
+  "note": "each distinct definition normally yields ES / NQ / YM / RTY / POOLED rows; 570 are ledger rows, not distinct variants"
+ },
+ "C": {
+  "unmatched_dropped": {
+   "k0.1_ES_h6": 11,
+   "k0.1_NQ_h6": 23,
+   "k0.1_YM_h6": 13,
+   "k0.1_RTY_h6": 6,
+   "k0.1_ES_h12": 11,
+   "k0.1_NQ_h12": 23,
+   "k0.1_YM_h12": 13,
+   "k0.1_RTY_h12": 6,
+   "k0.1_ES_h1615": 11,
+   "k0.1_NQ_h1615": 23,
+   "k0.1_YM_h1615": 13,
+   "k0.1_RTY_h1615": 6,
+   "k0.2_ES_h6": 15,
+   "k0.2_NQ_h6": 27,
+   "k0.2_YM_h6": 21,
+   "k0.2_RTY_h6": 14,
+   "k0.2_ES_h12": 15,
+   "k0.2_NQ_h12": 27,
+   "k0.2_YM_h12": 21,
+   "k0.2_RTY_h12": 14,
+   "k0.2_ES_h1615": 15,
+   "k0.2_NQ_h1615": 27,
+   "k0.2_YM_h1615": 21,
+   "k0.2_RTY_h1615": 14,
+   "k0.3_ES_h6": 25,
+   "k0.3_NQ_h6": 39,
+   "k0.3_YM_h6": 28,
+   "k0.3_RTY_h6": 25,
+   "k0.3_ES_h12": 25,
+   "k0.3_NQ_h12": 39,
+   "k0.3_YM_h12": 28,
+   "k0.3_RTY_h12": 25,
+   "k0.3_ES_h1615": 25,
+   "k0.3_NQ_h1615": 39,
+   "k0.3_YM_h1615": 28,
+   "k0.3_RTY_h1615": 25,
+   "k0.5_ES_h6": 36,
+   "k0.5_NQ_h6": 34,
+   "k0.5_YM_h6": 39,
+   "k0.5_RTY_h6": 18,
+   "k0.5_ES_h12": 36,
+   "k0.5_NQ_h12": 34,
+   "k0.5_YM_h12": 39,
+   "k0.5_RTY_h12": 18,
+   "k0.5_ES_h1615": 36,
+   "k0.5_NQ_h1615": 34,
+   "k0.5_YM_h1615": 39,
+   "k0.5_RTY_h1615": 18,
+   "k0.75_ES_h6": 14,
+   "k0.75_NQ_h6": 37,
+   "k0.75_YM_h6": 11,
+   "k0.75_RTY_h6": 10,
+   "k0.75_ES_h12": 14,
+   "k0.75_NQ_h12": 37,
+   "k0.75_YM_h12": 11,
+   "k0.75_RTY_h12": 10,
+   "k0.75_ES_h1615": 14,
+   "k0.75_NQ_h1615": 37,
+   "k0.75_YM_h1615": 11,
+   "k0.75_RTY_h1615": 10
+  },
+  "any_CORRECTED_HISTORICAL_CLUE": true
+ },
+ "D": {
+  "matched_sessions": 3763,
+  "paired_pooled": {
+   "W3_V3_own_h6_pullback_minus_chase": {
+    "n": 3763,
+    "mean": 0.000936164489485473,
+    "ci_lo": -0.009170634702429271,
+    "ci_hi": 0.01096630642853544,
+    "years_pos": 4.0
+   },
+   "W3_V3_own_h12_pullback_minus_chase": {
+    "n": 3763,
+    "mean": -0.003045542487880698,
+    "ci_lo": -0.014976961832203877,
+    "ci_hi": 0.00898096253764255,
+    "years_pos": 2.0
+   },
+   "W3_V3_own_h1615_pullback_minus_chase": {
+    "n": 3763,
+    "mean": 0.005846523994577773,
+    "ci_lo": -0.004483950976218108,
+    "ci_hi": 0.016098790321835588,
+    "years_pos": 6.0
+   },
+   "W3_V3_same_exit_pullback_h12_pullback_minus_chase": {
+    "n": 3763,
+    "mean": 0.005846523994577776,
+    "ci_lo": -0.004483950976218105,
+    "ci_hi": 0.01609879032183559,
+    "years_pos": 6.0
+   },
+   "W3_V3_same_exit_1615_pullback_minus_chase": {
+    "n": 3763,
+    "mean": 0.005846523994577773,
+    "ci_lo": -0.004483950976218108,
+    "ci_hi": 0.016098790321835588,
+    "years_pos": 6.0
+   }
+  }
+ },
+ "E": [
+  {
+   "label": "M04_B_next_bull_same_exit_conf_h12_conf_minus_orig",
+   "n": 3667,
+   "mean": -0.052509631379802746,
+   "ci_lo": -0.05523472815830098,
+   "ci_hi": -0.05008404420578959
+  },
+  {
+   "label": "M04_B_next_bull_same_exit_1615_conf_minus_orig",
+   "n": 3667,
+   "mean": -0.052509631379802746,
+   "ci_lo": -0.05523472815830098,
+   "ci_hi": -0.050084044205789574
+  },
+  {
+   "label": "M04_B_next_bull_INFO_h6_confirmed_minus_unconfirmed",
+   "n": 3667,
+   "mean": 0.011695324963342142,
+   "ci_lo": 0.0016956701605083601,
+   "ci_hi": 0.022516555442082354
+  },
+  {
+   "label": "M04_B_next_bull_INFO_h12_confirmed_minus_unconfirmed",
+   "n": 3667,
+   "mean": 0.013833195446405863,
+   "ci_lo": 0.0004453684387958866,
+   "ci_hi": 0.028781235544498872
+  },
+  {
+   "label": "M04_C_next_close_gt_same_exit_conf_h12_conf_minus_orig",
+   "n": 3665,
+   "mean": -0.052469901212065094,
+   "ci_lo": -0.05504818565363261,
+   "ci_hi": -0.049918860383686536
+  },
+  {
+   "label": "M04_C_next_close_gt_same_exit_1615_conf_minus_orig",
+   "n": 3665,
+   "mean": -0.052469901212065094,
+   "ci_lo": -0.05504818565363261,
+   "ci_hi": -0.049918860383686536
+  },
+  {
+   "label": "M04_C_next_close_gt_INFO_h6_confirmed_minus_unconfirmed",
+   "n": 3665,
+   "mean": 0.011189226919878802,
+   "ci_lo": 0.00134118721529318,
+   "ci_hi": 0.021908223832134647
+  },
+  {
+   "label": "M04_C_next_close_gt_INFO_h12_confirmed_minus_unconfirmed",
+   "n": 3665,
+   "mean": 0.013421914825478335,
+   "ci_lo": -3.3930800986513324e-05,
+   "ci_hi": 0.028173645269311
+  },
+  {
+   "label": "M04_E_next_HH_HL_same_exit_conf_h12_conf_minus_orig",
+   "n": 5941,
+   "mean": -0.016853699799898886,
+   "ci_lo": -0.019189290715341784,
+   "ci_hi": -0.014410397181882554
+  },
+  {
+   "label": "M04_E_next_HH_HL_same_exit_1615_conf_minus_orig",
+   "n": 5941,
+   "mean": -0.016853699799898886,
+   "ci_lo": -0.019189290715341777,
+   "ci_hi": -0.014410397181882554
+  },
+  {
+   "label": "M04_E_next_HH_HL_INFO_h6_confirmed_minus_unconfirmed",
+   "n": 5941,
+   "mean": 0.007935227913721442,
+   "ci_lo": -0.004716290810405414,
+   "ci_hi": 0.02058227190156908
+  },
+  {
+   "label": "M04_E_next_HH_HL_INFO_h12_confirmed_minus_unconfirmed",
+   "n": 5941,
+   "mean": 0.013001642169715312,
+   "ci_lo": -0.004478397475241751,
+   "ci_hi": 0.02976125354132431
+  },
+  {
+   "label": "M04_F_next_STRONG_same_exit_conf_h12_conf_minus_orig",
+   "n": 431,
+   "mean": -0.1312399551736378,
+   "ci_lo": -0.14164832586570403,
+   "ci_hi": -0.12198508051522364
+  },
+  {
+   "label": "M04_F_next_STRONG_same_exit_1615_conf_minus_orig",
+   "n": 431,
+   "mean": -0.1312399551736378,
+   "ci_lo": -0.14164832586570403,
+   "ci_hi": -0.12198508051522364
+  },
+  {
+   "label": "M04_F_next_STRONG_INFO_h6_confirmed_minus_unconfirmed",
+   "n": 431,
+   "mean": 0.025262111906544614,
+   "ci_lo": -0.0003522661777894964,
+   "ci_hi": 0.050901714757223396
+  },
+  {
+   "label": "M04_F_next_STRONG_INFO_h12_confirmed_minus_unconfirmed",
+   "n": 431,
+   "mean": 0.03393939783352149,
+   "ci_lo": 0.0006525529975475492,
+   "ci_hi": 0.06755625872457441
+  },
+  {
+   "label": "M04_D_two_bull_same_exit_conf_h12_conf_minus_orig",
+   "n": 1739,
+   "mean": -0.10477714532725281,
+   "ci_lo": -0.11114997585077979,
+   "ci_hi": -0.09875104815537504
+  },
+  {
+   "label": "M04_D_two_bull_same_exit_1615_conf_minus_orig",
+   "n": 1739,
+   "mean": -0.10477714532725282,
+   "ci_lo": -0.11114997585077979,
+   "ci_hi": -0.09875104815537504
+  },
+  {
+   "label": "M04_D_two_bull_INFO_h6_confirmed_minus_unconfirmed",
+   "n": 1739,
+   "mean": 0.011192684561244193,
+   "ci_lo": -0.0012661811167186013,
+   "ci_hi": 0.022854035831744526
+  },
+  {
+   "label": "M04_D_two_bull_INFO_h12_confirmed_minus_unconfirmed",
+   "n": 1739,
+   "mean": 0.008352096992830654,
+   "ci_lo": -0.00897051135159233,
+   "ci_hi": 0.025572960060496683
+  }
+ ],
+ "F": {
+  "explanation": "Wave-2 EVENT_EDGE used the common population (confirmation bar <= 67, all bar horizons complete): 431 pooled; Phase 3 used every RTH FT2 event with entry before 16:15 (no bar cap): ~602; Phase-3 'X60' clipped late events at 16:15 -> relabelled X60_CLIPPED",
+  "counts": [
+   {
+    "instrument": "ES",
+    "common_pop_events_b<=67": 79,
+    "all_rth_events": 135,
+    "strict_x60_events": 79,
+    "late_excluded": 56
+   },
+   {
+    "instrument": "NQ",
+    "common_pop_events_b<=67": 100,
+    "all_rth_events": 147,
+    "strict_x60_events": 100,
+    "late_excluded": 47
+   },
+   {
+    "instrument": "YM",
+    "common_pop_events_b<=67": 102,
+    "all_rth_events": 144,
+    "strict_x60_events": 102,
+    "late_excluded": 42
+   },
+   {
+    "instrument": "RTY",
+    "common_pop_events_b<=67": 150,
+    "all_rth_events": 176,
+    "strict_x60_events": 150,
+    "late_excluded": 26
+   }
+  ]
+ },
+ "G": {
+  "pooled": [
+   {
+    "method": "OLD_full_sample_edges",
+    "horizon": "h6",
+    "n": 429,
+    "mean": 0.024406507537930992,
+    "ci_lo": -0.0024683762597839908,
+    "ci_hi": 0.05188850217916599,
+    "years_pos": 5.0
+   },
+   {
+    "method": "OLD_full_sample_edges",
+    "horizon": "h12",
+    "n": 423,
+    "mean": 0.03649113529888309,
+    "ci_lo": -0.0009182144512636442,
+    "ci_hi": 0.07464928469658515,
+    "years_pos": 6.0
+   },
+   {
+    "method": "OLD_full_sample_edges",
+    "horizon": "h1615",
+    "n": 429,
+    "mean": 0.052572368181622114,
+    "ci_lo": -0.001640399840227436,
+    "ci_hi": 0.10469377058520013,
+    "years_pos": 4.0
+   },
+   {
+    "method": "CAUSAL_monthly_expanding_edges",
+    "horizon": "h6",
+    "n": 420,
+    "mean": 0.023379081088268798,
+    "ci_lo": -0.004503698033202524,
+    "ci_hi": 0.051029185349648266,
+    "years_pos": 5.0
+   },
+   {
+    "method": "CAUSAL_monthly_expanding_edges",
+    "horizon": "h12",
+    "n": 415,
+    "mean": 0.037001497247185315,
+    "ci_lo": -0.003305679898473403,
+    "ci_hi": 0.0765020928865762,
+    "years_pos": 6.0
+   },
+   {
+    "method": "CAUSAL_monthly_expanding_edges",
+    "horizon": "h1615",
+    "n": 420,
+    "mean": 0.057331310245056194,
+    "ci_lo": 0.0034161022985759234,
+    "ci_hi": 0.11267808634259074,
+    "years_pos": 5.0
+   }
+  ],
+  "DOWNGRADE": true
+ },
+ "H": {
+  "RECOVERY_STACK": "REJECT on the FT2 initial population (ADD1 < 0 in ES / NQ / YM / RTY); no ADD2 / ADD3 research",
+  "standing_rule": "if ADD1 <= 0 -> stop deeper stacking automatically",
+  "blind_DCA_note": "existing code used average - 0.5 ATR x units for deeper adds (prereg: average - 0.5 ATR per add) -> deeper blind-DCA outputs NOT USABLE"
+ }
+}

@@ -45,7 +45,6 @@
  "MAIN_RET_DD": 0.0102758294430884,
  "NEW_CANDIDATE_INCREMENT_AVG_DAY": 3.447024698449166,
  "PORTFOLIO_SURVIVOR": "NO",
- "TOTAL_TEST97_VARIANTS": 570,
  "TOTAL_TEST97_ML_CONFIGS": 0,
  "TOTAL_TEST97_GA_GENOMES": 0,
  "binding_constraint": "60-min conditional excess of the best events (0.01-0.04 ATR_d) is of the same order as round-trip micro cost (0.005-0.015 ATR_d)",
@@ -56,5 +55,8 @@
   "cross-index FT2 synchrony (follow-through in several indices at once) - distinct from closed Q2"
  ],
  "NEW_OOS_OPENED": "NO",
- "LIVE_AUTHORIZATION": "NO"
+ "LIVE_AUTHORIZATION": "NO",
+ "TOTAL_TEST97_LEDGER_ROWS": 570,
+ "TOTAL_TEST97_DISTINCT_VARIANTS": 114,
+ "SUPERSEDED_BY": "TEST97_PLUS_FINAL_STATUS_CORRECTED.json (TEST97_AUDIT_CORRECTION_1)"
 }

@@ -1,0 +1,54 @@
+{
+ "CORRECTION": "TEST97_AUDIT_CORRECTION_1",
+ "PREREG_COMMIT": "85f5bdc",
+ "TOTAL_TEST97_LEDGER_ROWS": 570,
+ "TOTAL_TEST97_DISTINCT_VARIANTS": 114,
+ "TOTAL_TEST97_ML_CONFIGS": 0,
+ "TOTAL_TEST97_GA_GENOMES": 0,
+ "note": "each distinct definition normally yields ES / NQ / YM / RTY / POOLED rows; 570 are ledger rows, not distinct variants",
+ "TEST97_PORTFOLIO_SURVIVOR": "NO",
+ "FT2_STATUS": "DOWNGRADED - EVENT CLUE NOT ROBUST: 5,000-rep precision audit puts the h12 CI lower bound below 0 even with the original null (-0.0009) and with causal monthly-expanding edges (-0.0033); strategy remains rejected; selection-exposed",
+ "W3_V1_STATUS": "CORRECTED_HISTORICAL_CLUE (not promoted): with the preregistered k=0 family null, k=0.2 and k=0.3 at 16:15 show +0.029 ATR over the close-above-open population (CI lower bound +0.0016, 8/8 and 7/8 years, gross > cost); 30 / 60-min horizons and k=0.1/0.5/0.75 do not; vs null A the same events are only +0.007 ATR; 15 (k x horizon) cells tested",
+ "W3_V3_FIRST_PULLBACK_STATUS": "NO SIGNIFICANT DIFFERENCE (previous 'worse than chase' RETRACTED - it compared different populations): on 3,763 matched sessions pullback-minus-chase at the same exit = +0.0058 ATR (CI -0.0045..+0.0161, 6/8 years); own 60-min horizons -0.003; ES / NQ negative, YM / RTY positive; pullback entry has lower 60-min MAE (0.18 vs 0.21 ATR)",
+ "FOLLOW_THROUGH_INFORMATION_STATUS": "VALID CLUE (weak): confirmed minus unconfirmed at the same minute B +0.012 (h6, CI>0) / +0.014 (h12, CI>0); F +0.034 (h12, CI lower +0.0007); E and D CIs include 0",
+ "FOLLOW_THROUGH_TIMING_STATUS": "NEGATIVE: on identical confirmed events and identical exit minutes the confirmation entry is worse than the original entry by 0.05 (B/C) to 0.13 (F) ATR (CIs exclude 0) - waiting pays up the confirmation bar; note the original-entry arm is conditioned on a later confirmation (hindsight population), so this measures the cost of waiting, not a tradeable original-entry edge",
+ "RECOVERY_STACK_STATUS": "REJECT on the FT2 initial population (ADD1 < 0 in all four indices); standing rule: ADD1 <= 0 -> stop deeper stacking; deeper blind-DCA outputs NOT USABLE (threshold scaled by units, deviates from prereg)",
+ "FT2_POPULATION_AUDIT": {
+  "explanation": "Wave-2 EVENT_EDGE used the common population (confirmation bar <= 67, all bar horizons complete): 431 pooled; Phase 3 used every RTH FT2 event with entry before 16:15 (no bar cap): ~602; Phase-3 'X60' clipped late events at 16:15 -> relabelled X60_CLIPPED",
+  "counts": [
+   {
+    "instrument": "ES",
+    "common_pop_events_b<=67": 79,
+    "all_rth_events": 135,
+    "strict_x60_events": 79,
+    "late_excluded": 56
+   },
+   {
+    "instrument": "NQ",
+    "common_pop_events_b<=67": 100,
+    "all_rth_events": 147,
+    "strict_x60_events": 100,
+    "late_excluded": 47
+   },
+   {
+    "instrument": "YM",
+    "common_pop_events_b<=67": 102,
+    "all_rth_events": 144,
+    "strict_x60_events": 102,
+    "late_excluded": 42
+   },
+   {
+    "instrument": "RTY",
+    "common_pop_events_b<=67": 150,
+    "all_rth_events": 176,
+    "strict_x60_events": 150,
+    "late_excluded": 26
+   }
+  ]
+ },
+ "PORTFOLIO_REPORTING": "VIRTUAL_ADDITIVE_DIAGNOSTIC only (no CAPACITY_VALID_PORTFOLIO)",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO",
+ "CURRENT_MAIN": "T61-R1C_ATOMIC_CAP6 + FIXED_CLUE_BASKET_V1",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}
