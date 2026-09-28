@@ -1,0 +1,13 @@
+model,dropped,rankIC,taken_pnl
+RIDGE,"path shape (legs, ratios, cum, dur, vel, neutral, rec, nup)",-0.0026240123493750395,-17030.03000000001
+RIDGE,"bar structure (wick, body, cloc)",0.003146954909795989,-11413.750000000015
+RIDGE,15m context,-0.007403002307330244,-14790.760000000011
+RIDGE,"regime (gap, ret5, volt, bull, rv5, u5atr)",-0.023997512068845664,-22597.810000000012
+RIDGE,"location (tod, dopen, dtwap, rally)",0.020010483425492723,-12263.70000000001
+RIDGE,ONLY path shape kept,-0.021790932131123413,-26437.470000000016
+HIST_GB,"path shape (legs, ratios, cum, dur, vel, neutral, rec, nup)",-0.024974524606792815,-26795.080000000013
+HIST_GB,"bar structure (wick, body, cloc)",-0.016355916650389477,-18162.830000000013
+HIST_GB,15m context,-0.03752902948458334,-27227.990000000016
+HIST_GB,"regime (gap, ret5, volt, bull, rv5, u5atr)",-0.017095014495105296,-23191.780000000013
+HIST_GB,"location (tod, dopen, dtwap, rally)",-0.03528489122220996,-26065.900000000016
+HIST_GB,ONLY path shape kept,-0.018481138807659808,-19525.880000000012
