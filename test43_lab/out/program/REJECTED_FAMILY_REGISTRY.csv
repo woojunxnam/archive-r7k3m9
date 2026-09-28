@@ -14,3 +14,7 @@ deterministic_true_bottom,deceleration / wick / close-improvement confirmation a
 inventory_recycling_nassi,second buy / trim / rebuild on N3 campaigns,TEST47,no incremental value after costs,~900 campaigns/inst,0-2/5,YES,a validated positive base entry
 blind_dca,add after -X ATR,TEST47,diagnostic only; no value,-,-,YES,-
 arm_confirm_simple_grid,setup ARM then later independent confirmation (CF1-CF5),TEST48,0/180 simple combos pass (max t 2.14); GA-AC folds 4/5,50-1300 trades/combo,GA-AC median 1.75 $/day,YES (as entry family),as a sizing / second-contract decision on a validated base
+close_strength_overnight_carry,close in top quarter + up day -> hold to next open,TEST49,discovery clue G1 falsified: negative excess ES and MNQ (t -0.6/-1.4),~240-270 (2021+),2/5,YES,-
+trend_day_state_to_close,above-TWAP share/pos-in-range/ret thresholds 11:00-14:00 -> close,TEST49,"ES negative, MNQ excess ~0",~250,"2/5 ES, 5/5 MNQ raw but excess ~0 (beta)",YES,-
+late_strength_14_15,strong day at 14:30/15:00 -> close/next open,TEST49,no excess,~200,1-4/5,YES,-
+orb_retention_prove_first,ORB held 6 bars -> long,TEST49,ES significantly negative (t -2.6); MNQ excess negative,~410,1-4/5,YES,-
