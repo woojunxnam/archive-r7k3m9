@@ -1,0 +1,30 @@
+{
+ "test": "TEST68",
+ "written_utc": "2026-09-28T15:31:15Z",
+ "research_data_end": "2026-05-27",
+ "program": "TEST65+ ADDITIVE ALPHA (baseline = frozen T61-R1C)",
+ "question": "Is the first secondary MNQ session-high break (>= 60 min after the previous high, 10:30-16:00) a detectable continuation that adds to T61-R1C once meta-labeled?",
+ "mechanism": "late re-acceptance of higher prices after a >= 1h consolidation below the session high (stops above the high + trend-follower re-entry); TEST65 clean-forward AUC 0.61 in 5/5 folds on these triggers; T61 is under-exposed at many of them",
+ "difference_from_rejected": "not a compression-box breakout (no range/rvol quietness condition), not trend-state-to-close thresholds: a single structural event (second high) with an out-of-sample meta-label; entry at the next 1m open after the break (no 15m wait)",
+ "primary_E68ML": {
+  "triggers": "TEST65 NQ_SECONDARY_BREAKOUT event rows (features at the break minute)",
+  "model": "L2 logistic (C=1), 14 TEST65 features, label = fwd to 16:15 >= 0.3 ATR_d",
+  "walk_forward": "train on triggers before each outer fold (>= 2019-07-01), score the fold",
+  "trade": "p >= 70th pct of training p",
+  "exit": "16:15",
+  "size": "1 MNQ, T61 priority cut at the same fill",
+  "span": "2021+ (nested outer only)"
+ },
+ "plateau_neighbours": [
+  "p >= 60th pct",
+  "p >= 80th pct",
+  "exit 16:00",
+  "label threshold 0.2 ATR_d"
+ ],
+ "report_only": "unfiltered trigger (all breaks)",
+ "gate": "TEST65+ incremental gate",
+ "budget": {
+  "hypotheses": 6,
+  "ml_configs": 4
+ }
+}

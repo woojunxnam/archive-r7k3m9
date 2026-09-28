@@ -1,0 +1,30 @@
+{
+ "test": "TEST67",
+ "written_utc": "2026-09-28T15:30:11Z",
+ "research_data_end": "2026-05-27",
+ "program": "TEST65+ ADDITIVE ALPHA (baseline = frozen T61-R1C)",
+ "question": "Does an ES-specific calendar-flow mechanism (turn-of-month: month-end / new-month cash inflows into S&P 500 index funds, pension rebalancing, 401k contributions) add independent return to T61-R1C when traded as a 2-MES module?",
+ "why_ES_specific": "flows are benchmarked to the S&P 500 (ES), not ported from an MNQ rule; information = calendar (not price state), so it is neither C43 exposure timing nor an unconditional overnight carry (holds only across the TOM window)",
+ "primary_E67_TOM": {
+  "entry": "09:31 open fill (grid j=0) of the LAST trading session of the month (td=-1)",
+  "exit": "16:15 close fill of the 3rd trading session of the new month (td=+3)",
+  "hold": "overnight across the window, close-to-close MTM",
+  "size": "2 MES (ATR$ ~ 1 MNQ lot); total MES <= 8",
+  "no filters": true
+ },
+ "plateau_neighbours": [
+  "entry td=-2",
+  "entry td=+1 (first session)",
+  "exit td=+2",
+  "exit td=+4"
+ ],
+ "report_only": [
+  "intraday-only TOM (each TOM session 09:31 -> 16:15)",
+  "MNQ version (1 MNQ, T61 priority)"
+ ],
+ "gate": "TEST65+ incremental gate (TEST65 prereg): all items incl. matched-beta excess (same year x vol tercile x bull, same holding length), SLIP4, +1 bar delay, plateau, regime / year share, folds, risk",
+ "budget": {
+  "hypotheses": 5
+ },
+ "prior_risk": "well-known anomaly (possible decay post-publication); 2020 crash overlap; multi-day holds raise worst-day tail"
+}

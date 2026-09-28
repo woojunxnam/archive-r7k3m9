@@ -1,0 +1,30 @@
+{
+ "test": "TEST69",
+ "written_utc": "2026-09-28T15:31:51Z",
+ "research_data_end": "2026-05-27",
+ "program": "TEST65+ ADDITIVE ALPHA (baseline = frozen T61-R1C)",
+ "question": "Does the documented pre-FOMC announcement drift in the S&P 500 (ES-specific event information) add to T61-R1C as a 2-MES intraday module?",
+ "mechanism": "risk-premium resolution / dealer positioning ahead of scheduled 14:00 ET statements (Lucca-Moench); event calendar is public and known in advance",
+ "events": "scheduled FOMC statement days 2019-07..2026-05 (emergency 2020-03-03 / 2020-03-15 excluded); list hard-coded in t69_run.FOMC",
+ "primary_E69": {
+  "entry": "09:31 open fill (j=0) on the FOMC day",
+  "exit": "fill at the open of the 13:55 minute (before the 14:00 statement)",
+  "size": "2 MES",
+  "no filters": true
+ },
+ "plateau_neighbours": [
+  "entry 10:00",
+  "exit 13:30",
+  "exit 13:58",
+  "entry prior-session 15:00 (held overnight into the FOMC day)"
+ ],
+ "report_only": [
+  "MNQ 1 lot version",
+  "post-statement 14:05 -> 16:15 (no hypothesis; diagnostic)"
+ ],
+ "gate": "TEST65+ incremental gate",
+ "budget": {
+  "hypotheses": 5
+ },
+ "prior_risk": "only ~54 events (~7/yr); low $/day by construction; published anomaly with reported decay after 2016"
+}

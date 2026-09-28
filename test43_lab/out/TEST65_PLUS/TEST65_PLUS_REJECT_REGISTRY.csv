@@ -1,0 +1,5 @@
+family,test,reason,retest_forbidden,reopen_requires
+early_opening_trend_participation,TEST66,simple rule negative / plateau split; ML meta-label +2 $/day (1.6% of T61) without plateau,YES (as MNQ opening-hour add-on),new information source (order flow / breadth) not in OHLC
+es_turn_of_month_flow,TEST67,"small (+3.8 $/day), 2024 -3.3k, plateau fail, ret/DD not improved",YES on 2019-2026-05 data,forward evidence only
+nq_secondary_session_high_breakout,TEST68,meta-label destroys value (detectability AUC did not convert to $); raw version concentrated in 2025-26,YES,forward evidence of the raw trigger
+es_pre_fomc_drift,TEST69,"no drift 2019-2026 (win 41%), excess < 0",YES,-

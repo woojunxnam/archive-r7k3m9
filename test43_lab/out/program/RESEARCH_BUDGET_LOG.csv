@@ -24,3 +24,8 @@ TEST61,1,0,0,1,scaled core + residual growth,2026-09-28T12:24:43
 TEST62,1,0,0,0,ES portability of TEST53 modules,2026-09-28T13:51:09
 TEST63,1,0,0,0,winner carry hold-extension,2026-09-28T13:52:18
 TEST64,1,0,0,0,CF4 delayed confirmation on M2/M4,2026-09-28T13:53:16
+TEST65,11,9,0,0,gap map categories + walk-forward detectability logits,2026-09-28T15:32:17
+TEST66,10,1,0,0,early opening trend + ML meta-label,2026-09-28T15:32:17
+TEST67,5,0,0,0,ES turn-of-month,2026-09-28T15:32:17
+TEST68,6,4,0,0,secondary breakout ML,2026-09-28T15:32:17
+TEST69,5,0,0,0,pre-FOMC,2026-09-28T15:32:17

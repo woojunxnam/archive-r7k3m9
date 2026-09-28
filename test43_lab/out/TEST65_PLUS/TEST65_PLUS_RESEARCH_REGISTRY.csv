@@ -1,2 +1,6 @@
 test,family,prereg_sha,result,status,utc
 TEST65,T61 residual opportunity map (labels only),c25145de97d25498c2af489c127002fa3213265fac41d961d186d4c9b5687338,"map built; TEST66 -> MISSED_OPENING_TREND (detectable & stable, max score)",MAP,2026-09-28T15:27:07+00:00
+TEST66,"early opening-trend participation (MNQ, 09:40, u<3)",f2b483c1,"FAIL: E66 rule -0.41 $/day, 2/5 folds, plateau fails; E66ML +1.96 $/day 4/5 folds, excess/SLIP4/delay pass but no preregistered plateau -> FAIL (no rescue)",REJECT,2026-09-28T15:29:37+00:00
+TEST67,"ES turn-of-month calendar flow (2 MES, td-1 open -> td+3 close)",6f004e63,"FAIL: +3.77 $/day, 4/5 folds, excess +2.1, SLIP4/delay ok, but plateau (td+4 = 57% of base) and comb ret/DD 0.00990 < 0.00992",REJECT,2026-09-28T15:31:13+00:00
+TEST68,"MNQ secondary session-high breakout, ML meta-label",75056bea,"FAIL: ML -0.65 $/day 2/5 folds, all plateau neighbours negative; unfiltered breaks (report-only) +4.6 $/day but year share 0.62",REJECT,2026-09-28T15:31:50+00:00
+TEST69,"ES pre-FOMC drift (2 MES, 09:31 -> 13:55)",76e8b531,"FAIL: -0.15 $/day, 2/5 folds, excess < 0, plateau fails (54 events)",REJECT,2026-09-28T15:32:17+00:00
