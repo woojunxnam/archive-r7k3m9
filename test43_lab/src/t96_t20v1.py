@@ -10,6 +10,8 @@ strategy.close / close_all(immediately=true) fill at the current bar close.
 Pine history semantics for math.sum / ta.lowest called inside `cond ? f(...) : na` (only executed on bars where cond is true):
   SUM_MODE = "lazy"  -> the function's private series only advances on bars where it is executed (TradingView behaviour);
   SUM_MODE = "eager" -> every chart bar is fed (as if the call were hoisted).  Both are reported; "lazy" is the primary port.
+Chart data: CME full-holiday sessions (Globex 09:30..12:55 only) are not regular sessions on the TradingView RTH chart and are
+dropped (chart_bars); keeping them is reported as an alternative.  Legs: leg_index = creation order (T20L1..T20L3).
 Ledger rows are never printed; only aggregate parity statistics."""
 import json
 import os
@@ -75,7 +77,7 @@ class Win:
         return min(vals) if vals else NAN
 
 
-def run(b, sum_mode="lazy", dbg=None, atr_scale=1.0):
+def run(b, sum_mode="lazy", dbg=None):
     eager = sum_mode == "eager"
     t = pd.to_datetime(b.t).values.astype("datetime64[m]").astype(np.int64)   # minutes since epoch (NY wall clock)
     tt = pd.to_datetime(b.t)
@@ -152,7 +154,7 @@ def run(b, sum_mode="lazy", dbg=None, atr_scale=1.0):
         elif inRth:
             rthBarCount += 1
             aH = max(h if isna(aH) else aH, h); aL = min(lo if isna(aL) else aL, lo); aC = c
-        atrPrev = atr14 * atr_scale if atrCount >= 14 else NAN
+        atrPrev = atr14 if atrCount >= 14 else NAN
         atrOK = (not isna(atrPrev)) and atrPrev > 0
 
         tp = (h + lo + c) / 3.0; vz = 0.0 if isna(v) else v
@@ -358,6 +360,18 @@ def run(b, sum_mode="lazy", dbg=None, atr_scale=1.0):
     return df[["campaign_id", "leg_index", "direction", "family", "entry_time", "entry_px", "exit_time", "exit_px", "exit_reason", "net_usd"]]
 
 
+def chart_bars(drop_holidays=True):
+    """canonical NQ 5m RTH bars as the TradingView us_regular chart shows them.  CME full-holiday sessions (Globex halts at 13:00 ET:
+    42 bars 09:30..12:55 in the canonical data, e.g. MLK / Presidents / Memorial / Juneteenth / July 4 / Labor / Thanksgiving) are not
+    regular sessions on the TradingView RTH chart and are dropped (the ledger has zero entries on them; engine had 41)."""
+    b = C.bars5("NQ")
+    if drop_holidays:
+        g = b.groupby("date").t.agg(["size", "max"])
+        hol = g[(g["size"] == 42) & (g["max"].dt.hour * 60 + g["max"].dt.minute == 12 * 60 + 55)].index
+        b = b[~b.date.isin(hol)].reset_index(drop=True)
+    return b
+
+
 # ------------------------------------------------------------------ parity
 def ledger_legs():
     t = C.load_ledger(LEDGER)
@@ -434,23 +448,39 @@ def parity(eng, cov):
     return o
 
 
+def anomaly_recall(eng, cov, b):
+    """diagnostic: timestamp recall split by distance (sessions) from the last canonical-data anomaly session (not 81 / 45 bars)."""
+    g = b.groupby("date").t.size(); days = list(g.index); pos = {d: i for i, d in enumerate(days)}
+    an = np.array(sorted(pos[d] for d in g[(g != 81) & (g != 45)].index))
+    L = _window(ledger_legs(), cov).drop_duplicates("entry_time"); E = _window(eng, cov)
+    hit = L.entry_time.isin(set(pd.to_datetime(E.entry_time)))
+    since = L.entry_time.dt.normalize().map(lambda d: pos[d] - an[an < pos[d]].max() if d in pos and (an < pos[d]).any() else 999)
+    out = {}
+    for lo, hi in ((0, 3), (3, 30), (30, 10 ** 6)):
+        k = (since > lo) & (since <= hi)
+        out[f"sessions_since_anomaly_{lo + 1}_{hi if hi < 10 ** 6 else 'inf'}"] = {"n": int(k.sum()), "recall": float(hit[k].mean()) if k.any() else None}
+    return out
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
-    b = C.bars5("NQ")
     cov = T96P.covered_dates_nq()
     res = {"strategy": "TEST20 V1.1 MARGIN FIX", "variant": VARIANT, "target": "NQ",
            "window": [str(P.W0.date()), str(C.END.date())], "coverage": "ES+MNQ+NQ complete 81-bar sessions (t96_parity.covered_dates_nq)",
-           "primary_sum_mode": "lazy"}
-    for mode in ("lazy", "eager"):
-        eng = run(b, mode)
-        if mode == "lazy":
+           "primary": "lazy math.sum/ta.lowest history (TradingView semantics), CME full-holiday sessions not on the chart",
+           "leg_keys": "ledger leg index / family parsed from the entry comment TEST20|NQ|V1_SURVIVOR_STACK_3X|L<n>|<LONG|SHORT>|FAM=<f>"}
+    b = chart_bars(True)
+    for key, bars, mode in (("primary", b, "lazy"), ("alt_eager_sum", b, "eager"), ("alt_keep_holiday_sessions", chart_bars(False), "lazy")):
+        eng = run(bars, mode)
+        if key == "primary":
             eng.to_csv(os.path.join(OUT, "T20_V1_ENGINE_LEGS.csv"), index=False)
-        else:
-            eng.to_csv(os.path.join(OUT, "T20_V1_ENGINE_LEGS_eagersum.csv"), index=False)
-        res[mode] = parity(eng, cov)
-        ts = res[mode]["timestamp_level_TEST46"]; lg = res[mode]["leg_level_time_dir_leg_fam"]
-        print(f"[{mode}] ts recall={ts['ledger_recall']:.4f} prec={ts['engine_precision']:.4f} px1t={ts['price_within_1tick_share']:.4f} {ts['PARITY']} | "
-              f"legs recall={lg['recall']:.4f} prec={lg['precision']:.4f}", flush=True)
+        res[key] = parity(eng, cov)
+        if key == "primary":
+            res[key]["residual_by_data_anomaly_distance"] = anomaly_recall(eng, cov, bars)
+        ts = res[key]["timestamp_level_TEST46"]; lg = res[key]["leg_level_time_dir_leg_fam"]
+        print(f"[{key}] ts recall={ts['ledger_recall']:.4f} prec={ts['engine_precision']:.4f} px1t(Q-median)={ts['price_within_1tick_share']:.4f} {ts['PARITY']} | "
+              f"legs recall={lg['recall']:.4f} prec={lg['precision']:.4f} | px1t(contract-median)={res[key]['price_diag_per_contract'].get('within_1tick_share_per_contract_median', float('nan')):.4f}",
+              flush=True)
     json.dump(res, open(os.path.join(OUT, "T20_V1_PARITY.json"), "w"), indent=1, default=str)
 
 

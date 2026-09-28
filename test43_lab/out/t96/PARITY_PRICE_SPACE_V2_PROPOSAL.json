@@ -37,11 +37,11 @@
  },
  {
   "sleeve": "TEST20 V1 (NQ, timestamp level)",
-  "recall": 0.9598540145985401,
-  "precision": 0.9538860103626943,
-  "price_share_V1_quarterly": 0.9321021184139054,
-  "price_share_V2_contract": 0.9956545355784899,
+  "recall": 0.9859228362877998,
+  "precision": 0.9869519832985386,
+  "price_share_V1_quarterly": 0.9317821258593337,
+  "price_share_V2_contract": 0.9957694341618192,
   "PARITY_V1": "BLOCKED",
-  "PARITY_V2_PROPOSED": "BLOCKED"
+  "PARITY_V2_PROPOSED": "PASS"
  }
 ]

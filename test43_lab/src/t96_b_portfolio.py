@@ -28,7 +28,8 @@ def load_members():
         e = pd.read_csv(p, parse_dates=["entry_time", "exit_time"]); M["TS22"] = (e[["entry_time", "entry_px", "exit_time", "exit_px"]], "MNQ_NET")
     p = os.path.join(W.OUT, "T20_V1_ENGINE_LEGS.csv")
     if os.path.exists(p):
-        e = pd.read_csv(p, parse_dates=["entry_time", "exit_time"]); lg = e[e.direction.astype(str).str.lower().isin(["1", "long", "l"])]
+        e = pd.read_csv(p, parse_dates=["entry_time", "exit_time"]); e["exit_time"] = e.exit_time + pd.Timedelta(minutes=5)   # exits fill at bar close
+        lg = e[e.direction.astype(str).str.upper() == "LONG"]
         M["TEST20_L2_ONLY"] = (lg[lg.leg_index == 2][["entry_time", "entry_px", "exit_time", "exit_px"]], "MNQ_T20")
         M["T20_V1"] = (lg[["entry_time", "entry_px", "exit_time", "exit_px"]], "MNQ_T20")
     return M

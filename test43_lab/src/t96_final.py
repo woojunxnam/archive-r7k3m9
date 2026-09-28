@@ -67,8 +67,11 @@ def main():
                                               "broad confirmation", "breadth expansion", "volume participation", "cross-index catch-up", "daily breadth thrust"],
                        "ML": "run on the Q2 base (629 events) per prereg; GA not run (no coherent passing mechanism with >= 600 events and >= 3 structural dims)",
                        "STOP_REASON": "Gen-3 was the preregistered last generation; no survivor; families saturated",
+                       "Q2_BREADTH_EXPANSION": "STRONG FORWARD CLUE ONLY - not reopened, not rescued",
+                       "FACTORY_STATUS": "TEST96 thesis factory SATURATED / CLOSED; the Tom / Livermore thesis universe is NOT declared exhausted (TEST97 may explore genuinely distinct branches)",
+                       "T66_FROZEN_REPRODUCTION": "PASS (202 signals, +1.96 $/day reproduced exactly)", "T66_ROBUSTNESS": "FRAGILE",
                        "fragility_finding": "frozen T66 ML member of FIXED_CLUE_BASKET_V1 is threshold-fragile (8 extra training sessions flip 81 / 231 signals, "
-                                            "+1.96 -> -0.37 $/day) - basket NOT modified; flagged for forward shadow review"}
+                                            "+1.96 -> -0.37 $/day) - T66 stays in FIXED_CLUE_BASKET_V1 (frozen, not removed); recorded for forward shadow review"}
     out["TRACK_B"] = {**J("T96_B_STATUS.json")}
     out["TRACK_C"] = J("T96_C1_LEGACY_YM.json") | {"TS13_PARITY": J("T96_C1_TS13_PARITY.json")}
     W.save("TEST96_PLUS_FINAL_STATUS.json", out)

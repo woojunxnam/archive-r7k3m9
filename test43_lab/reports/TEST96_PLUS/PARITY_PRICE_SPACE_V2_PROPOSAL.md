@@ -8,5 +8,5 @@ PROPOSAL ONLY - NOT APPLIED.  Governance statuses remain as under the frozen TES
 |  1 | LC03 (NQ)                       |    1.000 |       1.000 |                      0.934 |                     1.000 | BLOCKED     | PASS                 |
 |  2 | LC05 (NQ)                       |    0.934 |       0.923 |                      0.950 |                     0.996 | BLOCKED     | BLOCKED              |
 |  3 | TS13-S01 (YM)                   |    0.975 |       0.937 |                      0.916 |                     1.000 | BLOCKED     | BLOCKED              |
-|  4 | TEST20 V1 (NQ, timestamp level) |    0.960 |       0.954 |                      0.932 |                     0.996 | BLOCKED     | BLOCKED              |
+|  4 | TEST20 V1 (NQ, timestamp level) |    0.986 |       0.987 |                      0.932 |                     0.996 | BLOCKED     | PASS                 |
 
