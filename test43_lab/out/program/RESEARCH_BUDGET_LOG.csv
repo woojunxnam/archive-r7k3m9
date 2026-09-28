@@ -10,3 +10,4 @@ TEST49,0,0,90567,0,nested GA lane lane_ct,2026-09-28T03:35:28
 TEST50,512,0,0,0,simple compression->expansion grid,2026-09-28T03:37:46
 TEST50,512,0,0,0,simple compression->expansion grid,2026-09-28T03:38:06
 TEST50,0,0,91308,0,nested GA lane lane_vx,2026-09-28T03:40:08
+TEST51,2,10,0,0,sizing meta-labeling on C43,2026-09-28T03:41:28

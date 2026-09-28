@@ -46,7 +46,10 @@ def build():
                      "add_pnl": mv - 2 * cs, "cut_pnl": -mv - 2 * cs, "add_exc": mv - mbase, "y": (mv - mbase) / (mk.pv * mk.atr[s]),
                      "f_pos_other": pos_o[s, j], "f_since_change": j - (int(last[-1]) if len(last) else -30), "f_tod": j}
                 ro = (mk.pn.Cf[s, j] - mk.open[s]) / mk.atr[s] - (other.pn.Cf[s, j] - other.open[s]) / other.atr[s]
-                r.update({("f" + k[1:]): v for k, v in features(mk, s, j, ro).items()})
+                try:
+                    r.update({("f" + k[1:]): v for k, v in features(mk, s, j, ro).items()})
+                except ValueError:                                  # no RTH bars yet in this session (data gap)
+                    continue
                 rows.append(r)
     D = pd.DataFrame(rows)
     D.to_parquet(f"{OUT}/T51_sizing_rows.parquet")

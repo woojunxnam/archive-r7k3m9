@@ -19,3 +19,4 @@ trend_day_state_to_close,above-TWAP share/pos-in-range/ret thresholds 11:00-14:0
 late_strength_14_15,strong day at 14:30/15:00 -> close/next open,TEST49,no excess,~200,1-4/5,YES,-
 orb_retention_prove_first,ORB held 6 bars -> long,TEST49,ES significantly negative (t -2.6); MNQ excess negative,~410,1-4/5,YES,-
 compression_expansion_long,quiet range/rvol/contraction then upside break / expansion bar / HL break / break-retest,TEST50,"0 finalists (max t 2.75 vs 3.0/3.5); GA-VX matched excess +0.98 $/day, -21.9 $/day in 2022, plateau fails on window length",450-1100 trades/combo,"GA-VX 4/5, median 5.6",YES,independent data (new OOS)
+c43_intraday_sizing_meta,ML meta-label of 1->2 add / 1->0 cut on C43 state,TEST51,no model information (rank-IC <= 0.022); cut decisions all negative; add = beta amplification,~9k decision rows,<= 5/5 only for beta-like always-add,YES,a new validated base module

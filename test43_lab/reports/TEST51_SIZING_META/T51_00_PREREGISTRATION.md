@@ -1,0 +1,30 @@
+# TEST51 preregistration
+
+```json
+{
+ "test": "TEST51",
+ "written_utc": "2026-09-28T03:38:57Z",
+ "research_data_end": "2026-05-27",
+ "question": "When C43 holds exactly 1 contract of an instrument, does causal intraday state predict the INCREMENTAL P&L of a second contract (1->2) or of removing the contract (1->0), beyond matched long beta?",
+ "why_mechanism_could_exist": "C43 sizes from slow state; intraday conditions (trend persistence, volatility regime, location in range, cross-index state) vary the short-horizon payoff of the same exposure.  Sizing is an economic decision separate from direction (TEST47 clue: second-contract selection had rank-IC 0.09 while entries lost).",
+ "prior_result_motivating_it": "C47_MLC_SECOND_CONTRACT, C45_CHAMP_STATE_CARRY, C48_DELAY_BEATS_IMMEDIATE; ALPHA_GAP_MAP_V1 SECOND_CONTRACT_WORTH_MORE share 10-30% in the AM (discovery region).",
+ "difference_from_failed_families": "Not an entry family: the base exposure is C43 (validated).  TEST44 meta allocators re-weighted SLEEVES from daily sleeve state; TEST51 decides a single incremental contract from INTRADAY causal state with the incremental P&L as target.",
+ "falsification": "No model beats the simple controls (always-add / never) on outer-fold incremental matched excess, or the add module fails the program gate (incl. |corr C43| <= 0.5 and combined ret/DD >= C43).",
+ "decisions": {
+  "ADD_1to2": "C43 holds 1 -> buy +1 at the decision, sell at 16:15 (or earlier if C43 changes position: sell at that change)",
+  "CUT_1to0": "C43 holds 1 -> overlay -1 (net 0) until 16:15 / C43 change (long-only respected: net never < 0)"
+ },
+ "decision_times": "10:00, 10:30, ..., 15:30 (every 30 min); at most one overlay per instrument per session (first qualifying time)",
+ "target": "incremental overlay P&L in ATRd units minus the matched unconditional long over the same interval (research label only)",
+ "features": "ALPHA_GAP_MAP feature set (return geometry, efficiency, TWAP persistence, range position/consumption, time since high/low, realised vol & ratio, opening drive, gap, 5-day return, HTF bull, vol percentile, ES/NQ relative) + C43 state (other-instrument position, minutes since C43 last change) + time",
+ "models": "RIDGE, ELASTIC_NET, LOGISTIC, RANDOM_FOREST, EXTRA_TREES, HIST_GB, XGBOOST, CATBOOST, LIGHTGBM (TEST45 presets) + simple ensemble (Ridge+Logistic z-avg) only if both positive; yearly expanding walk-forward (test 2021..2026-05-27)",
+ "decision_rule": "ADD if prediction > 0 (standardised within training) ; CUT if prediction < 0 - evaluated separately; no threshold tuning",
+ "controls": {
+  "ALWAYS_ADD": "add at the first decision time every eligible session",
+  "NEVER": "0",
+  "SIMPLE_RULE": "add if return since open > 0 and HTF bull"
+ },
+ "program_gate": "prog_common.evaluate_module G1..G9 (G6 recurrence = same model family positive in >= 4/5 outer years)"
+}
+```
+
