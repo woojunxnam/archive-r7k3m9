@@ -1,0 +1,8 @@
+lane,fold,sel_rank,genome,cluster,inner_median,inner_worst,train_mdd,train_excess_day,complexity,outer_avg,outer_total,outer_days_active,outer_mdd,outer_excess_day,outer_corr_C43,selected
+NB,O1_2021,0,"{""inst"": ""ES"", ""win"": 3, ""tol"": 0.2169635088918127, ""wick"": 0.35285502594076756, ""ci"": 0, ""bull"": 0, ""decel"": 1, ""veto"": 0, ""exit"": ""X120""}",ES|bull0|decel1|veto0|X120,1.14585,0.27709999999999996,678.6800000000001,2.1832417959739505,3.0,-2.6505928853754948,-670.6000000000001,51.0,1052.2500000000002,-1.6512726185774254,0.11564661232541792,
+NB,O1_2021,1,"{""inst"": ""ES"", ""win"": 3, ""tol"": 0.2169635088918127, ""wick"": 0.4000108284767418, ""ci"": 0, ""bull"": 0, ""decel"": 1, ""veto"": 0, ""exit"": ""X120""}",ES|bull0|decel1|veto0|X120,1.0271000000000001,0.4895999999999999,678.6800000000001,2.186915654307828,3.0,-2.670355731225297,-675.6000000000001,51.0,1057.2500000000002,-1.66224970661147,0.11579618806264438,
+NB,O2_2022,0,,,,,,,,,,,,,,NONE (no feasible front member with worst inner > 0)
+NB,O3_2023,0,,,,,,,,,,,,,,NONE (no feasible front member with worst inner > 0)
+NB,O4_2024,0,,,,,,,,,,,,,,NONE (no feasible front member with worst inner > 0)
+NB,O5_2025_26,0,,,,,,,,,,,,,,NONE (no feasible front member with worst inner > 0)
+NB,FINAL_ALL_TO_2026-05-27,0,,,,,,,,,,,,,,NONE (no feasible front member with worst inner > 0)

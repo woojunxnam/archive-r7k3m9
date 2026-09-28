@@ -1,0 +1,8 @@
+# T47_37 GA recurrence
+
+|    | lane   | fold_clusters                                                                                         | modal_cluster      |   modal_count | RECURRENCE_PASS   |
+|---:|:-------|:------------------------------------------------------------------------------------------------------|:-------------------|--------------:|:------------------|
+|  0 | N3     | MNQ|T1|n4|E1|X1600 ; MNQ|T4|n2|E5|X1600 ; MNQ|T2|n2|E5|X1600 ; MNQ|T2|n2|E5|X1600 ; MNQ|T2|n3|E3|X120 | MNQ|T2|n2|E5|X1600 |             2 | False             |
+|  1 | NB     | ES|bull0|decel1|veto0|X120 ; NONE ; NONE ; NONE ; NONE                                                | NONE               |             4 | False             |
+|  2 | NR     | MNQ|NB|blind|trim1|reb0|REC50 ; MNQ|E1|blind|trim1|reb0|REC50 ; NONE ; NONE ; NONE                    | NONE               |             3 | False             |
+

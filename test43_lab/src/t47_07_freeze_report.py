@@ -153,7 +153,7 @@ def main():
         x = fr8[fr8.ntick == n]
         return f"NO (best matched excess {x['pnl_excess_trade'].max():.1f} $/trade, max t {x['pnl_t_excess'].max():.2f})"
     c43 = acc[acc.module == "C43 alone"].iloc[0]
-    gb = gate.sort_values("avg_day", ascending=False).iloc[0] if len(gate) else None
+    gb = gate[gate.rung != "ML"].sort_values("avg_day", ascending=False).iloc[0] if len(gate) else None
     status = {
         "NASSI_SOURCE_AUDIT_COMPLETE": "YES (tier A/B sources; limits stated in T47_00)", "THREE_TICK_MEANS_EXCHANGE_TICKS": "NO",
         "BEST_MEANINGFUL_LEG_DEFINITION": "none has edge; least negative = T4 cumulative (ES) / T1 close-to-close (MNQ) - all matched excess < 0",
@@ -180,7 +180,7 @@ def main():
         "GA_OUTER_GENERALIZATION": "see T47_44", "GA_RULE_RECURRENCE": "see T47_37", "GA_PARAMETER_PLATEAU_PASS": "see T47_38",
         "GP_ADDS_VALUE": "NOT RUN (GP_NOT_JUSTIFIED)", "PORTABILITY": "NONE",
         "BEST_TEST47_STANDALONE_AVG_DAY": round(float(gb.avg_day), 2) if gb is not None else None,
-        "BEST_TEST47_MATCHED_EXCESS_DAY": round(float(gate.matched_excess_day.max()), 2) if len(gate) else None,
+        "BEST_TEST47_MATCHED_EXCESS_DAY": round(float(gate[gate.rung != "ML"].matched_excess_day.max()), 2) if len(gate) else None,
         "C43_AVG_DAY": round(float(c43.C43_plus_avg_day), 2),
         "C43_PLUS_TEST47_AVG_DAY": round(float(c43.C43_plus_avg_day), 2), "C43_PLUS_TEST47_MAX_DD": round(float(c43.C43_plus_max_dd), 0),
         "C43_PLUS_TEST47_WORST_DAY": round(float(c43.C43_plus_worst_day), 0), "C43_PLUS_TEST47_RETURN_DD": round(float(c43.C43_plus_ret_dd), 4),
