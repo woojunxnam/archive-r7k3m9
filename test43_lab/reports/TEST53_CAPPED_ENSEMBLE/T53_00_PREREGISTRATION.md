@@ -1,0 +1,46 @@
+# TEST53 preregistration
+
+```json
+{
+ "test": "TEST53",
+ "written_utc": "2026-09-28T03:43:38Z",
+ "research_data_end": "2026-05-27",
+ "question": "Does the TEST52 diversified MNQ-long ensemble pass the program gate once executed as ONE shared MNQ target capped at 2 contracts with a predeclared shared daily-loss governor?",
+ "why_mechanism_could_exist": "TEST52 modules are nearly uncorrelated (<= 0.2) so their sum has a better return/risk than any member; the failure was a risk / inventory problem (4 simultaneous MNQ, worst day), which a shared cap and day governor address without changing any signal.",
+ "prior_result_motivating_it": "TEST52 (5/5 folds, excess +18.6 $/day, C43 ret/DD 0.0085 -> 0.0103; FAILED worst day -3419 and cap).",
+ "difference_from_failed_families": "No new signal; portfolio construction (family Q) under the mandatory integer cap and shared account.",
+ "falsification": "Capped + governed ensemble fails any program gate item (G1..G9), its plateau neighbours (cap 1/2, governor +-10/20%) are not all positive >= 60% of base, or execution stress turns it negative.",
+ "modules": {
+  "M1": "TEST48 GA-AC per-fold frozen genomes (nested outer)",
+  "M2": "TEST49 GA-CT per-fold frozen genomes (nested outer)",
+  "M3": "TEST50 GA-VX per-fold frozen genomes (nested outer)",
+  "M4": "MNQ opening drive at 10:00, ret>=0.25 ATRd & efficiency>=0.5, hold to 16:15"
+ },
+ "execution": {
+  "target": "one virtual MNQ target = number of active module states, capped at CAP=2; first-come-first-served by fill minute; a signal arriving while the cap is full is SKIPPED (no queue, no catch-up)",
+  "governor": "if the ensemble session P&L (realised + 1m mark-to-market) <= -$1,000, flatten all ensemble positions at the next 1m open and block new ensemble entries for the rest of the session; overnight-held positions are not stopped overnight",
+  "overnight": "M2 positions held to the next 09:31 open occupy capacity until they exit",
+  "costs": "0.62 + 1 tick per side (stress 4 ticks)"
+ },
+ "gate": {
+  "program_gate": "prog_common.evaluate_module on the ensemble daily $ (2021..2026-05-27 nested outer)",
+  "G5_plateau": "CAP in {1,2} and governor in {-800,-900,-1100,-1200}: all totals > 0 and >= 60% of base",
+  "G6_recurrence": ">= 3 of 4 modules with positive outer total inside the capped ensemble",
+  "G9": "4-tick slippage total > 0"
+ },
+ "stress": [
+  "+5 min entry delay",
+  "4-tick slippage",
+  "20% missed entries (seeded)"
+ ],
+ "reports": [
+  "peak MNQ incl. C43 (report-only)",
+  "C43 + ensemble account risk",
+  "attribution by module",
+  "year table",
+  "rolling 6/12m"
+ ],
+ "multiple_testing_note": "Modules were selected within searches totalling ~360k GA genomes and ~450 simple cells on the same 2021+ folds (nested outer returns); the final program OOS is the only independent confirmation."
+}
+```
+

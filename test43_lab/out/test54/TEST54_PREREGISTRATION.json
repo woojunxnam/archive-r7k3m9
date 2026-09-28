@@ -1,0 +1,12 @@
+{
+ "test": "TEST54",
+ "written_utc": "2026-09-28T03:46:03Z",
+ "research_data_end": "2026-05-27",
+ "question": "Executed under the mandatory practical integer frontier (ONE MNQ target, total C43 + ensemble <= 2 contracts), does the TEST53 ensemble add value to C43 and pass the program gate?",
+ "why_mechanism_could_exist": "The ensemble earns when C43 is flat/light in MNQ; filling only C43's unused MNQ capacity should reduce overlap with C43 drawdowns (lower combined MaxDD) while keeping part of the independent return.",
+ "prior_result_motivating_it": "TEST53: +23.7 $/day, all gates but G4 (ret/DD 0.0080 < 0.0085); total MNQ incl. C43 reached 5 (violates the 0/1/2 frontier).",
+ "difference_from_failed_families": "Portfolio construction only; identical module signals, governor -1000, costs.",
+ "falsification": "Fails any program gate item, or plateau (governor +-10/20%) / stress turns negative.",
+ "execution": "at each minute capacity = max(0, 2 - C43 MNQ position); a module signal is taken only if the ensemble count < capacity at its fill minute; if C43 later raises its MNQ so that total > 2, the ensemble does NOT reduce (C43 unchanged; excess recorded as report-only); same governor (-$1,000), costs, overnight rules as TEST53",
+ "gate": "prog_common.evaluate_module G1..G9; G5 plateau = governor in {-800,-900,-1100,-1200}; G6 = >= 3 of 4 modules positive"
+}

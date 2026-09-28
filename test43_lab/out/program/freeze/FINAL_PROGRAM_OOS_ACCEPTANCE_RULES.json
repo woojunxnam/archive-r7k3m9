@@ -1,0 +1,12 @@
+{
+ "FINAL_PROGRAM_OOS_START": "2026-09-28",
+ "rule_for_start": "first full RTH session strictly after the program freeze timestamp",
+ "freeze_timestamp_utc": "2026-09-28T03:47:53+00:00",
+ "challenger": "NONE",
+ "policy": "No module is promoted. The OOS may be used only to (a) monitor C43 unchanged, (b) evaluate the frozen SHADOW monitors M1-M4 and the TEST53 ensemble exactly as frozen (report-only). A shadow may be proposed for promotion only by a NEW numbered program after >= 250 full RTH OOS sessions with: positive matched-long excess, C43+shadow ret/DD >= C43 ret/DD, combined worst day >= -3000, MaxDD <= 15000, total MNQ <= 2 respected.  No re-tuning on OOS data.",
+ "excluded_intervals": {
+  "2026-05-28..(FINAL_PROGRAM_OOS_START-1)": "never used for research, selection or validation"
+ },
+ "live_authorization": "NO",
+ "portfolio_membership_changed": "NO"
+}

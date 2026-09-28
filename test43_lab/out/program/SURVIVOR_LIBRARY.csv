@@ -1,0 +1,6 @@
+ID,instrument,mechanism,direction,status
+M1_GA-AC,MNQ,"compression arm -> expansion / higher-low breakout, hold to 16:00 (TEST48)",LONG,SHADOW (not a survivor)
+M2_GA-CT,MNQ,"HTF-bull day, not near session low, late morning -> next 09:31 open (TEST49)",LONG,SHADOW (not a survivor)
+M3_GA-VX,MNQ,compression -> upside expansion with box stop (TEST50),LONG,SHADOW (not a survivor)
+M4_MNQ_OPEN_DRIVE,MNQ,MNQ up >= 0.25 ATRd with efficiency >= 0.5 at 10:00 -> 16:15 (TEST49),LONG,SHADOW (not a survivor)
+ENSEMBLE_TEST53,MNQ,M1-M4 as one capped MNQ target + day governor,LONG,SHADOW (not a survivor)
