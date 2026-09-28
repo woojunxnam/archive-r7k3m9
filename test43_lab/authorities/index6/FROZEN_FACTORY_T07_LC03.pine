@@ -1,0 +1,394 @@
+//@version=6
+strategy("T07 Modern Portfolio Candidate Factory | ES/NQ 5m RTH", overlay=true, pyramiding=0,
+     process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false,
+     use_bar_magnifier=false, slippage=1,
+     commission_type=strategy.commission.cash_per_contract, commission_value=2.24)
+
+// TEST07 — ONE-YEAR MODERN SCREEN
+// Purpose: discover mechanisms that diversify existing A1/A2 and Test06 survivors.
+// Pine/TradingView remains the screening authority.
+//
+// Common frozen shell:
+// - ES1! / NQ1!, 5m, Regular Trading Hours
+// - signal on bar close -> next-bar market entry
+// - max 1 trade/day
+// - 2 ATR catastrophe stop
+// - no hard take-profit
+// - 120-minute max hold
+// - flat by 16:15 ET
+// - 1 tick slippage/fill
+// - $2.24/contract/side commission assumption
+//
+// Do NOT tune thresholds during the first-pass screen.
+
+string TZ = "America/New_York"
+string RTH = "0930-1615:23456"
+string FIRST_BAR = "0930-0935:23456"
+string FIRST30 = "0930-1000:23456"
+string FIRSTHOUR = "0930-1030:23456"
+string MORNING_REV = "1000-1130:23456"
+string CORE = "1000-1430:23456"
+string LUNCH_BUILD = "1130-1300:23456"
+string POST_LUNCH = "1300-1500:23456"
+string NOON_SIGNAL = "1255-1300:23456"
+string FLATTEN_TRIGGER = "1610-1615:23456"
+
+if barstate.isfirst and timeframe.in_seconds() != 300
+    runtime.error("TEST07 requires exactly a 5-minute chart.")
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+bool firstRthBar = not na(time(timeframe.period, FIRST_BAR, TZ))
+bool inFirst30 = not na(time(timeframe.period, FIRST30, TZ))
+bool inFirstHour = not na(time(timeframe.period, FIRSTHOUR, TZ))
+bool inMorningRev = not na(time(timeframe.period, MORNING_REV, TZ))
+bool inCore = not na(time(timeframe.period, CORE, TZ))
+bool inLunchBuild = not na(time(timeframe.period, LUNCH_BUILD, TZ))
+bool inPostLunch = not na(time(timeframe.period, POST_LUNCH, TZ))
+bool noonSignalBar = not na(time(timeframe.period, NOON_SIGNAL, TZ))
+bool flattenTrigger = not na(time(timeframe.period, FLATTEN_TRIGGER, TZ))
+
+bool prevBarSameDate = not na(time[1]) and
+     year(time[1], TZ) == year(time, TZ) and
+     month(time[1], TZ) == month(time, TZ) and
+     dayofmonth(time[1], TZ) == dayofmonth(time, TZ)
+
+if firstRthBar and prevBarSameDate
+    runtime.error("Set TradingView chart Session to Regular Trading Hours (RTH).")
+
+string candidate = input.string("T07-01 Prior-day high breakout continuation LONG", "Candidate",
+     options=[
+       "T07-01 Prior-day high breakout continuation LONG",
+       "T07-02 Prior-day low breakdown continuation SHORT",
+       "T07-03 Gap-up opening continuation LONG",
+       "T07-04 Gap-down opening continuation SHORT",
+       "T07-05 First30 down -> VWAP reversal LONG",
+       "T07-06 First30 up -> VWAP reversal SHORT",
+       "T07-07 Lunch compression breakout LONG",
+       "T07-08 Lunch compression breakdown SHORT",
+       "T07-09 Two-leg pullback continuation LONG",
+       "T07-10 Two-leg bounce continuation SHORT",
+       "T07-11 First-hour trend-day continuation LONG",
+       "T07-12 First-hour trend-day continuation SHORT",
+       "T07-13 Prior-day compression breakout LONG",
+       "T07-14 Prior-day compression breakdown SHORT",
+       "T07-15 Delayed first-hour-range breakout LONG",
+       "T07-16 Delayed first-hour-range breakdown SHORT"
+     ])
+
+// ---------- Daily state ----------
+var int entriesToday = 0
+
+var float sessionHigh = na
+var float sessionLow = na
+var float prevRthHigh = na
+var float prevRthLow = na
+var float prevRthClose = na
+var float prevRthRange = na
+var float prevRangeAvg5 = na
+var array<float> dailyRangeHist = array.new_float()
+
+var float todayOpen = na
+var float frozenGapNorm = na
+
+var float first30High = na
+var float first30Low = na
+var float first30MoveNorm = na
+
+var float firstHourHigh = na
+var float firstHourLow = na
+var float firstHourMoveNorm = na
+var float firstHourRangeNorm = na
+
+var float lunchHigh = na
+var float lunchLow = na
+
+if firstRthBar
+    if not na(sessionHigh) and not na(sessionLow)
+        prevRthHigh := sessionHigh
+        prevRthLow := sessionLow
+        prevRthClose := close[1]
+        prevRthRange := sessionHigh - sessionLow
+
+        prevRangeAvg5 := array.size(dailyRangeHist) >= 5 ? array.avg(dailyRangeHist) : na
+        array.push(dailyRangeHist, prevRthRange)
+        if array.size(dailyRangeHist) > 5
+            array.shift(dailyRangeHist)
+
+    entriesToday := 0
+    sessionHigh := high
+    sessionLow := low
+    todayOpen := open
+
+    first30High := high
+    first30Low := low
+    first30MoveNorm := na
+
+    firstHourHigh := high
+    firstHourLow := low
+    firstHourMoveNorm := na
+    firstHourRangeNorm := na
+
+    lunchHigh := na
+    lunchLow := na
+else if inRth
+    sessionHigh := math.max(nz(sessionHigh, high), high)
+    sessionLow := math.min(nz(sessionLow, low), low)
+
+// ---------- Core indicators ----------
+float atr = ta.atr(14)
+float ema20 = ta.ema(close, 20)
+float ema50 = ta.ema(close, 50)
+float barRange = math.max(high - low, syminfo.mintick)
+float closeLocation = (close - low) / barRange
+
+if firstRthBar
+    frozenGapNorm := not na(prevRthClose) and atr[1] > 0 ?
+         (todayOpen - prevRthClose) / atr[1] : na
+
+// ---------- RTH VWAP ----------
+var float pvCum = na
+var float vCum = na
+
+if firstRthBar
+    pvCum := hlc3 * nz(volume)
+    vCum := nz(volume)
+else if inRth
+    pvCum := nz(pvCum) + hlc3 * nz(volume)
+    vCum := nz(vCum) + nz(volume)
+
+float rthVwap = inRth and vCum > 0 ? pvCum / vCum : na
+
+// ---------- Same-time-of-day RVOL ----------
+const int SLOTS = 81
+const int TOD_DAYS = 20
+const int TOD_MIN = 10
+
+var array<float> todHist = array.new<float>(SLOTS * TOD_DAYS, na)
+var array<float> todSums = array.new<float>(SLOTS, 0.0)
+var array<int> todCounts = array.new<int>(SLOTS, 0)
+var int todDayPtr = 0
+var bool todSeenFirstDay = false
+
+if firstRthBar
+    if todSeenFirstDay
+        todDayPtr := (todDayPtr + 1) % TOD_DAYS
+    else
+        todSeenFirstDay := true
+
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int minutesFromOpen = hh * 60 + mm - 570
+int slot = int(math.floor(minutesFromOpen / 5.0))
+float todAvg = na
+float todRvol = na
+
+if inRth and slot >= 0 and slot < SLOTS
+    int ringIndex = todDayPtr * SLOTS + slot
+    float oldValue = array.get(todHist, ringIndex)
+    float priorSum = array.get(todSums, slot)
+    int priorCount = array.get(todCounts, slot)
+
+    todAvg := priorCount >= TOD_MIN ? priorSum / priorCount : na
+    todRvol := not na(todAvg) and todAvg > 0 ? volume / todAvg : na
+
+    float newSum = priorSum - (na(oldValue) ? 0.0 : oldValue) + volume
+    int newCount = priorCount - (na(oldValue) ? 0 : 1) + 1
+
+    array.set(todHist, ringIndex, volume)
+    array.set(todSums, slot, newSum)
+    array.set(todCounts, slot, newCount)
+
+// ---------- Intraday state windows ----------
+if inFirst30
+    first30High := math.max(nz(first30High, high), high)
+    first30Low := math.min(nz(first30Low, low), low)
+
+bool first30EndBar = hour(time, TZ) == 9 and minute(time, TZ) == 55
+if first30EndBar and atr > 0
+    first30MoveNorm := (close - todayOpen) / atr
+
+if inFirstHour
+    firstHourHigh := math.max(nz(firstHourHigh, high), high)
+    firstHourLow := math.min(nz(firstHourLow, low), low)
+
+bool firstHourEndBar = hour(time, TZ) == 10 and minute(time, TZ) == 25
+if firstHourEndBar and atr > 0
+    firstHourMoveNorm := (close - todayOpen) / atr
+    firstHourRangeNorm := (firstHourHigh - firstHourLow) / atr
+
+if inLunchBuild
+    lunchHigh := na(lunchHigh) ? high : math.max(lunchHigh, high)
+    lunchLow := na(lunchLow) ? low : math.min(lunchLow, low)
+
+// ---------- Shared derived features ----------
+float gapNorm = frozenGapNorm
+
+bool prevDayCompressed = not na(prevRthRange) and not na(prevRangeAvg5) and
+     prevRangeAvg5 > 0 and prevRthRange <= 0.75 * prevRangeAvg5
+
+float lunchRange = not na(lunchHigh) and not na(lunchLow) ? lunchHigh - lunchLow : na
+
+// ---------- Candidate family 1: prior-day range continuation ----------
+bool t01 = inCore and not na(prevRthHigh) and
+     close > prevRthHigh + 0.10 * atr and
+     ema20 > ema50 and close > rthVwap and
+     closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t02 = inCore and not na(prevRthLow) and
+     close < prevRthLow - 0.10 * atr and
+     ema20 < ema50 and close < rthVwap and
+     closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// ---------- Candidate family 2: gap continuation ----------
+// Signal on 09:55 close -> enter 10:00.
+bool t03 = first30EndBar and not na(gapNorm) and
+     gapNorm >= 0.50 and first30MoveNorm >= 0.40 and
+     close > todayOpen and close > rthVwap and closeLocation >= 0.65 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t04 = first30EndBar and not na(gapNorm) and
+     gapNorm <= -0.50 and first30MoveNorm <= -0.40 and
+     close < todayOpen and close < rthVwap and closeLocation <= 0.35 and
+     not na(todRvol) and todRvol >= 1.00
+
+// ---------- Candidate family 3: first-30 reversal to VWAP ----------
+bool t05 = inMorningRev and not na(first30MoveNorm) and
+     first30MoveNorm <= -0.75 and
+     close > rthVwap and close[1] <= rthVwap[1] and
+     close > open and closeLocation >= 0.60
+
+bool t06 = inMorningRev and not na(first30MoveNorm) and
+     first30MoveNorm >= 0.75 and
+     close < rthVwap and close[1] >= rthVwap[1] and
+     close < open and closeLocation <= 0.40
+
+// ---------- Candidate family 4: lunch compression breakout ----------
+bool lunchCompressed = not na(lunchRange) and lunchRange <= 1.50 * atr
+
+bool t07 = inPostLunch and lunchCompressed and
+     close > lunchHigh + 0.10 * atr and
+     ema20 > ema50 and close > rthVwap and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t08 = inPostLunch and lunchCompressed and
+     close < lunchLow - 0.10 * atr and
+     ema20 < ema50 and close < rthVwap and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// ---------- Candidate family 5: two-leg pullback continuation ----------
+bool twoBearPullback = close[2] < open[2] and close[1] < open[1] and low[1] < low[2]
+bool twoBullBounce = close[2] > open[2] and close[1] > open[1] and high[1] > high[2]
+
+bool t09 = inCore and ema20 > ema50 and close > rthVwap and
+     twoBearPullback and close > high[1] and close > open and
+     closeLocation >= 0.65 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t10 = inCore and ema20 < ema50 and close < rthVwap and
+     twoBullBounce and close < low[1] and close < open and
+     closeLocation <= 0.35 and
+     not na(todRvol) and todRvol >= 0.80
+
+// ---------- Candidate family 6: first-hour trend-day continuation ----------
+// Signal on 12:55 close -> enter 13:00.
+bool t11 = noonSignalBar and not na(firstHourMoveNorm) and not na(firstHourRangeNorm) and
+     firstHourMoveNorm >= 0.80 and firstHourRangeNorm >= 1.20 and
+     close > rthVwap + 0.35 * atr and ema20 > ema50 and closeLocation >= 0.60
+
+bool t12 = noonSignalBar and not na(firstHourMoveNorm) and not na(firstHourRangeNorm) and
+     firstHourMoveNorm <= -0.80 and firstHourRangeNorm >= 1.20 and
+     close < rthVwap - 0.35 * atr and ema20 < ema50 and closeLocation <= 0.40
+
+// ---------- Candidate family 7: prior-day compression breakout ----------
+bool t13 = inCore and prevDayCompressed and not na(prevRthHigh) and
+     close > prevRthHigh + 0.10 * atr and
+     ema20 > ema50 and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t14 = inCore and prevDayCompressed and not na(prevRthLow) and
+     close < prevRthLow - 0.10 * atr and
+     ema20 < ema50 and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// ---------- Candidate family 8: delayed first-hour-range breakout ----------
+bool t15 = inPostLunch and not na(firstHourHigh) and
+     close > firstHourHigh + 0.10 * atr and
+     close > rthVwap and ema20 > ema50 and closeLocation >= 0.65 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t16 = inPostLunch and not na(firstHourLow) and
+     close < firstHourLow - 0.10 * atr and
+     close < rthVwap and ema20 < ema50 and closeLocation <= 0.35 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool isLong =
+     candidate == "T07-01 Prior-day high breakout continuation LONG" or
+     candidate == "T07-03 Gap-up opening continuation LONG" or
+     candidate == "T07-05 First30 down -> VWAP reversal LONG" or
+     candidate == "T07-07 Lunch compression breakout LONG" or
+     candidate == "T07-09 Two-leg pullback continuation LONG" or
+     candidate == "T07-11 First-hour trend-day continuation LONG" or
+     candidate == "T07-13 Prior-day compression breakout LONG" or
+     candidate == "T07-15 Delayed first-hour-range breakout LONG"
+
+bool rawEvent =
+     candidate == "T07-01 Prior-day high breakout continuation LONG" ? t01 :
+     candidate == "T07-02 Prior-day low breakdown continuation SHORT" ? t02 :
+     candidate == "T07-03 Gap-up opening continuation LONG" ? t03 :
+     candidate == "T07-04 Gap-down opening continuation SHORT" ? t04 :
+     candidate == "T07-05 First30 down -> VWAP reversal LONG" ? t05 :
+     candidate == "T07-06 First30 up -> VWAP reversal SHORT" ? t06 :
+     candidate == "T07-07 Lunch compression breakout LONG" ? t07 :
+     candidate == "T07-08 Lunch compression breakdown SHORT" ? t08 :
+     candidate == "T07-09 Two-leg pullback continuation LONG" ? t09 :
+     candidate == "T07-10 Two-leg bounce continuation SHORT" ? t10 :
+     candidate == "T07-11 First-hour trend-day continuation LONG" ? t11 :
+     candidate == "T07-12 First-hour trend-day continuation SHORT" ? t12 :
+     candidate == "T07-13 Prior-day compression breakout LONG" ? t13 :
+     candidate == "T07-14 Prior-day compression breakdown SHORT" ? t14 :
+     candidate == "T07-15 Delayed first-hour-range breakout LONG" ? t15 :
+     candidate == "T07-16 Delayed first-hour-range breakdown SHORT" ? t16 :
+     false
+
+bool signal = rawEvent and strategy.position_size == 0 and entriesToday < 1
+int stopTicks = math.max(1, int(math.round(2.0 * atr / syminfo.mintick)))
+
+if signal
+    if isLong
+        strategy.entry("L", strategy.long, comment=candidate)
+        strategy.exit("LX", "L", loss=stopTicks, comment_loss="SL")
+    else
+        strategy.entry("S", strategy.short, comment=candidate)
+        strategy.exit("SX", "S", loss=stopTicks, comment_loss="SL")
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.opentrades > 0
+    int entryTime = strategy.opentrades.entry_time(0)
+    bool timeExit = time_close >= entryTime + 120 * 60 * 1000
+    if timeExit
+        strategy.close_all(comment="TIME", immediately=true)
+
+if flattenTrigger and strategy.position_size != 0
+    strategy.close_all(comment="RTH", immediately=true)
+
+// ---------- Diagnostics ----------
+plot(rthVwap, "RTH VWAP", color=color.orange)
+plot(prevRthHigh, "Prior RTH High", color=color.new(color.fuchsia, 55), style=plot.style_linebr)
+plot(prevRthLow, "Prior RTH Low", color=color.new(color.purple, 55), style=plot.style_linebr)
+plot(firstHourHigh, "First-hour high", color=color.new(color.green, 65), style=plot.style_linebr)
+plot(firstHourLow, "First-hour low", color=color.new(color.red, 65), style=plot.style_linebr)
+
+plot(atr, "ATR14", display=display.data_window)
+plot(todRvol, "TOD RVOL", display=display.data_window)
+plot(gapNorm, "Gap / ATR", display=display.data_window)
+plot(first30MoveNorm, "First30 move / ATR", display=display.data_window)
+plot(firstHourMoveNorm, "First-hour move / ATR", display=display.data_window)
+plot(firstHourRangeNorm, "First-hour range / ATR", display=display.data_window)
+plot(prevDayCompressed ? 1 : 0, "Prior day compressed", display=display.data_window)
+
+plotshape(signal and isLong, title="Long signal",
+     style=shape.triangleup, location=location.belowbar, size=size.tiny, color=color.lime)
+plotshape(signal and not isLong, title="Short signal",
+     style=shape.triangledown, location=location.abovebar, size=size.tiny, color=color.red)

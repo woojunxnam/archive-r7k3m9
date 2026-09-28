@@ -1,0 +1,808 @@
+//@version=6
+strategy("TEST30 Regime Context Master V1 | NQ T29-21 L / T29-12 S x R1-R6 | 5m",
+     overlay=true, pyramiding=14, process_orders_on_close=false,
+     calc_on_every_tick=false, calc_on_order_fills=false, use_bar_magnifier=false,
+     close_entries_rule="ANY", initial_capital=10000000, margin_long=100, margin_short=100,
+     commission_type=strategy.commission.cash_per_contract, commission_value=2.24, slippage=1)
+
+// TEST30 V1 PRECOMPILE - REGIME / CONTEXT GATING of two frozen TEST29 NQ bases. Not frozen until the exact bytes compile in
+// TradingView with 0 errors / 0 warnings and pass the targeted no-PnL safety smoke.
+// Inherited byte-for-byte from TEST29 Stage-1 V1 (sha256 cfb064db...1e7a): constants, NY holiday / half-day calendar and
+// flatten guards, the FEATURE AUTHORITY block (TEST28 POC feature authority V1.2) and the TEST29 CANDIDATE LOGIC V1 block.
+// Bases: T29-21 = L6 compression -> expansion CONTROL LONG; T29-12 = L3 two-leg pullback + value-hold TREATMENT SHORT.
+// New (validated in the TEST30 smoke): the TEST30 regime module R1 / R2 / R3 / R5 / R6 and the TEST30 candidate mapping.
+// R4 (confirmed prior-session OI) is NOT built: OI_FEATURE_NOT_LIVE_SAFE (TEST30_OI_CLOCK_PROBE_V1 findings).
+// Run mode: NQ1! 5-minute chart, project US window 09:30-15:45 America/New_York, continuous contract B-ADJ ON.
+// Shell (TEST29, unchanged): completed-bar signal -> next-bar market entry; one entry/day/candidate; qty 1, no DCA/scaling;
+// 2x prior-session ATR14 catastrophe stop frozen at signal; no TP; 120 wall-clock minute max hold; 15:45 ET hard flat;
+// half-day 13:00 ET flat; flattenNow + flattenNext entry blocking; open-trade reconciliation; session-start LEAK_GUARD.
+
+string TZ = "America/New_York"
+string US = "0930-1545:23456"
+const int SLOTS = 75
+const int DAYS = 21
+const int MINOBS = 10
+const int MAX_SPAN = 128
+string symRoot = syminfo.root
+string batchSide = input.string("LONG", "Batch side", options=["LONG", "SHORT"])
+int tfSec = timeframe.in_seconds()
+bool inUs = not na(time(timeframe.period, US, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh * 60 + mm
+int nyDate = year(time, TZ) * 10000 + month(time, TZ) * 100 + dayofmonth(time, TZ)
+int slot = int(math.floor((mod - 570) / 5.0))
+
+if barstate.isfirst and tfSec != 300
+    runtime.error("TEST30 requires exactly a 5-minute chart.")
+if barstate.isfirst and symRoot != "NQ"
+    runtime.error("TEST30 V1 supports NQ only (bases NQ T29-21 LONG / NQ T29-12 SHORT).")
+
+// ---------------- US holiday-halt / early-close calendar (New York date) and flatten guards (TEST24-27 hardened shell) ----------------
+int calY = year(time, TZ)
+int calM = month(time, TZ)
+int calD = dayofmonth(time, TZ)
+int calW = dayofweek(time, TZ)
+bool calWeekday = calW >= dayofweek.monday and calW <= dayofweek.friday
+bool calMon = calW == dayofweek.monday
+bool calThu = calW == dayofweek.thursday
+bool calFri = calW == dayofweek.friday
+bool halfDay = (calM == 1 and calMon and calD >= 15 and calD <= 21) or
+     (calM == 2 and calMon and calD >= 15 and calD <= 21) or
+     (calM == 5 and calMon and calD >= 25) or
+     (calY >= 2022 and calM == 6 and ((calD == 19 and calWeekday) or (calD == 18 and calFri) or (calD == 20 and calMon))) or
+     (calM == 7 and ((calD == 4 and calWeekday) or (calD == 3 and calWeekday) or (calD == 5 and calMon))) or
+     (calM == 9 and calMon and calD <= 7) or
+     (calM == 11 and calThu and calD >= 22 and calD <= 28) or
+     (calM == 11 and calFri and calD >= 23 and calD <= 29) or
+     (calM == 12 and calD == 24 and calWeekday)
+bool halfDayCut = halfDay and hour(time_close, TZ) * 60 + minute(time_close, TZ) >= 13 * 60
+bool flattenNow = inUs and ((hour(time_close, TZ) == 15 and minute(time_close, TZ) == 45) or session.islastbar_regular or halfDayCut)
+int nextClose = time_close + tfSec * 1000
+bool flattenNext = inUs and ((hour(nextClose, TZ) == 15 and minute(nextClose, TZ) == 45) or
+     (halfDay and hour(nextClose, TZ) * 60 + minute(nextClose, TZ) >= 13 * 60))
+
+// ================= FEATURE AUTHORITY (copied from TEST28_POC_FEATURE_AUDIT_V1_2_PRECOMPILE.pine) =================
+f_newSession(bool inWindow, int dateNY, int lastDateNY) =>
+    inWindow and (na(lastDateNY) or dateNY != lastDateNY)
+
+f_ticks(float price) =>
+    int(math.round(price / syminfo.mintick))
+
+f_key(int priceTicks, int anchor, int bt) =>
+    int(math.floor(float(priceTicks - anchor) / float(bt)))
+
+f_levels(map<int, float> m, int anchor, int bt, float totalV) =>
+    int pocKey = na
+    float pocVol = -1.0
+    for [key, volAtKey] in m
+        if volAtKey > pocVol
+            pocVol := volAtKey
+            pocKey := key
+    int loKey = pocKey
+    int hiKey = pocKey
+    float included = pocVol > 0 ? pocVol : 0.0
+    float target = totalV * 0.70
+    int guard = 0
+    int gapJumps = 0
+    while not na(pocKey) and included < target and guard < 1000
+        float loVol = nz(m.get(loKey - 1), 0.0)
+        float hiVol = nz(m.get(hiKey + 1), 0.0)
+        if loVol == 0.0 and hiVol == 0.0
+            int nLo = na
+            int nHi = na
+            for [key, volAtKey] in m
+                if volAtKey > 0.0 and key < loKey and (na(nLo) or key > nLo)
+                    nLo := key
+                if volAtKey > 0.0 and key > hiKey and (na(nHi) or key < nHi)
+                    nHi := key
+            if na(nLo) and na(nHi)
+                break
+            bool goLow = false
+            if na(nHi)
+                goLow := true
+            else if na(nLo)
+                goLow := false
+            else
+                int dLo = loKey - nLo
+                int dHi = nHi - hiKey
+                goLow := dLo < dHi or (dLo == dHi and m.get(nLo) >= m.get(nHi))
+            if goLow
+                loKey := nLo
+                included += m.get(nLo)
+            else
+                hiKey := nHi
+                included += m.get(nHi)
+            gapJumps += 1
+        else if hiVol > loVol
+            hiKey += 1
+            included += hiVol
+        else
+            loKey -= 1
+            included += loVol
+        guard += 1
+    float pocPrice = na(pocKey) ? na : (anchor + (pocKey + 0.5) * bt) * syminfo.mintick
+    float vah = na(pocKey) ? na : (anchor + (hiKey + 1.0) * bt) * syminfo.mintick
+    float val = na(pocKey) ? na : (anchor + loKey * bt) * syminfo.mintick
+    [pocPrice, vah, val, gapJumps, pocKey, loKey, hiKey]
+
+f_ringNewSession(array<float> ring, int ptr, bool seen) =>
+    int p = seen ? (ptr + 1) % DAYS : ptr
+    for s = 0 to SLOTS - 1
+        array.set(ring, p * SLOTS + s, na)
+    p
+
+f_ringCompareWrite(array<float> ring, int ptr, int slotIdx, float x) =>
+    int lessEq = 0
+    int obs = 0
+    for d = 0 to DAYS - 1
+        float old = array.get(ring, d * SLOTS + slotIdx)
+        if not na(old)
+            obs += 1
+            if old <= x
+                lessEq += 1
+    array.set(ring, ptr * SLOTS + slotIdx, x)
+    [obs >= MINOBS ? lessEq / float(obs) : na, obs]
+
+var int lastUsDate = na
+bool newUs = f_newSession(inUs, nyDate, lastUsDate)
+if inUs
+    lastUsDate := nyDate
+
+var float sHigh = na
+var float sLow = na
+var float sClose = na
+var float prevCloseForTR = na
+var float atr14 = na
+var int atrCount = 0
+var int completedSessions = 0
+if newUs
+    if not na(sHigh) and not na(sLow) and not na(sClose)
+        float sessionTR = na(prevCloseForTR) ? sHigh - sLow : math.max(sHigh - sLow, math.max(math.abs(sHigh - prevCloseForTR), math.abs(sLow - prevCloseForTR)))
+        atr14 := na(atr14) ? sessionTR : (atr14 * 13.0 + sessionTR) / 14.0
+        atrCount += 1
+        completedSessions += 1
+        prevCloseForTR := sClose
+    sHigh := high
+    sLow := low
+    sClose := close
+else if inUs
+    sHigh := math.max(nz(sHigh, high), high)
+    sLow := math.min(nz(sLow, low), low)
+    sClose := close
+float atrPrev = atrCount >= 14 ? atr14 : na
+bool warm = completedSessions >= 60 and not na(atrPrev) and atrPrev > 0
+
+var float cumV = 0.0
+var float cumPV = 0.0
+if newUs
+    cumV := 0.0
+    cumPV := 0.0
+if inUs
+    cumV += nz(volume)
+    cumPV += hlc3 * nz(volume)
+float vwap = inUs and cumV > 0 ? cumPV / cumV : na
+
+var map<int, float> vp = map.new<int, float>()
+var int anchorTicks = na
+var int binTicks = na
+var float profileTotalVol = 0.0
+var int profileBars = 0
+var int spanFallbackCount = 0
+var float priorPoc = na
+var float lastPoc = na
+var int priorPocHT = na
+var int lastPocHT = na
+if newUs
+    priorPoc := lastPoc
+    priorPocHT := lastPocHT
+    vp.clear()
+    profileTotalVol := 0.0
+    profileBars := 0
+    anchorTicks := f_ticks(open)
+    binTicks := warm ? math.max(1, int(math.round((atrPrev / 24.0) / syminfo.mintick))) : na
+if inUs and warm and not na(binTicks) and binTicks > 0
+    int lowKey = f_key(f_ticks(low), anchorTicks, binTicks)
+    int highKey = f_key(f_ticks(high), anchorTicks, binTicks)
+    int span = highKey - lowKey + 1
+    if span > 0 and span <= MAX_SPAN
+        float share = nz(volume) / span
+        for key = lowKey to highKey
+            vp.put(key, nz(vp.get(key), 0.0) + share)
+    else
+        int midKey = f_key(f_ticks(hlc3), anchorTicks, binTicks)
+        vp.put(midKey, nz(vp.get(midKey), 0.0) + nz(volume))
+        spanFallbackCount += 1
+    profileTotalVol += nz(volume)
+    profileBars += 1
+[devPocRaw, devVahRaw, devValRaw, vaGapJumpsRaw, pocKeyRaw, loKeyRaw, hiKeyRaw] = f_levels(vp, nz(anchorTicks, 0), nz(binTicks, 1), profileTotalVol)
+bool levelsOk = inUs and warm and not na(devPocRaw)
+float devPoc = levelsOk ? devPocRaw : na
+// exact integer representations: POC in half-ticks, VAL/VAH in ticks
+int pocHT = levelsOk ? 2 * anchorTicks + (2 * pocKeyRaw + 1) * binTicks : na
+int valT = levelsOk ? anchorTicks + loKeyRaw * binTicks : na
+int vahT = levelsOk ? anchorTicks + (hiKeyRaw + 1) * binTicks : na
+if levelsOk
+    lastPoc := devPoc
+    lastPocHT := pocHT
+
+var array<float> todHist = array.new_float(SLOTS * DAYS, na)
+var int todDayPtr = 0
+var bool todSeenDay = false
+if newUs
+    todDayPtr := f_ringNewSession(todHist, todDayPtr, todSeenDay)
+    todSeenDay := true
+float closeVwapDist = warm and inUs ? (close - vwap) / atrPrev : na
+float todDistPct = na
+if inUs and warm and slot >= 0 and slot < SLOTS and not na(closeVwapDist)
+    [pctRes, obsRes] = f_ringCompareWrite(todHist, todDayPtr, slot, closeVwapDist)
+    todDistPct := pctRes
+float vwapSlopeAtr3 = warm and inUs and profileBars >= 4 ? (vwap - vwap[3]) / atrPrev : na
+float vwapPocSepAtr = warm and inUs and not na(devPoc) ? (vwap - devPoc) / atrPrev : na
+// ================= END FEATURE AUTHORITY =================
+
+// ================= TEST29 CANDIDATE LOGIC V1 (identical bytes in the strategy and in the density indicator) =================
+// Pre-registered design (2026-09-22, before any TEST29 density or PnL): each CONTROL fires only on its FIRST eligible trigger
+// bar of the session (ctlDone latch, eligibility = warm and not flattenNow and not flattenNext). Each TREATMENT is that same
+// control trigger bar AND one auction/value-state clause, so every treatment is a same-bar value filter of its control
+// (TEST28 lesson 4: no accidental later-entry timing variants). Value levels: pocHT = developing POC in half-ticks,
+// valT / vahT = developing VAL / VAH in ticks (feature authority); prior VAH / VAL are captured exactly like the feature
+// authority's priorVah / priorVal (last developing value of the prior session), in the same integer-tick form.
+
+// ---------------- global candidate inputs (all stateful calls global, every bar) ----------------
+int closeT = f_ticks(close)
+int highT = f_ticks(high)
+int lowT = f_ticks(low)
+int closeT1 = closeT[1]
+int highT1 = highT[1]
+int lowT1 = lowT[1]
+int rangeT = math.max(highT - lowT, 1)
+bool clGe60 = 5 * (closeT - lowT) >= 3 * rangeT
+bool clLe40 = 5 * (closeT - lowT) <= 2 * rangeT
+int trT = na(closeT1) ? highT - lowT : math.max(highT - lowT, math.max(math.abs(highT - closeT1), math.abs(lowT - closeT1)))
+float s6T = math.sum(trT, 6)[1]
+float hh6 = ta.highest(high, 6)[1]
+float ll6 = ta.lowest(low, 6)[1]
+int hh6T = na(hh6) ? na : f_ticks(hh6)
+int ll6T = na(ll6) ? na : f_ticks(ll6)
+bool bull = close > open
+bool bear = close < open
+float close1 = close[1]
+float vwap1 = vwap[1]
+float vwap6 = vwap[6]
+int pocHT1 = pocHT[1]
+float sHighPrev = sHigh[1]
+float sLowPrev = sLow[1]
+float sClosePrev = sClose[1]
+bool ready = inUs and warm and levelsOk
+bool same6 = profileBars >= 7
+bool entryOK = warm and not flattenNow and not flattenNext
+bool win = ready and mod >= 630 and mod <= 815
+bool winFH = ready and mod >= 635 and mod <= 815
+bool winAM = ready and mod >= 600 and mod <= 815
+bool winGap = ready and mod >= 600 and mod <= 685
+
+// ---------------- session references: prior completed US-window session, prior value area, opening range, first hour ----------------
+var float sessOpen = na
+var float pdh = na
+var float pdl = na
+var float pdc = na
+var float pdRange = na
+var int priorVahT = na
+var int priorValT = na
+var int lastVahT = na
+var int lastValT = na
+var float orHigh = na
+var float orLow = na
+var float fhHigh = na
+var float fhLow = na
+if newUs
+    pdh := sHighPrev
+    pdl := sLowPrev
+    pdc := sClosePrev
+    pdRange := na(sHighPrev) or na(sLowPrev) ? na : sHighPrev - sLowPrev
+    priorVahT := lastVahT
+    priorValT := lastValT
+    sessOpen := open
+    orHigh := na
+    orLow := na
+    fhHigh := na
+    fhLow := na
+if levelsOk
+    lastVahT := vahT
+    lastValT := valT
+if inUs and mod < 600
+    orHigh := math.max(nz(orHigh, high), high)
+    orLow := math.min(nz(orLow, low), low)
+if inUs and mod <= 625
+    fhHigh := math.max(nz(fhHigh, high), high)
+    fhLow := math.min(nz(fhLow, low), low)
+int pdhT = na(pdh) ? na : f_ticks(pdh)
+int pdlT = na(pdl) ? na : f_ticks(pdl)
+int sessOpenT = na(sessOpen) ? na : f_ticks(sessOpen)
+int fhHighT = na(fhHigh) ? na : f_ticks(fhHigh)
+int fhLowT = na(fhLow) ? na : f_ticks(fhLow)
+
+// first-hour impulse state at the 10:25 bar close (legacy TEST24 F14 definition: move >= 0.50 prior ATR on the VWAP side)
+var int fhState = 0
+if newUs
+    fhState := 0
+if inUs and warm and mod == 625 and not na(sessOpen)
+    float fhMove = (close - sessOpen) / atrPrev
+    if fhMove >= 0.50 and close > vwap
+        fhState := 1
+    else if fhMove <= -0.50 and close < vwap
+        fhState := -1
+
+// first-30-minute gap partial fill at the 09:55 bar close (legacy TEST24 F11 thresholds)
+var bool gapUpPartial = false
+var bool gapDnPartial = false
+if newUs
+    gapUpPartial := false
+    gapDnPartial := false
+if inUs and warm and mod == 595 and not na(pdc) and not na(pdRange) and pdRange > 0 and not na(sessOpen) and not na(orHigh) and not na(orLow)
+    float gapUp = sessOpen - pdc
+    float gapDn = pdc - sessOpen
+    if gapUp >= 0.25 * pdRange and gapUp > 0
+        float fillUp = (sessOpen - orLow) / gapUp
+        gapUpPartial := fillUp >= 0.25 and fillUp <= 0.75 and orLow > pdc
+    if gapDn >= 0.25 * pdRange and gapDn > 0
+        float fillDn = (orHigh - sessOpen) / gapDn
+        gapDnPartial := fillDn >= 0.25 and fillDn <= 0.75 and orHigh < pdc
+
+// ---------------- L1 sequential interaction: VWAP test (event 1) -> first re-break of the test bar within 6 bars (event 2) ----------------
+var int e1UpBar = na
+var int e1UpHighT = na
+var int e1UpPocHT = na
+var int e1DnBar = na
+var int e1DnLowT = na
+var int e1DnPocHT = na
+if newUs
+    e1UpBar := na
+    e1UpHighT := na
+    e1UpPocHT := na
+    e1DnBar := na
+    e1DnLowT := na
+    e1DnPocHT := na
+bool l1LongCond = win and not na(e1UpBar) and bar_index - e1UpBar >= 1 and bar_index - e1UpBar <= 6 and closeT > e1UpHighT and closeT1 <= e1UpHighT and close > vwap and vwap > vwap6 and bull
+bool l1ShortCond = win and not na(e1DnBar) and bar_index - e1DnBar >= 1 and bar_index - e1DnBar <= 6 and closeT < e1DnLowT and closeT1 >= e1DnLowT and close < vwap and vwap < vwap6 and bear
+// value transition: the developing POC migrated in the trade direction between the VWAP test and the re-break
+bool l1LongValue = not na(e1UpPocHT) and pocHT > e1UpPocHT
+bool l1ShortValue = not na(e1DnPocHT) and pocHT < e1DnPocHT
+if ready and not newUs and low <= vwap and close1 > vwap1
+    e1UpBar := bar_index
+    e1UpHighT := highT
+    e1UpPocHT := pocHT
+if ready and not newUs and high >= vwap and close1 < vwap1
+    e1DnBar := bar_index
+    e1DnLowT := lowT
+    e1DnPocHT := pocHT
+
+// ---------------- L2 failed setup: fresh prior-day low / high break -> close back inside within 6 bars (anti-alpha) ----------------
+// Non-PnL density fix (2026-09-22, once): the legacy one-bar 'close beyond the extreme by 0.10 x ATR' break depth is removed
+// (1-8 control days per market-year = structural near-zero); a fresh break is any close beyond the prior-day extreme.
+var int pdlBreakBar = na
+var bool pdlBreakBelowVwap = false
+var int pdhBreakBar = na
+var bool pdhBreakAboveVwap = false
+if newUs
+    pdlBreakBar := na
+    pdlBreakBelowVwap := false
+    pdhBreakBar := na
+    pdhBreakAboveVwap := false
+bool l2LongCond = winAM and not na(pdlBreakBar) and bar_index - pdlBreakBar >= 1 and bar_index - pdlBreakBar <= 6 and pdlBreakBelowVwap and closeT > pdlT and closeT1 <= pdlT and bull and clGe60
+bool l2ShortCond = winAM and not na(pdhBreakBar) and bar_index - pdhBreakBar >= 1 and bar_index - pdhBreakBar <= 6 and pdhBreakAboveVwap and closeT < pdhT and closeT1 >= pdhT and bear and clLe40
+// value refused to follow the break: the developing POC is still on the prior-range side of the broken prior-day extreme
+bool l2LongValue = not na(pdlT) and pocHT > 2 * pdlT
+bool l2ShortValue = not na(pdhT) and pocHT < 2 * pdhT
+if ready and not newUs and not na(pdlT) and closeT < pdlT and closeT1 >= pdlT
+    pdlBreakBar := bar_index
+    pdlBreakBelowVwap := close < vwap
+if ready and not newUs and not na(pdhT) and closeT > pdhT and closeT1 <= pdhT
+    pdhBreakBar := bar_index
+    pdhBreakAboveVwap := close > vwap
+
+// ---------------- L3 two-leg pullback (high-2 / low-2 count) inside a VWAP-side trend ----------------
+var bool pbL = false
+var int pbLHighT = na
+var int pbLLowT = na
+var bool pbLH1 = false
+var bool pbLLeg2 = false
+var bool pbS = false
+var int pbSLowT = na
+var int pbSHighT = na
+var bool pbSL1 = false
+var bool pbSLeg2 = false
+if newUs
+    pbL := false
+    pbS := false
+bool l3LongCond = false
+bool l3LongValue = false
+bool l3ShortCond = false
+bool l3ShortValue = false
+if ready and not newUs
+    if pbL
+        if highT > pbLHighT or closeVwapDist < -0.25
+            pbL := false
+        else if pbLLeg2 and highT > highT1 and closeT > highT1 and bull and close > vwap
+            l3LongCond := win
+            // the two-leg pullback held at / above the developing POC (accepted value defended)
+            l3LongValue := 2 * math.min(pbLLowT, lowT) >= pocHT
+            pbL := false
+        else
+            if pbLH1 and lowT < pbLLowT
+                pbLLeg2 := true
+            if not pbLH1 and highT > highT1
+                pbLH1 := true
+            pbLLowT := math.min(pbLLowT, lowT)
+    else if close1 > vwap1 and vwap > vwap6 and highT < highT1
+        pbL := true
+        pbLHighT := highT1
+        pbLLowT := lowT
+        pbLH1 := false
+        pbLLeg2 := false
+    if pbS
+        if lowT < pbSLowT or closeVwapDist > 0.25
+            pbS := false
+        else if pbSLeg2 and lowT < lowT1 and closeT < lowT1 and bear and close < vwap
+            l3ShortCond := win
+            // the two-leg pullback held at / below the developing POC
+            l3ShortValue := 2 * math.max(pbSHighT, highT) <= pocHT
+            pbS := false
+        else
+            if pbSL1 and highT > pbSHighT
+                pbSLeg2 := true
+            if not pbSL1 and lowT < lowT1
+                pbSL1 := true
+            pbSHighT := math.max(pbSHighT, highT)
+    else if close1 < vwap1 and vwap < vwap6 and lowT > lowT1
+        pbS := true
+        pbSLowT := lowT1
+        pbSHighT := highT
+        pbSL1 := false
+        pbSLeg2 := false
+
+// ---------------- L4 gap auction lifecycle: partial first-30-minute fill -> continuation (legacy TEST24 F11 trigger) ----------------
+bool l4LongCond = winGap and gapUpPartial and close > vwap and closeT > sessOpenT and closeT > hh6T and bull
+bool l4ShortCond = winGap and gapDnPartial and close < vwap and closeT < sessOpenT and closeT < ll6T and bear
+// gap value acceptance: today's developing POC is outside the prior session's value area in the gap direction
+bool l4LongValue = not na(priorVahT) and pocHT > 2 * priorVahT
+bool l4ShortValue = not na(priorValT) and pocHT < 2 * priorValT
+
+// ---------------- L5 opening / first-hour state: first-hour impulse -> later VWAP pullback continuation ----------------
+bool l5LongCond = winFH and fhState == 1 and low <= vwap + 0.10 * atrPrev and close > vwap and closeT > highT1 and bull
+bool l5ShortCond = winFH and fhState == -1 and high >= vwap - 0.10 * atrPrev and close < vwap and closeT < lowT1 and bear
+// value migrated with the impulse: developing POC in the impulse-side half of the first-hour range
+bool l5LongValue = not na(fhHighT) and not na(fhLowT) and pocHT >= fhHighT + fhLowT
+bool l5ShortValue = not na(fhHighT) and not na(fhLowT) and pocHT <= fhHighT + fhLowT
+
+// ---------------- L6 compression -> expansion: tight 6-bar box -> range-expansion close outside the box ----------------
+bool box6 = same6 and not na(hh6) and not na(ll6) and hh6 - ll6 <= 0.20 * atrPrev
+bool expand6 = 24 * trT >= 5 * s6T
+bool l6LongCond = win and box6 and expand6 and closeT > hh6T and close > vwap and bull
+bool l6ShortCond = win and box6 and expand6 and closeT < ll6T and close < vwap and bear
+// compression around accepted value: the developing POC (prior bar) lies inside the compression box
+bool pocInBox6 = not na(pocHT1) and not na(hh6T) and not na(ll6T) and pocHT1 >= 2 * ll6T and pocHT1 <= 2 * hh6T
+bool l6LongValue = pocInBox6
+bool l6ShortValue = pocInBox6
+
+// ---------------- L7 multi-push exhaustion: >= 3 separate new-session-extreme pushes, last push smaller -> reversal ----------------
+var int dnPushes = 0
+var bool dnInPush = false
+var int dnBrokenT = na
+var int dnExtT = na
+var int dnPrevExtT = na
+var int dnLastBar = na
+var int dnStartPocHT = na
+var int upPushes = 0
+var bool upInPush = false
+var int upBrokenT = na
+var int upExtT = na
+var int upPrevExtT = na
+var int upLastBar = na
+var int upStartPocHT = na
+if newUs
+    dnPushes := 0
+    dnInPush := false
+    dnExtT := na
+    dnPrevExtT := na
+    dnLastBar := na
+    dnStartPocHT := na
+    upPushes := 0
+    upInPush := false
+    upExtT := na
+    upPrevExtT := na
+    upLastBar := na
+    upStartPocHT := na
+int sLowPrevT = na(sLowPrev) ? na : f_ticks(sLowPrev)
+int sHighPrevT = na(sHighPrev) ? na : f_ticks(sHighPrev)
+bool newLowBar = ready and not newUs and not na(sLowPrevT) and lowT < sLowPrevT
+bool newHighBar = ready and not newUs and not na(sHighPrevT) and highT > sHighPrevT
+if newLowBar
+    if not dnInPush
+        dnPushes += 1
+        dnPrevExtT := dnExtT
+        dnBrokenT := sLowPrevT
+        dnStartPocHT := pocHT1
+        dnInPush := true
+    dnExtT := dnBrokenT - lowT
+    dnLastBar := bar_index
+else
+    dnInPush := false
+if newHighBar
+    if not upInPush
+        upPushes += 1
+        upPrevExtT := upExtT
+        upBrokenT := sHighPrevT
+        upStartPocHT := pocHT1
+        upInPush := true
+    upExtT := highT - upBrokenT
+    upLastBar := bar_index
+else
+    upInPush := false
+bool l7LongCond = win and not newLowBar and dnPushes >= 3 and not na(dnPrevExtT) and dnExtT < dnPrevExtT and bar_index - dnLastBar >= 1 and bar_index - dnLastBar <= 6 and closeT > highT1 and bull and closeVwapDist <= -0.30
+bool l7ShortCond = win and not newHighBar and upPushes >= 3 and not na(upPrevExtT) and upExtT < upPrevExtT and bar_index - upLastBar >= 1 and bar_index - upLastBar <= 6 and closeT < lowT1 and bear and closeVwapDist >= 0.30
+// value stopped confirming: the developing POC did not follow the final push
+bool l7LongValue = not na(dnStartPocHT) and pocHT >= dnStartPocHT
+bool l7ShortValue = not na(upStartPocHT) and pocHT <= upStartPocHT
+
+// ---------------- first-eligible-trigger latch -> 28 signals (index 4*family: C LONG, C SHORT, T LONG, T SHORT) ----------------
+array<bool> ctlCond = array.from(l1LongCond, l1ShortCond, l2LongCond, l2ShortCond, l3LongCond, l3ShortCond, l4LongCond, l4ShortCond, l5LongCond, l5ShortCond, l6LongCond, l6ShortCond, l7LongCond, l7ShortCond)
+array<bool> valCond = array.from(l1LongValue, l1ShortValue, l2LongValue, l2ShortValue, l3LongValue, l3ShortValue, l4LongValue, l4ShortValue, l5LongValue, l5ShortValue, l6LongValue, l6ShortValue, l7LongValue, l7ShortValue)
+var array<bool> ctlDone = array.new_bool(14, false)
+if newUs
+    for k = 0 to 13
+        array.set(ctlDone, k, false)
+array<bool> sigs = array.new_bool(28, false)
+for fam = 0 to 6
+    for sd = 0 to 1
+        int k = 2 * fam + sd
+        bool trig = array.get(ctlCond, k) and entryOK and not array.get(ctlDone, k)
+        if trig
+            array.set(ctlDone, k, true)
+        array.set(sigs, 4 * fam + sd, trig)
+        array.set(sigs, 4 * fam + 2 + sd, trig and array.get(valCond, k))
+// ================= END TEST29 CANDIDATE LOGIC V1 =================
+
+// ================= TEST30 REGIME / CONTEXT MODULE V1 (identical bytes in the strategy and in the diagnostic indicator) =================
+// Pre-registered 2026-09-22 before any TEST30 PnL (TEST30_REGIME_PREREGISTRATION_V1_2026-09-22.md). Each regime is a SAME-BAR
+// filter of its base's first eligible trigger: treatment = base signal AND regime READY AND regime favorable. Missing, stale,
+// warm-up or misaligned regime input -> not READY -> no treatment entry (fail closed). Controls never depend on a regime.
+
+// ---------------- session identity: the two most recent completed US-window sessions ----------------
+int lastUsDate1 = lastUsDate[1]
+var int r0Sess1 = na
+var int r0Sess2 = na
+if newUs
+    r0Sess2 := r0Sess1
+    r0Sess1 := lastUsDate1
+
+// ---------------- R1 multi-session value migration: final developing POC of the last completed session vs the one before ----------------
+var int r1LastPocHT = na
+var int r1LastPocDate = na
+var int r1PocHT1 = na
+var int r1PocDate1 = na
+var int r1PocHT2 = na
+var int r1PocDate2 = na
+if newUs
+    r1PocHT2 := r1PocHT1
+    r1PocDate2 := r1PocDate1
+    r1PocHT1 := r1LastPocHT
+    r1PocDate1 := r1LastPocDate
+if levelsOk
+    r1LastPocHT := pocHT
+    r1LastPocDate := nyDate
+bool r1Have = not na(r1PocHT1) and not na(r1PocHT2)
+bool r1Ready = r1Have and not na(r0Sess1) and not na(r0Sess2) and r1PocDate1 == r0Sess1 and r1PocDate2 == r0Sess2
+bool r1Long = r1Ready and r1PocHT1 > r1PocHT2
+bool r1Short = r1Ready and r1PocHT1 < r1PocHT2
+
+// ---------------- R2 completed synthetic 60m trend (TEST23 V1 construction and trend60Up / trend60Dn definition) ----------------
+// 60m bars 09:30-10:30 ... 14:30-15:30 built from completed 5m bars only; the 15:30-15:45 fragment is never a 60m bar.
+// Strict clock: the signal bar reads the state as of the PREVIOUS 5m close, i.e. only 60m bars whose final 5m component
+// closed at or before the signal bar's open. The most recent expected 60m bar must be present (else stale -> no entry).
+int mfo = mod - 570
+bool valid60 = inUs and mfo >= 0 and mfo < 360
+bool end60 = valid60 and (mfo + 5) % 60 == 0
+var float a60C = na
+var float h60Close = na
+var float h60Ema20 = na
+var float h60Ema50 = na
+var int h60Count = 0
+var int h60EndDate = na
+var int h60EndMod = na
+if valid60
+    a60C := close
+if end60
+    h60Close := a60C
+    h60Ema20 := na(h60Ema20) ? h60Close : (2.0 / 21.0) * h60Close + (19.0 / 21.0) * h60Ema20
+    h60Ema50 := na(h60Ema50) ? h60Close : (2.0 / 51.0) * h60Close + (49.0 / 51.0) * h60Ema50
+    h60Count += 1
+    h60EndDate := nyDate
+    h60EndMod := mod + 5
+bool trend60Up = not na(h60Ema20) and not na(h60Ema50) and h60Ema20 > h60Ema50 and h60Close > h60Ema20
+bool trend60Dn = not na(h60Ema20) and not na(h60Ema50) and h60Ema20 < h60Ema50 and h60Close < h60Ema20
+bool r2UpPrev = trend60Up[1]
+bool r2DnPrev = trend60Dn[1]
+int r2CountPrev = h60Count[1]
+int r2EndDatePrev = h60EndDate[1]
+int r2EndModPrev = h60EndMod[1]
+int r2ExpectedEnd = 570 + 60 * int(math.floor((mod - 570) / 60.0))
+bool r2Have = not na(r2CountPrev) and r2CountPrev >= 50
+bool r2Ready = r2Have and mod >= 630 and r2EndDatePrev == nyDate and r2EndModPrev == r2ExpectedEnd
+bool r2Long = r2Ready and r2UpPrev
+bool r2Short = r2Ready and r2DnPrev
+
+// ---------------- R3 cross-index session direction: ES and YM required, RTY diagnostic only ----------------
+// Peer value = the peer's last COMPLETED 5m bar before the signal bar (peer-context [1]), aligned exactly: the peer's
+// current bar has the chart bar's timestamp and the peer's previous bar is exactly one 5m bar earlier; its 09:30 open is
+// from today's session. Any gap, missing or misaligned peer data -> not ready -> no entry. Up/down = close vs 09:30 open.
+f_peerState() =>
+    var float o930 = na
+    var int o930Date = na
+    if hour(time, TZ) == 9 and minute(time, TZ) == 30
+        o930 := open
+        o930Date := year(time, TZ) * 10000 + month(time, TZ) * 100 + dayofmonth(time, TZ)
+    [time, time[1], close[1], o930[1], o930Date[1]]
+[esT0, esT1, esC1, esO1, esD1] = request.security("CME_MINI:ES1!", timeframe.period, f_peerState(), gaps=barmerge.gaps_on, lookahead=barmerge.lookahead_off)
+[ymT0, ymT1, ymC1, ymO1, ymD1] = request.security("CBOT_MINI:YM1!", timeframe.period, f_peerState(), gaps=barmerge.gaps_on, lookahead=barmerge.lookahead_off)
+[rtT0, rtT1, rtC1, rtO1, rtD1] = request.security("CME_MINI:RTY1!", timeframe.period, f_peerState(), gaps=barmerge.gaps_on, lookahead=barmerge.lookahead_off)
+// peer code: 1 up, -1 down, 0 flat, 8 missing, 9 stale / misaligned
+f_peerCode(int t0, int t1, float c1, float o1, int d1) =>
+    na(t0) or na(t1) or na(c1) or na(o1) or na(d1) ? 8 : t0 != time or t1 != time - tfSec * 1000 or d1 != nyDate ? 9 : c1 > o1 ? 1 : c1 < o1 ? -1 : 0
+int esCode = f_peerCode(esT0, esT1, esC1, esO1, esD1)
+int ymCode = f_peerCode(ymT0, ymT1, ymC1, ymO1, ymD1)
+int rtCode = f_peerCode(rtT0, rtT1, rtC1, rtO1, rtD1)
+bool r3Have = esCode != 8 and ymCode != 8
+bool r3Ready = r3Have and esCode != 9 and ymCode != 9
+bool r3Long = r3Ready and esCode == 1 and ymCode == 1
+bool r3Short = r3Ready and esCode == -1 and ymCode == -1
+
+// ---------------- R5 same-time cumulative participation (TEST28 ring functions; 20 prior sessions, >= 10 observations) ----------------
+// Today's cumulative US-window volume through the completed signal bar vs the prior sessions' cumulative volume at the same
+// 5m slot. The prior ring row is read before today's value is written (current session never in its own baseline).
+// Only sessions whose first US-window bar is 09:30 enter or use the ring.
+var array<float> rvHist = array.new_float(SLOTS * DAYS, na)
+var int rvDayPtr = 0
+var bool rvSeenDay = false
+var bool rvOpenSlotOk = false
+if newUs
+    rvDayPtr := f_ringNewSession(rvHist, rvDayPtr, rvSeenDay)
+    rvSeenDay := true
+    rvOpenSlotOk := slot == 0
+float rvPct = na
+int rvObs = 0
+if inUs and rvOpenSlotOk and slot >= 0 and slot < SLOTS
+    [rvPctRes, rvObsRes] = f_ringCompareWrite(rvHist, rvDayPtr, slot, cumV)
+    rvPct := rvPctRes
+    rvObs := rvObsRes
+bool r5Ready = rvOpenSlotOk and not na(rvPct)
+bool r5On = r5Ready and rvPct > 0.5
+
+// ---------------- R6 second distinct mechanism (TEST20 L2 confirmation concept, CONFIRM_MS = 30 min; TEST29 family triggers) ----------------
+// A same-direction raw trigger of a DIFFERENT TEST29 family within the 30 minutes up to and including the signal bar
+// (bar-open times, same session). The base's own family (L6 for T29-21, L3 for T29-12) never counts.
+const int R6_CONFIRM_MS = 30 * 60 * 1000
+var array<string> R6_LONG_NAMES = array.from("L1", "L2", "L3", "L4", "L5", "L7")
+var array<string> R6_SHORT_NAMES = array.from("L1", "L2", "L4", "L5", "L6", "L7")
+array<bool> r6LongEvt = array.from(l1LongCond, l2LongCond, l3LongCond, l4LongCond, l5LongCond, l7LongCond)
+array<bool> r6ShortEvt = array.from(l1ShortCond, l2ShortCond, l4ShortCond, l5ShortCond, l6ShortCond, l7ShortCond)
+var array<int> r6LongLast = array.new_int(6, na)
+var array<int> r6ShortLast = array.new_int(6, na)
+if newUs
+    for j = 0 to 5
+        array.set(r6LongLast, j, na)
+        array.set(r6ShortLast, j, na)
+for j = 0 to 5
+    if array.get(r6LongEvt, j)
+        array.set(r6LongLast, j, time)
+    if array.get(r6ShortEvt, j)
+        array.set(r6ShortLast, j, time)
+f_r6Count(array<int> lastT) =>
+    int cnt = 0
+    for j = 0 to 5
+        int lt = array.get(lastT, j)
+        if not na(lt) and time - lt <= R6_CONFIRM_MS
+            cnt += 1
+    cnt
+int r6LongCnt = f_r6Count(r6LongLast)
+int r6ShortCnt = f_r6Count(r6ShortLast)
+bool r6Long = r6LongCnt >= 1
+bool r6Short = r6ShortCnt >= 1
+// ================= END TEST30 REGIME / CONTEXT MODULE V1 =================
+
+// ================= TEST30 CANDIDATE MAPPING V1 (identical bytes in the strategy and in the diagnostic indicator) =================
+bool baseLong = array.get(sigs, 20)
+bool baseShort = array.get(sigs, 11)
+// sigs[20] = T29-21 (L6 CONTROL LONG, first eligible trigger); sigs[11] = T29-12 (L3 TREATMENT SHORT, value-hold)
+var array<string> T30_IDS = array.from("T30-L0", "T30-L1", "T30-L2", "T30-L3", "T30-L5", "T30-L6", "T30-S0", "T30-S1", "T30-S2", "T30-S3", "T30-S5", "T30-S6")
+array<bool> t30Sig = array.from(baseLong, baseLong and r1Long, baseLong and r2Long, baseLong and r3Long, baseLong and r5On, baseLong and r6Long, baseShort, baseShort and r1Short, baseShort and r2Short, baseShort and r3Short, baseShort and r5On, baseShort and r6Short)
+
+// per-trade diagnostics carried in the entry comment: regime codes 1 on / 0 off / M missing / S stale-misaligned, then sources
+f_code(bool have, bool ready, bool on) => not have ? "M" : not ready ? "S" : on ? "1" : "0"
+f_peerChar(int c) => c == 1 ? "+" : c == -1 ? "-" : c == 0 ? "=" : c == 8 ? "M" : "S"
+f_famList(array<int> lastT, array<string> names) =>
+    string s = ""
+    for j = 0 to 5
+        int lt = array.get(lastT, j)
+        if not na(lt) and time - lt <= R6_CONFIRM_MS
+            s := s + array.get(names, j)
+    s == "" ? "-" : s
+f_diag(bool isLong) =>
+    string c1 = f_code(r1Have, r1Ready, isLong ? r1Long : r1Short)
+    string c2 = f_code(r2Have, r2Ready, isLong ? r2Long : r2Short)
+    string c3 = f_code(r3Have, r3Ready, isLong ? r3Long : r3Short)
+    string c5 = not rvOpenSlotOk ? "S" : na(rvPct) ? "M" : r5On ? "1" : "0"
+    string c6 = (isLong ? r6LongCnt : r6ShortCnt) >= 1 ? "1" : "0"
+    string s = "R1:" + c1 + " R2:" + c2 + " R3:" + c3 + " R5:" + c5 + " R6:" + c6
+    s := s + "|P:" + str.tostring(r1PocDate1) + "/" + str.tostring(r1PocDate2) + " " + str.tostring(r1PocHT1) + "/" + str.tostring(r1PocHT2)
+    s := s + "|H:" + str.tostring(r2EndDatePrev) + "-" + str.tostring(r2EndModPrev) + "/" + str.tostring(r2CountPrev)
+    s := s + "|X:ES" + f_peerChar(esCode) + " YM" + f_peerChar(ymCode) + " RTY" + f_peerChar(rtCode)
+    s := s + "|V:" + str.tostring(rvPct, "#.###") + "/" + str.tostring(rvObs)
+    s := s + "|M:" + (isLong ? f_famList(r6LongLast, R6_LONG_NAMES) : f_famList(r6ShortLast, R6_SHORT_NAMES))
+    s
+string diagL = baseLong ? f_diag(true) : ""
+string diagS = baseShort ? f_diag(false) : ""
+// ================= END TEST30 CANDIDATE MAPPING V1 =================
+
+// ---------------- execution shell (TEST29 shell semantics unchanged; IDs TEST30 / T30-xx; diagnostics in the entry comment) ----------------
+f_side(int i) => i < 6 ? "LONG" : "SHORT"
+f_id(int i) => "TEST30|" + symRoot + "|" + array.get(T30_IDS, i) + "|" + f_side(i)
+
+f_is_open(string eid) =>
+    bool yes = false
+    if strategy.opentrades > 0
+        for k = 0 to strategy.opentrades - 1
+            if strategy.opentrades.entry_id(k) == eid
+                yes := true
+    yes
+
+var array<bool> enteredToday = array.new_bool(12, false)
+var array<bool> active = array.new_bool(12, false)
+var array<int> entryClock = array.new_int(12, na)
+var array<int> stopTicks = array.new_int(12, na)
+
+if newUs
+    // Intraday invariant: nothing may survive into a new project session. Any LEAK_GUARD exit is a QA failure.
+    if strategy.opentrades > 0
+        strategy.close_all(comment="TEST30|LEAK_GUARD", immediately=true)
+    for i = 0 to 11
+        array.set(enteredToday, i, false)
+        array.set(active, i, false)
+        array.set(entryClock, i, na)
+        array.set(stopTicks, i, na)
+
+for i = 0 to 11
+    bool isLong = i < 6
+    bool sideOK = (batchSide == "LONG" and isLong) or (batchSide == "SHORT" and not isLong)
+    string eid = f_id(i)
+    string sx = eid + "|X"
+
+    if sideOK and warm and array.get(t30Sig, i) and not array.get(enteredToday, i) and not array.get(active, i) and not flattenNow and not flattenNext
+        strategy.entry(eid, isLong ? strategy.long : strategy.short, qty=1, comment=eid + "|" + (isLong ? diagL : diagS))
+        array.set(enteredToday, i, true)
+        array.set(active, i, true)
+        array.set(entryClock, i, time_close)
+        array.set(stopTicks, i, int(math.max(1.0, math.round(2.0 * atrPrev / syminfo.mintick))))
+
+    if sideOK and array.get(active, i)
+        strategy.exit(sx, from_entry=eid, loss=array.get(stopTicks, i), comment_loss="TEST30|STOP")
+        int et = array.get(entryClock, i)
+
+        // Reconcile a native stop fill before any time/flat close decision.
+        if not na(et) and time >= et and not f_is_open(eid)
+            array.set(active, i, false)
+            array.set(entryClock, i, na)
+            array.set(stopTicks, i, na)
+
+        if array.get(active, i) and not na(et) and time_close >= et + 120 * 60 * 1000
+            strategy.close(eid, immediately=true, comment="TEST30|TIME_120")
+            array.set(active, i, false)
+            array.set(entryClock, i, na)
+            array.set(stopTicks, i, na)
+
+        if array.get(active, i) and flattenNow
+            strategy.close(eid, immediately=true, comment=halfDayCut ? "TEST30|HALFDAY_FLAT" : "TEST30|1545_FLAT")
+            array.set(active, i, false)
+            array.set(entryClock, i, na)
+            array.set(stopTicks, i, na)

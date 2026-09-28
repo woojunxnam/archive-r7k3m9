@@ -1,0 +1,35 @@
+[
+ {
+  "seed": "LC02",
+  "ledger_entries_window": 176,
+  "engine_entries_window": 180,
+  "matched": 176,
+  "ledger_recall": 1.0,
+  "engine_precision": 0.9777777777777777,
+  "price_within_1tick_share": 0.9772727272727273,
+  "median_abs_price_diff": 0.0,
+  "PARITY": "BLOCKED"
+ },
+ {
+  "seed": "LC03",
+  "ledger_entries_window": 198,
+  "engine_entries_window": 195,
+  "matched": 192,
+  "ledger_recall": 0.9696969696969697,
+  "engine_precision": 0.9846153846153847,
+  "price_within_1tick_share": 0.7708333333333334,
+  "median_abs_price_diff": 0.25,
+  "PARITY": "BLOCKED"
+ },
+ {
+  "seed": "LC05",
+  "ledger_entries_window": 602,
+  "engine_entries_window": 586,
+  "matched": 405,
+  "ledger_recall": 0.6727574750830565,
+  "engine_precision": 0.6911262798634812,
+  "price_within_1tick_share": 0.7308641975308642,
+  "median_abs_price_diff": 0.25,
+  "PARITY": "BLOCKED"
+ }
+]
