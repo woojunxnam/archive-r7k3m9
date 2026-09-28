@@ -18,3 +18,4 @@ out/t45/panel.npz
 catboost_info/
 out/t47/*.log
 out/t47/ga/archive_*.parquet
+out/test65/t61_hist/session_log_*.csv.gz

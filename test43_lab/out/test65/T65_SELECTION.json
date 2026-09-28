@@ -1,0 +1,9 @@
+{
+ "TEST66_mechanism": "MISSED_OPENING_TREND",
+ "selection": "detectable & stable, max score",
+ "TEST67_ES_candidate": {
+  "B_median_auc": 0.5925154718927282,
+  "potential_$_per_day": 2.0587306145893165,
+  "detectable": true
+ }
+}

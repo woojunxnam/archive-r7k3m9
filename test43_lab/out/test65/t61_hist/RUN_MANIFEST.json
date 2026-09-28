@@ -1,0 +1,23 @@
+{
+ "mode": "replay",
+ "data_end": "2026-05-27",
+ "report_start": "2019-01-01",
+ "data_sha256": {
+  "ES": "2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116",
+  "MNQ": "66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2"
+ },
+ "out_dir": "/home/user/archive-r7k3m9/test43_lab/out/test65/t61_hist",
+ "frozen_manifest_sha256": "35456801e1f5624b91857a80f50c2a1c6b4c6fe6709f636f4ce69e61a7e8a9a8",
+ "run_utc": "2026-09-28T15:23:21+00:00",
+ "engine_sha256": "3c2f5716c99e2955ec5be00ed2b8bb212c21e4a651e193c18a72fdbf46f6f7c1",
+ "runner_sha256": "24dc9016a6350765fd8b770c5a39c7d24efb30760efdc0c60606f030a4b307c8",
+ "outputs": {
+  "daily_report.csv": "86450bf7feb8d865ace5800d0eb09ee8067e17993a0ab67e14cb7cf9f53b4d35",
+  "run_summary.json": "95827abc64bf3f9b65e9b3c3e4ccfe5dbf3ea99aa4389a5ebef4549ef3c7826b",
+  "session_log_C43-CORE.csv.gz": "da76390691ff575783bd58297d538205057e070c95b7742d74314c6e3a5fcfd3",
+  "session_log_T55.csv.gz": "cd02ebd424cb6dd10af68272fa0cbf8ee5dd21fec6f8539696ff6eebc0f79a73",
+  "session_log_T61-R1C.csv.gz": "89b8026fda02e16df6b0f63add062fdf2a3100b00e73aaa98c307566d447fd47"
+ },
+ "orders_sent": 0,
+ "LIVE_AUTHORIZATION": "NO"
+}

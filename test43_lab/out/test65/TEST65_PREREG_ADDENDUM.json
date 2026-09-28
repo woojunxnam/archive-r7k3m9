@@ -1,0 +1,7 @@
+{
+ "test": "TEST65",
+ "addendum_utc": "2026-09-28T15:25:39Z",
+ "written_before_any_TEST65_statistic": true,
+ "clarification": "detectability is judged on the CLEAN FORWARD label (label B: from the next 1m open after the decision minute to the window end / event horizon, threshold = the category threshold scaled by sqrt(remaining_minutes / window_minutes)); the category event label (label A) contains the first 5 decision minutes and is reported only. Event-conditioned categories (EARLY_EXIT, MULTI_SESSION, NQ_SECONDARY_BREAKOUT, PULLBACK_RESUMPTION) are scored at their own trigger minute over all triggers of that type. LOSS_ALT / OTHER are diagnostic (no detectability). W1 covers bars ending 09:31..10:30.",
+ "prereg_sha256": "c25145de97d25498c2af489c127002fa3213265fac41d961d186d4c9b5687338"
+}

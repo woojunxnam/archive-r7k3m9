@@ -1,0 +1,2 @@
+test,family,prereg_sha,result,status,utc
+TEST65,T61 residual opportunity map (labels only),c25145de97d25498c2af489c127002fa3213265fac41d961d186d4c9b5687338,"map built; TEST66 -> MISSED_OPENING_TREND (detectable & stable, max score)",MAP,2026-09-28T15:27:07+00:00

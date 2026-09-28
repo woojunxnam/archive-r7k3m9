@@ -60,7 +60,7 @@ def run(mode, es, mnq, data_end, report_start, out_dir):
     else:
         if report_start < OOS_START or data_end < OOS_START:
             raise SystemExit("forward mode reports sessions >= 2026-09-29 only")
-    ws = os.path.join(out_dir, "_workspace")
+    out_dir = os.path.abspath(out_dir); ws = os.path.join(out_dir, "_workspace")
     build_ws(ws, es, mnq)
     cfg = {"mode": mode, "data_end": data_end, "report_start": report_start, "data_sha256": hs, "out_dir": os.path.abspath(out_dir),
            "frozen_manifest_sha256": open(os.path.join(PKG, "T61_R1C_MANIFEST.sha256")).read().split()[0]}

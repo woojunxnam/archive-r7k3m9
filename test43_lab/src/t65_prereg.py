@@ -1,0 +1,61 @@
+"""TEST65 preregistration (written BEFORE any TEST65 statistic is computed).  Also fixes the program-wide TEST65+ incremental gate."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+import t65_common as K  # noqa: E402
+
+WINDOWS = {"W1_0930_1030": ("09:31", "10:30"), "W2_1030_1200": ("10:30", "12:00"), "W3_1200_1400": ("12:00", "14:00"),
+           "W4_1400_1515": ("14:00", "15:15"), "W5_1515_1615": ("15:15", "16:15")}
+
+SPEC = {
+    "question": "Where does the frozen T61-R1C leave long ES/NQ opportunity uncaptured (under-exposure before strong moves, missed continuation, "
+                "early exits, ES-independent moves, losses another mechanism would avoid), which gap categories are economically large AND stable "
+                "across the five outer folds AND causally detectable EARLY (no automatic 15m wait), and which is the strongest distinct mechanism for TEST66?",
+    "type": "descriptive map + detectability (labels only; NO trading-rule economics in TEST65)",
+    "data": "canonical ES/MNQ 1m <= 2026-05-27; T61-R1C minute targets from the fail-closed frozen shadow replay (out/test65/t61_hist)",
+    "exposure": "T61 MNQ-equivalent units u = MNQ + MES * ATR$_ES / ATR$_MNQ at each grid minute; UNDER-EXPOSED = window-average u < 3 (half of cap 6)",
+    "windows": WINDOWS,
+    "strong_move": "window return (open of first minute -> close of last minute) >= 0.5 * sqrt(window_minutes / 390) * ATR_d (instrument's own ATR_d)",
+    "categories": {
+        "MISSED_OPENING_TREND": "W1 strong MNQ up-move while under-exposed",
+        "MISSED_MIDDAY_CONTINUATION": "W2 or W3 strong MNQ up-move, session already up at window start (>0), under-exposed",
+        "MISSED_LATE_RTH_CONTINUATION": "W4 or W5 strong MNQ up-move, session up at window start, under-exposed",
+        "EARLY_EXIT_CONTINUATION": "T61 total MNQ-eq drops by >= 1 unit intraday and MNQ rises >= 0.35 ATR_d from the exit minute to 16:15",
+        "MULTI_SESSION_CONTINUATION": "session up >= 0.5 ATR_d, T61 overnight MNQ-eq < 1 at 16:14, next session open(09:31)->10:30 up >= 0.25 ATR_d",
+        "ES_INDEPENDENT_OPPORTUNITY": "window where ES return (ATR units) is strong AND exceeds MNQ return (ATR units) by >= 0.25, with T61 MES < 2",
+        "NQ_SECONDARY_BREAKOUT": "after 10:30 MNQ makes a new session high >= 60 min after the previous one and then gains >= 0.3 ATR_d by 16:15, under-exposed at the break",
+        "VOLATILITY_TRANSITION": "W2-W4 strong up-move whose preceding 60m range < 0.5 x the session's opening-hour range (compression -> expansion), under-exposed",
+        "PULLBACK_RESUMPTION": "session up >= 0.5 ATR_d at 12:00 after a pullback >= 0.25 ATR_d from the high that is then exceeded before 16:00, under-exposed at the new high",
+        "LOSS_ALT": "T61 losing day in its worst decile while MNQ open->close was up (loss another long mechanism would not have taken)",
+        "OTHER": "strong up-day (open->close >= 1 ATR_d) with T61 day P&L below its median"},
+    "missed_potential_$": "sum over events of max(0, 6 - u_avg) x MNQ $ move (1 MNQ = 2 $/pt) for MNQ categories; (2 - MES) x MES $ move for ES categories; "
+                          "report by fold/year; a POTENTIAL, not a strategy",
+    "detectability": {
+        "decision_time": "window start + 5 minutes (EARLY; features use bars ending at or before the decision minute)",
+        "labels": "category event (binary) and multi-horizon forward MNQ / ES returns from the NEXT 1m open: +30, +60, +120 min, 16:00, 16:15, next 09:31 open",
+        "features": ["ret_since_open_MNQ", "ret_since_open_ES", "ES_minus_NQ_ret", "ret_last5_MNQ", "ret_last15_MNQ", "path_efficiency_since_open",
+                     "range_position", "gap", "prior_day_ret", "ret_5_sessions", "volt", "bull", "t61_exposure_u", "dist_twap"],
+        "model": "standardised L2 logistic regression (C=1), walk-forward over the 5 outer folds (train = all sessions before the fold, >= 2019-07-01)",
+        "detectable": "median fold AUC >= 0.56 AND >= 4/5 folds AUC > 0.52; lift = precision at top-quintile score / base rate reported",
+        "beta_control": "forward-return labels are also reported as EXCESS over the same-window unconditional mean of the same year (no beta credit)"},
+    "selection_rule_TEST66": "among non-rejected-family categories with detectable = True and missed potential positive in >= 4/5 folds, TEST66 takes the one "
+                             "with the largest (median AUC - 0.5) x fold-median missed potential share; TEST67 takes the best ES_INDEPENDENT signal "
+                             "(ES-specific mechanism) regardless of rank; if none detectable -> TEST66 = strongest by potential with a simple rule only",
+    "rejected_family_guard": ["generic gap/flush/VWAP-band rebound", "failed breakdown", "NASSI 3-tick", "deterministic true bottom", "blind DCA",
+                              "path-order reversal", "unconditional overnight carry", "generic compression breakout", "generic C43 exposure timing"],
+    "program_incremental_gate_TEST66_plus": {
+        "baseline": "frozen T61-R1C daily (shadow replay); module daily = module $ with MNQ lots capped at 6 - T61 MNQ (T61 priority), module MES <= 2, total MES <= 8",
+        "must_all_hold": ["incremental avg/day > 0 (2019-07+) and > 0 (2021+)", ">= 4/5 outer folds positive", "combined MaxDD <= 20,000 and worst day >= -5,000",
+                          "combined ret/DD >= T61 ret/DD", "corr(module, T61) <= 0.5", "matched-beta excess > 0", "SLIP4 incremental > 0",
+                          "remove-top5 incremental > 0", "pre-2023 > 0 and from-2023 > 0, max year share <= 50%",
+                          "plateau: all preregistered neighbours > 0 and >= 60% of base", "+1 bar delay incremental > 0",
+                          "peak total MNQ <= 6, total MES <= 8, peak margin <= 50% NLV"],
+        "reported": ["standalone economics", "loss overlap", "tail overlap (module $ on T61 worst-decile days)", "margin / turnover increase"]},
+    "multiple_testing_note": "TEST65 is a map; every downstream module inherits the program budget (hypotheses 1357 / GA 777,629 before TEST65); forward OOS is the only clean test",
+    "stopping_criteria": "additive module passes, OR >= 4 distinct families after TEST65 fail, OR only near-neighbours remain, OR hard blocker",
+    "NEW_OOS_OPENED": "NO", "T61_OOS_DATA_USED_FOR_RESEARCH": "NO",
+}
+
+if __name__ == "__main__":
+    print(K.prereg("TEST65", SPEC))
