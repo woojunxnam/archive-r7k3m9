@@ -1,0 +1,73 @@
+{
+ "freeze_timestamp_utc": "2026-09-28T13:46:26+00:00",
+ "T61_R1": {
+  "daily_file": "out/test61r1/T61R1_daily.npz",
+  "avg_day": 125.09716381706319,
+  "max_dd": 12606.700000000114,
+  "worst_day": -4347.366893120757,
+  "ret_dd": 0.009923069781708304,
+  "peak_MES": 6,
+  "peak_MNQ": 8,
+  "peak_margin_pct": 30.58991729639682
+ },
+ "parity": {
+  "kernel_1x_vs_stored_daily_max_abs": 4.547473508864641e-13,
+  "ledger_1x_vs_kernel_1x_max_abs": 4.729372449219227e-11,
+  "EXACT_vs_2X_APPROX_corr": 1.0,
+  "EXACT_vs_2X_APPROX_max_abs_daily_diff": 9.458744898438454e-11,
+  "EXACT_vs_2X_APPROX_mean_abs_daily_diff": 1.1483990604467801e-11,
+  "event_count_1x": 1445,
+  "event_count_2x_exact": 1445,
+  "trade_event_difference": 0,
+  "MaxDD_exact": 12386.86000000019,
+  "MaxDD_approx": 12386.859999999113,
+  "worst_exact": -3445.9799999999996,
+  "worst_approx": -3445.9799999999814,
+  "KERNEL_REDECIDED_2X_corr_vs_exact": 0.8971193904455462,
+  "KERNEL_REDECIDED_2X_avg_day": 79.88060310166786,
+  "KERNEL_REDECIDED_2X_max_dd": 15915.689999999071,
+  "KERNEL_REDECIDED_2X_worst": -3384.8399999999674,
+  "sides_1x": [
+   313.0,
+   1211.0
+  ],
+  "sides_2x": [
+   626.0,
+   2422.0
+  ],
+  "peak_MES_2x": 6,
+  "peak_MNQ_2x": 6,
+  "peak_margin_util_2x_kernel_frac": 0.15733889388201117,
+  "C43_X2_EXACT_PARITY_TO_SIMPLE_2X": "EXACT (floating-point)"
+ },
+ "cap_audit": {
+  "T61_ORIGINAL_PEAK_MNQ": 8,
+  "minutes_total_gt6": 798,
+  "sessions_total_gt6": 3,
+  "share_rth_minutes_gt6": 0.0011317463356521368,
+  "peak8_minutes": 204,
+  "WHY": "ENTRY_CAP_6: TEST53 lots were admitted while 2 x C43 MNQ + open lots <= 6; C43 later raised its MNQ (e.g. 2 -> 3 contracts at 1x = 4 -> 6 at 2x) while up to 2 TEST53 lots stayed open, so the total reached 8. No rule reduced TEST53 after entry."
+ },
+ "enforcement": {
+  "T61_R1_GLOBAL_CAP6_ENFORCED": true,
+  "max_total_after_enforcement": 8,
+  "minutes_total_gt6_after": 3,
+  "forced_reductions": 4,
+  "note": "a total > 6 can persist for at most the one minute between the cap decision and the next 1m open (causal execution); report counts minutes where the TARGET was already reduced but the fill is pending",
+  "minutes_target_gt6": 0
+ },
+ "source_sha256": {
+  "t61r1_validate.py": "af2b7cd61cbc2e0c8fba732ff8854344eb06a059d90dd654fd684ff0e117ec86",
+  "t53_run.py": "7503f0d41ceae5cce820b72d929058ea48ae25c997d743683e27e7a157c50a60",
+  "t61_run.py": "7dd9b52ad4fc4bf88a43b402ac65de9fa59938a68c1addf80a98cb2d585743ca",
+  "hx_common.py": "9d88a51485861dfccc2a4a10a3d5273e9ef39945111767dbab76fa831b6fd394"
+ },
+ "evidence_sha256": {
+  "T61R1_PORTFOLIO_METRICS.csv": "0f7ef02e5d1875d59d1d0739c1fa561bb9a1f221c560cc13f77217a4885d896c",
+  "T61R1_daily.npz": "21c5fc911af5f0d981c734094cce0f7402039bd7d781eeff6312e5e5adfdf730",
+  "T61_CAP_AUDIT.json": "8247f9afa020836518dbb7120c7f8f7d9dc6b697d8a59cfb20d539fba9c1c649"
+ },
+ "prior_freeze": "cb90e447548cfd34f0fd6ae4fcf8b73b5769527dd1c64312cf5d7f1a3cc578e5  FINAL_GROWTH_PROGRAM_PRE_OOS_FREEZE.json\nb8ed111952a8e16bb27851a3d516c2a43206648c2329faed5bd9c72d62d830eb  FINAL_GROWTH_PROGRAM_OOS_RULES.json\n",
+ "T61_ORIGINAL_APPROXIMATION": "preserved unchanged in out/test61 (disclosures: composition seen in a report-only frontier before preregistration; C43x2 = 2 x daily; entry-only cap)",
+ "live_authorization": "NO"
+}

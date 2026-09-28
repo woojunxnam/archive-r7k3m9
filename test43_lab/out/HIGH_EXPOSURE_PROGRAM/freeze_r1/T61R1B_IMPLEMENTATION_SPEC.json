@@ -1,0 +1,11 @@
+{
+ "C43-CORE": "frozen TEST43-P SECONDARY_2 / CHAMPION_CONTROL_V1 engine, unchanged",
+ "T55 (GROWTH SHADOW)": "C43x1 + TEST53 residual; TEST53 admitted only while total MNQ <= 3 (entry rule as frozen in TEST55)",
+ "T61-R1B (PROVISIONAL HIGH-GROWTH FORWARD CANDIDATE)": {
+  "C43_leg": "X2_B_INT: the frozen C43 engine takes its integer decision on the 1x float target; the order is exactly 2 x that integer; every $ governor threshold (env DD tiers, day stop) is doubled; $150k account; original margin logic (never binding: peak util 0.12)",
+  "TEST53_leg": "M1-M4 frozen per-fold genomes, 1 MNQ per lot, ensemble cap 2, ensemble day governor -1000 (unchanged)",
+  "IMPLEMENTATION_RULE": "GLOBAL TOTAL MNQ TARGET <= 6 at every RTH execution minute: C43 has priority; if C43 raises its MNQ so that C43 + open TEST53 lots > 6, the excess TEST53 lots (latest first) are closed at the next 1m open; new TEST53 lots only while total < 6",
+  "MES": "2 x C43 MES (peak 6)",
+  "no_retuning": true
+ }
+}

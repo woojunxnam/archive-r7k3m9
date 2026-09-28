@@ -1,0 +1,33 @@
+{
+ "FINAL_GROWTH_PROGRAM_OOS_START": "2026-09-29",
+ "rule": "first full RTH session strictly after the corrected freeze; 2026-09-28 excluded (freeze after its RTH open)",
+ "freeze_timestamp_utc": "2026-09-28T13:49:50+00:00",
+ "IMPLEMENTATION_RULES": {
+  "C43-CORE": "frozen TEST43-P SECONDARY_2 / CHAMPION_CONTROL_V1 engine, unchanged",
+  "T55 (GROWTH SHADOW)": "C43x1 + TEST53 residual; TEST53 admitted only while total MNQ <= 3 (entry rule as frozen in TEST55)",
+  "T61-R1B (PROVISIONAL HIGH-GROWTH FORWARD CANDIDATE)": {
+   "C43_leg": "X2_B_INT: the frozen C43 engine takes its integer decision on the 1x float target; the order is exactly 2 x that integer; every $ governor threshold (env DD tiers, day stop) is doubled; $150k account; original margin logic (never binding: peak util 0.12)",
+   "TEST53_leg": "M1-M4 frozen per-fold genomes, 1 MNQ per lot, ensemble cap 2, ensemble day governor -1000 (unchanged)",
+   "IMPLEMENTATION_RULE": "GLOBAL TOTAL MNQ TARGET <= 6 at every RTH execution minute: C43 has priority; if C43 raises its MNQ so that C43 + open TEST53 lots > 6, the excess TEST53 lots (latest first) are closed at the next 1m open; new TEST53 lots only while total < 6",
+   "MES": "2 x C43 MES (peak 6)",
+   "no_retuning": true
+  }
+ },
+ "FORWARD_PROMOTION_GATES": {
+  "common": ">= 250 full RTH OOS sessions; incremental avg/day vs C43-CORE > 0; matched-beta excess of the TEST53 leg > 0; no margin breach; IMPLEMENTATION_RULE respected every session (a total > 6 lasting beyond one 1m fill lag = breach); no retuning",
+  "GROWTH_STYLE": "forward MaxDD <= 30,000 and worst day >= -6,000",
+  "CORE_STYLE (report)": "forward MaxDD <= 15,000, worst day >= -3,000, forward ret/DD >= C43-CORE forward ret/DD",
+  "LIVE_PROMOTION_THRESHOLD": "forward MaxDD <= 20,000 AND worst day >= -5,000 AND common gate AND the X2 governor assumption re-approved by the user (the historical growth exists only with doubled $ governor thresholds: X2_A same-governor = 53.9 $/day ~ C43)"
+ },
+ "labels": {
+  "C43-CORE": "VALIDATED_CHAMPION",
+  "T55": "GROWTH_SHADOW",
+  "T61-R1B": "PROVISIONAL_FORWARD_GROWTH_CANDIDATE",
+  "T61-R1A": "diagnostic only",
+  "T61_ORIGINAL_APPROXIMATION": "historical evidence only",
+  "T61_HISTORICAL_SELECTION_CLEAN": "NO"
+ },
+ "excluded": "2026-05-28 .. OOS_START-1 never used",
+ "NEW_OOS_OPENED": "NO",
+ "live_authorization": "NO"
+}

@@ -1,0 +1,59 @@
+{
+ "freeze_timestamp_utc": "2026-09-28T13:49:50+00:00",
+ "nominated": "T61-R1B",
+ "why_x2_versions_differ": {
+  "SIMPLE_2X_DAILY_APPROX": "2 x the 1x daily P&L; identical to doubling the 1x integer position path (P&L and per-contract costs are linear) - proven: X2_B_INT max |diff| below.",
+  "X2_B_INT": "integer decisions from the 1x float target, orders doubled, $ thresholds doubled -> the equity path is exactly 2x the 1x path, so every governor comparison (dd >= 2*dd1, day P&L <= -2*stop) has the same truth value as at 1x: decisions identical, P&L exactly 2x.",
+  "X2_A_INT": "same integer doubling but $ thresholds unchanged: the 2x equity path hits the DD / day-stop tiers at HALF the relative drawdown, so the governor de-risks earlier and more often (lower exposure after losses, different recovery path).",
+  "X2_A_FLOAT / X2_B_FLOAT": "doubling the FLOAT desired target before integer rounding + 0.6-contract deadband changes rounding (e.g. 0.7 -> 1 at 1x = 2 at 2x, but 1.4 -> 1 at 2x) and the hysteresis: a different, lower-exposure position path; not an integer doubling of C43."
+ },
+ "parity_proof": {
+  "kernel_copy_1x_vs_stored_max_abs": 4.547473508864641e-13,
+  "X2_B_INT_vs_SIMPLE_max_abs_daily_diff": 1.1641532182693481e-10
+ },
+ "T61_R1B": {
+  "avg_day": 125.097163817065,
+  "avg_day_2021": 128.54204573934575,
+  "max_dd": 12606.700000000215,
+  "worst_day": -4347.366893120728,
+  "ret_dd": 0.0099230697817083,
+  "SLIP4_avg_day": 118.86049523578951,
+  "SLIP4_max_dd": 12905.200000000172,
+  "peak_MES": 6.0,
+  "peak_MNQ": 8.0,
+  "peak_margin_pct": 30.58991729639682,
+  "cap_minutes_over6": 3.0,
+  "cap_over6_only_1min_lag": 1.0,
+  "forced_TEST53_reductions": 4.0
+ },
+ "growth_lane_with_plateau": {
+  "GROWTH": true,
+  "plateau_totals": "[101105, 103387, 106462, 106826]"
+ },
+ "implementation_spec_sha256": "32d04bb425fae294abf3bb6604c8a23f28055aa2c7f613d2be27a1e62e92fed1",
+ "source_sha256": {
+  "t61r1_validate.py": "af2b7cd61cbc2e0c8fba732ff8854344eb06a059d90dd654fd684ff0e117ec86",
+  "t61r1_x2audit.py": "b68e99f977a85289b7edce4197fed7864c62fe304b516beb42077ec2e5850440",
+  "t61r1_freeze.py": "1918b7aa1175ea23441b899b9ab6baec0d1731afdbfdccbfa688a7f455a34b0d",
+  "t53_run.py": "7503f0d41ceae5cce820b72d929058ea48ae25c997d743683e27e7a157c50a60",
+  "hx_common.py": "9d88a51485861dfccc2a4a10a3d5273e9ef39945111767dbab76fa831b6fd394"
+ },
+ "evidence_sha256": {
+  "out/test61r1/C43_X2_EXACT_PARITY.json": "57aac9e9c43116e877c3fec64dc1599e8fe6a00c0a099251f1edd6d69de5e9e6",
+  "out/test61r1/C43_X2_THREE_WAY.csv": "3292d7f6f393a66b0062aa1d5be963201cbd1a375fa4447cc315ebf00d2b1684",
+  "out/test61r1/C43_X2_WHY.json": "e896882ba4502af717692de647a09d1cdfbd1e25923cbdce33644a10639208be",
+  "out/test61r1/T61R1_AB_daily.npz": "8f270d0d9d3850446c1c35fa409d8fb068bfa74c98b4db31a1dd7156592eb5ca",
+  "out/test61r1/T61R1_COMPARISON_TABLE.csv": "43d11e6be7371ed665a10b9e1353354f75ada9e8304084ecc27013df20d633fc",
+  "out/test61r1/T61R1_LANES.csv": "dd2645e3a85e859402262f1db2bff4acd2a7063833080965682099a1d31f33de",
+  "out/test61r1/T61R1_PORTFOLIO_METRICS.csv": "0f7ef02e5d1875d59d1d0739c1fa561bb9a1f221c560cc13f77217a4885d896c",
+  "out/test61r1/T61R1_STATUS.json": "5157526d144efa8edadf7f8d00e02290d024dd10200058e85dfaf57ab2f0e489",
+  "out/test61r1/T61R1_daily.npz": "21c5fc911af5f0d981c734094cce0f7402039bd7d781eeff6312e5e5adfdf730",
+  "out/test61r1/T61_CAP_AUDIT.json": "8247f9afa020836518dbb7120c7f8f7d9dc6b697d8a59cfb20d539fba9c1c649",
+  "out/test61r1/T61_CAP_AUDIT_TRANSITIONS.csv": "795a909e78b8919fedf7d92e5f2e99eb9d83fd3b1a6ea85aadbcd2f950b5b841",
+  "out/test61r1/T61_CAP_AUDIT_minutes.csv": "92d8473cb675642b32a81b36cf8e21d509b214272f32ee74e6f4ba25d53186d5",
+  "out/test61r1/T61_R1_CAP_ENFORCEMENT.json": "be1db217d988ec0e02e495a8aaf38008528dd8fb0c7fada605c8582a4eb8cd61"
+ },
+ "superseded": "SUPERSEDED_v1_* (tautological cap QA)",
+ "prior_growth_freeze": "cb90e447548cfd34f0fd6ae4fcf8b73b5769527dd1c64312cf5d7f1a3cc578e5  FINAL_GROWTH_PROGRAM_PRE_OOS_FREEZE.json\nb8ed111952a8e16bb27851a3d516c2a43206648c2329faed5bd9c72d62d830eb  FINAL_GROWTH_PROGRAM_OOS_RULES.json\n",
+ "live_authorization": "NO"
+}

@@ -1,0 +1,30 @@
+{
+ "kernel_1x_vs_stored_daily_max_abs": 4.547473508864641e-13,
+ "ledger_1x_vs_kernel_1x_max_abs": 4.729372449219227e-11,
+ "EXACT_vs_2X_APPROX_corr": 1.0,
+ "EXACT_vs_2X_APPROX_max_abs_daily_diff": 9.458744898438454e-11,
+ "EXACT_vs_2X_APPROX_mean_abs_daily_diff": 1.1483990604467801e-11,
+ "event_count_1x": 1445,
+ "event_count_2x_exact": 1445,
+ "trade_event_difference": 0,
+ "MaxDD_exact": 12386.86000000019,
+ "MaxDD_approx": 12386.859999999113,
+ "worst_exact": -3445.9799999999996,
+ "worst_approx": -3445.9799999999814,
+ "KERNEL_REDECIDED_2X_corr_vs_exact": 0.8971193904455462,
+ "KERNEL_REDECIDED_2X_avg_day": 79.88060310166786,
+ "KERNEL_REDECIDED_2X_max_dd": 15915.689999999071,
+ "KERNEL_REDECIDED_2X_worst": -3384.8399999999674,
+ "sides_1x": [
+  313.0,
+  1211.0
+ ],
+ "sides_2x": [
+  626.0,
+  2422.0
+ ],
+ "peak_MES_2x": 6,
+ "peak_MNQ_2x": 6,
+ "peak_margin_util_2x_kernel_frac": 0.15733889388201117,
+ "C43_X2_EXACT_PARITY_TO_SIMPLE_2X": "EXACT (floating-point)"
+}

@@ -1,0 +1,26 @@
+{
+ "FINAL_GROWTH_PROGRAM_OOS_START": "2026-09-29",
+ "rule": "first full RTH session strictly after the corrected freeze timestamp",
+ "freeze_timestamp_utc": "2026-09-28T13:46:26+00:00",
+ "supersedes": "FINAL_GROWTH_PROGRAM_OOS_RULES b8ed1119 (its 'total MNQ at entry <= 3' conflicted with the 6-MNQ growth architecture)",
+ "IMPLEMENTATION_CONSTRAINTS": {
+  "C43-CORE": "frozen C43 engine unchanged",
+  "T61-R1_GLOBAL_CAP6": "C43_X2_EXACT (frozen 1x integer path x2, 1x governor decisions) has priority; TEST53 frozen modules/governor -1000; GLOBAL TOTAL MNQ TARGET <= 6 at every RTH execution minute (excess TEST53 lots closed at the next 1m open, latest first); MES = 2 x C43 MES; no retuning",
+  "T55": "C43x1 + TEST53 residual, TEST53 admitted only while total MNQ <= 3 (entry cap, as frozen)"
+ },
+ "FORWARD_PROMOTION_GATES": {
+  "common": ">= 250 full RTH OOS sessions; incremental avg/day vs C43-CORE > 0; matched-beta excess of the TEST53 component > 0; no margin breach; implementation constraint respected on every session; no retuning",
+  "GROWTH_STYLE": "forward MaxDD <= 30,000 and worst day >= -6,000 (the historical GROWTH envelope)",
+  "CORE_STYLE (report)": "forward MaxDD <= 15,000 and worst day >= -3,000 and forward ret/DD >= C43-CORE forward ret/DD",
+  "LIVE_PROMOTION_THRESHOLD": "stricter than the historical GROWTH envelope: forward MaxDD <= 20,000 and worst day >= -5,000 AND the common gate; a breach halts promotion (the strategy itself is NOT modified)"
+ },
+ "labels": {
+  "C43-CORE": "VALIDATED_CHAMPION",
+  "T55": "CLEANER_GROWTH_SHADOW",
+  "T61-R1": "PROVISIONAL_FORWARD_GROWTH_CANDIDATE",
+  "T61_ORIGINAL_APPROXIMATION": "historical evidence only (not an implementation)",
+  "T61_HISTORICAL_SELECTION_CLEAN": "NO"
+ },
+ "excluded": "2026-05-28 .. OOS_START-1 never used",
+ "live_authorization": "NO"
+}

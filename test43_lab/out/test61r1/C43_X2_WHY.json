@@ -1,0 +1,12 @@
+{
+ "why": {
+  "SIMPLE_2X_DAILY_APPROX": "2 x the 1x daily P&L; identical to doubling the 1x integer position path (P&L and per-contract costs are linear) - proven: X2_B_INT max |diff| below.",
+  "X2_B_INT": "integer decisions from the 1x float target, orders doubled, $ thresholds doubled -> the equity path is exactly 2x the 1x path, so every governor comparison (dd >= 2*dd1, day P&L <= -2*stop) has the same truth value as at 1x: decisions identical, P&L exactly 2x.",
+  "X2_A_INT": "same integer doubling but $ thresholds unchanged: the 2x equity path hits the DD / day-stop tiers at HALF the relative drawdown, so the governor de-risks earlier and more often (lower exposure after losses, different recovery path).",
+  "X2_A_FLOAT / X2_B_FLOAT": "doubling the FLOAT desired target before integer rounding + 0.6-contract deadband changes rounding (e.g. 0.7 -> 1 at 1x = 2 at 2x, but 1.4 -> 1 at 2x) and the hysteresis: a different, lower-exposure position path; not an integer doubling of C43."
+ },
+ "proof": {
+  "kernel_copy_1x_vs_stored_max_abs": 4.547473508864641e-13,
+  "X2_B_INT_vs_SIMPLE_max_abs_daily_diff": 1.1641532182693481e-10
+ }
+}

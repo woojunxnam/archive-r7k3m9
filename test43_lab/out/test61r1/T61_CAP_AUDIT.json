@@ -1,0 +1,8 @@
+{
+ "T61_ORIGINAL_PEAK_MNQ": 8,
+ "minutes_total_gt6": 798,
+ "sessions_total_gt6": 3,
+ "share_rth_minutes_gt6": 0.0011317463356521368,
+ "peak8_minutes": 204,
+ "WHY": "ENTRY_CAP_6: TEST53 lots were admitted while 2 x C43 MNQ + open lots <= 6; C43 later raised its MNQ (e.g. 2 -> 3 contracts at 1x = 4 -> 6 at 2x) while up to 2 TEST53 lots stayed open, so the total reached 8. No rule reduced TEST53 after entry."
+}

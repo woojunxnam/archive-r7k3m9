@@ -1,0 +1,8 @@
+{
+ "T61_R1_GLOBAL_CAP6_ENFORCED": true,
+ "max_total_after_enforcement": 8,
+ "minutes_total_gt6_after": 3,
+ "forced_reductions": 4,
+ "note": "a total > 6 can persist for at most the one minute between the cap decision and the next 1m open (causal execution); report counts minutes where the TARGET was already reduced but the fill is pending",
+ "minutes_target_gt6": 0
+}
