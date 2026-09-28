@@ -1,0 +1,135 @@
+{
+ "kernel_1x_vs_stored_daily_max_abs": 4.547473508864641e-13,
+ "ledger_1x_vs_kernel_1x_max_abs": 4.729372449219227e-11,
+ "EXACT_vs_2X_APPROX_corr": 1.0,
+ "EXACT_vs_2X_APPROX_max_abs_daily_diff": 9.458744898438454e-11,
+ "EXACT_vs_2X_APPROX_mean_abs_daily_diff": 1.1483990604467801e-11,
+ "event_count_1x": 1445,
+ "event_count_2x_exact": 1445,
+ "trade_event_difference": 0,
+ "MaxDD_exact": 12386.86000000019,
+ "MaxDD_approx": 12386.859999999113,
+ "worst_exact": -3445.9799999999996,
+ "worst_approx": -3445.9799999999814,
+ "KERNEL_REDECIDED_2X_corr_vs_exact": 0.8971193904455462,
+ "KERNEL_REDECIDED_2X_avg_day": 79.88060310166786,
+ "KERNEL_REDECIDED_2X_max_dd": 15915.689999999071,
+ "KERNEL_REDECIDED_2X_worst": -3384.8399999999674,
+ "sides_1x": [
+  313.0,
+  1211.0
+ ],
+ "sides_2x": [
+  626.0,
+  2422.0
+ ],
+ "peak_MES_2x": 6,
+ "peak_MNQ_2x": 6,
+ "peak_margin_util_2x_kernel_frac": 0.15733889388201117,
+ "C43_X2_EXACT_PARITY_TO_SIMPLE_2X": "EXACT (floating-point)"
+}
+{'T61_ORIGINAL_PEAK_MNQ': 8, 'minutes_total_gt6': 798, 'sessions_total_gt6': 3, 'share_rth_minutes_gt6': 0.0011317463356521368, 'peak8_minutes': 204, 'WHY': 'ENTRY_CAP_6: TEST53 lots were admitted while 2 x C43 MNQ + open lots <= 6; C43 later raised its MNQ (e.g. 2 -> 3 contracts at 1x = 4 -> 6 at 2x) while up to 2 TEST53 lots stayed open, so the total reached 8. No rule reduced TEST53 after entry.'}
+{'T61_R1_GLOBAL_CAP6_ENFORCED': True, 'max_total_after_enforcement': 8, 'minutes_total_gt6_after': 3, 'forced_reductions': 4, 'note': 'a total > 6 can persist for at most the one minute between the cap decision and the next 1m open (causal execution); report counts minutes where the TARGET was already reduced but the fill is pending', 'minutes_target_gt6': 0}
+                                     0                                                     1                                                2                                                 3                        4
+portfolio                  A: C43-CORE  B: T61_ORIGINAL_APPROXIMATION (2x daily + entry cap)  C: T61-R1_GLOBAL_CAP6 (C43_X2_EXACT + hard cap)  T55: C43x1 + TEST53 residual (total<=3 at entry)  ref: C43_X2_EXACT alone
+avg_day                         53.358                                               125.496                                          125.097                                            70.131                  106.716
+total_net                     92896.19                                            218489.162                                       217794.162                                        122097.671                185792.38
+PF                               1.441                                                 1.418                                            1.416                                             1.387                    1.441
+max_dd                         6193.43                                               12606.7                                          12606.7                                           9519.96                 12386.86
+worst_day                     -1722.99                                             -4347.367                                        -4347.367                                         -2692.137                 -3445.98
+ret_dd                           0.009                                                  0.01                                             0.01                                             0.007                    0.009
+y2019                           19.963                                                39.926                                           39.926                                            19.963                   39.926
+y2020                           74.835                                                149.67                                           149.67                                            74.835                   149.67
+y2021                           60.215                                               142.415                                          142.563                                            77.895                  120.429
+y2022                            3.227                                                -4.037                                           -6.365                                            -6.652                    6.453
+y2023                           51.966                                               131.478                                          130.889                                            73.429                  103.931
+y2024                           75.039                                               174.212                                          174.212                                            90.692                  150.079
+y2025                           44.641                                               125.642                                          125.642                                            86.724                   89.282
+y2026                          120.403                                               316.139                                          316.139                                           192.394                  240.805
+pre2023                          42.41                                                 88.13                                           87.512                                            44.663                    84.82
+from2023                        64.677                                               164.129                                          163.956                                            96.462                  129.354
+remove_top3                   86442.54                                            204256.782                                       203569.782                                        113056.831                172885.08
+remove_top5                   82493.76                                            195467.742                                       194913.722                                        108106.141                164987.52
+SLIP4_avg_day                   51.812                                                119.26                                           118.86                                             65.65                  103.625
+SLIP4_max_dd                    6200.2                                               12905.2                                          12905.2                                           9748.71                  12400.4
+SLIP4_worst                   -1728.24                                             -4366.867                                        -4366.867                                         -2706.387                 -3456.48
+SLIP4_ret_dd                     0.008                                                 0.009                                            0.009                                             0.007                    0.008
+peak_MES                             3                                                     6                                                6                                                 3                        6
+peak_MNQ                             3                                                     8                                                8                                                 5                        6
+avg_MES                          0.751                                                 1.501                                            1.501                                             0.751                    1.501
+avg_MNQ                          0.801                                                 2.194                                            2.192                                             1.358                    1.602
+overnight_peak_MES                   3                                                     6                                                6                                                 3                        6
+overnight_peak_MNQ                   2                                                     6                                                6                                                 4                        4
+peak_margin_pct                 12.323                                                 30.59                                            30.59                                            16.295                   24.646
+avg_margin_pct                   1.996                                                 5.053                                            5.051                                             2.989                    3.992
+overnight_peak_margin_pct       12.323                                                 30.59                                            30.59                                            16.295                   24.646
+contract_sides_per_day           0.875                                                 3.869                                            3.869                                             2.858                    1.751
+                                                    0
+candidate                          T61-R1_GLOBAL_CAP6
+avg_day_full                                 125.0972
+avg_day_2021                                  128.542
+max_dd                                        12606.7
+worst_day                                  -4347.3669
+ret_dd                                         0.0099
+base_avg_day_2021                             52.5057
+base_ret_dd                                    0.0086
+incr_avg_day_2021                             76.0364
+fold_O1_2021                                  82.3489
+fold_O2_2022                                   -9.592
+fold_O3_2023                                   78.923
+fold_O4_2024                                  99.1723
+fold_O5_2025_26                              113.8293
+folds_pos                                           4
+fold_median                                   82.3489
+remove_top3_incr                           94353.5122
+remove_top5_incr                           89264.3322
+max_year_share                                 0.2362
+y2019                                         39.9256
+y2020                                          149.67
+y2021                                        142.5634
+y2022                                         -6.3653
+y2023                                        130.8887
+y2024                                        174.2117
+y2025                                        125.6424
+y2026                                        316.1392
+pre2023_avg                                   87.5117
+from2023_avg                                  163.956
+peak_on_margin_frac                            0.3059
+peak_in_margin_frac                            0.3059
+timing_value_day                              10.6367
+c1                                               True
+c2                                               True
+c3                                               True
+c4                                               True
+c5                                               True
+c6                                               True
+c7                                               True
+CORE                                            False
+GROWTH                                           True
+AGGRESSIVE_REPORT                                True
+margin_band                                       0.4
+plateau_totals       [101105, 103387, 106462, 106826]
+{
+ "C43_X2_EXACT_PARITY_TO_SIMPLE_2X": "EXACT (floating-point)",
+ "T61_ORIGINAL_PEAK_MNQ": 8,
+ "WHY_T61_ORIGINAL_REACHED_8_MNQ": "ENTRY_CAP_6: TEST53 lots were admitted while 2 x C43 MNQ + open lots <= 6; C43 later raised its MNQ (e.g. 2 -> 3 contracts at 1x = 4 -> 6 at 2x) while up to 2 TEST53 lots stayed open, so the total reached 8. No rule reduced TEST53 after entry.",
+ "T61_R1_GLOBAL_CAP6_ENFORCED": true,
+ "T61_R1_AVG_DAY": 125.1,
+ "T61_R1_MAXDD": 12607,
+ "T61_R1_WORST_DAY": -4347,
+ "T61_R1_RET_DD": 0.0099,
+ "T61_R1_SLIP4_AVG_DAY": 118.86,
+ "T61_R1_PEAK_MES": 6,
+ "T61_R1_PEAK_MNQ": 8,
+ "T61_R1_PEAK_MARGIN": 30.6,
+ "T61_R1_GROWTH_LANE": true,
+ "T61_HISTORICAL_SELECTION_CLEAN": "NO",
+ "T55_STATUS": "CLEANER_GROWTH_SHADOW",
+ "C43_CORE_STATUS": "VALIDATED_CHAMPION",
+ "T61_R1_STATUS": "PROVISIONAL_FORWARD_GROWTH_CANDIDATE",
+ "CORRECTED_OOS_RULES_SHA256": "382b09a2b8c4354ba76c42f2cee000ee72cb6eb098edc5093b73e2f64bb38759",
+ "CORRECTED_PRE_OOS_FREEZE_SHA256": "bcd33480fc1896fadc6e8d87a95870e437bddf35840bb55babc2d6cc7f11509f",
+ "FINAL_GROWTH_PROGRAM_OOS_START": "2026-09-29",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}

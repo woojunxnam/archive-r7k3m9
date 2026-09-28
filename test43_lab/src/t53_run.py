@@ -42,7 +42,7 @@ def exit_plan(rule, s, j, n):
     raise ValueError(rule)
 
 
-def module_trades(nq, sess):
+def module_trades(nq, sess, check_inst=True):
     fr = fold_ranges(sess)
     rows = []
     # M1 GA-AC
@@ -52,7 +52,7 @@ def module_trades(nq, sess):
         if not len(r) or not isinstance(r.iloc[0].get("genome"), str):
             continue
         g = json.loads(r.iloc[0].genome)
-        assert g["inst"] == "MNQ"
+        assert g["inst"] == "MNQ" or not check_inst
         ab = A.ArmBook(nq, xm=g["xm"])
         arm = ab.arms[g["setup"]].copy()
         if g["bull"]:
@@ -70,7 +70,7 @@ def module_trades(nq, sess):
     for name, (s0, s1) in fr.items():
         r = S[(S.fold == name) & (S.sel_rank == 0)]
         g = json.loads(r.iloc[0].genome)
-        assert g["inst"] == "MNQ"
+        assert g["inst"] == "MNQ" or not check_inst
         b0 = (C45.g(g["t0"]) + 1) // 5 - 1; b1 = min(b0 + g["span"], 74)
         cond = (st.ret >= g["k_ret"]) & (st.eff >= g["eff_min"]) & (np.nan_to_num(st.above) >= g["above_min"]) & (st.pos >= g["pos_min"])
         if g["volt_max"] < 1.0:
@@ -87,7 +87,7 @@ def module_trades(nq, sess):
     for name, (s0, s1) in fr.items():
         r = S[(S.fold == name) & (S.sel_rank == 0)]
         g = json.loads(r.iloc[0].genome)
-        assert g["inst"] == "MNQ"
+        assert g["inst"] == "MNQ" or not check_inst
         mask = np.ones(nq.n, bool)
         if g["bull"]:
             mask &= nq.bull

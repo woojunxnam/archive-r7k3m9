@@ -76,7 +76,7 @@ def grid_positions(T, pos, sess):
     return out["ES"], out["MNQ"]
 
 
-def simulate_hard(nq, TR, gov, hard_arr, ent_arr, slip=1.0):
+def simulate_hard(nq, TR, gov, hard_arr, ent_arr, slip=1.0, carry=None):
     """t53 simulate + GLOBAL hard cap: ensemble count at minute j must be <= hard_arr[s, j]; excess lots (latest first) closed at j+1 open."""
     n = nq.n; pv = nq.pv; cs = C45.cost_side(nq.k, slip)
     FP, FPb, L1, Cf = nq.FP, nq.FPb, nq.pn.L, nq.pn.Cf
@@ -97,7 +97,10 @@ def simulate_hard(nq, TR, gov, hard_arr, ent_arr, slip=1.0):
         for j in range(C45.NG):
             keep = []
             for p in open_pos:
-                if p["s_out"] == s and p["j_out"] == j:
+                if (carry is not None and p["s_out"] == s and p["j_out"] == j and j >= E.J1600 and p["mod"] in ("M1", "M3", "M4") and s + 1 < n
+                        and (carry == "all" or (not np.isnan(Cf[s, E.J1615 - 1]) and Cf[s, E.J1615 - 1] > p["px"]))):
+                    p["s_out"] = s + 1; p["j_out"] = 0; keep.append(p)          # TEST63 hold-extension (decided on the 16:14 close)
+                elif p["s_out"] == s and p["j_out"] == j:
                     realized += close(p, s, j, FP[s, j] if j == 0 else FPb[s, j], "planned")
                 elif p["s_in"] == s and not np.isnan(p["stop"]) and j > p["j_in"] and not np.isnan(L1[s, j]) and L1[s, j] <= p["stop"]:
                     op = FP[s, j]; realized += close(p, s, j, min(p["stop"], op) if not np.isnan(op) else p["stop"], "stop")

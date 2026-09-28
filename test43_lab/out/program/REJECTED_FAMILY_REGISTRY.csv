@@ -24,3 +24,6 @@ mnq_long_shadow_ensemble,M1-M4 combined (TEST52-54),TEST52/53/54,fails G4 in eve
 daily_trend_vol_state_exposure_ladder,"SMA/drawdown/vol state -> exposure tiers (+vol target, +DD governor)",TEST56,negative timing value vs matched constant exposure in all 16 variants,1780 sessions,"<= 4/5 raw (beta), timing < 0",YES (as deterministic daily state ladder),nested GA-EXPOSURE outer timing value > 0
 ga_exposure_policy_beta_carrier,nested GA over state thresholds/tier maps/vol-target/governor/overnight,TEST57,"outer timing negative, 2022 loss, selects constant MNQ beta",90k genomes,3/5,YES,new causal information not in daily OHLC state
 marginal_exposure_ml_daily,ML value of +/- beta units at the open,TEST60,rank-IC <= 0.025,~1300 days,"<= 4/6 yrs, concentrated",YES,-
+test53_rules_on_es,M1-M4 frozen rules on MES,TEST62,"redundant with MNQ leg (corr 0.71), cost-fragile",~1700 signals,4/5,YES (as a leg added to T61-R1B),ES-specific evidence independent of MNQ days
+winner_carry_hold_extension,carry profitable end-of-day module lots overnight,TEST63,no incremental value,~1000 lots,3/5,YES,-
+delayed_confirmation_on_continuation,15m confirmation before M2/M4 entry,TEST64,"0/5 folds, -15 $/day",~900 entries,0/5,YES,-

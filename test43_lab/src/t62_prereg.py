@@ -1,0 +1,23 @@
+"""TEST62 preregistration: ES DIVERSIFICATION - frozen TEST53 module rules (M1-M4 per-fold genomes) applied to ES (MES), no retuning."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+import prog_common as P  # noqa: E402
+
+SPEC = {
+    "question": "Do the frozen TEST53 continuation modules (volatility/ATR-normalised rules) carry positive matched-long excess on ES, so that an ES leg reduces "
+                "the MNQ concentration of T61-R1B?",
+    "rationale": "The modules are defined in ATR/u5 units (instrument-free); a genuine continuation mechanism should transfer across the two index futures. An "
+                 "instrument swap with identical rules is an out-of-instrument test (the GA picked MNQ; ES was never the selected instrument).",
+    "difference": "no new rule, no retuning: identical per-fold genomes / M4 rule with inst=ES; execution MES",
+    "architecture": "ES lot = 2 MES (ATR$ ~ 1 MNQ lot); ES ensemble cap 2 lots; ES day governor -1000 (as TEST53); global MES target <= 6 (2 x C43 peak) + 4 "
+                    "(= 10), excess ES lots closed at the next 1m open; MNQ leg unchanged (T61-R1B)",
+    "decision_rule": "ADOPT the ES leg into a candidate 'T61-R1B+ES' only if ALL: (i) ES ensemble matched excess > 0 (2021+) and >= 4/5 outer folds positive; "
+                     "(ii) T61-R1B+ES ret/DD >= T61-R1B ret/DD; (iii) MaxDD <= 30k, worst >= -6k (full history); (iv) governor +-10/20% plateau all positive >= 60%; "
+                     "(v) full SLIP4 incremental > 0",
+    "report": "per-module ES results, corr ES-ensemble vs MNQ-ensemble and vs C43, MES/MNQ concentration",
+}
+
+if __name__ == "__main__":
+    print(P.prereg("TEST62", SPEC))

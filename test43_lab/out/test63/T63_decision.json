@@ -1,0 +1,9 @@
+{
+ "criteria": {
+  "folds": false,
+  "ret_dd": false,
+  "env": true,
+  "slip4": true
+ },
+ "ADOPT_H1": false
+}

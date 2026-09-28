@@ -21,3 +21,6 @@ TEST59,1,0,0,0,hold/overnight,2026-09-28T12:09:19
 TEST60,2,5,0,0,marginal exposure ML,2026-09-28T12:12:32
 TEST57,0,0,90453,0,nested GA lane lane_hx,2026-09-28T12:21:17
 TEST61,1,0,0,1,scaled core + residual growth,2026-09-28T12:24:43
+TEST62,1,0,0,0,ES portability of TEST53 modules,2026-09-28T13:51:09
+TEST63,1,0,0,0,winner carry hold-extension,2026-09-28T13:52:18
+TEST64,1,0,0,0,CF4 delayed confirmation on M2/M4,2026-09-28T13:53:16
