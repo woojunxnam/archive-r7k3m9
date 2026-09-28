@@ -1,0 +1,12 @@
+{
+ "C43-CORE": "frozen C43 engine unchanged",
+ "T55 (GROWTH SHADOW)": "C43x1 + TEST53 residual (TEST53 admitted only while total MNQ <= 3)",
+ "T61-R1C_ATOMIC_CAP6 (PROVISIONAL FORWARD GROWTH IMPLEMENTATION)": {
+  "C43_leg": "X2_B_INT: 1x integer decision x2; C43 $ governor thresholds x2; $150k account; original margin logic",
+  "TEST53_leg": "M1-M4 frozen per-fold genomes, 1 MNQ/lot, ensemble cap 2, ensemble day governor -1000",
+  "EXECUTION": "at every causal decision timestamp: C43 virtual target -> TEST53 virtual target -> allowed_TEST53 = max(0, 6 - C43 target) -> TEST53 clamped (latest lots first) -> ONE aggregate broker MNQ target -> single NET order at the next legal fill",
+  "IMPLEMENTATION_RULE": "BROKER_TARGET_MNQ <= 6 and BROKER_POSITION_MNQ <= 6 at all times (except broker partial-fill anomalies)",
+  "MES": "2 x C43 MES (peak 6)",
+  "no_retuning": true
+ }
+}

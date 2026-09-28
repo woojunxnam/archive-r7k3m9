@@ -1,0 +1,38 @@
+{
+ "T61_R1B": {
+  "avg_day": 125.1,
+  "max_dd": 12607,
+  "worst_day": -4347,
+  "ret_dd": 0.0099,
+  "SLIP4_avg_day": 118.86,
+  "peak_MNQ_target": 6,
+  "peak_actual_MNQ": 8,
+  "cap_events": 4
+ },
+ "T61_R1C": {
+  "avg_day": 125.08,
+  "avg_day_2021": 128.52,
+  "max_dd": 12607,
+  "worst_day": -4347,
+  "ret_dd": 0.0099,
+  "SLIP4_avg_day": 118.85,
+  "SLIP4_max_dd": 12905,
+  "peak_MNQ_target": 6,
+  "peak_actual_MNQ": 6,
+  "netting_events": 4,
+  "GROWTH_lane": true,
+  "CORE_lane": false,
+  "plateau": "[101080, 103362, 106437, 106801]"
+ },
+ "PNL_DIFF_R1C_MINUS_R1B": {
+  "pnl_diff_total_R1C_minus_R1B": -25.0,
+  "pnl_diff_days_nonzero": 2,
+  "pnl_diff_max_abs_day": 19.0
+ },
+ "FINAL_PROVISIONAL_GROWTH_IMPLEMENTATION": "T61-R1C_ATOMIC_CAP6",
+ "CORRECTED_PRE_OOS_FREEZE_SHA256": "1090b64ae2fea6e29901afa3bbaa3cda6661fe5d558c40667aab6094b6a3f751",
+ "CORRECTED_OOS_RULES_SHA256": "a1588fc0d07207d98761212882a7e32f7a1329addc2d0491e231d91c95e49fdf",
+ "FINAL_GROWTH_PROGRAM_OOS_START": "2026-09-29",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO"
+}

@@ -76,7 +76,7 @@ def grid_positions(T, pos, sess):
     return out["ES"], out["MNQ"]
 
 
-def simulate_hard(nq, TR, gov, hard_arr, ent_arr, slip=1.0, carry=None):
+def simulate_hard(nq, TR, gov, hard_arr, ent_arr, slip=1.0, carry=None, atomic=False):
     """t53 simulate + GLOBAL hard cap: ensemble count at minute j must be <= hard_arr[s, j]; excess lots (latest first) closed at j+1 open."""
     n = nq.n; pv = nq.pv; cs = C45.cost_side(nq.k, slip)
     FP, FPb, L1, Cf = nq.FP, nq.FPb, nq.pn.L, nq.pn.Cf
@@ -107,6 +107,10 @@ def simulate_hard(nq, TR, gov, hard_arr, ent_arr, slip=1.0, carry=None):
                 else:
                     keep.append(p)
             open_pos = keep
+            # T61-R1C atomic net target: the TEST53 clamp is decided at the SAME causal timestamp as the C43 target change and executed in the same
+            # net fill (open of minute j); no one-minute lag
+            if atomic and len(open_pos) > hard_arr[s, j]:
+                pending_cut = len(open_pos) - int(hard_arr[s, j])
             # hard-cap reduction decided at the previous minute -> executed now (LIFO)
             while pending_cut > 0 and open_pos:
                 p = open_pos.pop(); realized += close(p, s, j, FPb[s, j], "hardcap"); pending_cut -= 1; forced += 1
