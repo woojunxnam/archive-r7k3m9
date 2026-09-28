@@ -1,0 +1,6 @@
+{
+ "PARITY_PRICE_SPACE_V2": "APPROVED CONCEPTUALLY by user (TEST97 prompt s68): contract/roll-period deterministic offsets, no PnL, thresholds unchanged",
+ "LC03": "RECOVERED_EXACT under V2 (recall 1.000 / precision 1.000 / price 1.000) - NOT added to MAIN",
+ "TEST20_V1": "V2 price 0.996, timestamp 0.986/0.987 but depends on post-hoc holiday-session alignment -> not asserted exact",
+ "LC02/LC05/TS13": "BLOCKED (signal parity)"
+}
