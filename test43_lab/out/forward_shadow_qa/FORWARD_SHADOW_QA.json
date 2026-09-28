@@ -1,0 +1,13 @@
+{
+ "reproduction_maxabs_T61-R1C": 4.547473508864641e-13,
+ "reproduction_maxabs_C43-CORE": 0.0,
+ "prefix_rows_compared": 189,
+ "prefix_max_abs_diff_by_col": {},
+ "prefix_minute_mismatch_C43-CORE": 0,
+ "prefix_minute_mismatch_T55": 0,
+ "prefix_minute_mismatch_T61-R1C": 0,
+ "PREFIX_INVARIANT": true,
+ "REPRODUCES_FROZEN_HISTORY": true,
+ "forward_fold_code_path_trades_by_module": "{'M1': 23, 'M2': 28, 'M3': 36, 'M4': 13}",
+ "FAIL_CLOSED_ON_TAMPER": true
+}

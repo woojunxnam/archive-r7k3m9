@@ -1,0 +1,73 @@
+kind,frozen_path,live_path,sha256,role
+source,src/hx_common.py,src/hx_common.py,9d88a51485861dfccc2a4a10a3d5273e9ef39945111767dbab76fa831b6fd394,T61-R1C import closure
+source,src/lane_vx.py,src/lane_vx.py,dabbd89842062c0862aa62cd0e586ba19bfd0d7865c1e52763f7e8b1ae7d7ac1,T61-R1C import closure
+source,src/p02_fingerprint.py,src/p02_fingerprint.py,fe5ab5dc010c61c1ffdb779b08d8373986e10d5116a43de467d71197922c670a,T61-R1C import closure
+source,src/p03_portfolio_dev.py,src/p03_portfolio_dev.py,663c926ae84e6209200b72dbe96427c44cbfd06c2a16ea88549985a440be911c,T61-R1C import closure
+source,src/prog_common.py,src/prog_common.py,3b0e4df7d04dd4086de4477ff3b01071957cc9302c0202382c07cae76fa73100,T61-R1C import closure
+source,src/prog_ga.py,src/prog_ga.py,734653cf3a737959e034067d209255f6980c85d1bd5a08a51a0242d49ddb6595,T61-R1C import closure
+source,src/t43/__init__.py,src/t43/__init__.py,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,T61-R1C import closure
+source,src/t43/analog.py,src/t43/analog.py,6a9da3529bd5597fc0148b85e6c2346b5a98b5f7e6e05a79f19d653a2a54dda7,T61-R1C import closure
+source,src/t43/bars.py,src/t43/bars.py,400d5f6be3639ee796d30fe18efc1358faeb7f136018827afcd6104048f8095c,T61-R1C import closure
+source,src/t43/bench.py,src/t43/bench.py,67ca436e7832000d59a4bff634552072c2858ad3e096098eb6d411d34208d8b3,T61-R1C import closure
+source,src/t43/decomp.py,src/t43/decomp.py,b52bd4eb68231f1f2709ccf9d31b0f221b074b2df9ef639e74f13d347f473ed2,T61-R1C import closure
+source,src/t43/features.py,src/t43/features.py,5470e3db652c65851d37d878d67d6780859d0618e591d231541ae1eff2ea8490,T61-R1C import closure
+source,src/t43/grid.py,src/t43/grid.py,6c83a1a2eb9cc32939ea7c213b3b9f865c343984200fa07d6e00000904789cea,T61-R1C import closure
+source,src/t43/instruments.py,src/t43/instruments.py,f2131b35da0bdbc44a239a0f2c778ac304baf77232bcbafed6d5cd0765fff7e8,T61-R1C import closure
+source,src/t43/intport.py,src/t43/intport.py,cbce2950e789e7dc9d9a4bd6af3a8daf74e9d07b6e2e11aa078647f0d2e18bcf,T61-R1C import closure
+source,src/t43/lab.py,src/t43/lab.py,9d7852dcb876457fb366071e7c6e954102b3b70cb1c2bc72c427dd1467f46dd1,T61-R1C import closure
+source,src/t43/metrics.py,src/t43/metrics.py,99ed0c68d89c938454e1d2bfa3a10f286e730c54291906a988b85f1b7c5db8c0,T61-R1C import closure
+source,src/t43/mstats.py,src/t43/mstats.py,a028b466866d3fa783b28577395cc6daf30c4b3433eca231bb8fd0e8fda4c1c5,T61-R1C import closure
+source,src/t43/pine_guard.py,src/t43/pine_guard.py,5049623568bbbf21160e241c3e8cef6e714b91a010fe55b692dc0727b937a36d,T61-R1C import closure
+source,src/t43/portfolio.py,src/t43/portfolio.py,e2da1d5d1d1ac3d6c60165309a2d6b67efbf14d2565cc47be2283bfe3744f2c3,T61-R1C import closure
+source,src/t43/qa.py,src/t43/qa.py,0caeee4b13ce447dbe0ae2020e6c56b0e91dec762ba24969d2f988290c82902c,T61-R1C import closure
+source,src/t43/ranges.py,src/t43/ranges.py,4ce8b0910afad51ceb2e5458cf222ed145f8051ec009b6f9d5731b32a05b4c3b,T61-R1C import closure
+source,src/t43/robust.py,src/t43/robust.py,1a6ccbeeb718ac14a9d19a2d1e9ecca046cc6767dcb2aa8b5e32e90dba59405e,T61-R1C import closure
+source,src/t43/sleeves.py,src/t43/sleeves.py,6a8e60b6017fd0c52fe2030aa9982cd0e1273755b2b30e11f525b2ac840ae2e5,T61-R1C import closure
+source,src/t43/v533.py,src/t43/v533.py,0292d52b125f9b9896796f37e3b1ec1561c9ddca1a3f993a8e91db60ee04c48c,T61-R1C import closure
+source,src/t43/v6a.py,src/t43/v6a.py,cc1bd489915c0278b975311cc83efc25125f80063d4c14e18f2b4586a027dbf8,T61-R1C import closure
+source,src/t43/v6lab.py,src/t43/v6lab.py,b3451ead1d2bb1e7542110b43de4ecc002a008b9417e7b6d9b036cf7b0ae213b,T61-R1C import closure
+source,src/t43/v6x.py,src/t43/v6x.py,6ae46e8aa439644af7988e486e069de08511fce614eb647a6df303c8e4afb81e,T61-R1C import closure
+source,src/t43/v6x_frozen_pre_wallclock.py,src/t43/v6x_frozen_pre_wallclock.py,b07f9c623bceefdfbf87db604af8d1a2613474c905f20653e6b014cee7c2a641,T61-R1C import closure
+source,src/t44_common.py,src/t44_common.py,0805a6f07708ed57f4742aed371ecdc08a61ecd107edae69b5cedbd60385463d,T61-R1C import closure
+source,src/t45_05_ga.py,src/t45_05_ga.py,ade4f88bf44f47b70a8003d4dcf3d22a0e4df3d9b4280d6980f26757f7472347,T61-R1C import closure
+source,src/t45_common.py,src/t45_common.py,61121549fe3d5f921b73d9ea96bb9532e64b1a1816de125a5745000fa6152a77,T61-R1C import closure
+source,src/t45_feat.py,src/t45_feat.py,28392cb9d0f7bbb15f3fafb985ab93d89a82337623412c7e08acef2de11ff86c,T61-R1C import closure
+source,src/t45_overlay.py,src/t45_overlay.py,b98093a8724a86d85596f5a919942c2af90588a7bc59fb224b3ec2cc431eb0a8,T61-R1C import closure
+source,src/t45_sim.py,src/t45_sim.py,d878ffe22b04ca39f35bd53a6098c5b0f8e000debaebf31ed88e9e5d233a9f23,T61-R1C import closure
+source,src/t46_common.py,src/t46_common.py,9e4477ff4c09d3817f8f08896fd00d77c02292e755e2dcd60c21704aa5187a9d,T61-R1C import closure
+source,src/t46_rebound.py,src/t46_rebound.py,e1b55662ea040a4d3609f1eccad340cf7688aeb6cad1f24a90910b97e1b1e342,T61-R1C import closure
+source,src/t47_02_n3.py,src/t47_02_n3.py,7ffeca5231dc83c52f6fdc98dfd52ad46ab273130f5bfef0eb39d9088bf24e0b,T61-R1C import closure
+source,src/t47_03_nr.py,src/t47_03_nr.py,25f55739b457eb37c690fa38922e8e4bec300d4baec26bf515af56422a1879a0,T61-R1C import closure
+source,src/t47_05_ga.py,src/t47_05_ga.py,59e29c79f39b8fbb299b36b26e539f28e4f48f105a3008ba50e4ade9463a3078,T61-R1C import closure
+source,src/t47_06_final.py,src/t47_06_final.py,fa8c73bb7a542563233566b99eae41486d3b9315f8f41e452640d22fd6b85bf8,T61-R1C import closure
+source,src/t47_common.py,src/t47_common.py,8c31904b59f857bb6100c378db7208e1f5cf7098fab6940268dd14c68581092b,T61-R1C import closure
+source,src/t47_engine.py,src/t47_engine.py,48ca5a39aa17a3d48583089e01b498e77f236a0c958355153026df11fc7e9ee0,T61-R1C import closure
+source,src/t48_engine.py,src/t48_engine.py,78b5a98c2bded524ebafefd6d4727d0a4441229f0b305d6e072fd5b2c6cb59bb,T61-R1C import closure
+source,src/t49_engine.py,src/t49_engine.py,fb16876ded1da8c361ff9ca39f051d12e9addc1cc456103d2797a39c46acbefa,T61-R1C import closure
+source,src/t50_engine.py,src/t50_engine.py,7b9e2c3e5c39f5f1862b00e38b48d32b3c2460fd51dba5a2b7d1793c179dc2de,T61-R1C import closure
+source,src/t53_run.py,src/t53_run.py,99604fb42300244ac7a824e663765cfb310f1ef065d0bd44ba3cc1adf5e77798,T61-R1C import closure
+source,src/t61r1_validate.py,src/t61r1_validate.py,d4e0a658fb40f3d5e67dd7efbea29d0f2612cf44e26824310f562133fa11503f,T61-R1C import closure
+source,src/t61r1_x2audit.py,src/t61r1_x2audit.py,b68e99f977a85289b7edce4197fed7864c62fe304b516beb42077ec2e5850440,T61-R1C import closure
+source,src/t61r1c_atomic.py,src/t61r1c_atomic.py,5f3df351ee1e2ac5ddd103cdba3fd503c46cc75a78bce79bf40135ed58d74108,T61-R1C import closure
+artifact,artifacts/out/p/freeze/TEST43P_FINAL_PORTFOLIOS.json,out/p/freeze/TEST43P_FINAL_PORTFOLIOS.json,3269dc94f5972854ac99ae1c7a45a6cc44b00987b46b279ddb2e16b13dc66fe7,C43 SECONDARY_2 members / contract weights / risk envelope
+artifact,artifacts/out/test48/ga/GA-AC_selected.csv,out/test48/ga/GA-AC_selected.csv,cde23fdbc44433eb65ec890b6912ba34b5525a4ee6569c9ba7ea7f1bd9df7cd6,TEST53 M1 per-fold genomes (forward: FINAL_ALL_TO_2026-05-27 rank 0)
+artifact,artifacts/out/test49/ga/GA-CT_selected.csv,out/test49/ga/GA-CT_selected.csv,ab87e31a513a46ada7267ab70bfd5ae975f2f285528fccce5879cba40d10838d,TEST53 M2 per-fold genomes (forward: FINAL_ALL_TO_2026-05-27 rank 0)
+artifact,artifacts/out/test50/ga/GA-VX_selected.csv,out/test50/ga/GA-VX_selected.csv,c75447571b1752dde0cb34b42daf494929c944622f173177de336bae25dd76f6,TEST53 M3 per-fold genomes (forward: FINAL_ALL_TO_2026-05-27 rank 0)
+artifact,artifacts/out/v6/shortlist.json,out/v6/shortlist.json,b0e223e56ab023e1d2035643ab6f0dee035de6416fff3f51ad0e6e02a054c83f,C43 sleeve candidate definitions (frozen V6 parameters)
+artifact,artifacts/out/HIGH_EXPOSURE_PROGRAM/hx_gate_spec.json,out/HIGH_EXPOSURE_PROGRAM/hx_gate_spec.json,e388c6d9130f686e90c70c24d42ad5fd6748e9c4550398a9b501985ee2c86e30,hx lane gate spec
+artifact,artifacts/out/t45/baseline/champion_session_state.csv,out/t45/baseline/champion_session_state.csv,ca8e020d5ec35940c201d632c34e8d22f075ca61ddb0662ee36f559b4db9786e,"t45_feat baseline state table (imported, not used by T61 decisions)"
+artifact,artifacts/out/t44/daily_CHAMPION_CONTROL_V1.csv,out/t44/daily_CHAMPION_CONTROL_V1.csv,1b237de95de4143bc7acc029a2372f7a952de03f891d9f28d59d432ca68d434b,C43-CORE historical daily (reference)
+artifact,artifacts/out/test53/TEST53_PREREGISTRATION.json,out/test53/TEST53_PREREGISTRATION.json,3d65a85c0bb576826e869a55eb3e7993a35ae4f75e0c1997d77177db7786fb33,"TEST53 ensemble semantics (cap 2, governor -1000)"
+artifact,artifacts/out/test55/T55_results.csv,out/test55/T55_results.csv,400572e04f9bdfdc099d15f52a08d9dc30923d78dc767f9c2677a64a36b895d7,T55 historical evidence
+artifact,artifacts/out/HIGH_EXPOSURE_PROGRAM/freeze_r1/CORRECTED_PRE_OOS_FREEZE.json,out/HIGH_EXPOSURE_PROGRAM/freeze_r1/CORRECTED_PRE_OOS_FREEZE.json,1090b64ae2fea6e29901afa3bbaa3cda6661fe5d558c40667aab6094b6a3f751,corrected freeze v3
+artifact,artifacts/out/HIGH_EXPOSURE_PROGRAM/freeze_r1/CORRECTED_OOS_RULES.json,out/HIGH_EXPOSURE_PROGRAM/freeze_r1/CORRECTED_OOS_RULES.json,a1588fc0d07207d98761212882a7e32f7a1329addc2d0491e231d91c95e49fdf,corrected OOS rules v3 (OOS start 2026-09-29)
+artifact,artifacts/out/HIGH_EXPOSURE_PROGRAM/freeze_r1/CORRECTED_FREEZE.sha256,out/HIGH_EXPOSURE_PROGRAM/freeze_r1/CORRECTED_FREEZE.sha256,3871768169cab611ca4e5c5ca8ea6af7e36db06fc41b0aa395eae0e8a1a7dda4,freeze v3 hashes
+artifact,artifacts/out/HIGH_EXPOSURE_PROGRAM/freeze_r1/T61R1C_IMPLEMENTATION_SPEC.json,out/HIGH_EXPOSURE_PROGRAM/freeze_r1/T61R1C_IMPLEMENTATION_SPEC.json,8359b3953e3ecf0fe8c291b9c20c35ae01af72a862e7aa6a6c9efc35d1f1c63f,T61-R1C implementation spec
+artifact,artifacts/out/HIGH_EXPOSURE_PROGRAM/freeze_r1/T61R1_HASH_INDEX.csv,out/HIGH_EXPOSURE_PROGRAM/freeze_r1/T61R1_HASH_INDEX.csv,9f7ddf714c2da5044ad4f7cfddcb8ef5fbc7ad2a6f716b7b29b2efb1bb31f032,freeze v3 hash index
+artifact,artifacts/out/test61r1/T61R1C_daily.npz,out/test61r1/T61R1C_daily.npz,68c0a3ff30416224fcff6dbab20a79ab74533e731bb0811157910e672bb86770,historical T61-R1C daily (reproduction target)
+artifact,artifacts/out/test61r1/T61R1C_FINAL_STATUS.json,out/test61r1/T61R1C_FINAL_STATUS.json,dc1549bd62e73e62587f69288603d0fb55f1061d9dcc493a3113bd866e845586,historical T61-R1C metrics
+artifact,artifacts/out/test61r1/T61R1C_vs_R1B.csv,out/test61r1/T61R1C_vs_R1B.csv,526232dab883a61b5f6bb8a516b6779279ac365ede08789a894cacf3bef148f0,historical R1C vs R1B
+artifact,artifacts/out/test61r1/T61R1C_LANE.csv,out/test61r1/T61R1C_LANE.csv,746a535b286fec7b4ab46bcd25e0cc6abe2708f10524fda2413f2178cbd42bb7,historical GROWTH lane
+reference_only,,data/canonical_1m_ES.parquet,2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116,canonical 1m ES (research data <= 2026-05-27)
+reference_only,,data/canonical_1m_MNQ.parquet,66204b12cd4270f18b05e46045c9b8daf62c033620cfb0f170dbdb8b882ecea2,canonical 1m MNQ (research data <= 2026-05-27)
+guard,verify_frozen.py,,70b7e1fad38aa084797df93a5fd44484eeda2643a987971d43703b1c8f67b9fa,fail-closed verifier

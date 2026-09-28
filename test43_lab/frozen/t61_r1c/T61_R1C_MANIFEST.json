@@ -1,0 +1,63 @@
+{
+ "package": "T61-R1C_ATOMIC_CAP6 production / shadow package",
+ "created_utc": "2026-09-28T15:15:09+00:00",
+ "T61_R1C_FROZEN": "YES",
+ "frozen_elements": [
+  "C43 rules",
+  "X2_B semantics + doubled C43 $ governor thresholds",
+  "TEST53 M1-M4 + day governor + ensemble cap",
+  "atomic netting + GLOBAL MNQ CAP 6",
+  "MES scaling",
+  "entry / exit / overnight logic"
+ ],
+ "execution_spec": {
+  "name": "T61-R1C_ATOMIC_CAP6",
+  "status": "PERMANENTLY FROZEN; T61 historical tuning CLOSED",
+  "steps_per_causal_decision_timestamp": [
+   "1 C43 1x float target (frozen TEST43-P SECONDARY_2 / CHAMPION_CONTROL_V1 sleeves, 3m union timeline incl. overnight)",
+   "2 X2_B_INT: integer decision taken on the 1x target (deadband 0.6) then multiplied by 2",
+   "3 C43 $ governor thresholds doubled (env DD tiers dd1/dd2 = 2 x env_dd x {0.6, 0.85}; day stop 2 x 0.8 x |worst|); marginU 0.5; INIT 150k",
+   "4 TEST53 virtual target: M1 GA-AC, M2 GA-CT, M3 GA-VX, M4 opening drive; 1 MNQ/lot; ensemble cap 2; ensemble day governor -1000",
+   "5 C43 priority: allowed_TEST53 = max(0, 6 - C43_MNQ_target)",
+   "6 clamp TEST53 (latest lots first) to allowed_TEST53",
+   "7 ONE aggregate MNQ target = C43_MNQ_target + clamped TEST53 (never > 6), single net order at the next legal 1m open",
+   "8 MES target = 2 x C43 1x MES integer decision (peak 6)"
+  ],
+  "entry_exit_overnight": "exactly as frozen in the TEST53 / C43 engines (M2 holds to next 09:31 open; C43 overnight per sleeves)",
+  "code_entrypoint": "frozen/t61_r1c/src/t61r1c_atomic.py (historical) ; shadow/forward_shadow.py (forward, imports the byte-identical live copies)",
+  "forward_conventions": {
+   "TEST53_forward_genomes": "fold FINAL_ALL_TO_2026-05-27, sel_rank 0 (program convention; used for every session after 2026-05-27)",
+   "state": "continuous: the frozen kernels run over all available history so indicator / $ governor state is the same object as in the backtest; sessions before the OOS start are warm-up only and are never written, reported or looked at",
+   "OOS_START": "2026-09-29",
+   "gap_2026-05-28_to_2026-09-28": "never used for research or tuning; warm-up only inside the forward runner"
+  }
+ },
+ "historical_metrics": {
+  "avg_day": 125.08,
+  "avg_day_2021": 128.52,
+  "max_dd": 12607,
+  "worst_day": -4347,
+  "ret_dd": 0.0099,
+  "SLIP4_avg_day": 118.85,
+  "SLIP4_max_dd": 12905,
+  "peak_MNQ_target": 6,
+  "peak_actual_MNQ": 6,
+  "netting_events": 4,
+  "GROWTH_lane": true,
+  "CORE_lane": false,
+  "plateau": "[101080, 103362, 106437, 106801]"
+ },
+ "corrected_freeze_sha256": "1090b64ae2fea6e29901afa3bbaa3cda6661fe5d558c40667aab6094b6a3f751",
+ "corrected_rules_sha256": "a1588fc0d07207d98761212882a7e32f7a1329addc2d0491e231d91c95e49fdf",
+ "T61_FORWARD_OOS_START": "2026-09-29",
+ "forward_promotion": {
+  "common": ">= 250 OOS sessions; T61 incremental vs C43 > 0; TEST53 matched excess > 0; no margin breach; MNQ <= 6; no retuning",
+  "LIVE_reference": "MaxDD <= 20,000 and worst day >= -5,000 AND user approval of the doubled C43 $ governor thresholds",
+  "auto_promotion": "NO"
+ },
+ "hash_index_sha256": "c5b366ed2717688a258d97a6324153afa586b4dca69dea5c47660d12c964ef16",
+ "n_files": 72,
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
