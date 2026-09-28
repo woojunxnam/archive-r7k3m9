@@ -1,0 +1,160 @@
+//@version=6
+strategy("T05-A2 ES C02->C05 Sequential LONG | Frozen Full Period", overlay=true, pyramiding=0,
+     process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false,
+     use_bar_magnifier=false, slippage=1,
+     commission_type=strategy.commission.cash_per_contract, commission_value=2.24)
+
+// TEST05 A2 frozen full-period validation.
+// ES1!, 5m, RTH only.
+// Earlier same-day C02 VWAP stretch/reclaim -> later C05 OR bounded retest -> LONG.
+// Same-bar overlap does not qualify.
+// Cost baseline: $2.24/contract/side + 1 tick slippage/fill.
+// 2 ATR stop, no TP, 120m time exit, max 1/day.
+
+string TZ = "America/New_York"
+string RTH = "0930-1615:23456"
+string FIRST_BAR = "0930-0935:23456"
+string OR_SESSION = "0930-1000:23456"
+string SIGNAL_SESSION = "0930-1405:23456"
+string FLATTEN_TRIGGER = "1610-1615:23456"
+
+if barstate.isfirst and timeframe.in_seconds() != 300
+    runtime.error("TEST05 requires exactly a 5-minute chart.")
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+bool firstRthBar = not na(time(timeframe.period, FIRST_BAR, TZ))
+bool inOR = not na(time(timeframe.period, OR_SESSION, TZ))
+bool canSignalTime = not na(time(timeframe.period, SIGNAL_SESSION, TZ))
+bool flattenTrigger = not na(time(timeframe.period, FLATTEN_TRIGGER, TZ))
+
+bool prevBarSameDate = not na(time[1]) and
+     year(time[1], TZ) == year(time, TZ) and
+     month(time[1], TZ) == month(time, TZ) and
+     dayofmonth(time[1], TZ) == dayofmonth(time, TZ)
+
+if firstRthBar and prevBarSameDate
+    runtime.error("Set chart Session to Regular Trading Hours (RTH).")
+
+var int entriesToday = 0
+var bool seenC02Today = false
+if firstRthBar
+    entriesToday := 0
+    seenC02Today := false
+
+float atr = ta.atr(14)
+float barRange = math.max(high - low, syminfo.mintick)
+float closeLocation = (close - low) / barRange
+
+// RTH VWAP
+var float pvCum = na
+var float vCum = na
+if firstRthBar
+    pvCum := hlc3 * nz(volume)
+    vCum := nz(volume)
+else if inRth
+    pvCum := nz(pvCum) + hlc3 * nz(volume)
+    vCum := nz(vCum) + nz(volume)
+float rthVwap = inRth and vCum > 0 ? pvCum / vCum : na
+
+// Same-time-of-day RVOL
+const int SLOTS = 81
+const int TOD_DAYS = 20
+const int TOD_MIN = 10
+var array<float> todHist = array.new<float>(SLOTS * TOD_DAYS, na)
+var array<float> todSums = array.new<float>(SLOTS, 0.0)
+var array<int> todCounts = array.new<int>(SLOTS, 0)
+var int todDayPtr = 0
+var bool todSeenFirstDay = false
+
+if firstRthBar
+    if todSeenFirstDay
+        todDayPtr := (todDayPtr + 1) % TOD_DAYS
+    else
+        todSeenFirstDay := true
+
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int minutesFromOpen = hh * 60 + mm - 570
+int slot = int(math.floor(minutesFromOpen / 5.0))
+float todAvg = na
+float todRvol = na
+
+if inRth and slot >= 0 and slot < SLOTS
+    int ringIndex = todDayPtr * SLOTS + slot
+    float oldValue = array.get(todHist, ringIndex)
+    float priorSum = array.get(todSums, slot)
+    int priorCount = array.get(todCounts, slot)
+
+    todAvg := priorCount >= TOD_MIN ? priorSum / priorCount : na
+    todRvol := not na(todAvg) and todAvg > 0 ? volume / todAvg : na
+
+    float newSum = priorSum - (na(oldValue) ? 0.0 : oldValue) + volume
+    int newCount = priorCount - (na(oldValue) ? 0 : 1) + 1
+    array.set(todHist, ringIndex, volume)
+    array.set(todSums, slot, newSum)
+    array.set(todCounts, slot, newCount)
+
+// C02
+bool c02Event = canSignalTime and not na(rthVwap) and
+     low < rthVwap - 1.25 * atr and
+     close > rthVwap - 1.25 * atr and
+     close > open and
+     closeLocation >= 0.55 and
+     not na(todRvol) and todRvol >= 0.80
+
+// C05 opening-range state
+var float orHigh = na
+var float orLow = na
+var bool orBrokeAbove = false
+var int orBreakBar = na
+
+if firstRthBar
+    orHigh := high
+    orLow := low
+    orBrokeAbove := false
+    orBreakBar := na
+else if inOR
+    orHigh := math.max(nz(orHigh, high), high)
+    orLow := math.min(nz(orLow, low), low)
+
+if not inOR and inRth and not na(orHigh) and close > orHigh
+    if not orBrokeAbove
+        orBreakBar := bar_index
+    orBrokeAbove := true
+
+int barsFromOrBreak = na(orBreakBar) ? 100000 : bar_index - orBreakBar
+bool c05Event = canSignalTime and orBrokeAbove and
+     barsFromOrBreak >= 1 and barsFromOrBreak <= 6 and
+     low <= orHigh + 0.20 * atr and
+     low >= orHigh - 0.25 * atr and
+     close > orHigh and close > open
+
+bool hadPriorC02 = seenC02Today
+bool comboEvent = c05Event and hadPriorC02
+
+if c02Event
+    seenC02Today := true
+
+bool longSignal = comboEvent and strategy.position_size == 0 and entriesToday < 1
+int stopTicks = math.max(1, int(math.round(2.0 * atr / syminfo.mintick)))
+
+if longSignal
+    strategy.entry("L", strategy.long, comment="T05-A2|ES|C02THEN-C05-LONG")
+    strategy.exit("LX", "L", loss=stopTicks, comment_loss="SL")
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.opentrades > 0
+    int entryTime = strategy.opentrades.entry_time(0)
+    bool timeExit = time_close >= entryTime + 120 * 60 * 1000
+    if timeExit
+        strategy.close_all(comment="TIME", immediately=true)
+
+if flattenTrigger and strategy.position_size != 0
+    strategy.close_all(comment="RTH", immediately=true)
+
+plot(rthVwap, "RTH VWAP", color=color.orange)
+plot(orHigh, "OR High", color=color.new(color.green, 50), style=plot.style_linebr)
+plot(todRvol, "TOD RVOL", display=display.data_window)
+plot(atr, "ATR14", display=display.data_window)
+plotshape(c02Event, title="C02 event", style=shape.circle, location=location.belowbar, size=size.tiny, color=color.gray)
+plotshape(longSignal, title="A2 long", style=shape.triangleup, location=location.belowbar, size=size.small, color=color.lime)
