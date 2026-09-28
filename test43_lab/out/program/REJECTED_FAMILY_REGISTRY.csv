@@ -1,0 +1,15 @@
+family,mechanism,test,reason_rejected,sample_size,outer_fold_result,retest_forbidden,reopen_requires
+gap_down_rebound,buy after negative opening gap,TEST45,"no matched excess, outer folds fail",~800,negative/flat,YES,a new causal conditioning variable with independent rationale
+opening_flush_rebound,buy after large first-30m selloff,TEST45,no edge,~600,negative,YES,-
+gap_plus_flush,combined gap + flush,TEST45,no edge,~300,negative,YES,-
+unconditional_overnight_carry,hold long 16:15->09:30,TEST45,mostly beta,all sessions,beta only,YES,conditional on a validated module
+es_nq_cross_state,generic ES/NQ relative state overlay,TEST45,no incremental value,-,flat,YES,-
+structural_rebound_B1_B6,failed break of PDL/5dL/ORL/VWAP band/range exhaustion/HTF pullback + reclaim,TEST46,no edge; reclaim adds no info,150-900/family,negative/flat,YES,-
+vwap_lower_band_rebound,VWAP -k sigma excursion + reclaim,TEST46,significantly negative on MNQ,~500,negative (t -2.9),YES,-
+range_exhaustion,session range >= D ATR then reversal,TEST46,no edge,~40-300,flat,YES,-
+htf_bull_pullback_vwap,HTF bull + pullback to VWAP,TEST46,no edge,~300,flat,YES,-
+nassi_n3_serial_legs,3 meaningful 5m down legs -> long,TEST47,negative matched excess all leg defs / both instruments,~1000/inst,0-1/5 folds,YES,-
+path_order_information,order of down legs beyond total displacement,TEST47,path-order null + shuffle null,~1000/inst,none,YES,-
+deterministic_true_bottom,deceleration / wick / close-improvement confirmation after N3,TEST47,no improvement,~900/inst,0-1/5,YES,-
+inventory_recycling_nassi,second buy / trim / rebuild on N3 campaigns,TEST47,no incremental value after costs,~900 campaigns/inst,0-2/5,YES,a validated positive base entry
+blind_dca,add after -X ATR,TEST47,diagnostic only; no value,-,-,YES,-
