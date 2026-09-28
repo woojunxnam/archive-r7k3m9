@@ -5,3 +5,4 @@ TEST73,16,0,0,trend ladder exits A/C/D x 2 (+ plateau),2026-09-28T16:44:31+00:00
 TEST74,8,0,0,nested alignment 4 variants x 2,2026-09-28T16:45:25+00:00
 TEST76,0,18,0,ML-A 8 models x 2 instruments (economic target) + ML-C HGB x 2,2026-09-28T16:47:38+00:00
 TEST70,88,0,0,atlas 44 geometries x 2 instruments,2026-09-28T16:48:48+00:00
+TEST78,160,0,0,10 event types x 8 horizons x 2 instruments (pooled over 4 geometries) + conditioning diagnostics,2026-09-28T17:21:55+00:00

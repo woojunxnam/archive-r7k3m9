@@ -7,3 +7,9 @@ TEST74,nested box alignment,459e0e8e,FAIL: alignment raises matched excess per e
 TEST75,T61 overlay,-,NOT RUN (no standalone survivor)
 TEST76,box ML (economic targets),db69545e,"FAIL: first run VOID (look-ahead feature 'life', documented); corrected primary HGB MNQ -0.05, ES -0.07 $/day; 0/16 models pass"
 TEST77,box GA,-,NOT RUN (GA not justified)
+TEST78,upper-state event atlas (box momentum inversion),1dda59d7,ATLAS: 0 qualifying (event x instrument x horizon) cells of 160; upper-zone touch / acceptance / break / retest are POSITIVE vs matched-long but NEGATIVE vs the generic-momentum null in MNQ -> value = ordinary momentum; only the rising sequence (SEQ2) is box-positive vs momentum but fails fold recurrence (MNQ 3/5) or SLIP4 (ES)
+TEST79,upper-state long,1dda59d7,NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)
+TEST80,upper-break hold policy,1dda59d7,NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)
+TEST81,old-top support retest,1dda59d7,NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)
+TEST82,rising box sequence,1dda59d7,NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)
+TEST83,box momentum overlay on T61,1dda59d7,NOT RUN: no standalone survivor

@@ -4,3 +4,6 @@ BOX_ZONE_MOMENTUM,TEST70 zone study,"MNQ forward net to 16:15 rises monotonicall
 BOX_EXCESS_LT_FRICTION,TEST70/71,bottom touches beat time-matched longs by ~+1-3 $/event but a round trip costs 2.24 (MNQ) / 3.74 (ES) $
 BOX_FALLING_TO_RISING,BOX_TRANSITION_MATRIX,MNQ FALLING->RISING transition bottom buys +1.5 $/event excess (median over geometries); too small
 BOX_LEAKAGE_LESSON,TEST76,box lifetime / death is look-ahead for break-terminated boxes; any future box feature must be birth-time only
+BOX_UPPER_IS_MOMENTUM,TEST78,the TEST70 top-hold clue is reproduced vs matched-long but disappears vs a session-return-matched momentum null
+BOX_SEQ2_RISING_SEQUENCE,TEST78,"two consecutive rising box midpoints + upper-zone close: MNQ 16:00 momentum excess +3.37 $/event, net +7.73, 3/5 folds, n 2821; directionally consistent, not robust - forward monitor only"
+BOX_VEL_NEAR_ZERO_A2,TEST78 conditioning (NOT preregistered as a mechanism),"MNQ A2 in NEAR_ZERO velocity boxes 16:00: momentum excess +4.06, 4/5 folds, n 5425 - subgroup discovery, multiple-comparison exposed, no rescue"

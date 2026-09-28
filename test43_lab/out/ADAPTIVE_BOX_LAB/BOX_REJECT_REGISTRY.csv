@@ -6,3 +6,6 @@ stateful box migration (UP1-3 x DOWN1-3),TEST72,all policies net negative,YES
 "trend box ladder (rising-box pullback, hold / trailing)",TEST73,gross ~0 before costs,YES
 nested box confluence,TEST74,net negative; confluence reduces sample without edge,YES
 box ML meta-selection,TEST76,0/16 pass after look-ahead removal,YES
+upper-zone touch / acceptance long,TEST78,momentum-null excess < 0 (MNQ); = generic momentum,YES
+upper-box breakout long,TEST78,momentum-null excess < 0 in both instruments at every horizon,YES
+old-top support-flip retest,TEST78,worst mechanism vs momentum null,YES

@@ -1,0 +1,55 @@
+# TEST78+ BOX-MOMENTUM INVERSION LAB - final report
+
+```json
+{
+ "TEST78_RESULT": "ATLAS: 0 qualifying (event x instrument x horizon) cells of 160; upper-zone touch / acceptance / break / retest are POSITIVE vs matched-long but NEGATIVE vs the generic-momentum null in MNQ -> value = ordinary momentum; only the rising sequence (SEQ2) is box-positive vs momentum but fails fold recurrence (MNQ 3/5) or SLIP4 (ES)",
+ "TEST79_RESULT": "NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)",
+ "TEST80_RESULT": "NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)",
+ "TEST81_RESULT": "NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)",
+ "TEST82_RESULT": "NOT RUN: no upper-state mechanism qualified in TEST78 (preregistered rule 1dda59d7)",
+ "TEST83_RESULT": "NOT RUN: no standalone survivor",
+ "UPPER_TOUCH_MATCHED_EXCESS": "MNQ matched +1.24 / momentum-null -0.70 $/event (2/5 folds, net +3.25, SLIP4 +0.25, n 25355); ES matched +0.71 / momentum-null +0.33 $/event (2/5 folds, net -1.79, SLIP4 -9.29, n 25497) [h1600]",
+ "UPPER_ACCEPTANCE_MATCHED_EXCESS": "MNQ matched +1.08 / momentum-null -1.41 $/event (2/5 folds, net +3.28, SLIP4 +0.28, n 23506); ES matched +0.74 / momentum-null +0.02 $/event (2/5 folds, net -1.72, SLIP4 -9.22, n 23705) [h1600] | two closes: MNQ matched +1.00 / momentum-null -1.94 $/event (2/5 folds, net +3.13, SLIP4 +0.13, n 21953); ES matched +0.90 / momentum-null -0.02 $/event (3/5 folds, net -1.55, SLIP4 -9.05, n 22074) [h1600]",
+ "UPPER_BREAK_MATCHED_EXCESS": "MNQ matched +0.07 / momentum-null -3.71 $/event (1/5 folds, net +2.11, SLIP4 -0.89, n 15764); ES matched +0.73 / momentum-null -0.31 $/event (2/5 folds, net -1.84, SLIP4 -9.34, n 16024) [h1600] | BRK20: MNQ matched +1.28 / momentum-null -2.70 $/event (2/5 folds, net +3.40, SLIP4 +0.40, n 11851); ES matched +1.35 / momentum-null +0.13 $/event (3/5 folds, net -1.14, SLIP4 -8.64, n 12083) [h1600]",
+ "OLD_TOP_RETEST_MATCHED_EXCESS": "MNQ matched -0.95 / momentum-null -4.22 $/event (1/5 folds, net +1.10, SLIP4 -1.90, n 13356); ES matched +0.24 / momentum-null -1.34 $/event (2/5 folds, net -2.24, SLIP4 -9.74, n 13685) [h1600]",
+ "RISING_BOX_SEQUENCE_EXCESS": "MNQ matched +6.53 / momentum-null +3.37 $/event (3/5 folds, net +7.73, SLIP4 +4.73, n 2821); ES matched +3.78 / momentum-null +1.76 $/event (4/5 folds, net +0.49, SLIP4 -7.01, n 2937) [h1600] | A4 rising: MNQ matched +3.48 / momentum-null +0.14 $/event (3/5 folds, net +5.13, SLIP4 +2.13, n 7996); ES matched +2.15 / momentum-null +0.81 $/event (3/5 folds, net -0.75, SLIP4 -8.25, n 8229) [h1600]",
+ "BOX_VS_GENERIC_MOMENTUM_EXCESS": "NEGATIVE or ~0 for touch / acceptance / break / retest (MNQ -0.7..-4.2 $/event at 16:00); positive only for SEQ2 (MNQ +3.37, ES +1.76) without fold / cost robustness -> the box adds no robust information beyond generic momentum",
+ "BEST_ENTRY_MECHANISM": "SEQ2 (two consecutive rising box midpoints + upper-zone close), MNQ - NOT qualifying",
+ "BEST_HOLD_HORIZON": "16:00 (16:15 and next-open weaker vs the momentum null)",
+ "BEST_INSTRUMENT": "MNQ",
+ "TRADES_PER_DAY": "strategy not run; SEQ2 MNQ event rate 1.62/day pooled over 3 geometries",
+ "SIDES_PER_DAY": "strategy not run; ~3.24/day at event rate",
+ "SLIP4_AVG_DAY": "strategy not run; SEQ2 MNQ SLIP4 +4.73 $/event",
+ "NEW_UPPER_BOX_SURVIVOR": "NONE",
+ "T61_PLUS_MODULE_AVG_DAY": "n/a (T61 alone 125.08)",
+ "T61_PLUS_MODULE_INCREMENTAL_DAY": 0.0,
+ "T61_PLUS_MODULE_MAXDD": "n/a (T61 12,607)",
+ "T61_PLUS_MODULE_WORST_DAY": "n/a (T61 -4,347)",
+ "T61_PLUS_MODULE_RET_DD": "n/a (T61 0.00992)",
+ "CORR_MODULE_TO_T61": "n/a",
+ "MODULE_OOS_START": "n/a",
+ "KEY_ANSWERS": {
+  "upper box location a real long signal?": "only as generic momentum (positive raw / matched-long, not beyond the momentum null)",
+  "better than generic momentum?": "NO (except the non-robust SEQ2 subset)",
+  "touch vs acceptance?": "no difference of economic consequence (A1 ~ A2 ~ A3)",
+  "breakout better than upper-zone entry?": "NO - breaks are worse vs momentum (MNQ BRK10 -3.71 $/event at 16:00)",
+  "old-top support retest?": "NO - worst mechanism (MNQ -4.22, ES -1.34 vs momentum)",
+  "rising box sequences?": "directionally YES (SEQ2 best everywhere) but not robust (3/5 folds MNQ; ES fails costs)",
+  "width contraction / expansion?": "contraction does NOT help (MNQ A2 contracting -2.36 vs momentum); expanding +1.65 (3/5)",
+  "hold horizon?": "16:00; 5-60 min horizons are negative after costs",
+  "adds to T61?": "not evaluated - no standalone survivor"
+ },
+ "STOPPING_CRITERION": "B + C: touch, acceptance, breakout, retest and rising-sequence mechanisms all failed the preregistered qualification; upper-state value is explained by generic momentum",
+ "ML_RUN": "NO (not justified)",
+ "GA_RUN": "NO (not justified)",
+ "T61_OOS_USED_FOR_RESEARCH": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "CUMULATIVE_PROGRAM_BUDGET": {
+  "hypotheses": 1702,
+  "ml_configs": 207,
+  "genomes": 777629
+ }
+}
+```
+
