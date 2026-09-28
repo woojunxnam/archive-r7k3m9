@@ -1,0 +1,56 @@
+5e5339f6caa19d8cbd9706874b57b4756e886715858ad00df52c0e4dbad236a5 a1775b272fbb61d9457f2d979873027268af26474c10b343595d4ebe12323987
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+   up  dn  avg_day  excess_day  trades instrument
+0   1   1  -10.454      -2.817    7301        MNQ
+1   1   2  -11.040      -2.873    7197        MNQ
+2   1   3  -11.058      -3.582    6626        MNQ
+3   2   1   -6.501       0.261    5343        MNQ
+4   2   2   -5.493       0.891    5062        MNQ
+5   2   3   -5.364       0.530    4663        MNQ
+6   3   1  -16.872      -0.853   13637        MNQ
+7   3   2  -14.346      -4.971    8509        MNQ
+8   3   3  -13.774      -5.087    7872        MNQ
+MNQ done
+   up  dn  avg_day  excess_day  trades instrument
+0   1   1  -20.867      -1.837    9206         ES
+1   1   2  -18.528      -2.770    7679         ES
+2   1   3  -15.970      -1.558    7057         ES
+3   2   1  -11.698       0.190    5705         ES
+4   2   2  -13.385      -2.377    5247         ES
+5   2   3  -12.345      -2.209    4799         ES
+6   3   1  -34.444      -2.589   15460         ES
+7   3   2  -22.649      -4.662    8725         ES
+8   3   3  -19.810      -3.246    8029         ES
+ES done
+                config instrument  trades_per_day  gross_day  avg_day  excess_day  slip4_day    max_dd  worst_day  folds_net_pos  folds_x_pos  p_top  p_break  avg_hold_min  friction_over_gross  delay1_day  mig_delay1_day                                                                                                                                                                                                                                                                             plateau  plateau_pass   PASS
+0  T72_RANGE_UP2_DOWN3        MNQ           2.678      0.636   -5.364        0.53    -13.399  10634.60    -341.20              1            4  0.168    0.799        13.813                9.436      -4.213          -4.647     [('obs=15', -18996, -3527), ('obs=60', -7862, -2975), ('ub=db=0.0', -15011, -4166), ('ub=db=0.2', -11927, -3096), ('LZ=0.1', -7580, 1165), ('LZ=0.25', -11295, -674), ('UZ=0.75', -11951, -1432), ('UZ=0.95', -8783, 1140), ('buf=0.1', -9421, -154), ('buf=0.2', -5804, 2659)]         False  False
+1  T72_RANGE_UP2_DOWN1         ES           3.277      0.558  -11.698        0.19    -36.274  20526.87    -333.69              0            2  0.178    0.792        12.867               21.968     -12.059         -11.494  [('obs=15', -38636, -2326), ('obs=60', -12282, -1469), ('ub=db=0.0', -25676, -3533), ('ub=db=0.2', -20987, -1430), ('LZ=0.1', -18341, -148), ('LZ=0.25', -28199, -4212), ('UZ=0.75', -20353, 217), ('UZ=0.95', -19858, 596), ('buf=0.1', -18604, 2067), ('buf=0.2', -17633, 1960)]         False  False
+                 config instrument  trades_per_day  gross_day  avg_day  excess_day  slip4_day    max_dd  worst_day  folds_net_pos  folds_x_pos  p_top  p_break  avg_hold_min  friction_over_gross  delay1_day  mig_delay1_day                                                                                                                                                                                                                                                                                 plateau  plateau_pass   PASS
+0  T73_TREND_A_TOP_EXIT        MNQ           2.187     -0.431   -5.329      -1.450    -11.889   9919.92    -581.22              1            3  0.150    0.802        21.981               11.370      -5.985          -4.403                                                                                                                                                                                                                                                                                      []         False  False
+1      T73_TREND_C_HOLD        MNQ           1.886     -2.097   -6.321      -4.346    -11.978  13713.42    -581.22              0            1  0.000    0.854        41.674                2.014      -6.207          -3.397                                                                                                                                                                                                                                                                                      []         False  False
+2  T73_TREND_D_TRAILING        MNQ           1.885     -0.240   -4.462      -2.204    -10.118  10258.40    -936.72              2            3  0.000    0.864        52.018               17.630      -4.159          -4.188     [('UP3+DOWN2', -12667, -6092), ('UP1+DOWN3', -7769, -3837), ('obs=15', -15292, -6250), ('obs=60', -1453, -744), ('ub=db=0.0', -13076, -7242), ('ub=db=0.2', -5680, -4341), ('LZ=0.1', -8262, -4628), ('LZ=0.25', -9449, -5628), ('buf=0.0', -10482, -4863), ('buf=0.2', -12, 2377)]         False  False
+3  T73_TREND_A_TOP_EXIT         ES           2.316      0.992   -7.669       0.391    -25.039  13452.30    -204.95              0            3  0.162    0.793        20.746                8.729      -6.984          -7.582                                                                                                                                                                                                                                                                                      []         False  False
+4      T73_TREND_C_HOLD         ES           1.947      0.187   -7.095      -0.836    -21.699  12576.86    -204.95              0            3  0.000    0.855        42.441               38.862      -6.188          -6.291                                                                                                                                                                                                                                                                                      []         False  False
+5  T73_TREND_D_TRAILING         ES           1.984     -0.348   -7.770      -1.384    -22.654  13690.67    -301.22              0            2  0.000    0.879        46.692               21.314      -7.149          -8.046  [('UP3+DOWN2', -16375, -2974), ('UP1+DOWN3', -13533, -2415), ('obs=15', -23746, -4218), ('obs=60', -2531, 2523), ('ub=db=0.0', -19025, -5531), ('ub=db=0.2', -7827, 576), ('LZ=0.1', -10680, -307), ('LZ=0.25', -15910, -4102), ('buf=0.0', -13435, -998), ('buf=0.2', -10937, -1190)]         False  False
+  instrument      dir  trades  avg_day  excess_day  usd_per_trade  x_per_trade
+0        MNQ   RISING    1967   -0.312       2.132         -0.276        1.887
+1        MNQ     FLAT     437   -0.780      -0.378         -3.108       -1.505
+2        MNQ  FALLING    1447   -2.162      -0.207         -2.601       -0.249
+3         ES   RISING    2878   -4.762       1.116         -2.881        0.675
+4         ES     FLAT     560   -2.004      -0.769         -6.231       -2.391
+5         ES  FALLING    1474   -2.771       0.234         -3.273        0.277

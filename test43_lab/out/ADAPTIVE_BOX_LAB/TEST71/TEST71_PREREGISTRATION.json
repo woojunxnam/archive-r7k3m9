@@ -1,0 +1,39 @@
+{
+ "test": "TEST71",
+ "written_utc": "2026-09-28T16:41:51+00:00",
+ "research_data_end": "2026-05-27",
+ "program_prereg_sha256": "455ffc571276a7f48bdcd1f97217a72332680ee3ecd8b4910f88d72f750ebcba",
+ "status": "EXPLORATORY (TEST70: 0/88 cells eligible; selection by the preregistered fallback rule)",
+ "selection": {
+  "MNQ": {
+   "F_QMAD_W60": [
+    "F_QMAD_W30"
+   ],
+   "C_PRIORCLOSE_K0.75": [
+    "C_PRIORCLOSE_K0.5",
+    "C_PRIORCLOSE_K1.0"
+   ],
+   "H_BAL6": [
+    "H_BAL12"
+   ]
+  },
+  "ES": {
+   "G_VWAP_M0.15": [
+    "G_VWAP_M0.25"
+   ],
+   "C_PRIORCLOSE_K1.5": [
+    "C_PRIORCLOSE_K1.0"
+   ],
+   "C_OPEN_K0.5": [
+    "C_OPEN_K0.75"
+   ]
+  }
+ },
+ "B0": "flat -> first close in lower zone (0..0.15) -> buy 1 contract next open -> exit next open after close >= 0.85 (TOP) or close < lower (BREAK) or 16:15; one position; no DCA / pyramiding / ML / GA",
+ "recycling": "separate modes: max cycles per box 1, 2, 3 (re-arm only after a TOP exit; a BREAK kills the box)",
+ "plateau": "neighbours: lower zone 0.10 / 0.25, upper zone 0.75 / 0.95, break buffer 0.10 / 0.20, geometry grid neighbours, cycles 1 <-> 2 (program prereg definition)",
+ "gate": "program standalone gate (455ffc57)",
+ "budget": {
+  "hypotheses": 18
+ }
+}

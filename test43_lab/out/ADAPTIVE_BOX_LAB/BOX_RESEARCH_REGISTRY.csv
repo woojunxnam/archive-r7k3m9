@@ -1,0 +1,9 @@
+test,family,prereg,result
+TEST70,"box geometry atlas (10 families, 44 geometries x 2)",455ffc57,ATLAS: 0/88 geometry x instrument cells eligible (>= 4/5 folds matched excess AND SLIP4 excess > 0); 6/88 net-positive (max 1.00 $/day); lower-zone touches break the floor before the top ~80% of the time
+TEST71,simple box B0 + recycling,see TEST71,"FAIL: 18 configs, 0 pass; best B0_C_PRIORCLOSE_K0.75_C1 MNQ 0.24 $/day; recycling cycles 2-3 lose -1.9..-15.5 $/trade"
+TEST72,box migration UP1-3 x DOWN1-3,5e5339f6,"FAIL: all 18 migration policies net negative (MNQ -5.36..-16.87, ES -11.70..-34.44 $/day)"
+TEST73,trend box ladder A/C/D,a1775b27,"FAIL: trend ladder gross ~0 before costs; D trailing MNQ -4.46, ES -7.77 $/day"
+TEST74,nested box alignment,459e0e8e,FAIL: alignment raises matched excess per event slightly (small+medium) but net stays negative; maximal confluence worst
+TEST75,T61 overlay,-,NOT RUN (no standalone survivor)
+TEST76,box ML (economic targets),db69545e,"FAIL: first run VOID (look-ahead feature 'life', documented); corrected primary HGB MNQ -0.05, ES -0.07 $/day; 0/16 models pass"
+TEST77,box GA,-,NOT RUN (GA not justified)

@@ -1,0 +1,8 @@
+family,tests,reason,retest_forbidden
+"static / tiled box bottom-buy (A,C,E,F,G,I)",TEST70/71,net < 0 in 82/88 cells; excess < friction,YES
+"rolling / swing / balance box bottom-buy (B,D,H)",TEST70/71,net < 0; H_BAL6 excess 5/5 folds but -4.9 $/day net,YES
+range recycling (cycles 2-3),TEST71,cycles >= 2 lose 2-15 $/trade,YES
+stateful box migration (UP1-3 x DOWN1-3),TEST72,all policies net negative,YES
+"trend box ladder (rising-box pullback, hold / trailing)",TEST73,gross ~0 before costs,YES
+nested box confluence,TEST74,net negative; confluence reduces sample without edge,YES
+box ML meta-selection,TEST76,0/16 pass after look-ahead removal,YES

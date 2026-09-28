@@ -19,3 +19,4 @@ catboost_info/
 out/t47/*.log
 out/t47/ga/archive_*.parquet
 out/test65/t61_hist/session_log_*.csv.gz
+out/ADAPTIVE_BOX_LAB/TEST70/events_*.parquet

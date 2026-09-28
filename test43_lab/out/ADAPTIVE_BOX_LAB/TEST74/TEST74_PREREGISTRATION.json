@@ -1,0 +1,21 @@
+{
+ "test": "TEST74",
+ "written_utc": "2026-09-28T16:45:11+00:00",
+ "research_data_end": "2026-05-27",
+ "program_prereg_sha256": "455ffc571276a7f48bdcd1f97217a72332680ee3ecd8b4910f88d72f750ebcba",
+ "small": "A_OBS15_LIFE30",
+ "medium": "A_OBS60_LIFE120",
+ "large": "E_PREV_HL",
+ "aligned": "touch close in the lower half [0, 0.5) of the box in force",
+ "variants": [
+  "SMALL_ONLY",
+  "SMALL+MEDIUM",
+  "SMALL+LARGE",
+  "SMALL+MEDIUM+LARGE"
+ ],
+ "metric": "bottom-trade net $/day, matched excess $/day, folds",
+ "note": "hierarchy fixed by the program preregistration; no other hierarchy is searched",
+ "budget": {
+  "hypotheses": 8
+ }
+}

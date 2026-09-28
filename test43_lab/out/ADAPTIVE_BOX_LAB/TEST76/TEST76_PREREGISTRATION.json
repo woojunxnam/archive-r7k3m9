@@ -1,0 +1,51 @@
+{
+ "test": "TEST76",
+ "written_utc": "2026-09-28T16:46:42+00:00",
+ "research_data_end": "2026-05-27",
+ "program_prereg_sha256": "455ffc571276a7f48bdcd1f97217a72332680ee3ecd8b4910f88d72f750ebcba",
+ "justification": "program rule TEST76: atlas cells with matched excess > 0 in >= 4/5 folds (8 cells listed in QUAL); note: none net-positive after SLIP4",
+ "qualifying": {
+  "MNQ": [
+   "C_PRIORCLOSE_K1.0",
+   "C_MID30_K1.5",
+   "E_OR5",
+   "H_BAL6"
+  ],
+  "ES": [
+   "C_OPEN_K0.5",
+   "C_OPEN_K1.5",
+   "C_PRIORCLOSE_K1.5",
+   "G_VWAP_M0.15"
+  ]
+ },
+ "features": [
+  "w_atr",
+  "age_at_touch",
+  "life",
+  "dir_c",
+  "prev_dir_c",
+  "wd_c",
+  "velocity",
+  "tod",
+  "ret_open",
+  "ret15",
+  "ret60",
+  "prior_day",
+  "gap",
+  "volt",
+  "bull",
+  "dist_hi",
+  "dist_lo",
+  "geo_c"
+ ],
+ "target_ML_A": "net $ of the TEST70 bottom trade (1 contract, costs incl.)",
+ "walk_forward": "outer folds 2021..2025-26; train on events before the fold (>= 2019-07-01)",
+ "trade": "predicted net > 0; greedy one position per instrument",
+ "models": "PRIMARY HistGradientBoosting; reported: Ridge, ElasticNet, ExtraTrees, RandomForest, XGBoost, LightGBM, CatBoost (fixed presets)",
+ "plateau_ML": "thresholds -0.5 $ and +1.0 $ (all > 0 and >= 60% of base)",
+ "ML_ADDS_VALUE": "primary passes the standalone gate AND >= half of the other models have net > 0",
+ "ML_C": "HGB on hold-to-16:15 incremental $ at TOP (diagnostic)",
+ "budget": {
+  "ml_configs": 18
+ }
+}

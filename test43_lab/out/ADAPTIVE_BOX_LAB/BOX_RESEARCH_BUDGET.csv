@@ -1,0 +1,7 @@
+test,hypotheses,ml_configs,valid_genomes,note,utc
+TEST71,18,0,0,B0 simple box x 6 geometries x cycles 1/2/3 (+ plateau neighbours),2026-09-28T16:42:02+00:00
+TEST72,18,0,0,9 migration policies x 2 instruments (+ plateau),2026-09-28T16:44:31+00:00
+TEST73,16,0,0,trend ladder exits A/C/D x 2 (+ plateau),2026-09-28T16:44:31+00:00
+TEST74,8,0,0,nested alignment 4 variants x 2,2026-09-28T16:45:25+00:00
+TEST76,0,18,0,ML-A 8 models x 2 instruments (economic target) + ML-C HGB x 2,2026-09-28T16:47:38+00:00
+TEST70,88,0,0,atlas 44 geometries x 2 instruments,2026-09-28T16:48:48+00:00

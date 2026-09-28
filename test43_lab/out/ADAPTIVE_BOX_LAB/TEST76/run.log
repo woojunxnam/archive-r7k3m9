@@ -1,0 +1,53 @@
+db69545e5ad4c189aa3c0118c3f4466641fda763065b48cb9af65c6c7da7b6a2
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:40: RuntimeWarning: All-NaN slice encountered
+  self.h = np.nanmax(H[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:41: RuntimeWarning: All-NaN slice encountered
+  self.l = np.nanmin(L[:, idx], axis=2)
+/home/user/archive-r7k3m9/test43_lab/src/t46_rebound.py:58: RuntimeWarning: All-NaN slice encountered
+  self.or30 = np.nanmin(self.l[:, :6], 1)
+/home/user/archive-r7k3m9/test43_lab/src/t47_common.py:92: RuntimeWarning: Mean of empty slice
+  r = np.nanmean(mk.h - mk.l, axis=1)
+MNQ HGB (PRIMARY) -0.05 2.52 3 2407 False
+MNQ Ridge 0.51 2.04 3 1385 False
+MNQ ElasticNet 0.51 1.85 4 1223 False
+MNQ ExtraTrees 0.26 1.93 2 1432 False
+MNQ RandomForest -1.38 1.28 1 2242 False
+MNQ XGBoost -1.24 0.97 0 1929 False
+MNQ LightGBM -0.53 2.29 3 2443 False
+MNQ CatBoost -1.55 0.35 1 1705 False
+ES HGB (PRIMARY) -0.07 3.28 3 1769 False
+ES Ridge 0.2 1.12 3 627 False
+ES ElasticNet 0.68 1.33 4 499 False
+ES ExtraTrees 0.12 1.81 3 880 False
+ES RandomForest 0.09 1.87 2 995 False
+ES XGBoost -0.51 1.99 2 1398 False
+ES LightGBM -0.14 3.1 2 1751 False
+ES CatBoost -1.07 1.1 2 1149 False
+    trades  avg_day  excess_day   max_dd  worst_day  slip4_day  folds_net_pos  min_fold_n  remove_top3 instrument          model  plateau_totals  plateau_pass  delay1_day  rank_ic  miss20_day   PASS
+0     2407   -0.054       2.521  4493.94    -366.96     -4.201              3         425     -1684.30        MNQ  HGB (PRIMARY)    [-445, 1113]         False      -1.118    0.046      -0.237  False
+1     1385    0.505       2.042  1701.84    -246.92     -1.881              3         193      -478.70        MNQ          Ridge    [1348, 1565]          True      -0.177    0.119       0.351  False
+2     1223    0.508       1.853  1417.66    -246.92     -1.599              4         158      -298.06        MNQ     ElasticNet    [1887, 1624]          True       0.100    0.122       0.009  False
+3     1432    0.257       1.930  2860.48    -338.96     -2.211              2         160     -1302.02        MNQ     ExtraTrees    [542, -1254]         False      -0.978    0.063       0.367  False
+4     2242   -1.385       1.283  4290.76    -257.92     -5.248              1         283     -3832.66        MNQ   RandomForest    [-2137, 692]         False      -3.152    0.090      -0.639  False
+5     1929   -1.235       0.973  3477.76    -298.44     -4.559              0         295     -3713.04        MNQ        XGBoost  [-2089, -2496]         False      -1.856    0.036      -2.039  False
+6     2443   -0.530       2.285  4139.22    -402.70     -4.740              3         433     -2892.94        MNQ       LightGBM  [-1058, -1296]         False      -1.843    0.050       0.880  False
+7     1705   -1.552       0.349  4658.88    -330.94     -4.490              1         257     -4241.82        MNQ       CatBoost   [-2533, -722]         False      -1.608    0.052      -0.755  False
+8     1769   -0.067       3.277  2256.90    -219.93     -7.687              3         303     -1461.10         ES  HGB (PRIMARY)     [-302, 549]         False      -0.864    0.026      -0.485  False
+9      627    0.200       1.123  1474.84    -332.47     -2.501              3          23      -750.02         ES          Ridge      [1526, -9]         False       0.131   -0.049       0.676  False
+10     499    0.677       1.332  1563.90    -332.47     -1.473              4           8        79.95         ES     ElasticNet     [1339, 533]         False       0.584   -0.054       0.560  False
+11     880    0.118       1.813  2114.55    -218.68     -3.673              3          18      -808.76         ES     ExtraTrees     [904, 1701]          True      -0.261   -0.008       0.042  False
+12     995    0.094       1.866  1339.97    -219.93     -4.192              2         106      -872.60         ES   RandomForest    [-154, 1321]         False      -0.245    0.026      -0.093  False
+13    1398   -0.511       1.987  2310.29    -258.67     -6.533              2         235     -1947.32         ES        XGBoost  [-1253, -1290]         False      -1.130   -0.006      -0.666  False
+14    1751   -0.140       3.100  2925.20    -219.93     -7.683              2         292     -1301.28         ES       LightGBM     [-754, 403]         False      -0.838    0.028       0.130  False
+15    1149   -1.068       1.097  3165.62    -219.93     -6.018              2         163     -2917.30         ES       CatBoost  [-1728, -1674]         False      -1.197   -0.013      -1.101  False
+  instrument  top_events_2021p  always_exit_incr_day  always_hold_incr_day  ml_hold_incr_day  ml_hold_share
+0        MNQ              1376                   0.0                -1.447             0.280          0.521
+1         ES              1057                   0.0                 3.816            -2.472          0.525

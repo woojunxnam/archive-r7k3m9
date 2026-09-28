@@ -1,0 +1,8 @@
+{
+ "issue": "feature 'life' (box death - birth) is LOOK-AHEAD for B/H/D-type boxes whose death is the (future) break; the first run (HGB +21.85 $/day, 5/5 folds) was contaminated and is VOID",
+ "fix": "feature removed; NaN -> 0 for linear models; nothing else changed",
+ "void_result": {
+  "MNQ HGB avg_day": 21.85,
+  "excess_day": 24.77
+ }
+}

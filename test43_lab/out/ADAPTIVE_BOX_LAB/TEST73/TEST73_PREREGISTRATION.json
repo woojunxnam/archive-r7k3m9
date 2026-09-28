@@ -1,0 +1,43 @@
+{
+ "test": "TEST73",
+ "written_utc": "2026-09-28T16:44:19+00:00",
+ "research_data_end": "2026-05-27",
+ "program_prereg_sha256": "455ffc571276a7f48bdcd1f97217a72332680ee3ecd8b4910f88d72f750ebcba",
+ "question": "Does a TREND LADDER (buy pullbacks into the lower zone of RISING boxes, hold through upward migrations) capture uptrend participation with positive matched value?",
+ "base": "machine UP1 + DOWN2 (obs 30, confirm 0.10 w); entries only in boxes with direction RISING (mid > previous box mid + 0.25 x previous width)",
+ "exits": {
+  "A": "sell at TOP of the entry box",
+  "C": "hold; exit on a close below the entry box lower or 16:15",
+  "D (PRIMARY)": "trailing box: exit on a close below the CURRENT (upward-ratcheted) box lower - 0.10 w, else 16:15"
+ },
+ "plateau_D": {
+  "policy": [
+   "UP3+DOWN2",
+   "UP1+DOWN3"
+  ],
+  "obs": [
+   15,
+   60
+  ],
+  "ub=db": [
+   0.0,
+   0.2
+  ],
+  "LZ": [
+   0.1,
+   0.25
+  ],
+  "trail buf": [
+   0.0,
+   0.2
+  ]
+ },
+ "report": [
+  "RANGE_RECYCLE (TEST72 best, any direction) vs TREND_LADDER (D) avg/day",
+  "RISING / FLAT / FALLING box edge (range mode, dir filter)"
+ ],
+ "gate": "program standalone gate",
+ "budget": {
+  "hypotheses": 16
+ }
+}

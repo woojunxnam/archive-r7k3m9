@@ -1,0 +1,6 @@
+clue_id,source,clue
+BOX_TOP_NOT_EXIT,TEST70 top-hold study,"NEGATIVE: holding from TOP to 16:15 adds (median, $/event) MNQ raw 11.14 / matched 4.87, ES raw 4.02 / matched 1.65 -> upper box is NOT an exit edge (drift)"
+BOX_ZONE_MOMENTUM,TEST70 zone study,"MNQ forward net to 16:15 rises monotonically with box position (upper zones best): location = momentum, not mean reversion"
+BOX_EXCESS_LT_FRICTION,TEST70/71,bottom touches beat time-matched longs by ~+1-3 $/event but a round trip costs 2.24 (MNQ) / 3.74 (ES) $
+BOX_FALLING_TO_RISING,BOX_TRANSITION_MATRIX,MNQ FALLING->RISING transition bottom buys +1.5 $/event excess (median over geometries); too small
+BOX_LEAKAGE_LESSON,TEST76,box lifetime / death is look-ahead for break-terminated boxes; any future box feature must be birth-time only

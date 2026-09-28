@@ -1,0 +1,38 @@
+{
+ "test": "TEST72",
+ "written_utc": "2026-09-28T16:44:19+00:00",
+ "research_data_end": "2026-05-27",
+ "program_prereg_sha256": "455ffc571276a7f48bdcd1f97217a72332680ee3ecd8b4910f88d72f750ebcba",
+ "question": "Does a stateful migrating box (never buying a broken floor without a newly valid box) create positive range-trading economics?",
+ "machine": "initial box = first completed 30-min window (09:30-10:00, born 10:00); UP break = close > upper + 0.10 w; DOWN break = close < lower - 0.10 w; UP1 ladder shift / UP2 fresh completed 30-min window / UP3 shift then fresh window; DOWN1 shift lower / DOWN2 fresh window / DOWN3 fresh window + 5 completed bars before tradable",
+ "trade": "RANGE: buy 1 contract at the next open after a close in the lower 15% of the box in force; exit TOP (>= 85% of the ENTRY box) / close below the entry box lower / 16:15; one entry per box id",
+ "policies": "9 = UP{1,2,3} x DOWN{1,2,3} per instrument",
+ "selection": "best policy per instrument by full-sample net $/day",
+ "plateau": {
+  "obs": [
+   15,
+   60
+  ],
+  "ub=db": [
+   0.0,
+   0.2
+  ],
+  "LZ": [
+   0.1,
+   0.25
+  ],
+  "UZ": [
+   0.75,
+   0.95
+  ],
+  "buf": [
+   0.1,
+   0.2
+  ]
+ },
+ "stress": "+1 bar entry delay, +1 bar migration delay, SLIP4, 20% missed entries",
+ "gate": "program standalone gate",
+ "budget": {
+  "hypotheses": 18
+ }
+}
