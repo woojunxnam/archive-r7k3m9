@@ -39,5 +39,10 @@
  "PORTFOLIO_MEMBERSHIP_CHANGED": "NO",
  "NEW_OOS_OPENED": "NO",
  "LIVE_AUTHORIZATION": "NO",
- "interpretation": "The information TEST97 saw in follow-through is not identifiable before the confirmation bar: pre-confirmation path features predict WHICH breakouts get a strong next bar, but after holding move magnitude constant they do not predict forward returns from the pre-confirmation entry; the follow-through information appears to be realised by the confirmation bar itself."
+ "interpretation": "The information TEST97 saw in follow-through is not identifiable before the confirmation bar: pre-confirmation path features predict WHICH breakouts get a strong next bar, but after holding move magnitude constant they do not predict forward returns from the pre-confirmation entry; the follow-through information appears to be realised by the confirmation bar itself.",
+ "PQ2_bullrun12 / PQ2_hlrun12": "defective in Phase 1 (runs could exceed the 12-bar window); superseded by TEST98_AUDIT_CORRECTION_1",
+ "PHASE1_CROSS_VALIDATION": "NOT RUN (Phase 1 used prior-session monthly expanding quantile boundaries, date-clustered bootstrap and calendar-year consistency; no chronological CV folds; ML not opened)",
+ "FOLLOW_THROUGH_22_OF_37": "RAW_NEXT_BAR_STRONG_ASSOCIATION - not residualised against null F, not evaluated as chronological OOS prediction, not a deployable model",
+ "MULTIPLE_TESTING_NOTE": "74 primary coherence tests inspected; a naive 5% CI-only reference implies ~3.7 nominal CI hits under independence; the full coherence gate is much stricter and the tests are correlated, so 3.7 is NOT the expected number of full passes; actual full coherence passes = 0 (unchanged after this correction); no multiplicity threshold changed",
+ "SUPERSEDED_BY": "TEST98_FINAL_STATUS.json"
 }
