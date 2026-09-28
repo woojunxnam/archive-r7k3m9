@@ -1,0 +1,38 @@
+{
+ "written_utc": "2026-09-28T12:01:29Z",
+ "risk_window": "2019-07-01..2026-05-27 (full)",
+ "fold_window": "2021-01-01..2026-05-27 (5 outer blocks)",
+ "CORE": {
+  "max_dd": 15000,
+  "worst_day": -3000,
+  "ret_dd_vs_C43": ">= 1.0x"
+ },
+ "GROWTH": {
+  "max_dd": 30000,
+  "worst_day": -6000,
+  "min_incr_avg_day_2021": 20.0,
+  "ret_dd_vs_base": ">= 0.6x"
+ },
+ "AGGRESSIVE": {
+  "max_dd": 50000,
+  "worst_day": -10000,
+  "report_only": true
+ },
+ "COMMON": {
+  "folds_pos_min": 4,
+  "fold_median_pos": true,
+  "remove_top3_pos": true,
+  "max_year_share": 0.5,
+  "plateau": "+-10/20%, >=60% of base",
+  "cost_stress_4tick_pos": true,
+  "max_overnight_margin_frac": 0.7,
+  "max_intraday_margin_frac": 0.9,
+  "v533_repeat": "fail if timing value <= 0 AND MaxDD >= 75000"
+ },
+ "margin_bands_reported": [
+  0.25,
+  0.4,
+  0.55,
+  0.7
+ ]
+}
