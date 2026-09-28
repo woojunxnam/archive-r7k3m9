@@ -22,3 +22,6 @@ out/test65/t61_hist/session_log_*.csv.gz
 out/ADAPTIVE_BOX_LAB/TEST70/events_*.parquet
 out/ADAPTIVE_BOX_LAB/TEST78/T78_events.parquet
 out/AUCTION_PROFILE_LAB/cache/
+out/t46/bars5_*.parquet
+out/t96/*_3m_bars.parquet
+out/t96/panel_x.npz

@@ -1,0 +1,612 @@
+//@version=6
+strategy("TEST13 Multi-Session / Weekly Context Factory V1 | 8 Markets | 5m | Flat 15:45 ET",
+     overlay=true, pyramiding=0,
+     process_orders_on_close=false, calc_on_every_tick=false, calc_on_order_fills=false,
+     use_bar_magnifier=false, slippage=1,
+     commission_type=strategy.commission.cash_per_contract, commission_value=2.24)
+
+// TEST13 — FROZEN PREREGISTERED NATIVE FACTORY V1
+// Theme: completed multi-session / weekly structural context -> intraday trigger.
+// No date gate. Use TradingView chart/history selection for recent Stage-1 vs full history.
+// Universe: ES / NQ / RTY / YM / BTC / CL / GC / SI.
+// Exactly 5-minute chart. Chart Session must be Regular Trading Hours.
+// Research session: 09:30-15:45 America/New_York.
+// Signal on completed bar -> next-bar market entry.
+// Max 1 entry/day. 2 x RTH ATR14 catastrophe stop. No TP.
+// Max hold 120 minutes. Hard flat 15:45 ET.
+// 1 tick/fill and $2.24/contract/side native research friction.
+// T13-19 and T13-20 are exact TEST10 controls and are excluded from promotion.
+
+string TZ = "America/New_York"
+string RTH = "0930-1545:23456"
+string FIRST_BAR = "0930-0935:23456"
+string FIRST30 = "0930-1000:23456"
+string W_1000_1330 = "1000-1330:23456"
+string W_1000_1130 = "1000-1130:23456"
+string W_1030_1430 = "1030-1430:23456"
+string FLATTEN_TRIGGER = "1540-1545:23456"
+
+if barstate.isfirst and timeframe.in_seconds() != 300
+    runtime.error("TEST13 requires exactly a 5-minute chart.")
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+bool firstRthBar = not na(time(timeframe.period, FIRST_BAR, TZ))
+bool inFirst30 = not na(time(timeframe.period, FIRST30, TZ))
+bool w1000_1330 = not na(time(timeframe.period, W_1000_1330, TZ))
+bool w1000_1130 = not na(time(timeframe.period, W_1000_1130, TZ))
+bool w1030_1430 = not na(time(timeframe.period, W_1030_1430, TZ))
+bool flattenTrigger = not na(time(timeframe.period, FLATTEN_TRIGGER, TZ))
+
+bool prevBarSameDate = not na(time[1]) and
+     year(time[1], TZ) == year(time, TZ) and
+     month(time[1], TZ) == month(time, TZ) and
+     dayofmonth(time[1], TZ) == dayofmonth(time, TZ)
+
+if firstRthBar and prevBarSameDate
+    runtime.error("Set TradingView chart Session to Regular Trading Hours (RTH).")
+
+string candidate = input.string("T13-01 PW compression breakout LONG", "Candidate",
+     options=[
+       "T13-01 PW compression breakout LONG",
+       "T13-02 PW compression breakdown SHORT",
+       "T13-03 PW low sweep reclaim LONG",
+       "T13-04 PW high sweep reject SHORT",
+       "T13-05 3D compression OR breakout LONG",
+       "T13-06 3D compression OR breakdown SHORT",
+       "T13-07 3D up-pressure EMA20 pullback LONG",
+       "T13-08 3D down-pressure EMA20 bounce SHORT",
+       "T13-09 5D low-edge sweep reclaim LONG",
+       "T13-10 5D high-edge sweep reject SHORT",
+       "T13-11 Inside-week breakout LONG",
+       "T13-12 Inside-week breakdown SHORT",
+       "T13-13 5D narrow-range breakout LONG",
+       "T13-14 5D narrow-range breakdown SHORT",
+       "T13-15 5D breakout -> retest hold LONG",
+       "T13-16 5D breakdown -> retest reject SHORT",
+       "T13-17 Strong-PW + OR breakout LONG",
+       "T13-18 Bear-PW + OR breakdown SHORT",
+       "T13-19 CONTROL exact T10-04 SHORT",
+       "T13-20 CONTROL exact T10-10 SHORT"
+     ])
+
+// ---------- Helpers ----------
+f_avg_last(array<float> a, int n) =>
+    float out = na
+    if array.size(a) >= n
+        float s = 0.0
+        for i = 0 to n - 1
+            s += array.get(a, array.size(a) - 1 - i)
+        out := s / n
+    out
+
+f_max_last(array<float> a, int n) =>
+    float out = na
+    if array.size(a) >= n
+        float m = array.get(a, array.size(a) - 1)
+        for i = 1 to n - 1
+            m := math.max(m, array.get(a, array.size(a) - 1 - i))
+        out := m
+    out
+
+f_min_last(array<float> a, int n) =>
+    float out = na
+    if array.size(a) >= n
+        float m = array.get(a, array.size(a) - 1)
+        for i = 1 to n - 1
+            m := math.min(m, array.get(a, array.size(a) - 1 - i))
+        out := m
+    out
+
+f_from_end(array<float> a, int offset) =>
+    array.size(a) > offset ? array.get(a, array.size(a) - 1 - offset) : na
+
+// ---------- Time ----------
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int minutesFromOpen = hh * 60 + mm - 570
+int thisWeekKey = year(time, TZ) * 100 + weekofyear(time)
+
+// ---------- Daily and completed-session state ----------
+var int entriesToday = 0
+var float sessionOpen = na
+var float sessionHigh = na
+var float sessionLow = na
+var float sessionClose = na
+
+var float prevRthOpen = na
+var float prevRthHigh = na
+var float prevRthLow = na
+var float prevRthClose = na
+var float prevRthRange = na
+
+var array<float> dayRangeHist = array.new_float()
+var array<float> dayHighHist = array.new_float()
+var array<float> dayLowHist = array.new_float()
+var array<float> dayCloseHist = array.new_float()
+
+// ---------- Completed-week state ----------
+var int currentWeekKey = na
+var float weekOpen = na
+var float weekHigh = na
+var float weekLow = na
+var float weekClose = na
+
+var float prevWeekOpen = na
+var float prevWeekHigh = na
+var float prevWeekLow = na
+var float prevWeekClose = na
+var float prevWeekRange = na
+var float prevWeekCloseLoc = na
+var float prevWeekAvg4 = na
+
+var float week2High = na
+var float week2Low = na
+
+var array<float> weekRangeHist = array.new_float()
+
+// ---------- Daily reset / finalize ----------
+var float todayOpen = na
+var float orHigh = na
+var float orLow = na
+var float frozenOrHigh = na
+var float frozenOrLow = na
+
+var int fiveUpBreakBar = na
+var int fiveDnBreakBar = na
+var int controlOrDnBreakBar = na
+
+if firstRthBar
+    // finalize the previous completed RTH session
+    if not na(sessionHigh) and not na(sessionLow) and not na(sessionClose)
+        prevRthOpen := sessionOpen
+        prevRthHigh := sessionHigh
+        prevRthLow := sessionLow
+        prevRthClose := sessionClose
+        prevRthRange := sessionHigh - sessionLow
+
+        array.push(dayRangeHist, prevRthRange)
+        array.push(dayHighHist, prevRthHigh)
+        array.push(dayLowHist, prevRthLow)
+        array.push(dayCloseHist, prevRthClose)
+
+        if array.size(dayRangeHist) > 20
+            array.shift(dayRangeHist)
+            array.shift(dayHighHist)
+            array.shift(dayLowHist)
+            array.shift(dayCloseHist)
+
+    // freeze the previous completed week before the current week's first RTH bar updates
+    if na(currentWeekKey)
+        currentWeekKey := thisWeekKey
+    else if thisWeekKey != currentWeekKey
+        if not na(weekHigh) and not na(weekLow) and not na(weekClose)
+            week2High := prevWeekHigh
+            week2Low := prevWeekLow
+
+            prevWeekOpen := weekOpen
+            prevWeekHigh := weekHigh
+            prevWeekLow := weekLow
+            prevWeekClose := weekClose
+            prevWeekRange := weekHigh - weekLow
+            prevWeekCloseLoc := prevWeekRange > 0 ? (prevWeekClose - prevWeekLow) / prevWeekRange : na
+
+            // compare the just-completed week against the four completed weeks preceding it
+            prevWeekAvg4 := f_avg_last(weekRangeHist, 4)
+            array.push(weekRangeHist, prevWeekRange)
+            if array.size(weekRangeHist) > 8
+                array.shift(weekRangeHist)
+
+        currentWeekKey := thisWeekKey
+        weekOpen := na
+        weekHigh := na
+        weekLow := na
+        weekClose := na
+
+    entriesToday := 0
+    fiveUpBreakBar := na
+    fiveDnBreakBar := na
+    controlOrDnBreakBar := na
+
+    todayOpen := open
+    sessionOpen := open
+    sessionHigh := high
+    sessionLow := low
+    sessionClose := close
+
+    orHigh := high
+    orLow := low
+    frozenOrHigh := na
+    frozenOrLow := na
+else if inRth
+    sessionHigh := math.max(nz(sessionHigh, high), high)
+    sessionLow := math.min(nz(sessionLow, low), low)
+    sessionClose := close
+
+// update current week only with bars inside research RTH
+if inRth
+    if na(weekOpen)
+        weekOpen := open
+        weekHigh := high
+        weekLow := low
+        weekClose := close
+    else
+        weekHigh := math.max(weekHigh, high)
+        weekLow := math.min(weekLow, low)
+        weekClose := close
+
+// ---------- RTH-only ATR14 and EMA20 / EMA50 ----------
+var float prevRthBarClose = na
+var array<float> trHist = array.new_float()
+var float rthAtr = na
+var float ema20 = na
+var float ema50 = na
+
+if inRth
+    float trNow = na(prevRthBarClose) ? (high - low) :
+         math.max(high - low, math.max(math.abs(high - prevRthBarClose), math.abs(low - prevRthBarClose)))
+    array.push(trHist, trNow)
+    if array.size(trHist) > 14
+        array.shift(trHist)
+    rthAtr := array.size(trHist) >= 14 ? array.avg(trHist) : na
+
+    float a20 = 2.0 / 21.0
+    float a50 = 2.0 / 51.0
+    ema20 := na(ema20) ? close : a20 * close + (1.0 - a20) * ema20
+    ema50 := na(ema50) ? close : a50 * close + (1.0 - a50) * ema50
+
+    prevRthBarClose := close
+
+float barRange = math.max(high - low, syminfo.mintick)
+float closeLocation = (close - low) / barRange
+
+// ---------- RTH VWAP ----------
+var float pvCum = na
+var float vCum = na
+
+if firstRthBar
+    pvCum := hlc3 * nz(volume)
+    vCum := nz(volume)
+else if inRth
+    pvCum := nz(pvCum) + hlc3 * nz(volume)
+    vCum := nz(vCum) + nz(volume)
+
+float rthVwap = inRth and vCum > 0 ? pvCum / vCum : na
+
+// ---------- Same-time-of-day RVOL ----------
+const int SLOTS = 75
+const int TOD_DAYS = 20
+const int TOD_MIN = 10
+
+var array<float> todHist = array.new<float>(SLOTS * TOD_DAYS, na)
+var array<float> todSums = array.new<float>(SLOTS, 0.0)
+var array<int> todCounts = array.new<int>(SLOTS, 0)
+var int todDayPtr = 0
+var bool todSeenFirstDay = false
+
+if firstRthBar
+    if todSeenFirstDay
+        todDayPtr := (todDayPtr + 1) % TOD_DAYS
+    else
+        todSeenFirstDay := true
+
+int slot = int(math.floor(minutesFromOpen / 5.0))
+float todAvg = na
+float todRvol = na
+
+if inRth and slot >= 0 and slot < SLOTS
+    int ringIndex = todDayPtr * SLOTS + slot
+    float oldValue = array.get(todHist, ringIndex)
+    float priorSum = array.get(todSums, slot)
+    int priorCount = array.get(todCounts, slot)
+
+    todAvg := priorCount >= TOD_MIN ? priorSum / priorCount : na
+    todRvol := not na(todAvg) and todAvg > 0 ? volume / todAvg : na
+
+    float newSum = priorSum - (na(oldValue) ? 0.0 : oldValue) + nz(volume)
+    int newCount = priorCount - (na(oldValue) ? 0 : 1) + 1
+
+    array.set(todHist, ringIndex, nz(volume))
+    array.set(todSums, slot, newSum)
+    array.set(todCounts, slot, newCount)
+
+// ---------- Opening 30 minutes ----------
+if inFirst30
+    orHigh := math.max(nz(orHigh, high), high)
+    orLow := math.min(nz(orLow, low), low)
+
+bool first30EndBar = inRth and hh == 9 and mm == 55
+if first30EndBar
+    frozenOrHigh := orHigh
+    frozenOrLow := orLow
+
+// ---------- Confirmed custom 60-minute state for exact T10-10 control ----------
+var float cur60Open = na
+var float cur60High = na
+var float cur60Low = na
+var float cur60Close = na
+
+var float last60Open = na
+var float last60High = na
+var float last60Low = na
+var float last60Close = na
+var bool last60Bull = false
+var bool last60Bear = false
+var int last60BarIndex = na
+var int cur60Count = 0
+
+bool start60 = inRth and minutesFromOpen >= 0 and minutesFromOpen < 360 and minutesFromOpen % 60 == 0
+bool end60 = inRth and minutesFromOpen >= 0 and minutesFromOpen < 360 and minutesFromOpen % 60 == 55
+
+if start60
+    cur60Open := open
+    cur60High := high
+    cur60Low := low
+    cur60Close := close
+    cur60Count := 1
+else if inRth and not na(cur60Open)
+    cur60High := math.max(cur60High, high)
+    cur60Low := math.min(cur60Low, low)
+    cur60Close := close
+    cur60Count += 1
+
+if end60 and not na(cur60Open)
+    bool complete60 = cur60Count == 12
+    if complete60
+        float range60 = math.max(cur60High - cur60Low, syminfo.mintick)
+        float body60 = math.abs(cur60Close - cur60Open) / range60
+        float cl60 = (cur60Close - cur60Low) / range60
+
+        last60Open := cur60Open
+        last60High := cur60High
+        last60Low := cur60Low
+        last60Close := cur60Close
+        last60Bull := cur60Close > cur60Open and body60 >= 0.50 and cl60 >= 0.70
+        last60Bear := cur60Close < cur60Open and body60 >= 0.50 and cl60 <= 0.30
+        last60BarIndex := bar_index
+
+    cur60Open := na
+    cur60High := na
+    cur60Low := na
+    cur60Close := na
+    cur60Count := 0
+
+bool valid60State = not na(last60BarIndex) and bar_index > last60BarIndex and bar_index - last60BarIndex <= 12
+
+// ---------- Completed multi-day derived context ----------
+float avg3Range = f_avg_last(dayRangeHist, 3)
+float avg5Range = f_avg_last(dayRangeHist, 5)
+float avg10Range = f_avg_last(dayRangeHist, 10)
+
+float rolling5High = f_max_last(dayHighHist, 5)
+float rolling5Low = f_min_last(dayLowHist, 5)
+float rolling5Range = not na(rolling5High) and not na(rolling5Low) ? rolling5High - rolling5Low : na
+
+float c0 = f_from_end(dayCloseHist, 0)
+float c1 = f_from_end(dayCloseHist, 1)
+float c2 = f_from_end(dayCloseHist, 2)
+
+float prior5CloseLoc = not na(c0) and not na(rolling5Range) and rolling5Range > 0 ?
+     (c0 - rolling5Low) / rolling5Range : na
+
+bool prevWeekCompressed = not na(prevWeekRange) and not na(prevWeekAvg4) and
+     prevWeekAvg4 > 0 and prevWeekRange <= 0.80 * prevWeekAvg4
+
+bool threeDayCompressed = not na(avg3Range) and not na(avg10Range) and
+     avg10Range > 0 and avg3Range <= 0.80 * avg10Range
+
+bool threeDayUpPressure = not na(c0) and not na(c1) and not na(c2) and not na(avg3Range) and
+     avg3Range > 0 and c0 > c1 and c1 > c2 and (c0 - c2) >= 0.75 * avg3Range
+
+bool threeDayDownPressure = not na(c0) and not na(c1) and not na(c2) and not na(avg3Range) and
+     avg3Range > 0 and c0 < c1 and c1 < c2 and (c2 - c0) >= 0.75 * avg3Range
+
+bool insideWeek = not na(prevWeekHigh) and not na(prevWeekLow) and not na(week2High) and not na(week2Low) and
+     prevWeekHigh < week2High and prevWeekLow > week2Low
+
+bool fiveDayNarrow = not na(rolling5Range) and not na(avg5Range) and
+     avg5Range > 0 and rolling5Range <= 2.50 * avg5Range
+
+bool strongPrevWeek = not na(prevWeekOpen) and not na(prevWeekClose) and not na(prevWeekCloseLoc) and
+     prevWeekClose > prevWeekOpen and prevWeekCloseLoc >= 0.80
+
+bool bearPrevWeek = not na(prevWeekOpen) and not na(prevWeekClose) and not na(prevWeekCloseLoc) and
+     prevWeekClose < prevWeekOpen and prevWeekCloseLoc <= 0.20
+
+// ---------- Fresh breakout arming ----------
+if inRth and not na(rthAtr) and rthAtr > 0
+    if w1000_1330 and not na(rolling5High) and na(fiveUpBreakBar) and
+         close > rolling5High + 0.10 * rthAtr and close[1] <= rolling5High
+        fiveUpBreakBar := bar_index
+
+    if w1000_1330 and not na(rolling5Low) and na(fiveDnBreakBar) and
+         close < rolling5Low - 0.10 * rthAtr and close[1] >= rolling5Low
+        fiveDnBreakBar := bar_index
+
+    // exact T10-04 control arming
+    if w1000_1330 and not na(frozenOrLow) and na(controlOrDnBreakBar) and
+         close < frozenOrLow - 0.10 * rthAtr and close[1] >= frozenOrLow
+        controlOrDnBreakBar := bar_index
+
+bool fiveUpArmed6 = not na(fiveUpBreakBar) and bar_index > fiveUpBreakBar and bar_index - fiveUpBreakBar <= 6
+bool fiveDnArmed6 = not na(fiveDnBreakBar) and bar_index > fiveDnBreakBar and bar_index - fiveDnBreakBar <= 6
+bool controlOrDnArmed6 = not na(controlOrDnBreakBar) and bar_index > controlOrDnBreakBar and bar_index - controlOrDnBreakBar <= 6
+
+// ---------- 18 new frozen mechanisms ----------
+// A — previous-week compression -> weekly extreme expansion
+bool t01 = w1000_1330 and prevWeekCompressed and not na(prevWeekHigh) and
+     close > prevWeekHigh + 0.10 * rthAtr and close[1] <= prevWeekHigh and
+     ema20 > ema50 and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t02 = w1000_1330 and prevWeekCompressed and not na(prevWeekLow) and
+     close < prevWeekLow - 0.10 * rthAtr and close[1] >= prevWeekLow and
+     ema20 < ema50 and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// B — previous-week failed auction
+bool t03 = w1000_1330 and not na(prevWeekLow) and
+     low < prevWeekLow - 0.10 * rthAtr and close > prevWeekLow and
+     close > open and closeLocation >= 0.65 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t04 = w1000_1330 and not na(prevWeekHigh) and
+     high > prevWeekHigh + 0.10 * rthAtr and close < prevWeekHigh and
+     close < open and closeLocation <= 0.35 and
+     not na(todRvol) and todRvol >= 0.80
+
+// C — prior 3-day compression -> opening-range expansion
+bool t05 = w1000_1330 and threeDayCompressed and not na(frozenOrHigh) and
+     close > frozenOrHigh + 0.10 * rthAtr and close[1] <= frozenOrHigh and
+     ema20 > ema50 and close > rthVwap and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t06 = w1000_1330 and threeDayCompressed and not na(frozenOrLow) and
+     close < frozenOrLow - 0.10 * rthAtr and close[1] >= frozenOrLow and
+     ema20 < ema50 and close < rthVwap and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// D — prior 3-day directional pressure -> EMA20 pullback/bounce continuation
+bool t07 = w1000_1330 and threeDayUpPressure and
+     ema20 > ema50 and low <= ema20 and close > ema20 and close > open and close > rthVwap and
+     closeLocation >= 0.65 and not na(todRvol) and todRvol >= 0.80
+
+bool t08 = w1000_1330 and threeDayDownPressure and
+     ema20 < ema50 and high >= ema20 and close < ema20 and close < open and close < rthVwap and
+     closeLocation <= 0.35 and not na(todRvol) and todRvol >= 0.80
+
+// E — completed 5-day edge exhaustion
+bool t09 = w1000_1130 and not na(prior5CloseLoc) and prior5CloseLoc <= 0.15 and not na(rolling5Low) and
+     low < rolling5Low - 0.10 * rthAtr and close > rolling5Low and
+     close > open and closeLocation >= 0.65 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t10 = w1000_1130 and not na(prior5CloseLoc) and prior5CloseLoc >= 0.85 and not na(rolling5High) and
+     high > rolling5High + 0.10 * rthAtr and close < rolling5High and
+     close < open and closeLocation <= 0.35 and
+     not na(todRvol) and todRvol >= 0.80
+
+// F — previous week inside week-2 -> expansion
+bool t11 = w1000_1330 and insideWeek and not na(prevWeekHigh) and
+     close > prevWeekHigh + 0.10 * rthAtr and close[1] <= prevWeekHigh and
+     ema20 > ema50 and close > rthVwap and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t12 = w1000_1330 and insideWeek and not na(prevWeekLow) and
+     close < prevWeekLow - 0.10 * rthAtr and close[1] >= prevWeekLow and
+     ema20 < ema50 and close < rthVwap and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// G — narrow completed rolling-5 structure -> expansion
+bool t13 = w1000_1330 and fiveDayNarrow and not na(rolling5High) and
+     close > rolling5High + 0.10 * rthAtr and close[1] <= rolling5High and
+     ema20 > ema50 and close > rthVwap and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t14 = w1000_1330 and fiveDayNarrow and not na(rolling5Low) and
+     close < rolling5Low - 0.10 * rthAtr and close[1] >= rolling5Low and
+     ema20 < ema50 and close < rthVwap and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// H — rolling-5 breakout -> retest acceptance
+bool t15 = w1000_1330 and fiveUpArmed6 and not na(rolling5High) and
+     low <= rolling5High and close > rolling5High and close > open and closeLocation >= 0.60 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool t16 = w1000_1330 and fiveDnArmed6 and not na(rolling5Low) and
+     high >= rolling5Low and close < rolling5Low and close < open and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+// I — directional previous week -> current OR continuation
+bool t17 = w1000_1330 and strongPrevWeek and not na(frozenOrHigh) and
+     close > frozenOrHigh + 0.10 * rthAtr and close[1] <= frozenOrHigh and
+     ema20 > ema50 and close > rthVwap and closeLocation >= 0.70 and
+     not na(todRvol) and todRvol >= 1.00
+
+bool t18 = w1000_1330 and bearPrevWeek and not na(frozenOrLow) and
+     close < frozenOrLow - 0.10 * rthAtr and close[1] >= frozenOrLow and
+     ema20 < ema50 and close < rthVwap and closeLocation <= 0.30 and
+     not na(todRvol) and todRvol >= 1.00
+
+// ---------- Exact TEST10 controls ----------
+// T13-19 = exact T10-04
+bool t19 = w1000_1330 and controlOrDnArmed6 and not na(frozenOrLow) and
+     high >= frozenOrLow and close < frozenOrLow and close < open and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+// T13-20 = exact T10-10
+bool t20 = w1030_1430 and valid60State and last60Bear and
+     close[1] > open[1] and close < low[1] and close < open and close < rthVwap and closeLocation <= 0.40 and
+     not na(todRvol) and todRvol >= 0.80
+
+bool isLong =
+     candidate == "T13-01 PW compression breakout LONG" or
+     candidate == "T13-03 PW low sweep reclaim LONG" or
+     candidate == "T13-05 3D compression OR breakout LONG" or
+     candidate == "T13-07 3D up-pressure EMA20 pullback LONG" or
+     candidate == "T13-09 5D low-edge sweep reclaim LONG" or
+     candidate == "T13-11 Inside-week breakout LONG" or
+     candidate == "T13-13 5D narrow-range breakout LONG" or
+     candidate == "T13-15 5D breakout -> retest hold LONG" or
+     candidate == "T13-17 Strong-PW + OR breakout LONG"
+
+bool rawEvent =
+     candidate == "T13-01 PW compression breakout LONG" ? t01 :
+     candidate == "T13-02 PW compression breakdown SHORT" ? t02 :
+     candidate == "T13-03 PW low sweep reclaim LONG" ? t03 :
+     candidate == "T13-04 PW high sweep reject SHORT" ? t04 :
+     candidate == "T13-05 3D compression OR breakout LONG" ? t05 :
+     candidate == "T13-06 3D compression OR breakdown SHORT" ? t06 :
+     candidate == "T13-07 3D up-pressure EMA20 pullback LONG" ? t07 :
+     candidate == "T13-08 3D down-pressure EMA20 bounce SHORT" ? t08 :
+     candidate == "T13-09 5D low-edge sweep reclaim LONG" ? t09 :
+     candidate == "T13-10 5D high-edge sweep reject SHORT" ? t10 :
+     candidate == "T13-11 Inside-week breakout LONG" ? t11 :
+     candidate == "T13-12 Inside-week breakdown SHORT" ? t12 :
+     candidate == "T13-13 5D narrow-range breakout LONG" ? t13 :
+     candidate == "T13-14 5D narrow-range breakdown SHORT" ? t14 :
+     candidate == "T13-15 5D breakout -> retest hold LONG" ? t15 :
+     candidate == "T13-16 5D breakdown -> retest reject SHORT" ? t16 :
+     candidate == "T13-17 Strong-PW + OR breakout LONG" ? t17 :
+     candidate == "T13-18 Bear-PW + OR breakdown SHORT" ? t18 :
+     candidate == "T13-19 CONTROL exact T10-04 SHORT" ? t19 :
+     candidate == "T13-20 CONTROL exact T10-10 SHORT" ? t20 :
+     false
+
+bool signal = rawEvent and strategy.position_size == 0 and entriesToday < 1 and
+     not na(rthAtr) and rthAtr > 0
+
+int stopTicks = math.max(1, int(math.round(2.0 * rthAtr / syminfo.mintick)))
+
+if signal
+    if isLong
+        strategy.entry("L", strategy.long, comment=candidate)
+        strategy.exit("LX", "L", loss=stopTicks, comment_loss="SL")
+    else
+        strategy.entry("S", strategy.short, comment=candidate)
+        strategy.exit("SX", "S", loss=stopTicks, comment_loss="SL")
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.opentrades > 0
+    int entryTime = strategy.opentrades.entry_time(0)
+    bool timeExit = time_close >= entryTime + 120 * 60 * 1000
+    if timeExit
+        strategy.close_all(comment="TIME", immediately=true)
+
+// Normal 15:45 flat plus early-close fallback.
+if strategy.position_size != 0 and (flattenTrigger or session.islastbar)
+    strategy.close_all(comment=flattenTrigger ? "FLAT_1545" : "EARLY_CLOSE_FLAT", immediately=true)
+
+// Audit-only failsafe. Any occurrence invalidates that carry for promotion review.
+if firstRthBar and strategy.position_size != 0
+    strategy.close_all(comment="FAILSAFE_NEXT_SESSION", immediately=true)
+
+// ---------- Diagnostics ----------
+plot(rthVwap, "RTH VWAP", color=color.new(color.orange, 0))
+plot(frozenOrHigh, "OR High", color=color.new(color.green, 70), style=plot.style_linebr)
+plot(frozenOrLow, "OR Low", color=color.new(color.red, 70), style=plot.style_linebr)
+plot(prevWeekHigh, "Prev Week High", color=color.new(color.fuchsia, 70), style=plot.style_linebr)
+plot(prevWeekLow, "Prev Week Low", color=color.new(color.purple, 70), style=plot.style_linebr)
+plot(rolling5High, "Rolling5 High", display=display.data_window)
+plot(rolling5Low, "Rolling5 Low", display=display.data_window)
+plot(todRvol, "TOD RVOL", display=display.data_window)
+plot(rthAtr, "RTH ATR14", display=display.data_window)

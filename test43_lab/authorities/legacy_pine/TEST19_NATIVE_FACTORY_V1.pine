@@ -1,0 +1,410 @@
+//@version=6
+strategy("TEST19 Native Factory V1 | Advanced VWAP | 5m", overlay=true, pyramiding=0, process_orders_on_close=false, commission_type=strategy.commission.cash_per_contract, commission_value=2.24, slippage=1)
+
+string TZ = "America/New_York"
+string RTH = "0930-1545:23456"
+string target = syminfo.root
+int tfSec = timeframe.in_seconds()
+
+if barstate.isfirst and tfSec != 300
+    runtime.error("TEST19 requires exactly 5-minute chart.")
+if barstate.isfirst and syminfo.session != "us_regular"
+    runtime.error("TEST19 requires chart Session = Regular Trading Hours.")
+if barstate.isfirst and (target != "ES" and target != "NQ" and target != "RTY" and target != "YM" and target != "GC" and target != "SI" and target != "CL")
+    runtime.error("TEST19 supports ES/NQ/RTY/YM/GC/SI/CL only.")
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh * 60 + mm
+bool firstRth = inRth and hh == 9 and mm == 30
+bool flattenNow = inRth and hour(time_close, TZ) == 15 and minute(time_close, TZ) == 45
+bool signalWindow = inRth and mod >= 600 and mod < 870
+
+// Prior completed RTH ATR14.
+var float activeHigh = na
+var float activeLow = na
+var float activeClose = na
+var float prevSessClose = na
+var float atr14 = na
+var int atrCount = 0
+var int rthBarCount = 0
+
+if firstRth
+    if not na(activeHigh) and not na(activeLow) and not na(activeClose)
+        float trPrev = na(prevSessClose) ? activeHigh - activeLow : math.max(activeHigh - activeLow, math.max(math.abs(activeHigh - prevSessClose), math.abs(activeLow - prevSessClose)))
+        atr14 := na(atr14) ? trPrev : (atr14 * 13.0 + trPrev) / 14.0
+        atrCount += 1
+        prevSessClose := activeClose
+    activeHigh := high
+    activeLow := low
+    activeClose := close
+    rthBarCount := 1
+else if inRth
+    rthBarCount += 1
+    activeHigh := math.max(nz(activeHigh, high), high)
+    activeLow := math.min(nz(activeLow, low), low)
+    activeClose := close
+
+float atrPrev = atrCount >= 14 ? atr14 : na
+
+// RTH / weekly / monthly VWAP.
+var float cumV = 0.0
+var float cumPV = 0.0
+var float cumPV2 = 0.0
+var float lastSessionVwap = na
+var float prevDayVwap = na
+var float weekV = 0.0
+var float weekPV = 0.0
+var float monthV = 0.0
+var float monthPV = 0.0
+var int prevMonth = na
+
+float tp = hlc3
+if firstRth
+    prevDayVwap := lastSessionVwap
+    cumV := 0.0
+    cumPV := 0.0
+    cumPV2 := 0.0
+    if dayofweek == dayofweek.monday
+        weekV := 0.0
+        weekPV := 0.0
+    int curMonth = month(time, TZ)
+    if na(prevMonth) or curMonth != prevMonth
+        monthV := 0.0
+        monthPV := 0.0
+    prevMonth := curMonth
+
+if inRth
+    cumV += nz(volume)
+    cumPV += tp * nz(volume)
+    cumPV2 += tp * tp * nz(volume)
+    weekV += nz(volume)
+    weekPV += tp * nz(volume)
+    monthV += nz(volume)
+    monthPV += tp * nz(volume)
+
+float vwap = inRth and cumV > 0 ? cumPV / cumV : na
+float variance = inRth and cumV > 0 ? math.max(cumPV2 / cumV - vwap * vwap, 0.0) : na
+float vwapSd = not na(variance) ? math.sqrt(variance) : na
+float wvwap = inRth and weekV > 0 ? weekPV / weekV : na
+float mvwap = inRth and monthV > 0 ? monthPV / monthV : na
+if inRth and not na(vwap)
+    lastSessionVwap := vwap
+
+float distAtr = inRth and not na(atrPrev) and atrPrev > 0 ? (close - vwap) / atrPrev : na
+float slope6Atr = inRth and rthBarCount > 6 and not na(atrPrev) and atrPrev > 0 ? (vwap - vwap[6]) / atrPrev : na
+float accel3Atr = inRth and rthBarCount > 9 and not na(slope6Atr[3]) ? slope6Atr - slope6Atr[3] : na
+float curvatureAtr = inRth and rthBarCount > 6 and not na(atrPrev) and atrPrev > 0 ? (vwap - 2.0 * vwap[3] + vwap[6]) / atrPrev : na
+float bandWidthAtr = inRth and not na(atrPrev) and atrPrev > 0 and not na(vwapSd) ? vwapSd / atrPrev : na
+float bandWidthRatio6 = inRth and rthBarCount > 6 and not na(bandWidthAtr[6]) and bandWidthAtr[6] > 0 ? bandWidthAtr / bandWidthAtr[6] : na
+float prior12MinAt6 = inRth and rthBarCount > 19 ? ta.lowest(bandWidthAtr[7], 12) : na
+float pressure12 = inRth and rthBarCount >= 12 ? math.sum(distAtr, 12) : na
+
+int side = not inRth or na(vwap) ? 0 : close > vwap ? 1 : close < vwap ? -1 : 0
+bool crossUp = inRth and not firstRth and side == 1 and side[1] <= 0
+bool crossDown = inRth and not firstRth and side == -1 and side[1] >= 0
+bool crossEvent = crossUp or crossDown
+
+var int crossAge = 0
+var int signedStreak = 0
+if firstRth
+    crossAge := 0
+    signedStreak := side
+else if inRth
+    crossAge := crossEvent ? 0 : crossAge + 1
+    if side > 0
+        signedStreak := signedStreak > 0 ? signedStreak + 1 : 1
+    else if side < 0
+        signedStreak := signedStreak < 0 ? signedStreak - 1 : -1
+    else
+        signedStreak := 0
+
+// Post-10:00 VWAP touch memory.
+bool touch = inRth and not na(vwap) and low <= vwap and high >= vwap
+bool prevPost10Touch = inRth[1] and mod[1] >= 600 and touch[1]
+bool newPost10Touch = signalWindow and touch and not prevPost10Touch
+var int post10TouchCount = 0
+if firstRth
+    post10TouchCount := 0
+if newPost10Touch
+    post10TouchCount += 1
+
+// Reclaim -> hold -> retest state machines.
+var bool longReclaimActive = false
+var bool shortReclaimActive = false
+var int longHoldBars = 0
+var int shortHoldBars = 0
+bool reclaimRetestLong = false
+bool reclaimRetestShort = false
+
+if firstRth
+    longReclaimActive := false
+    shortReclaimActive := false
+    longHoldBars := 0
+    shortHoldBars := 0
+
+if signalWindow
+    if crossUp
+        longReclaimActive := true
+        longHoldBars := 0
+    else if longReclaimActive
+        if side > 0
+            longHoldBars += 1
+            if longHoldBars >= 2 and low <= vwap and close > vwap and close > open
+                reclaimRetestLong := true
+                longReclaimActive := false
+        else
+            longReclaimActive := false
+
+    if crossDown
+        shortReclaimActive := true
+        shortHoldBars := 0
+    else if shortReclaimActive
+        if side < 0
+            shortHoldBars += 1
+            if shortHoldBars >= 2 and high >= vwap and close < vwap and close < open
+                reclaimRetestShort := true
+                shortReclaimActive := false
+        else
+            shortReclaimActive := false
+
+bool acceptanceFailLong = signalWindow and rthBarCount >= 3 and signedStreak[2] <= -12 and crossUp[1] and side > 0
+bool acceptanceFailShort = signalWindow and rthBarCount >= 3 and signedStreak[2] >= 12 and crossDown[1] and side < 0
+
+bool squeezeReleaseLong = signalWindow and rthBarCount > 19 and not na(prior12MinAt6) and prior12MinAt6 > 0 and bandWidthAtr[6] <= prior12MinAt6 * 1.10 and bandWidthRatio6 >= 1.25 and side > 0 and slope6Atr >= 0
+bool squeezeReleaseShort = signalWindow and rthBarCount > 19 and not na(prior12MinAt6) and prior12MinAt6 > 0 and bandWidthAtr[6] <= prior12MinAt6 * 1.10 and bandWidthRatio6 >= 1.25 and side < 0 and slope6Atr <= 0
+
+// Rolling RTH VWAP term structure.
+float pv = tp * nz(volume)
+float rvwap30 = inRth and rthBarCount >= 6 ? math.sum(pv, 6) / math.sum(nz(volume), 6) : na
+float rvwap60 = inRth and rthBarCount >= 12 ? math.sum(pv, 12) / math.sum(nz(volume), 12) : na
+float rvwap120 = inRth and rthBarCount >= 24 ? math.sum(pv, 24) / math.sum(nz(volume), 24) : na
+float term30v120Atr = inRth and not na(rvwap120) and not na(atrPrev) and atrPrev > 0 ? (rvwap30 - rvwap120) / atrPrev : na
+
+float sessionWeekAtr = inRth and not na(atrPrev) and atrPrev > 0 ? (vwap - wvwap) / atrPrev : na
+float weekMonthAtr = inRth and not na(atrPrev) and atrPrev > 0 ? (wvwap - mvwap) / atrPrev : na
+float sessionMigrationAtr = inRth and not na(prevDayVwap) and not na(atrPrev) and atrPrev > 0 ? (vwap - prevDayVwap) / atrPrev : na
+
+// Cross-index VWAP breadth.
+f_rth_side() =>
+    bool _in = not na(time(timeframe.period, RTH, TZ))
+    bool _first = _in and hour(time, TZ) == 9 and minute(time, TZ) == 30
+    var float _v = 0.0
+    var float _pv = 0.0
+    if _first
+        _v := 0.0
+        _pv := 0.0
+    if _in
+        _v += nz(volume)
+        _pv += hlc3 * nz(volume)
+    float _vw = _in and _v > 0 ? _pv / _v : na
+    _in and not na(_vw) ? close > _vw ? 1 : close < _vw ? -1 : 0 : 0
+
+int esSide = request.security("CME_MINI:ES1!", "5", f_rth_side(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+int nqSide = request.security("CME_MINI:NQ1!", "5", f_rth_side(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+int rtySide = request.security("CME_MINI:RTY1!", "5", f_rth_side(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+int ymSide = request.security("CBOT_MINI:YM1!", "5", f_rth_side(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+int breadthUp = (esSide > 0 ? 1 : 0) + (nqSide > 0 ? 1 : 0) + (rtySide > 0 ? 1 : 0) + (ymSide > 0 ? 1 : 0)
+
+// 30-minute Opening Range event AVWAP.
+var float orHigh = na
+var float orLow = na
+var bool longEvent = false
+var bool shortEvent = false
+var float longEventV = 0.0
+var float longEventPV = 0.0
+var float shortEventV = 0.0
+var float shortEventPV = 0.0
+var int longEventAge = na
+var int shortEventAge = na
+
+if firstRth
+    orHigh := high
+    orLow := low
+    longEvent := false
+    shortEvent := false
+    longEventV := 0.0
+    longEventPV := 0.0
+    shortEventV := 0.0
+    shortEventPV := 0.0
+    longEventAge := na
+    shortEventAge := na
+else if inRth and mod < 600
+    orHigh := math.max(orHigh, high)
+    orLow := math.min(orLow, low)
+
+bool longEventStart = inRth and mod >= 600 and not longEvent and not na(orHigh) and close > orHigh
+bool shortEventStart = inRth and mod >= 600 and not shortEvent and not na(orLow) and close < orLow
+
+if longEventStart
+    longEvent := true
+    longEventV := nz(volume)
+    longEventPV := tp * nz(volume)
+    longEventAge := 0
+else if inRth and longEvent
+    longEventV += nz(volume)
+    longEventPV += tp * nz(volume)
+    longEventAge += 1
+
+if shortEventStart
+    shortEvent := true
+    shortEventV := nz(volume)
+    shortEventPV := tp * nz(volume)
+    shortEventAge := 0
+else if inRth and shortEvent
+    shortEventV += nz(volume)
+    shortEventPV += tp * nz(volume)
+    shortEventAge += 1
+
+float longEventVwap = longEvent and longEventV > 0 ? longEventPV / longEventV : na
+float shortEventVwap = shortEvent and shortEventV > 0 ? shortEventPV / shortEventV : na
+float longEventDistAtr = inRth and not na(longEventVwap) and not na(atrPrev) and atrPrev > 0 ? (close - longEventVwap) / atrPrev : na
+float shortEventDistAtr = inRth and not na(shortEventVwap) and not na(atrPrev) and atrPrev > 0 ? (close - shortEventVwap) / atrPrev : na
+
+// Same-time-of-day RVOL: prior 20 completed sessions only.
+const int SLOTS = 75
+const int DAYS = 20
+var array<float> slotSum = array.new_float(SLOTS, 0.0)
+var array<int> slotCount = array.new_int(SLOTS, 0)
+var array<float> ring = array.new_float(SLOTS * DAYS, na)
+var int dayPtr = -1
+
+if firstRth
+    dayPtr := (dayPtr + 1) % DAYS
+    for s = 0 to SLOTS - 1
+        int ri = dayPtr * SLOTS + s
+        float old = array.get(ring, ri)
+        if not na(old)
+            array.set(slotSum, s, array.get(slotSum, s) - old)
+            array.set(slotCount, s, math.max(0, array.get(slotCount, s) - 1))
+            array.set(ring, ri, na)
+
+int slot = inRth ? int((mod - 570) / 5) : -1
+float rvolAtTime = na
+if inRth and slot >= 0 and slot < SLOTS
+    int cnt = array.get(slotCount, slot)
+    float avgPrior = cnt >= 5 ? array.get(slotSum, slot) / cnt : na
+    rvolAtTime := not na(avgPrior) and avgPrior > 0 ? volume / avgPrior : na
+    int ri = dayPtr * SLOTS + slot
+    array.set(ring, ri, volume)
+    array.set(slotSum, slot, array.get(slotSum, slot) + volume)
+    array.set(slotCount, slot, array.get(slotCount, slot) + 1)
+
+bool ready = signalWindow and not na(atrPrev) and atrPrev > 0 and not na(vwap) and not na(vwapSd)
+
+// Frozen TEST19 signals.
+bool s01 = ready and side > 0 and slope6Atr >= 0.015 and accel3Atr >= 0.020 and curvatureAtr >= 0.008
+bool s02 = ready and side < 0 and slope6Atr <= -0.015 and accel3Atr <= -0.020 and curvatureAtr <= -0.008
+bool s03 = ready and side > 0 and slope6Atr >= 0 and bandWidthRatio6 >= 1.50
+bool s04 = ready and side < 0 and slope6Atr <= 0 and bandWidthRatio6 >= 1.50
+bool s05 = ready and squeezeReleaseLong
+bool s06 = ready and squeezeReleaseShort
+bool s07 = ready and pressure12 >= 2.50 and side > 0 and slope6Atr >= 0
+bool s08 = ready and pressure12 <= -2.50 and side < 0 and slope6Atr <= 0
+bool s09 = ready and crossAge == 18 and side > 0 and slope6Atr >= 0
+bool s10 = ready and crossAge == 18 and side < 0 and slope6Atr <= 0
+bool s11 = ready and newPost10Touch and (post10TouchCount == 2 or post10TouchCount == 3) and side > 0 and close > open and slope6Atr >= 0
+bool s12 = ready and newPost10Touch and (post10TouchCount == 2 or post10TouchCount == 3) and side < 0 and close < open and slope6Atr <= 0
+bool s13 = ready and reclaimRetestLong
+bool s14 = ready and reclaimRetestShort
+bool s15 = ready and acceptanceFailLong
+bool s16 = ready and acceptanceFailShort
+bool s17 = ready and breadthUp == 4 and breadthUp[1] <= 3 and side > 0 and slope6Atr >= 0 and distAtr <= 0.20
+bool s18 = ready and breadthUp == 0 and breadthUp[1] >= 1 and side < 0 and slope6Atr <= 0 and distAtr >= -0.20
+bool s19 = ready and sessionMigrationAtr >= 0.40 and side > 0 and slope6Atr >= 0
+bool s20 = ready and sessionMigrationAtr <= -0.40 and side < 0 and slope6Atr <= 0
+bool s21 = ready and close > vwap and vwap > wvwap and wvwap > mvwap and sessionWeekAtr >= 0.10 and weekMonthAtr >= 0.10
+bool s22 = ready and close < vwap and vwap < wvwap and wvwap < mvwap and sessionWeekAtr <= -0.10 and weekMonthAtr <= -0.10
+bool s23 = ready and rvwap30 > rvwap60 and rvwap60 > rvwap120 and term30v120Atr >= 0.15
+bool s24 = ready and rvwap30 < rvwap60 and rvwap60 < rvwap120 and term30v120Atr <= -0.15
+bool s25 = ready and longEventAge >= 3 and longEventDistAtr >= 0 and longEventDistAtr <= 0.03 and low <= longEventVwap + 0.02 * atrPrev and close > open
+bool s26 = ready and shortEventAge >= 3 and shortEventDistAtr <= 0 and shortEventDistAtr >= -0.03 and high >= shortEventVwap - 0.02 * atrPrev and close < open
+bool s27 = ready and crossUp and rvolAtTime >= 1.50
+bool s28 = ready and crossDown and rvolAtTime >= 1.50
+
+string candidate = input.string("T19-01", "Candidate", options=["T19-01","T19-02","T19-03","T19-04","T19-05","T19-06","T19-07","T19-08","T19-09","T19-10","T19-11","T19-12","T19-13","T19-14","T19-15","T19-16","T19-17","T19-18","T19-19","T19-20","T19-21","T19-22","T19-23","T19-24","T19-25","T19-26","T19-27","T19-28"])
+
+bool selectedSignal = switch candidate
+    "T19-01" => s01
+    "T19-02" => s02
+    "T19-03" => s03
+    "T19-04" => s04
+    "T19-05" => s05
+    "T19-06" => s06
+    "T19-07" => s07
+    "T19-08" => s08
+    "T19-09" => s09
+    "T19-10" => s10
+    "T19-11" => s11
+    "T19-12" => s12
+    "T19-13" => s13
+    "T19-14" => s14
+    "T19-15" => s15
+    "T19-16" => s16
+    "T19-17" => s17
+    "T19-18" => s18
+    "T19-19" => s19
+    "T19-20" => s20
+    "T19-21" => s21
+    "T19-22" => s22
+    "T19-23" => s23
+    "T19-24" => s24
+    "T19-25" => s25
+    "T19-26" => s26
+    "T19-27" => s27
+    "T19-28" => s28
+    => false
+
+bool selectedLong = candidate == "T19-01" or candidate == "T19-03" or candidate == "T19-05" or candidate == "T19-07" or candidate == "T19-09" or candidate == "T19-11" or candidate == "T19-13" or candidate == "T19-15" or candidate == "T19-17" or candidate == "T19-19" or candidate == "T19-21" or candidate == "T19-23" or candidate == "T19-25" or candidate == "T19-27"
+
+var int entriesToday = 0
+var int entryTime = na
+var float pendingStopDist = na
+var float activeStopDist = na
+
+if firstRth
+    entriesToday := 0
+    if strategy.position_size == 0
+        pendingStopDist := na
+
+bool canEnter = inRth and not session.islastbar and strategy.position_size == 0 and entriesToday == 0 and not flattenNow and selectedSignal and not na(atrPrev) and atrPrev > 0
+
+string entryId = "TEST19|" + target + "|" + candidate + (selectedLong ? "|LONG" : "|SHORT")
+
+if canEnter and selectedLong
+    pendingStopDist := math.max(syminfo.mintick, math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick)
+    strategy.entry(entryId, strategy.long, comment=entryId)
+    entriesToday += 1
+else if canEnter and not selectedLong
+    pendingStopDist := math.max(syminfo.mintick, math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick)
+    strategy.entry(entryId, strategy.short, comment=entryId)
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+    entryTime := time
+    activeStopDist := pendingStopDist
+    pendingStopDist := na
+
+if strategy.position_size > 0 and not na(activeStopDist)
+    strategy.exit("TEST19|STOP", stop=strategy.position_avg_price - activeStopDist, comment="TEST19|STOP")
+if strategy.position_size < 0 and not na(activeStopDist)
+    strategy.exit("TEST19|STOP", stop=strategy.position_avg_price + activeStopDist, comment="TEST19|STOP")
+
+bool maxHoldNow = strategy.position_size != 0 and not na(entryTime) and time_close >= entryTime + 120 * 60 * 1000
+if maxHoldNow
+    strategy.close_all(comment="TEST19|" + target + "|" + candidate + "|MAXHOLD", immediately=true)
+if flattenNow
+    strategy.close_all(comment="TEST19|" + target + "|" + candidate + "|1545_FLAT", immediately=true)
+if session.islastbar and strategy.position_size != 0
+    strategy.close_all(comment="TEST19|" + target + "|" + candidate + "|SESSION_LAST", immediately=true)
+
+if strategy.position_size == 0 and strategy.position_size[1] != 0
+    entryTime := na
+    activeStopDist := na
+
+plot(vwap, "RTH VWAP")
+plot(wvwap, "WTD VWAP")
+plot(mvwap, "MTD VWAP")
+plot(longEventVwap, "OR Long Event AVWAP")
+plot(shortEventVwap, "OR Short Event AVWAP")

@@ -1,0 +1,319 @@
+//@version=6
+strategy("TEST21 Batched Native Master V1 | VWAP-Conditioned Path/Flow/Volatility | 5m",
+     overlay=true,
+     pyramiding=14,
+     process_orders_on_close=false,
+     calc_on_every_tick=false,
+     calc_on_order_fills=false,
+     use_bar_magnifier=false,
+     close_entries_rule="ANY",
+     initial_capital=10000000,
+     margin_long=100,
+     margin_short=100,
+     commission_type=strategy.commission.cash_per_contract,
+     commission_value=2.24,
+     slippage=1)
+
+// TEST21 — FROZEN BATCHED NATIVE MASTER V1
+// Research objective: new mechanism families with US-session VWAP as context/base,
+// not another direct VWAP-state / geometry / ensemble test.
+// Universe: ES / NQ / RTY / YM / GC / CL / BTC. SI intentionally excluded.
+// One master script is run twice per market: LONG and SHORT.
+// 7 markets x 2 directions = 14 Deep Backtest Trades CSVs -> 196 implementations.
+//
+// Batched native execution shell was parity-certified using TEST18 POC V2:
+// 8,370 / 8,370 archived NQ trades matched exactly after the explicit warm-up boundary.
+//
+// Frozen execution:
+// - exactly 5m
+// - research US window 09:30-15:45 America/New_York
+// - completed-bar signal -> next-bar market entry
+// - max 1 entry/day/candidate
+// - no DCA / no add-on within a candidate
+// - candidate-specific 2.0 x prior-completed-US-session ATR14 catastrophe stop
+// - no take profit
+// - 120-minute max hold
+// - flat 15:45 ET; exchange session-last is also a safety close
+// - native baseline 1 tick/fill + $2.24/contract/side
+// - 60 completed US-session warm-up before any scored signal
+
+string TZ = "America/New_York"
+string US = "0930-1545:23456"
+string target = syminfo.root
+int tfSec = timeframe.in_seconds()
+string batchSide = input.string("LONG", "Batch side", options=["LONG","SHORT"])
+
+if barstate.isfirst and tfSec != 300
+    runtime.error("TEST21 requires exactly a 5-minute chart.")
+if barstate.isfirst and (target != "ES" and target != "NQ" and target != "RTY" and target != "YM" and target != "GC" and target != "CL" and target != "BTC")
+    runtime.error("TEST21 supports ES/NQ/RTY/YM/GC/CL/BTC only. SI is intentionally excluded.")
+
+bool inUs = not na(time(timeframe.period, US, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh * 60 + mm
+bool firstUs = inUs and hh == 9 and mm == 30
+bool flattenNow = inUs and hour(time_close, TZ) == 15 and minute(time_close, TZ) == 45
+bool after1000 = inUs and mod >= 600 and mod < 870
+bool after1030 = inUs and mod >= 630 and mod < 870
+bool after1300 = inUs and mod >= 780 and mod < 870
+
+// ---------------- completed US-session state / ATR14 ----------------
+var float activeOpen = na
+var float activeHigh = na
+var float activeLow = na
+var float activeClose = na
+var float prevUsOpen = na
+var float prevUsHigh = na
+var float prevUsLow = na
+var float prevUsClose = na
+var float prevSessCloseForTR = na
+var float atr14 = na
+var int atrCount = 0
+var int completedSessions = 0
+var int usBarCount = 0
+var float todayOpen = na
+
+if firstUs
+    if not na(activeHigh) and not na(activeLow) and not na(activeClose)
+        prevUsOpen := activeOpen
+        prevUsHigh := activeHigh
+        prevUsLow := activeLow
+        prevUsClose := activeClose
+        float trPrev = na(prevSessCloseForTR) ? activeHigh - activeLow : math.max(activeHigh - activeLow, math.max(math.abs(activeHigh - prevSessCloseForTR), math.abs(activeLow - prevSessCloseForTR)))
+        atr14 := na(atr14) ? trPrev : (atr14 * 13.0 + trPrev) / 14.0
+        atrCount += 1
+        completedSessions += 1
+        prevSessCloseForTR := activeClose
+    activeOpen := open
+    activeHigh := high
+    activeLow := low
+    activeClose := close
+    todayOpen := open
+    usBarCount := 1
+else if inUs
+    usBarCount += 1
+    activeHigh := math.max(nz(activeHigh, high), high)
+    activeLow := math.min(nz(activeLow, low), low)
+    activeClose := close
+
+float atrPrev = atrCount >= 14 ? atr14 : na
+bool warm = completedSessions >= 60 and not na(atrPrev) and atrPrev > 0
+
+// ---------------- US-session VWAP ----------------
+var float cumV = 0.0
+var float cumPV = 0.0
+if firstUs
+    cumV := 0.0
+    cumPV := 0.0
+if inUs
+    cumV += nz(volume)
+    cumPV += hlc3 * nz(volume)
+float vwap = inUs and cumV > 0 ? cumPV / cumV : na
+float distAtr = inUs and warm and not na(vwap) ? (close - vwap) / atrPrev : na
+
+// ---------------- first-hour and lunch state ----------------
+var float firstHourMove = na
+var int lunchBars = 0
+var int lunchAbove = 0
+var int lunchBelow = 0
+if firstUs
+    firstHourMove := na
+    lunchBars := 0
+    lunchAbove := 0
+    lunchBelow := 0
+if inUs and mod == 625 and warm
+    firstHourMove := (close - todayOpen) / atrPrev
+if inUs and mod >= 690 and mod < 780 and not na(vwap)
+    lunchBars += 1
+    lunchAbove += close > vwap ? 1 : 0
+    lunchBelow += close < vwap ? 1 : 0
+float lunchAboveFrac = lunchBars > 0 ? float(lunchAbove) / lunchBars : na
+float lunchBelowFrac = lunchBars > 0 ? float(lunchBelow) / lunchBars : na
+
+// ---------------- shared causal OHLCV features ----------------
+float barRange = math.max(high - low, syminfo.mintick)
+float trBar = na(close[1]) ? barRange : math.max(barRange, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+float closeLoc = barRange > 0 ? (close - low) / barRange : 0.5
+float bodyNorm = barRange > 0 ? (close - open) / barRange : 0.0
+float ret = na(close[1]) ? 0.0 : close - close[1]
+float signedVolBar = nz(volume) * (close > open ? 1.0 : close < open ? -1.0 : 0.0)
+
+float sumAbsRet12 = usBarCount >= 13 ? math.sum(math.abs(ret), 12) : na
+float netMove12 = usBarCount >= 13 and warm ? (close - close[12]) / atrPrev : na
+float efficiency12 = not na(sumAbsRet12) and sumAbsRet12 > 0 ? math.abs(close - close[12]) / sumAbsRet12 : na
+float sumVol12 = usBarCount >= 13 ? math.sum(nz(volume), 12) : na
+float signedVolPressure12 = not na(sumVol12) and sumVol12 > 0 ? math.sum(signedVolBar, 12) / sumVol12 : na
+
+float volBase6ExPrev = usBarCount >= 9 ? ta.sma(nz(volume), 6)[2] : na
+float trBase6ExPrev = usBarCount >= 9 ? ta.sma(trBar, 6)[2] : na
+bool highVolNarrowPrev = usBarCount >= 9 and not na(volBase6ExPrev) and volBase6ExPrev > 0 and not na(trBase6ExPrev) and trBase6ExPrev > 0 and volume[1] >= 1.50 * volBase6ExPrev and trBar[1] <= 0.70 * trBase6ExPrev
+
+float tr6Prev = usBarCount >= 20 ? ta.sma(trBar, 6)[1] : na
+float tr18Prev = usBarCount >= 20 ? ta.sma(trBar, 18)[1] : na
+bool compressedPrev = usBarCount >= 20 and not na(tr6Prev) and not na(tr18Prev) and tr18Prev > 0 and tr6Prev <= 0.60 * tr18Prev
+
+float trBase12ExPrev = usBarCount >= 15 ? ta.sma(trBar, 12)[2] : na
+float volBase12ExPrev = usBarCount >= 15 ? ta.sma(nz(volume), 12)[2] : na
+bool shockPrev = usBarCount >= 15 and not na(trBase12ExPrev) and trBase12ExPrev > 0 and not na(volBase12ExPrev) and volBase12ExPrev > 0 and trBar[1] >= 1.80 * trBase12ExPrev and volume[1] >= 1.25 * volBase12ExPrev
+float prevMid = (high[1] + low[1]) / 2.0
+float prevRange = math.max(high[1] - low[1], syminfo.mintick)
+float prevCloseLoc = prevRange > 0 ? (close[1] - low[1]) / prevRange : 0.5
+
+float avgCloseLoc6 = usBarCount >= 7 ? ta.sma(closeLoc, 6) : na
+float netMove6 = usBarCount >= 7 and warm ? (close - close[6]) / atrPrev : na
+float avgBody6 = usBarCount >= 7 ? ta.sma(bodyNorm, 6) : na
+float corrRet12 = usBarCount >= 14 ? ta.correlation(ret, ret[1], 12) : na
+
+bool ready = inUs and warm and not na(vwap) and not flattenNow
+
+// ---------------- F1: efficient path -> VWAP pullback continuation ----------------
+bool s01 = ready and after1030 and usBarCount >= 13 and netMove12 >= 0.25 and efficiency12 >= 0.60 and low <= vwap + 0.04 * atrPrev and low >= vwap - 0.08 * atrPrev and close > vwap and close > open
+bool s02 = ready and after1030 and usBarCount >= 13 and netMove12 <= -0.25 and efficiency12 >= 0.60 and high >= vwap - 0.04 * atrPrev and high <= vwap + 0.08 * atrPrev and close < vwap and close < open
+
+// ---------------- F2: signed-volume pressure near VWAP continuation ----------------
+bool s03 = ready and after1030 and usBarCount >= 13 and signedVolPressure12 >= 0.30 and distAtr >= 0 and distAtr <= 0.15 and close > open
+bool s04 = ready and after1030 and usBarCount >= 13 and signedVolPressure12 <= -0.30 and distAtr <= 0 and distAtr >= -0.15 and close < open
+
+// ---------------- F3: price / signed-volume divergence snapback ----------------
+bool s05 = ready and after1030 and usBarCount >= 13 and distAtr <= -0.15 and signedVolPressure12 >= 0.15 and close > open and close > close[1] and distAtr >= distAtr[1] + 0.03
+bool s06 = ready and after1030 and usBarCount >= 13 and distAtr >= 0.15 and signedVolPressure12 <= -0.15 and close < open and close < close[1] and distAtr <= distAtr[1] - 0.03
+
+// ---------------- F4: high-volume narrow-range absorption near VWAP -> break ----------------
+bool s07 = ready and after1000 and usBarCount >= 9 and highVolNarrowPrev and math.abs(distAtr[1]) <= 0.08 and close > high[1] and close > vwap
+bool s08 = ready and after1000 and usBarCount >= 9 and highVolNarrowPrev and math.abs(distAtr[1]) <= 0.08 and close < low[1] and close < vwap
+
+// ---------------- F5: absorption away from VWAP -> snapback ----------------
+bool s09 = ready and after1000 and usBarCount >= 9 and highVolNarrowPrev and distAtr[1] <= -0.18 and close > open and close > prevMid and distAtr >= distAtr[1] + 0.10
+bool s10 = ready and after1000 and usBarCount >= 9 and highVolNarrowPrev and distAtr[1] >= 0.18 and close < open and close < prevMid and distAtr <= distAtr[1] - 0.10
+
+// ---------------- F6: true-range compression around VWAP -> release ----------------
+bool s11 = ready and usBarCount >= 20 and compressedPrev and math.abs(distAtr[1]) <= 0.08 and trBar >= 1.25 * tr6Prev and close > ta.highest(high[1], 6) and close > vwap
+bool s12 = ready and usBarCount >= 20 and compressedPrev and math.abs(distAtr[1]) <= 0.08 and trBar >= 1.25 * tr6Prev and close < ta.lowest(low[1], 6) and close < vwap
+
+// ---------------- F7: volume-confirmed volatility shock continuation ----------------
+bool s13 = ready and after1030 and usBarCount >= 15 and shockPrev and prevCloseLoc >= 0.80 and close[1] > vwap[1] and close > high[1] and close > vwap
+bool s14 = ready and after1030 and usBarCount >= 15 and shockPrev and prevCloseLoc <= 0.20 and close[1] < vwap[1] and close < low[1] and close < vwap
+
+// ---------------- F8: volume-confirmed volatility shock failure -> snapback ----------------
+bool s15 = ready and after1030 and usBarCount >= 15 and shockPrev and prevCloseLoc <= 0.20 and close[1] < vwap[1] and close > open and close > prevMid and distAtr >= distAtr[1] + 0.10
+bool s16 = ready and after1030 and usBarCount >= 15 and shockPrev and prevCloseLoc >= 0.80 and close[1] > vwap[1] and close < open and close < prevMid and distAtr <= distAtr[1] - 0.10
+
+// ---------------- F9: close-location persistence continuation ----------------
+bool s17 = ready and after1000 and usBarCount >= 7 and avgCloseLoc6 >= 0.70 and netMove6 >= 0.15 and close > vwap and close > high[1]
+bool s18 = ready and after1000 and usBarCount >= 7 and avgCloseLoc6 <= 0.30 and netMove6 <= -0.15 and close < vwap and close < low[1]
+
+// ---------------- F10: candle-body pressure near VWAP continuation ----------------
+bool s19 = ready and after1000 and usBarCount >= 7 and avgBody6 >= 0.30 and distAtr >= 0 and distAtr <= 0.15 and close > open
+bool s20 = ready and after1000 and usBarCount >= 7 and avgBody6 <= -0.30 and distAtr <= 0 and distAtr >= -0.15 and close < open
+
+// ---------------- F11: positive return-autocorrelation continuation ----------------
+bool s21 = ready and after1030 and usBarCount >= 14 and corrRet12 >= 0.20 and netMove12 >= 0.20 and close > vwap and close > high[1]
+bool s22 = ready and after1030 and usBarCount >= 14 and corrRet12 >= 0.20 and netMove12 <= -0.20 and close < vwap and close < low[1]
+
+// ---------------- F12: negative return-autocorrelation reversion ----------------
+bool s23 = ready and after1030 and usBarCount >= 14 and corrRet12 <= -0.20 and distAtr <= -0.15 and close > open and distAtr > distAtr[1]
+bool s24 = ready and after1030 and usBarCount >= 14 and corrRet12 <= -0.20 and distAtr >= 0.15 and close < open and distAtr < distAtr[1]
+
+// ---------------- F13: morning impulse -> lunch VWAP hold -> afternoon continuation ----------------
+bool s25 = ready and after1300 and not na(firstHourMove) and firstHourMove >= 0.30 and lunchBars >= 12 and lunchAboveFrac >= 0.75 and close > vwap and close > high[1]
+bool s26 = ready and after1300 and not na(firstHourMove) and firstHourMove <= -0.30 and lunchBars >= 12 and lunchBelowFrac >= 0.75 and close < vwap and close < low[1]
+
+// ---------------- F14: morning impulse failure -> afternoon VWAP reversal ----------------
+bool s27 = ready and after1300 and not na(firstHourMove) and firstHourMove <= -0.30 and lunchBars >= 12 and lunchAboveFrac >= 0.60 and close > todayOpen and close > vwap and close > open
+bool s28 = ready and after1300 and not na(firstHourMove) and firstHourMove >= 0.30 and lunchBars >= 12 and lunchBelowFrac >= 0.60 and close < todayOpen and close < vwap and close < open
+
+// ---------------- batched native candidate state ----------------
+var array<int> enteredToday = array.new_int(28, 0)
+var array<int> expectedEntryTime = array.new_int(28, na)
+var array<int> frozenStopTicks = array.new_int(28, 0)
+
+if firstUs
+    for i = 0 to 27
+        array.set(enteredToday, i, 0)
+
+f_signal(int n) =>
+    switch n
+        1 => s01
+        2 => s02
+        3 => s03
+        4 => s04
+        5 => s05
+        6 => s06
+        7 => s07
+        8 => s08
+        9 => s09
+        10 => s10
+        11 => s11
+        12 => s12
+        13 => s13
+        14 => s14
+        15 => s15
+        16 => s16
+        17 => s17
+        18 => s18
+        19 => s19
+        20 => s20
+        21 => s21
+        22 => s22
+        23 => s23
+        24 => s24
+        25 => s25
+        26 => s26
+        27 => s27
+        28 => s28
+        => false
+
+for n = 1 to 28
+    bool isLongCandidate = n % 2 == 1
+    bool sideEnabled = (batchSide == "LONG" and isLongCandidate) or (batchSide == "SHORT" and not isLongCandidate)
+    int ai = n - 1
+    bool ev = f_signal(n)
+    bool canEnter = sideEnabled and ev and not session.islastbar and not flattenNow and array.get(enteredToday, ai) == 0 and na(array.get(expectedEntryTime, ai)) and warm
+    if canEnter
+        string num = n < 10 ? "0" + str.tostring(n) : str.tostring(n)
+        string sideText = isLongCandidate ? "LONG" : "SHORT"
+        string entryId = "TEST21|" + target + "|T21-" + num + "|" + sideText
+        int stopTicks = math.max(1, int(math.ceil(2.0 * atrPrev / syminfo.mintick)))
+        strategy.entry(entryId, isLongCandidate ? strategy.long : strategy.short, qty=1, comment=entryId)
+        array.set(enteredToday, ai, 1)
+        array.set(frozenStopTicks, ai, stopTicks)
+        array.set(expectedEntryTime, ai, time_close)
+
+for n = 1 to 28
+    bool isLongCandidate = n % 2 == 1
+    bool sideEnabled = (batchSide == "LONG" and isLongCandidate) or (batchSide == "SHORT" and not isLongCandidate)
+    if sideEnabled
+        int ai = n - 1
+        if array.get(frozenStopTicks, ai) > 0 and not na(array.get(expectedEntryTime, ai))
+            string num = n < 10 ? "0" + str.tostring(n) : str.tostring(n)
+            string sideText = isLongCandidate ? "LONG" : "SHORT"
+            string entryId = "TEST21|" + target + "|T21-" + num + "|" + sideText
+            string stopId = "TEST21|" + target + "|T21-" + num + "|STOP"
+            strategy.exit(stopId, from_entry=entryId, loss=array.get(frozenStopTicks, ai), comment="TEST21|STOP")
+
+for n = 1 to 28
+    bool isLongCandidate = n % 2 == 1
+    bool sideEnabled = (batchSide == "LONG" and isLongCandidate) or (batchSide == "SHORT" and not isLongCandidate)
+    if sideEnabled
+        int ai = n - 1
+        int et = array.get(expectedEntryTime, ai)
+        if not na(et)
+            string num = n < 10 ? "0" + str.tostring(n) : str.tostring(n)
+            string sideText = isLongCandidate ? "LONG" : "SHORT"
+            string entryId = "TEST21|" + target + "|T21-" + num + "|" + sideText
+            bool maxHoldNow = time_close >= et + 120 * 60 * 1000
+            if maxHoldNow
+                strategy.close(entryId, comment="TEST21|" + target + "|T21-" + num + "|MAXHOLD", immediately=true)
+                array.set(expectedEntryTime, ai, na)
+                array.set(frozenStopTicks, ai, 0)
+            else if flattenNow
+                strategy.close(entryId, comment="TEST21|" + target + "|T21-" + num + "|1545_FLAT", immediately=true)
+                array.set(expectedEntryTime, ai, na)
+                array.set(frozenStopTicks, ai, 0)
+            else if session.islastbar
+                strategy.close(entryId, comment="TEST21|" + target + "|T21-" + num + "|SESSION_LAST", immediately=true)
+                array.set(expectedEntryTime, ai, na)
+                array.set(frozenStopTicks, ai, 0)
+
+plot(vwap, "US-session VWAP", display=display.none)

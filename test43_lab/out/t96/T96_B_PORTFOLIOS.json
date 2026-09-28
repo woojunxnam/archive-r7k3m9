@@ -1,0 +1,68 @@
+{
+ "members": {
+  "LC02": {
+   "inst": "MES",
+   "trades_kept": 189,
+   "trades_in": 192,
+   "avg_day": 0.4290005743825389,
+   "avg_day_2021": 1.0277426470588233,
+   "slip4_day": -0.38518667432510056,
+   "corr_to_main": 0.10954369152001533,
+   "max_dd": 864.4300000000005
+  },
+  "LC03": {
+   "inst": "MNQ",
+   "trades_kept": 167,
+   "trades_in": 210,
+   "avg_day": 1.6395290063182077,
+   "avg_day_2021": 2.036191176470588,
+   "slip4_day": 1.3517633543940262,
+   "corr_to_main": 0.09082091744429759,
+   "max_dd": 451.28000000000014
+  },
+  "LC05": {
+   "inst": "MNQ",
+   "trades_kept": 552,
+   "trades_in": 646,
+   "avg_day": 0.5752556002297518,
+   "avg_day_2021": 1.0973088235294106,
+   "slip4_day": -0.3759218839747286,
+   "corr_to_main": 0.27095496345535025,
+   "max_dd": 2595.4000000000024
+  }
+ },
+ "index_members_available": [
+  "LC02",
+  "LC03",
+  "LC05"
+ ],
+ "table": [
+  {
+   "candidate": "B0_MAIN",
+   "avg_day": 143.2070661720334,
+   "incr_avg_day": 0.0,
+   "incr_avg_day_2021": 0.0,
+   "max_dd": 13936.302365193056,
+   "worst_day": -4666.439999999971,
+   "ret_dd": 0.010275829443088406,
+   "ret_dd_2021": 0.01089094598770062,
+   "corr_add_to_main": NaN,
+   "loss_jaccard": NaN,
+   "PORTFOLIO_PASS_IF_EXACT": null
+  },
+  {
+   "candidate": "B1_MAIN+INDEX_APPROX",
+   "avg_day": 145.8508513529639,
+   "incr_avg_day": 2.6437851809304984,
+   "incr_avg_day_2021": 4.161242647058821,
+   "max_dd": 13229.192365193012,
+   "worst_day": -4666.439999999971,
+   "ret_dd": 0.011024924827361973,
+   "ret_dd_2021": 0.011787625024255618,
+   "corr_add_to_main": 0.2866677146870649,
+   "loss_jaccard": 0.3236009732360097,
+   "PORTFOLIO_PASS_IF_EXACT": false
+  }
+ ],
+ "note": "RESEARCH_ONLY_APPROX / SELECTION-BIASED; no authorization (no member RECOVERED_EXACT)"
+}

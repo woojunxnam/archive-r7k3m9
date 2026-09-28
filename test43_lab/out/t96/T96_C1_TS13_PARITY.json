@@ -1,0 +1,14 @@
+{
+ "seed": "TS13_S01_YM",
+ "ledger_entries_window": 122,
+ "engine_entries_window": 127,
+ "matched": 119,
+ "ledger_recall": 0.9754098360655737,
+ "engine_precision": 0.937007874015748,
+ "price_within_1tick_share": 0.9159663865546218,
+ "median_abs_price_diff": 0.0,
+ "PARITY": "BLOCKED",
+ "DIAG_per_contract_offset_within_1tick": 1.0,
+ "ledger_first_entry": "2011-10-07",
+ "engine_trades_total": 139
+}

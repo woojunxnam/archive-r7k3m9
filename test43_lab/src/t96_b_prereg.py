@@ -1,0 +1,25 @@
+"""TEST96 Track B portfolio preregistration (before any member P&L is combined with MAIN)."""
+import datetime, hashlib, json, os, sys
+sys.path.insert(0, os.path.dirname(__file__))
+import t96_common as W
+SPEC = {
+    "status_rule": "a member is RECOVERED_EXACT only if it passes the unchanged TEST46 parity rule; otherwise RESEARCH_ONLY_APPROX (replay exists) or BLOCKED",
+    "members_replay": {"LC02": "TEST46 engine replay on canonical ES -> 1 MES", "LC03": "TEST96 engine replay on canonical NQ -> 1 MNQ",
+                       "LC05": "TEST96 engine replay on canonical NQ -> 1 MNQ", "TS22": "TEST96 Pine port of T22-07 -> 1 MNQ (no ledger)",
+                       "T30": "BLOCKED (W01 selector not recovered)", "TS16": "EXCLUDED (OI)",
+                       "TEST20_L2_ONLY": "TEST96 Pine port of TEST20 V1 stack, legs with leg_index == 2, LONG only -> 1 MNQ",
+                       "T20_V1": "TEST96 Pine port of TEST20 V1 stack, all LONG legs -> 1 MNQ each (pyramid <= 3)"},
+    "candidates": {"B0": "MAIN", "B1": "MAIN + INDEX5_NOOI_APPROX (available members)", "B2": "MAIN + TEST20_L2_ONLY", "B3": "MAIN + INDEX5_APPROX + TEST20_L2_ONLY",
+                   "B4": "MAIN + T20_V1", "B5": "MAIN + INDEX5_APPROX + T20_V1"},
+    "exclusivity": "B2/B3 vs B4/B5 are mutually exclusive (L2_ONLY and T20_V1 are never combined)",
+    "evaluation": "daily $ booked at exit session; capacity: MNQ <= 6 and MES <= 8 including MAIN occupancy - member entries that would breach are skipped; "
+                  "report avg/day (2019-07+, 2021+), incremental, MaxDD, worst, ret/DD, corr, loss Jaccard, bottom-5% overlap, peak MNQ / MES, turnover",
+    "authorization": "RESEARCH_ONLY_APPROX members cannot authorize a portfolio (TEST46 rule); B-results are labelled SELECTION-BIASED (members were "
+                     "selected on data including the sealed window) and can at most motivate a forward shadow",
+    "LC03_hold_clue": "not adopted (unchanged)"}
+if __name__ == "__main__":
+    p = os.path.join(W.OUT, "TEST96_B_PREREGISTRATION.json")
+    if os.path.exists(p):
+        raise SystemExit("exists")
+    json.dump({"written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), **SPEC}, open(p, "w"), indent=1)
+    h = hashlib.sha256(open(p, "rb").read()).hexdigest(); open(p + ".sha256", "w").write(h + "\n"); print(h)

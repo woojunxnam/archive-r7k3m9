@@ -1,0 +1,28 @@
+{
+ "module": "TS13_S01_YM_T13-07_REPLAY",
+ "status": "PORTED FROM FROZEN PINE (parity vs ledger: see LEDGER field)",
+ "trades": 139,
+ "avg_day": 0.061665709362435324,
+ "usd_per_trade": 0.8031654676258959,
+ "max_dd": 752.1400000000004,
+ "folds": {
+  "O1_2021": -0.8469565217391308,
+  "O2_2022": 0.15513944223107567,
+  "O3_2023": 0.9070119521912352,
+  "O4_2024": 0.7132539682539683,
+  "O5_2025_26": 0.8051558073654391
+ },
+ "corr_to_main": 0.10048678581872234,
+ "main_plus_ret_dd": 0.010262036897659298,
+ "main_ret_dd": 0.010275829443088406,
+ "main_plus_maxdd": 13961.042365193061,
+ "main_maxdd": 13936.302365193056,
+ "exit_mix": {
+  "TIME": 87,
+  "SL": 49,
+  "EOD": 3
+ },
+ "LEDGER": "none recovered for TS13 (see recovery report) -> RESEARCH_ONLY_APPROX (unverified port)",
+ "TS17_S01": "BLOCKED_STRUCTURAL: T17-03 requires TradingView request.footprint() buy/sell delta and imbalance rows (order-flow data not in canonical OHLCV)",
+ "TS21_S01": "OUT OF SCOPE: YM SHORT (LONG-only research lane)"
+}

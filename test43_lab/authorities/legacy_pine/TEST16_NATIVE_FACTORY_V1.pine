@@ -1,0 +1,249 @@
+//@version=6
+strategy("TEST16 Native Factory V1 | Open Interest Regime | 5m/15m", overlay=true, pyramiding=0, process_orders_on_close=false, commission_type=strategy.commission.cash_per_contract, commission_value=2.24, slippage=1)
+
+string TZ = "America/New_York"
+string RTH = "0930-1545:23456"
+string target = syminfo.root
+int tfSec = timeframe.in_seconds()
+
+string base1 = syminfo.prefix + ":" + syminfo.ticker
+string secondTicker = str.replace_all(syminfo.ticker, "1!", "2!")
+string base2 = syminfo.prefix + ":" + secondTicker
+string oi1Ticker = base1 + "_OI"
+string oi2Ticker = base2 + "_OI"
+
+f_oi_pack() =>
+    [close[1], close[2], close[3], close[4], close[5], close[6], close[7], close[8], close[9], close[10], close[11], close[12], close[13], close[14], close[15], close[16], close[17], close[18], close[19], close[20], close[21]]
+
+[o1_0, o1_1, o1_2, o1_3, o1_4, o1_5, o1_6, o1_7, o1_8, o1_9, o1_10, o1_11, o1_12, o1_13, o1_14, o1_15, o1_16, o1_17, o1_18, o1_19, o1_20] = request.security(oi1Ticker, "D", f_oi_pack(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on, ignore_invalid_symbol=true, calc_bars_count=1000)
+[o2_0, o2_1, o2_2, o2_3, o2_4, o2_5, o2_6, o2_7, o2_8, o2_9, o2_10, o2_11, o2_12, o2_13, o2_14, o2_15, o2_16, o2_17, o2_18, o2_19, o2_20] = request.security(oi2Ticker, "D", f_oi_pack(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on, ignore_invalid_symbol=true, calc_bars_count=1000)
+
+f_price_pack() =>
+    [close[1], close[2], ta.atr(14)[1]]
+[dClose1, dClose2, dAtr1] = request.security(syminfo.tickerid, "D", f_price_pack(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on, calc_bars_count=1000)
+
+float oi0 = not na(o1_0) and not na(o2_0) ? o1_0 + o2_0 : na
+float oi1 = not na(o1_1) and not na(o2_1) ? o1_1 + o2_1 : na
+float oi2 = not na(o1_2) and not na(o2_2) ? o1_2 + o2_2 : na
+float oi3 = not na(o1_3) and not na(o2_3) ? o1_3 + o2_3 : na
+float oi4 = not na(o1_4) and not na(o2_4) ? o1_4 + o2_4 : na
+float oi5 = not na(o1_5) and not na(o2_5) ? o1_5 + o2_5 : na
+float oi6 = not na(o1_6) and not na(o2_6) ? o1_6 + o2_6 : na
+float oi7 = not na(o1_7) and not na(o2_7) ? o1_7 + o2_7 : na
+float oi8 = not na(o1_8) and not na(o2_8) ? o1_8 + o2_8 : na
+float oi9 = not na(o1_9) and not na(o2_9) ? o1_9 + o2_9 : na
+float oi10 = not na(o1_10) and not na(o2_10) ? o1_10 + o2_10 : na
+float oi11 = not na(o1_11) and not na(o2_11) ? o1_11 + o2_11 : na
+float oi12 = not na(o1_12) and not na(o2_12) ? o1_12 + o2_12 : na
+float oi13 = not na(o1_13) and not na(o2_13) ? o1_13 + o2_13 : na
+float oi14 = not na(o1_14) and not na(o2_14) ? o1_14 + o2_14 : na
+float oi15 = not na(o1_15) and not na(o2_15) ? o1_15 + o2_15 : na
+float oi16 = not na(o1_16) and not na(o2_16) ? o1_16 + o2_16 : na
+float oi17 = not na(o1_17) and not na(o2_17) ? o1_17 + o2_17 : na
+float oi18 = not na(o1_18) and not na(o2_18) ? o1_18 + o2_18 : na
+float oi19 = not na(o1_19) and not na(o2_19) ? o1_19 + o2_19 : na
+float oi20 = not na(o1_20) and not na(o2_20) ? o1_20 + o2_20 : na
+array<float> oiHist = array.from(oi0, oi1, oi2, oi3, oi4, oi5, oi6, oi7, oi8, oi9, oi10, oi11, oi12, oi13, oi14, oi15, oi16, oi17, oi18, oi19, oi20)
+bool oiReady = true
+for j = 0 to 20
+    oiReady := oiReady and not na(array.get(oiHist,j)) and array.get(oiHist,j) > 0
+
+float oiPct1 = oiReady ? oi0 / oi1 - 1.0 : na
+float oiChg5 = oiReady ? oi0 / oi5 - 1.0 : na
+float oiPrevChg5 = oiReady ? oi5 / oi10 - 1.0 : na
+float meanAbsOi = 0.0
+int levelCount = 0
+int absRankCount = 0
+if oiReady
+    for j = 0 to 19
+        float a = array.get(oiHist,j)
+        float b = array.get(oiHist,j+1)
+        float ch = math.abs(a / b - 1.0)
+        meanAbsOi += ch / 20.0
+        levelCount += a <= oi0 ? 1 : 0
+    float curAbs = math.abs(oiPct1)
+    for j = 0 to 19
+        float a = array.get(oiHist,j)
+        float b = array.get(oiHist,j+1)
+        float ch = math.abs(a / b - 1.0)
+        absRankCount += ch <= curAbs ? 1 : 0
+float oiLevelPct = oiReady ? 100.0 * levelCount / 20.0 : na
+float oiAbsRank20 = oiReady ? 100.0 * absRankCount / 20.0 : na
+float oiAccelN = oiReady and meanAbsOi > 0 ? (oiChg5 - oiPrevChg5) / (5.0 * meanAbsOi) : na
+float oiFrontShare = not na(o1_0) and not na(o2_0) and o1_0 + o2_0 > 0 ? o1_0 / (o1_0 + o2_0) : na
+float dPriceN = not na(dAtr1) and dAtr1 > 0 and not na(dClose1) and not na(dClose2) ? (dClose1 - dClose2) / dAtr1 : na
+bool priceDailyReady = not na(dPriceN)
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh*60 + mm
+bool firstRth = inRth and hh == 9 and mm == 30
+bool flattenNow = inRth and hour(time_close,TZ) == 15 and minute(time_close,TZ) == 45
+int bars30 = int(1800 / tfSec)
+
+var float activeHigh = na
+var float activeLow = na
+var float activeClose = na
+var float prevSessClose = na
+var float atr14 = na
+var int atrCount = 0
+var float cumPV = na
+var float cumV = na
+var int rthBarCount = 0
+var float orHigh = na
+var float orLow = na
+float oldHigh = activeHigh
+float oldLow = activeLow
+
+if firstRth
+    if not na(activeHigh) and not na(activeLow) and not na(activeClose)
+        float trPrev = na(prevSessClose) ? activeHigh - activeLow : math.max(activeHigh - activeLow, math.max(math.abs(activeHigh - prevSessClose), math.abs(activeLow - prevSessClose)))
+        atr14 := na(atr14) ? trPrev : (atr14 * 13.0 + trPrev) / 14.0
+        atrCount += 1
+        prevSessClose := activeClose
+    activeHigh := high
+    activeLow := low
+    activeClose := close
+    cumPV := hlc3 * nz(volume)
+    cumV := nz(volume)
+    rthBarCount := 1
+    orHigh := high
+    orLow := low
+    oldHigh := na
+    oldLow := na
+else if inRth
+    rthBarCount += 1
+    activeHigh := math.max(nz(activeHigh, high), high)
+    activeLow := math.min(nz(activeLow, low), low)
+    activeClose := close
+    cumPV := nz(cumPV) + hlc3 * nz(volume)
+    cumV := nz(cumV) + nz(volume)
+    if mod < 600
+        orHigh := math.max(nz(orHigh, high), high)
+        orLow := math.min(nz(orLow, low), low)
+
+float atrPrev = atrCount >= 14 ? atr14 : na
+float vwap = inRth and cumV > 0 ? cumPV / cumV : na
+float c30 = inRth and rthBarCount > bars30 ? ta.valuewhen(inRth, close, bars30) : na
+float cPrev = inRth and rthBarCount > 1 ? ta.valuewhen(inRth, close, 1) : na
+float v30 = inRth and rthBarCount > bars30 ? ta.valuewhen(inRth, vwap, bars30) : na
+float ret30 = inRth and not na(atrPrev) and atrPrev > 0 and not na(c30) ? (close - c30) / atrPrev : na
+float slope30 = inRth and not na(atrPrev) and atrPrev > 0 and not na(v30) ? (vwap - v30) / atrPrev : na
+float vwapDist = inRth and not na(atrPrev) and atrPrev > 0 and not na(vwap) ? (close - vwap) / atrPrev : na
+float sessClv = inRth and not na(activeHigh) and not na(activeLow) ? (close - activeLow) / math.max(activeHigh - activeLow, syminfo.mintick) : na
+bool aboveVwap = inRth and not na(vwap) and close > vwap
+bool belowVwap = inRth and not na(vwap) and close < vwap
+bool sweepHigh = inRth and not firstRth and not na(oldHigh) and high > oldHigh and close < oldHigh
+bool sweepLow = inRth and not firstRth and not na(oldLow) and low < oldLow and close > oldLow
+bool orReady = inRth and mod >= 600 and not na(orHigh) and not na(orLow)
+bool orBreakUp = orReady and not na(cPrev) and close > orHigh and cPrev <= orHigh
+bool orBreakDn = orReady and not na(cPrev) and close < orLow and cPrev >= orLow
+
+bool w1000_1415 = mod >= 600 and mod < 855
+bool w1000_1430 = mod >= 600 and mod < 870
+bool w1015_1430 = mod >= 615 and mod < 870
+
+bool trigTrendLong = w1000_1430 and not na(ret30) and ret30 >= 0.25 and aboveVwap and slope30 >= 0.04 and sessClv >= 0.60
+bool trigTrendShort = w1000_1430 and not na(ret30) and ret30 <= -0.25 and belowVwap and slope30 <= -0.04 and sessClv <= 0.40
+bool trigExhaustShort = w1000_1430 and sweepHigh and not na(ret30) and ret30 >= 0.15 and sessClv <= 0.70
+bool trigExhaustLong = w1000_1430 and sweepLow and not na(ret30) and ret30 <= -0.15 and sessClv >= 0.30
+bool trigORLong = w1000_1415 and orBreakUp and aboveVwap and sessClv >= 0.70
+bool trigORShort = w1000_1415 and orBreakDn and belowVwap and sessClv <= 0.30
+bool trigRevertLong = w1015_1430 and not na(vwapDist) and not na(ret30) and vwapDist <= -0.35 and ret30 <= -0.15 and close > open and sessClv >= 0.55
+bool trigRevertShort = w1015_1430 and not na(vwapDist) and not na(ret30) and vwapDist >= 0.35 and ret30 >= 0.15 and close < open and sessClv <= 0.45
+
+bool ctxReady = oiReady and priceDailyReady
+bool oiUp = ctxReady and oiPct1 > 0
+bool oiDown = ctxReady and oiPct1 < 0
+bool priceUp = ctxReady and dPriceN >= 0.15
+bool priceDown = ctxReady and dPriceN <= -0.15
+bool oiAccelUp = ctxReady and oiAccelN >= 0.50
+bool oiAccelDown = ctxReady and oiAccelN <= -0.50
+bool oiHigh = ctxReady and oiLevelPct >= 80
+bool oiLow = ctxReady and oiLevelPct <= 20
+bool oiStrongUp = ctxReady and oiPct1 > 0 and oiAbsRank20 >= 60
+bool oiStrongDown = ctxReady and oiPct1 < 0 and oiAbsRank20 >= 60
+
+bool s01 = priceUp and oiUp and trigTrendLong
+bool s02 = priceUp and oiDown and trigExhaustShort
+bool s03 = priceDown and oiUp and trigTrendShort
+bool s04 = priceDown and oiDown and trigExhaustLong
+bool s05 = priceUp and oiAccelUp and trigTrendLong
+bool s06 = priceDown and oiAccelUp and trigTrendShort
+bool s07 = priceUp and oiAccelDown and trigExhaustShort
+bool s08 = priceDown and oiAccelDown and trigExhaustLong
+bool s09 = oiHigh and not na(dPriceN) and dPriceN > 0 and trigTrendLong
+bool s10 = oiHigh and not na(dPriceN) and dPriceN < 0 and trigTrendShort
+bool s11 = oiLow and not na(dPriceN) and dPriceN < 0 and trigExhaustLong
+bool s12 = oiLow and not na(dPriceN) and dPriceN > 0 and trigExhaustShort
+bool s13 = oiStrongUp and trigORLong
+bool s14 = oiStrongUp and trigORShort
+bool s15 = oiStrongDown and trigRevertLong
+bool s16 = oiStrongDown and trigRevertShort
+bool c01 = trigTrendLong
+bool c02 = trigExhaustShort
+bool c03 = trigTrendShort
+bool c04 = trigExhaustLong
+bool c05 = trigORLong
+bool c06 = trigORShort
+bool c07 = trigRevertLong
+bool c08 = trigRevertShort
+
+string candidate = input.string("T16-01", "Candidate", options=["T16-01","T16-02","T16-03","T16-04","T16-05","T16-06","T16-07","T16-08","T16-09","T16-10","T16-11","T16-12","T16-13","T16-14","T16-15","T16-16","T16-C01","T16-C02","T16-C03","T16-C04","T16-C05","T16-C06","T16-C07","T16-C08"])
+if barstate.isfirst and tfSec != 300 and tfSec != 900
+    runtime.error("TEST16 native factory requires exactly 5m or 15m.")
+if barstate.isfirst and syminfo.session != "us_regular"
+    runtime.error("TEST16 requires chart Session = Regular Trading Hours (CME-group us_regular).")
+if barstate.isfirst and (target != "ES" and target != "NQ" and target != "RTY" and target != "YM" and target != "BTC" and target != "GC" and target != "SI" and target != "CL")
+    runtime.error("TEST16 requires ES/NQ/RTY/YM/BTC/GC/SI/CL 1! continuous futures chart.")
+if barstate.isfirst and not str.contains(syminfo.ticker, "1!")
+    runtime.error("TEST16 requires a 1! continuous futures chart so 1!+2! near-curve OI can be constructed.")
+var bool everOi1 = false
+var bool everOi2 = false
+everOi1 := everOi1 or not na(o1_0)
+everOi2 := everOi2 or not na(o2_0)
+if barstate.islast and (not everOi1 or not everOi2)
+    runtime.error("TEST16 requires both 1!_OI and 2!_OI daily service symbols. This market is data-ineligible if either is unavailable.")
+
+bool longSignal = candidate=="T16-01" ? s01 : candidate=="T16-04" ? s04 : candidate=="T16-05" ? s05 : candidate=="T16-08" ? s08 : candidate=="T16-09" ? s09 : candidate=="T16-11" ? s11 : candidate=="T16-13" ? s13 : candidate=="T16-15" ? s15 : candidate=="T16-C01" ? c01 : candidate=="T16-C04" ? c04 : candidate=="T16-C05" ? c05 : candidate=="T16-C07" ? c07 : false
+bool shortSignal = candidate=="T16-02" ? s02 : candidate=="T16-03" ? s03 : candidate=="T16-06" ? s06 : candidate=="T16-07" ? s07 : candidate=="T16-10" ? s10 : candidate=="T16-12" ? s12 : candidate=="T16-14" ? s14 : candidate=="T16-16" ? s16 : candidate=="T16-C02" ? c02 : candidate=="T16-C03" ? c03 : candidate=="T16-C06" ? c06 : candidate=="T16-C08" ? c08 : false
+
+var int entriesToday = 0
+var int entryTime = na
+if firstRth
+    entriesToday := 0
+
+bool canEnter = inRth and strategy.position_size == 0 and entriesToday == 0 and not flattenNow and hour(time_close,TZ) < 15 and not na(atrPrev) and atrPrev > 0
+if longSignal and canEnter
+    strategy.entry("L", strategy.long)
+    entriesToday += 1
+if shortSignal and canEnter
+    strategy.entry("S", strategy.short)
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+    entryTime := time
+
+float stopDist = not na(atrPrev) ? math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick : na
+if strategy.position_size > 0 and not na(stopDist)
+    strategy.exit("L-X", "L", stop=strategy.position_avg_price - stopDist)
+if strategy.position_size < 0 and not na(stopDist)
+    strategy.exit("S-X", "S", stop=strategy.position_avg_price + stopDist)
+
+bool maxHoldNow = strategy.position_size != 0 and not na(entryTime) and time_close >= entryTime + 120 * 60 * 1000
+if maxHoldNow
+    strategy.close_all(comment="MAXHOLD", immediately=true)
+if flattenNow
+    strategy.close_all(comment="1545_FLAT", immediately=true)
+if session.islastbar and strategy.position_size != 0
+    strategy.close_all(comment="SESSION_LAST", immediately=true)
+if strategy.position_size == 0
+    entryTime := na
+
+plotchar(longSignal, "Long signal", "L", location=location.belowbar, size=size.tiny)
+plotchar(shortSignal, "Short signal", "S", location=location.abovebar, size=size.tiny)
+plot(oiLevelPct, "OI Level %ile", display=display.data_window)
+plot(oiAbsRank20, "OI |d1| rank", display=display.data_window)
+plot(oiAccelN, "OI 5d accel N", display=display.data_window)
+plot(dPriceN, "Prior daily price / ATR", display=display.data_window)

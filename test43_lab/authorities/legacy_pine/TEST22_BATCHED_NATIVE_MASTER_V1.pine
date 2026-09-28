@@ -1,0 +1,518 @@
+﻿//@version=6
+strategy("TEST22 Batched Native Master V1 | VWAP-Conditioned Classic Indicator/Channel Regimes | 5m",
+     overlay=true,
+     pyramiding=14,
+     process_orders_on_close=false,
+     calc_on_every_tick=false,
+     calc_on_order_fills=false,
+     use_bar_magnifier=false,
+     close_entries_rule="ANY",
+     initial_capital=10000000,
+     margin_long=100,
+     margin_short=100,
+     commission_type=strategy.commission.cash_per_contract,
+     commission_value=2.24,
+     slippage=1)
+
+
+// TEST22 — FROZEN BATCHED NATIVE MASTER V1
+// Theme: non-VWAP technical mechanisms with US-session VWAP as mandatory context/baseline.
+// Universe: ES / NQ / RTY / YM / GC / CL / BTC. SI excluded.
+// One master script is run twice per market: LONG and SHORT.
+// 7 markets x 2 directions = 14 Deep Backtest Trades CSVs -> 196 implementations.
+//
+// The same batched native execution shell was parity-certified before TEST21:
+// 8,370 / 8,370 archived NQ trades matched exactly after the explicit warm-up boundary.
+//
+// Frozen execution:
+// - exactly 5m
+// - research US window 09:30-15:45 America/New_York
+// - completed-bar signal -> next-bar market entry
+// - max 1 entry/day/candidate
+// - no DCA / no scaling inside a candidate
+// - candidate-specific 2.0 x prior-completed-US-session ATR14 catastrophe stop
+// - no take profit
+// - 120-minute max hold
+// - flat 15:45 ET; session-last safety close
+// - native baseline 1 tick/fill + $2.24/contract/side
+// - 60 completed US-session warm-up
+
+
+string TZ = "America/New_York"
+string US = "0930-1545:23456"
+string target = syminfo.root
+int tfSec = timeframe.in_seconds()
+string batchSide = input.string("LONG", "Batch side", options=["LONG","SHORT"])
+
+
+if barstate.isfirst and tfSec != 300
+    runtime.error("TEST22 requires exactly a 5-minute chart.")
+if barstate.isfirst and (target != "ES" and target != "NQ" and target != "RTY" and target != "YM" and target != "GC" and target != "CL" and target != "BTC")
+    runtime.error("TEST22 supports ES/NQ/RTY/YM/GC/CL/BTC only. SI is intentionally excluded.")
+
+
+bool inUs = not na(time(timeframe.period, US, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh * 60 + mm
+bool firstUs = inUs and hh == 9 and mm == 30
+bool flattenNow = inUs and hour(time_close, TZ) == 15 and minute(time_close, TZ) == 45
+bool after1000 = inUs and mod >= 600 and mod < 870
+bool after1030 = inUs and mod >= 630 and mod < 870
+
+
+// ---------------- completed US-session state / prior-session ATR14 ----------------
+var float activeOpen = na
+var float activeHigh = na
+var float activeLow = na
+var float activeClose = na
+var float prevSessCloseForTR = na
+var float atr14 = na
+var int atrCount = 0
+var int completedSessions = 0
+var int usBarCount = 0
+
+
+if firstUs
+    if not na(activeHigh) and not na(activeLow) and not na(activeClose)
+        float trPrev = na(prevSessCloseForTR) ? activeHigh - activeLow : math.max(activeHigh - activeLow, math.max(math.abs(activeHigh - prevSessCloseForTR), math.abs(activeLow - prevSessCloseForTR)))
+        atr14 := na(atr14) ? trPrev : (atr14 * 13.0 + trPrev) / 14.0
+        atrCount += 1
+        completedSessions += 1
+        prevSessCloseForTR := activeClose
+    activeOpen := open
+    activeHigh := high
+    activeLow := low
+    activeClose := close
+    usBarCount := 1
+else if inUs
+    usBarCount += 1
+    activeHigh := math.max(nz(activeHigh, high), high)
+    activeLow := math.min(nz(activeLow, low), low)
+    activeClose := close
+
+
+float atrPrev = atrCount >= 14 ? atr14 : na
+bool warm = completedSessions >= 60 and not na(atrPrev) and atrPrev > 0
+
+
+// ---------------- US-session VWAP: mandatory baseline for every family ----------------
+var float cumV = 0.0
+var float cumPV = 0.0
+if firstUs
+    cumV := 0.0
+    cumPV := 0.0
+if inUs
+    cumV += nz(volume)
+    cumPV += hlc3 * nz(volume)
+float vwap = inUs and cumV > 0 ? cumPV / cumV : na
+float distAtr = inUs and warm and not na(vwap) ? (close - vwap) / atrPrev : na
+
+
+// ---------------- US-bar rolling arrays ----------------
+var array<float> cHist = array.new_float()
+var array<float> hHist = array.new_float()
+var array<float> lHist = array.new_float()
+var array<float> tpHist = array.new_float()
+var array<float> trHist = array.new_float()
+var array<float> bbWidthHist = array.new_float()
+
+
+f_avg(array<float> a, int n) =>
+    float out = na
+    int sz = array.size(a)
+    if sz >= n
+        float s = 0.0
+        for i = 0 to n - 1
+            s += array.get(a, sz - 1 - i)
+        out := s / n
+    out
+
+
+f_std(array<float> a, int n) =>
+    float out = na
+    int sz = array.size(a)
+    if sz >= n
+        float m = f_avg(a, n)
+        float ss = 0.0
+        for i = 0 to n - 1
+            float x = array.get(a, sz - 1 - i)
+            ss += math.pow(x - m, 2)
+        out := math.sqrt(ss / n)
+    out
+
+
+f_max(array<float> a, int n) =>
+    float out = na
+    int sz = array.size(a)
+    if sz >= n
+        float m = array.get(a, sz - 1)
+        for i = 1 to n - 1
+            m := math.max(m, array.get(a, sz - 1 - i))
+        out := m
+    out
+
+
+f_min(array<float> a, int n) =>
+    float out = na
+    int sz = array.size(a)
+    if sz >= n
+        float m = array.get(a, sz - 1)
+        for i = 1 to n - 1
+            m := math.min(m, array.get(a, sz - 1 - i))
+        out := m
+    out
+
+
+f_sum(array<float> a, int n) =>
+    float out = na
+    int sz = array.size(a)
+    if sz >= n
+        float s = 0.0
+        for i = 0 to n - 1
+            s += array.get(a, sz - 1 - i)
+        out := s
+    out
+
+
+f_from_end(array<float> a, int offset) =>
+    int sz = array.size(a)
+    sz > offset ? array.get(a, sz - 1 - offset) : na
+
+
+float priorHigh10 = f_max(hHist, 10)
+float priorLow10 = f_min(lHist, 10)
+float prevUsClose = f_from_end(cHist, 0)
+float prevUsHigh = f_from_end(hHist, 0)
+float prevUsLow = f_from_end(lHist, 0)
+
+
+float trNow = na(prevUsClose) ? math.max(high-low, syminfo.mintick) : math.max(high-low, math.max(math.abs(high-prevUsClose), math.abs(low-prevUsClose)))
+
+
+// ---------------- session-only RSI / EMA / MACD / ADX state ----------------
+var float rsiAvgGain = na
+var float rsiAvgLoss = na
+var float ema12 = na
+var float ema26 = na
+var float macdSignal = na
+var float ema20 = na
+var float atr20 = na
+var float dmPlus14 = na
+var float dmMinus14 = na
+var float adxTr14 = na
+var float adx14 = na
+var float prevDx = na
+
+
+float chg = inUs and not na(prevUsClose) ? close - prevUsClose : 0.0
+float gain = math.max(chg, 0.0)
+float loss = math.max(-chg, 0.0)
+float upMove = inUs and not na(prevUsHigh) ? high - prevUsHigh : 0.0
+float dnMove = inUs and not na(prevUsLow) ? prevUsLow - low : 0.0
+float plusDM = upMove > dnMove and upMove > 0 ? upMove : 0.0
+float minusDM = dnMove > upMove and dnMove > 0 ? dnMove : 0.0
+
+
+if inUs
+    rsiAvgGain := na(rsiAvgGain) ? gain : (rsiAvgGain * 13.0 + gain) / 14.0
+    rsiAvgLoss := na(rsiAvgLoss) ? loss : (rsiAvgLoss * 13.0 + loss) / 14.0
+    ema12 := na(ema12) ? close : ema12 + 2.0/13.0 * (close - ema12)
+    ema26 := na(ema26) ? close : ema26 + 2.0/27.0 * (close - ema26)
+    float macdNow = ema12 - ema26
+    macdSignal := na(macdSignal) ? macdNow : macdSignal + 2.0/10.0 * (macdNow - macdSignal)
+    ema20 := na(ema20) ? close : ema20 + 2.0/21.0 * (close - ema20)
+    atr20 := na(atr20) ? trNow : (atr20 * 19.0 + trNow) / 20.0
+    dmPlus14 := na(dmPlus14) ? plusDM : (dmPlus14 * 13.0 + plusDM) / 14.0
+    dmMinus14 := na(dmMinus14) ? minusDM : (dmMinus14 * 13.0 + minusDM) / 14.0
+    adxTr14 := na(adxTr14) ? trNow : (adxTr14 * 13.0 + trNow) / 14.0
+    float pdiNow = adxTr14 > 0 ? 100.0 * dmPlus14 / adxTr14 : 0.0
+    float mdiNow = adxTr14 > 0 ? 100.0 * dmMinus14 / adxTr14 : 0.0
+    float dxNow = (pdiNow + mdiNow) > 0 ? 100.0 * math.abs(pdiNow - mdiNow) / (pdiNow + mdiNow) : 0.0
+    adx14 := na(adx14) ? dxNow : (adx14 * 13.0 + dxNow) / 14.0
+    prevDx := dxNow
+    array.push(cHist, close)
+    array.push(hHist, high)
+    array.push(lHist, low)
+    array.push(tpHist, hlc3)
+    array.push(trHist, trNow)
+    if array.size(cHist) > 120
+        array.shift(cHist)
+        array.shift(hHist)
+        array.shift(lHist)
+        array.shift(tpHist)
+        array.shift(trHist)
+
+
+float rs = not na(rsiAvgLoss) and rsiAvgLoss > 0 ? rsiAvgGain / rsiAvgLoss : na
+float rsi14 = not na(rs) ? 100.0 - 100.0 / (1.0 + rs) : rsiAvgGain > 0 ? 100.0 : 50.0
+float macdLine = not na(ema12) and not na(ema26) ? ema12 - ema26 : na
+float macdHist = not na(macdLine) and not na(macdSignal) ? macdLine - macdSignal : na
+float plusDI = not na(adxTr14) and adxTr14 > 0 ? 100.0 * dmPlus14 / adxTr14 : na
+float minusDI = not na(adxTr14) and adxTr14 > 0 ? 100.0 * dmMinus14 / adxTr14 : na
+
+
+// ---------------- Bollinger / Stochastic / CCI / Keltner / Choppiness / ROC ----------------
+float mean20 = f_avg(cHist, 20)
+float sd20 = f_std(cHist, 20)
+float bbUpper = not na(mean20) and not na(sd20) ? mean20 + 2.0 * sd20 : na
+float bbLower = not na(mean20) and not na(sd20) ? mean20 - 2.0 * sd20 : na
+float bbWidth = not na(bbUpper) and not na(bbLower) and atrPrev > 0 ? (bbUpper - bbLower) / atrPrev : na
+float priorBbWidthAvg = f_avg(bbWidthHist, 20)
+float prevBbWidth = f_from_end(bbWidthHist, 0)
+
+
+if inUs and not na(bbWidth)
+    array.push(bbWidthHist, bbWidth)
+    if array.size(bbWidthHist) > 60
+        array.shift(bbWidthHist)
+
+
+float hh14 = f_max(hHist, 14)
+float ll14 = f_min(lHist, 14)
+float stochK = not na(hh14) and not na(ll14) and hh14 > ll14 ? 100.0 * (close - ll14) / (hh14 - ll14) : na
+var float stochD = na
+if inUs and not na(stochK)
+    stochD := na(stochD) ? stochK : stochD + (stochK - stochD) / 3.0
+
+
+float tpMean20 = f_avg(tpHist, 20)
+float cci20 = na
+if not na(tpMean20) and array.size(tpHist) >= 20
+    float md = 0.0
+    int sz = array.size(tpHist)
+    for i = 0 to 19
+        md += math.abs(array.get(tpHist, sz - 1 - i) - tpMean20)
+    md /= 20.0
+    cci20 := md > 0 ? (hlc3 - tpMean20) / (0.015 * md) : 0.0
+
+
+float kcUpper = not na(ema20) and not na(atr20) ? ema20 + 1.5 * atr20 : na
+float kcLower = not na(ema20) and not na(atr20) ? ema20 - 1.5 * atr20 : na
+
+
+float hhChop = f_max(hHist, 14)
+float llChop = f_min(lHist, 14)
+float trSum14 = f_sum(trHist, 14)
+float chop14 = not na(hhChop) and not na(llChop) and not na(trSum14) and hhChop > llChop and trSum14 > 0 ? 100.0 * math.log(trSum14 / (hhChop - llChop)) / math.log(14.0) : na
+
+
+float close6ago = f_from_end(cHist, 6)
+float close20ago = f_from_end(cHist, 20)
+float roc6 = not na(close6ago) and close6ago != 0 ? 100.0 * (close / close6ago - 1.0) : na
+float roc20 = not na(close20ago) and close20ago != 0 ? 100.0 * (close / close20ago - 1.0) : na
+
+
+float barRange = math.max(high - low, syminfo.mintick)
+float closeLoc = (close - low) / barRange
+
+
+// Store prior indicator states for cross/re-entry rules.
+var float prevRsi = na
+var float prevMacdLine = na
+var float prevMacdSignal = na
+var float prevMacdHist = na
+var float prev2MacdHist = na
+var float prevStochK = na
+var float prevStochD = na
+var float prevCci = na
+var float prevBbUpper = na
+var float prevBbLower = na
+var float prevKcUpper = na
+var float prevKcLower = na
+var float prevChop = na
+var float prevRoc6 = na
+var float prevCloseForBands = na
+
+
+bool ready = inUs and warm and after1000 and not na(vwap) and not flattenNow
+
+
+// F1 RSI midline reset -> trend continuation.
+bool s01 = ready and close > vwap and close >= ema20 and rsi14 > 50 and not na(prevRsi) and prevRsi <= 50 and prevRsi >= 40
+bool s02 = ready and close < vwap and close <= ema20 and rsi14 < 50 and not na(prevRsi) and prevRsi >= 50 and prevRsi <= 60
+
+
+// F2 RSI extreme -> VWAP mean reversion.
+bool s03 = ready and distAtr <= -0.15 and distAtr >= -0.60 and rsi14 <= 30 and close > open and closeLoc >= 0.60
+bool s04 = ready and distAtr >= 0.15 and distAtr <= 0.60 and rsi14 >= 70 and close < open and closeLoc <= 0.40
+
+
+// F3 MACD histogram acceleration -> continuation on VWAP side.
+bool s05 = ready and close > vwap and macdHist > 0 and not na(prevMacdHist) and not na(prev2MacdHist) and macdHist > prevMacdHist and prevMacdHist > prev2MacdHist
+bool s06 = ready and close < vwap and macdHist < 0 and not na(prevMacdHist) and not na(prev2MacdHist) and macdHist < prevMacdHist and prevMacdHist < prev2MacdHist
+
+
+// F4 MACD signal cross while price is on the opposite side of VWAP -> snapback.
+bool s07 = ready and distAtr < 0 and distAtr >= -0.50 and macdLine > macdSignal and not na(prevMacdLine) and not na(prevMacdSignal) and prevMacdLine <= prevMacdSignal and close > open
+bool s08 = ready and distAtr > 0 and distAtr <= 0.50 and macdLine < macdSignal and not na(prevMacdLine) and not na(prevMacdSignal) and prevMacdLine >= prevMacdSignal and close < open
+
+
+// F5 ADX/DI trend continuation aligned with VWAP.
+bool s09 = ready and adx14 >= 25 and plusDI > minusDI and close > vwap and not na(priorHigh10) and close > high[1]
+bool s10 = ready and adx14 >= 25 and minusDI > plusDI and close < vwap and not na(priorLow10) and close < low[1]
+
+
+// F6 Low-ADX range regime -> VWAP fade.
+bool s11 = ready and adx14 <= 18 and distAtr <= -0.20 and distAtr >= -0.60 and close > open and closeLoc >= 0.65
+bool s12 = ready and adx14 <= 18 and distAtr >= 0.20 and distAtr <= 0.60 and close < open and closeLoc <= 0.35
+
+
+// F7 Bollinger squeeze -> directional breakout, VWAP aligned.
+bool s13 = ready and not na(prevBbWidth) and not na(priorBbWidthAvg) and prevBbWidth <= 0.70 * priorBbWidthAvg and close > bbUpper and close > vwap
+bool s14 = ready and not na(prevBbWidth) and not na(priorBbWidthAvg) and prevBbWidth <= 0.70 * priorBbWidthAvg and close < bbLower and close < vwap
+
+
+// F8 Bollinger outer-band re-entry -> reversion toward VWAP.
+bool s15 = ready and not na(prevCloseForBands) and not na(prevBbLower) and prevCloseForBands < prevBbLower and close > bbLower and close < vwap and close > open
+bool s16 = ready and not na(prevCloseForBands) and not na(prevBbUpper) and prevCloseForBands > prevBbUpper and close < bbUpper and close > vwap and close < open
+
+
+// F9 Stochastic pullback reset within VWAP-aligned EMA trend.
+bool s17 = ready and close > vwap and close > ema20 and stochK > stochD and not na(prevStochK) and not na(prevStochD) and prevStochK <= prevStochD and prevStochK <= 30
+bool s18 = ready and close < vwap and close < ema20 and stochK < stochD and not na(prevStochK) and not na(prevStochD) and prevStochK >= prevStochD and prevStochK >= 70
+
+
+// F10 CCI zero-line continuation on VWAP side.
+bool s19 = ready and close > vwap and cci20 > 0 and not na(prevCci) and prevCci <= 0 and close > open
+bool s20 = ready and close < vwap and cci20 < 0 and not na(prevCci) and prevCci >= 0 and close < open
+
+
+// F11 Keltner channel breakout continuation.
+bool s21 = ready and close > vwap and close > kcUpper and close > open
+bool s22 = ready and close < vwap and close < kcLower and close < open
+
+
+// F12 Keltner re-entry -> VWAP mean reversion.
+bool s23 = ready and not na(prevCloseForBands) and not na(prevKcLower) and prevCloseForBands < prevKcLower and close > kcLower and close < vwap and close > open
+bool s24 = ready and not na(prevCloseForBands) and not na(prevKcUpper) and prevCloseForBands > prevKcUpper and close < kcUpper and close > vwap and close < open
+
+
+// F13 Choppiness release -> 10-bar range breakout, VWAP aligned.
+bool s25 = ready and not na(prevChop) and prevChop >= 61.8 and chop14 <= 55 and not na(priorHigh10) and close > priorHigh10 and close > vwap
+bool s26 = ready and not na(prevChop) and prevChop >= 61.8 and chop14 <= 55 and not na(priorLow10) and close < priorLow10 and close < vwap
+
+
+// F14 Short-term ROC reset inside longer VWAP-aligned trend.
+bool s27 = ready and close > vwap and close > ema20 and not na(roc20) and roc20 > 0 and roc6 > 0 and not na(prevRoc6) and prevRoc6 <= 0
+bool s28 = ready and close < vwap and close < ema20 and not na(roc20) and roc20 < 0 and roc6 < 0 and not na(prevRoc6) and prevRoc6 >= 0
+
+
+if inUs
+    prev2MacdHist := prevMacdHist
+    prevRsi := rsi14
+    prevMacdLine := macdLine
+    prevMacdSignal := macdSignal
+    prevMacdHist := macdHist
+    prevStochK := stochK
+    prevStochD := stochD
+    prevCci := cci20
+    prevBbUpper := bbUpper
+    prevBbLower := bbLower
+    prevKcUpper := kcUpper
+    prevKcLower := kcLower
+    prevChop := chop14
+    prevRoc6 := roc6
+    prevCloseForBands := close
+
+
+// ---------------- batched native candidate state ----------------
+var array<int> enteredToday = array.new_int(28, 0)
+var array<int> expectedEntryTime = array.new_int(28, na)
+var array<int> frozenStopTicks = array.new_int(28, 0)
+
+
+if firstUs
+    for i = 0 to 27
+        array.set(enteredToday, i, 0)
+
+
+f_signal(int n) =>
+    switch n
+        1 => s01
+        2 => s02
+        3 => s03
+        4 => s04
+        5 => s05
+        6 => s06
+        7 => s07
+        8 => s08
+        9 => s09
+        10 => s10
+        11 => s11
+        12 => s12
+        13 => s13
+        14 => s14
+        15 => s15
+        16 => s16
+        17 => s17
+        18 => s18
+        19 => s19
+        20 => s20
+        21 => s21
+        22 => s22
+        23 => s23
+        24 => s24
+        25 => s25
+        26 => s26
+        27 => s27
+        28 => s28
+        => false
+
+
+for n = 1 to 28
+    bool isLongCandidate = n % 2 == 1
+    bool sideEnabled = (batchSide == "LONG" and isLongCandidate) or (batchSide == "SHORT" and not isLongCandidate)
+    int ai = n - 1
+    bool ev = f_signal(n)
+    bool canEnter = sideEnabled and ev and not session.islastbar and not flattenNow and array.get(enteredToday, ai) == 0 and na(array.get(expectedEntryTime, ai)) and warm
+    if canEnter
+        string num = n < 10 ? "0" + str.tostring(n) : str.tostring(n)
+        string sideText = isLongCandidate ? "LONG" : "SHORT"
+        string entryId = "TEST22|" + target + "|T22-" + num + "|" + sideText
+        int stopTicks = math.max(1, int(math.ceil(2.0 * atrPrev / syminfo.mintick)))
+        strategy.entry(entryId, isLongCandidate ? strategy.long : strategy.short, qty=1, comment=entryId)
+        array.set(enteredToday, ai, 1)
+        array.set(frozenStopTicks, ai, stopTicks)
+        array.set(expectedEntryTime, ai, time_close)
+
+
+for n = 1 to 28
+    bool isLongCandidate = n % 2 == 1
+    bool sideEnabled = (batchSide == "LONG" and isLongCandidate) or (batchSide == "SHORT" and not isLongCandidate)
+    if sideEnabled
+        int ai = n - 1
+        if array.get(frozenStopTicks, ai) > 0 and not na(array.get(expectedEntryTime, ai))
+            string num = n < 10 ? "0" + str.tostring(n) : str.tostring(n)
+            string sideText = isLongCandidate ? "LONG" : "SHORT"
+            string entryId = "TEST22|" + target + "|T22-" + num + "|" + sideText
+            string stopId = "TEST22|" + target + "|T22-" + num + "|STOP"
+            strategy.exit(stopId, from_entry=entryId, loss=array.get(frozenStopTicks, ai), comment="TEST22|STOP")
+
+
+for n = 1 to 28
+    bool isLongCandidate = n % 2 == 1
+    bool sideEnabled = (batchSide == "LONG" and isLongCandidate) or (batchSide == "SHORT" and not isLongCandidate)
+    if sideEnabled
+        int ai = n - 1
+        int et = array.get(expectedEntryTime, ai)
+        if not na(et)
+            string num = n < 10 ? "0" + str.tostring(n) : str.tostring(n)
+            string sideText = isLongCandidate ? "LONG" : "SHORT"
+            string entryId = "TEST22|" + target + "|T22-" + num + "|" + sideText
+            bool maxHoldNow = time_close >= et + 120 * 60 * 1000
+            if maxHoldNow
+                strategy.close(entryId, comment="TEST22|" + target + "|T22-" + num + "|MAXHOLD", immediately=true)
+                array.set(expectedEntryTime, ai, na)
+                array.set(frozenStopTicks, ai, 0)
+            else if flattenNow
+                strategy.close(entryId, comment="TEST22|" + target + "|T22-" + num + "|1545_FLAT", immediately=true)
+                array.set(expectedEntryTime, ai, na)
+                array.set(frozenStopTicks, ai, 0)
+            else if session.islastbar
+                strategy.close(entryId, comment="TEST22|" + target + "|T22-" + num + "|SESSION_LAST", immediately=true)
+                array.set(expectedEntryTime, ai, na)
+                array.set(frozenStopTicks, ai, 0)
+
+
+plot(vwap, "US-session VWAP", display=display.none)

@@ -1,0 +1,234 @@
+//@version=6
+strategy("TEST17 Native Factory V1.1 | Footprint Delta | 5m", overlay=true, pyramiding=0, process_orders_on_close=false, commission_type=strategy.commission.cash_per_contract, commission_value=2.24, slippage=1)
+
+string TZ = "America/New_York"
+string RTH = "0930-1545:23456"
+string target = syminfo.root
+int tfSec = timeframe.in_seconds()
+
+int ticksPerRow = switch target
+    "ES"  => 4
+    "NQ"  => 20
+    "RTY" => 5
+    "YM"  => 10
+    "CL"  => 5
+    => 10
+
+footprint fp = request.footprint(ticksPerRow, va_percent = 70, imbalance_percent = 300)
+bool fpReady = not na(fp)
+
+float fpTotal = na
+float fpDelta = na
+float deltaPct = na
+float rowCount = na
+float pocMid = na
+float pocLoc = na
+float vahPrice = na
+float valPrice = na
+float buyImbCount = na
+float sellImbCount = na
+float imbScore = na
+
+if fpReady
+    fpTotal := fp.total_volume()
+    fpDelta := fp.delta()
+    deltaPct := fpTotal != 0 ? 100.0 * fpDelta / fpTotal : na
+
+    volume_row poc = fp.poc()
+    volume_row vah = fp.vah()
+    volume_row val = fp.val()
+    pocMid := math.avg(poc.down_price(), poc.up_price())
+    pocLoc := high != low ? (pocMid - low) / (high - low) : 0.5
+    vahPrice := vah.up_price()
+    valPrice := val.down_price()
+
+    array<volume_row> rows = fp.rows()
+    int n = array.size(rows)
+    rowCount := n
+    int bCount = 0
+    int sCount = 0
+    if n > 0
+        for row in rows
+            if row.has_buy_imbalance()
+                bCount += 1
+            if row.has_sell_imbalance()
+                sCount += 1
+    buyImbCount := bCount
+    sellImbCount := sCount
+    imbScore := n > 0 ? (bCount - sCount) / float(n) : na
+
+float pocPrev = pocMid[1]
+float vahPrev = vahPrice[1]
+float valPrev = valPrice[1]
+
+bool inRth = not na(time(timeframe.period, RTH, TZ))
+int hh = hour(time, TZ)
+int mm = minute(time, TZ)
+int mod = hh*60 + mm
+bool firstRth = inRth and hh == 9 and mm == 30
+bool flattenNow = inRth and hour(time_close,TZ) == 15 and minute(time_close,TZ) == 45
+int bars30 = 6
+
+var float activeHigh = na
+var float activeLow = na
+var float activeClose = na
+var float prevSessClose = na
+var float atr14 = na
+var int atrCount = 0
+var float cumPV = na
+var float cumV = na
+var int rthBarCount = 0
+float oldHigh = activeHigh
+float oldLow = activeLow
+
+if firstRth
+    if not na(activeHigh) and not na(activeLow) and not na(activeClose)
+        float trPrev = na(prevSessClose) ? activeHigh - activeLow : math.max(activeHigh - activeLow, math.max(math.abs(activeHigh - prevSessClose), math.abs(activeLow - prevSessClose)))
+        atr14 := na(atr14) ? trPrev : (atr14 * 13.0 + trPrev) / 14.0
+        atrCount += 1
+        prevSessClose := activeClose
+    activeHigh := high
+    activeLow := low
+    activeClose := close
+    cumPV := hlc3 * nz(volume)
+    cumV := nz(volume)
+    rthBarCount := 1
+    oldHigh := na
+    oldLow := na
+else if inRth
+    rthBarCount += 1
+    activeHigh := math.max(nz(activeHigh, high), high)
+    activeLow := math.min(nz(activeLow, low), low)
+    activeClose := close
+    cumPV := nz(cumPV) + hlc3 * nz(volume)
+    cumV := nz(cumV) + nz(volume)
+
+float atrPrev = atrCount >= 14 ? atr14 : na
+float vwap = inRth and cumV > 0 ? cumPV / cumV : na
+float c30 = inRth and rthBarCount > bars30 ? ta.valuewhen(inRth, close, bars30) : na
+float ret30 = inRth and not na(atrPrev) and atrPrev > 0 and not na(c30) ? (close - c30) / atrPrev : na
+float vwapDist = inRth and not na(atrPrev) and atrPrev > 0 and not na(vwap) ? (close - vwap) / atrPrev : na
+float sessClv = inRth and not na(activeHigh) and not na(activeLow) ? (close - activeLow) / math.max(activeHigh - activeLow, syminfo.mintick) : na
+float barClv = (close - low) / math.max(high - low, syminfo.mintick)
+
+bool aboveVwap = inRth and not na(vwap) and close > vwap
+bool belowVwap = inRth and not na(vwap) and close < vwap
+bool closeBreakHigh = inRth and not firstRth and not na(oldHigh) and close > oldHigh
+bool closeBreakLow = inRth and not firstRth and not na(oldLow) and close < oldLow
+bool sweepHigh = inRth and not firstRth and not na(oldHigh) and high > oldHigh and close < oldHigh
+bool sweepLow = inRth and not firstRth and not na(oldLow) and low < oldLow and close > oldLow
+
+bool w1000_1415 = mod >= 600 and mod < 855
+bool w1000_1430 = mod >= 600 and mod < 870
+bool w1015_1430 = mod >= 615 and mod < 870
+bool rowGood = fpReady and not na(rowCount) and rowCount >= 3
+
+bool baseSweepLong = fpReady and w1000_1430 and sweepLow and not na(ret30) and ret30 <= -0.10 and sessClv >= 0.30
+bool baseSweepShort = fpReady and w1000_1430 and sweepHigh and not na(ret30) and ret30 >= 0.10 and sessClv <= 0.70
+
+bool baseBreakLong = fpReady and w1000_1415 and closeBreakHigh and aboveVwap and not na(ret30) and ret30 >= 0.10 and sessClv >= 0.65
+bool baseBreakShort = fpReady and w1000_1415 and closeBreakLow and belowVwap and not na(ret30) and ret30 <= -0.10 and sessClv <= 0.35
+
+bool baseOppFadeLong = fpReady and w1000_1430 and closeBreakLow and belowVwap and sessClv >= 0.25
+bool baseOppFadeShort = fpReady and w1000_1430 and closeBreakHigh and aboveVwap and sessClv <= 0.75
+
+bool basePocLong = fpReady and w1000_1430 and not na(pocPrev) and close[1] <= pocPrev and low <= pocPrev and close > pocPrev
+bool basePocShort = fpReady and w1000_1430 and not na(pocPrev) and close[1] >= pocPrev and high >= pocPrev and close < pocPrev
+
+bool baseValLong = fpReady and w1000_1430 and not na(valPrev) and low < valPrev and close > valPrev
+bool baseVahShort = fpReady and w1000_1430 and not na(vahPrev) and high > vahPrev and close < vahPrev
+
+bool baseTrendBarLong = fpReady and w1000_1430 and aboveVwap and not na(ret30) and ret30 >= 0.10 and close > open and barClv >= 0.65
+bool baseTrendBarShort = fpReady and w1000_1430 and belowVwap and not na(ret30) and ret30 <= -0.10 and close < open and barClv <= 0.35
+
+bool baseAbsLong = fpReady and w1000_1430 and (closeBreakLow or sweepLow) and barClv >= 0.60
+bool baseAbsShort = fpReady and w1000_1430 and (closeBreakHigh or sweepHigh) and barClv <= 0.40
+
+bool s01 = rowGood and baseSweepLong and deltaPct >= 30 and imbScore >= 0
+bool s02 = rowGood and baseSweepShort and deltaPct <= -30 and imbScore <= 0
+bool s03 = rowGood and baseBreakLong and deltaPct >= 30 and imbScore >= 0.20
+bool s04 = rowGood and baseBreakShort and deltaPct <= -30 and imbScore <= -0.20
+bool s05 = rowGood and baseOppFadeLong and deltaPct >= 30 and imbScore >= 0.20
+bool s06 = rowGood and baseOppFadeShort and deltaPct <= -30 and imbScore <= -0.20
+bool s07 = rowGood and basePocLong and deltaPct >= 30 and imbScore >= 0.20
+bool s08 = rowGood and basePocShort and deltaPct <= -30 and imbScore <= -0.20
+bool s09 = rowGood and baseValLong and deltaPct >= 20 and imbScore >= 0.20
+bool s10 = rowGood and baseVahShort and deltaPct <= -20 and imbScore <= -0.20
+bool s11 = rowGood and baseTrendBarLong and deltaPct >= 30 and pocLoc >= 0.65
+bool s12 = rowGood and baseTrendBarShort and deltaPct <= -30 and pocLoc <= 0.35
+bool s13 = rowGood and w1015_1430 and aboveVwap and not na(vwapDist) and vwapDist >= 0 and vwapDist <= 0.15 and close > open and deltaPct >= 15 and buyImbCount >= 2 and imbScore >= 0.33
+bool s14 = rowGood and w1015_1430 and belowVwap and not na(vwapDist) and vwapDist <= 0 and vwapDist >= -0.15 and close < open and deltaPct <= -15 and sellImbCount >= 2 and imbScore <= -0.33
+bool s15 = rowGood and baseAbsLong and deltaPct <= -60 and sellImbCount >= 1
+bool s16 = rowGood and baseAbsShort and deltaPct >= 60 and buyImbCount >= 1
+
+bool c01 = baseSweepLong
+bool c02 = baseSweepShort
+bool c03 = baseBreakLong
+bool c04 = baseBreakShort
+bool c05 = baseTrendBarLong
+bool c06 = baseTrendBarShort
+bool c07 = baseAbsLong
+bool c08 = baseAbsShort
+
+if barstate.isfirst and tfSec != 300
+    runtime.error("TEST17 requires exactly 5-minute chart.")
+if barstate.isfirst and syminfo.session != "us_regular"
+    runtime.error("TEST17 requires chart Session = Regular Trading Hours.")
+if barstate.isfirst and (target != "ES" and target != "NQ" and target != "RTY" and target != "YM" and target != "CL")
+    runtime.error("TEST17 Stage-1 eligible markets are ES/NQ/RTY/YM/CL only. GC/SI are data-ineligible for the frozen ~1Y discovery requirement.")
+
+string candidate = input.string("T17-01", "Candidate", options=["T17-01","T17-02","T17-03","T17-04","T17-05","T17-06","T17-07","T17-08","T17-09","T17-10","T17-11","T17-12","T17-13","T17-14","T17-15","T17-16","T17-C01","T17-C02","T17-C03","T17-C04","T17-C05","T17-C06","T17-C07","T17-C08"])
+
+bool longSignal = candidate=="T17-01" ? s01 : candidate=="T17-03" ? s03 : candidate=="T17-05" ? s05 : candidate=="T17-07" ? s07 : candidate=="T17-09" ? s09 : candidate=="T17-11" ? s11 : candidate=="T17-13" ? s13 : candidate=="T17-15" ? s15 : candidate=="T17-C01" ? c01 : candidate=="T17-C03" ? c03 : candidate=="T17-C05" ? c05 : candidate=="T17-C07" ? c07 : false
+bool shortSignal = candidate=="T17-02" ? s02 : candidate=="T17-04" ? s04 : candidate=="T17-06" ? s06 : candidate=="T17-08" ? s08 : candidate=="T17-10" ? s10 : candidate=="T17-12" ? s12 : candidate=="T17-14" ? s14 : candidate=="T17-16" ? s16 : candidate=="T17-C02" ? c02 : candidate=="T17-C04" ? c04 : candidate=="T17-C06" ? c06 : candidate=="T17-C08" ? c08 : false
+
+var int entriesToday = 0
+var int entryTime = na
+var float pendingStopDist = na
+var float activeStopDist = na
+
+if firstRth
+    entriesToday := 0
+    if strategy.position_size == 0
+        pendingStopDist := na
+
+bool canEnter = inRth and not session.islastbar and strategy.position_size == 0 and entriesToday == 0 and not flattenNow and hour(time_close,TZ) < 15 and not na(atrPrev) and atrPrev > 0
+
+if longSignal and canEnter
+    pendingStopDist := math.max(syminfo.mintick, math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick)
+    strategy.entry("L", strategy.long)
+    entriesToday += 1
+
+if shortSignal and canEnter
+    pendingStopDist := math.max(syminfo.mintick, math.ceil(2.0 * atrPrev / syminfo.mintick) * syminfo.mintick)
+    strategy.entry("S", strategy.short)
+    entriesToday += 1
+
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+    entryTime := time
+    activeStopDist := pendingStopDist
+    pendingStopDist := na
+
+if strategy.position_size > 0 and not na(activeStopDist)
+    strategy.exit("L-X", "L", stop=strategy.position_avg_price - activeStopDist)
+if strategy.position_size < 0 and not na(activeStopDist)
+    strategy.exit("S-X", "S", stop=strategy.position_avg_price + activeStopDist)
+
+bool maxHoldNow = strategy.position_size != 0 and not na(entryTime) and time_close >= entryTime + 120 * 60 * 1000
+if maxHoldNow
+    strategy.close_all(comment="MAXHOLD", immediately=true)
+if flattenNow
+    strategy.close_all(comment="1545_FLAT", immediately=true)
+if session.islastbar and strategy.position_size != 0
+    strategy.close_all(comment="SESSION_LAST", immediately=true)
+
+if strategy.position_size == 0 and strategy.position_size[1] != 0
+    entryTime := na
+    activeStopDist := na
+
+plotchar(longSignal, "Long signal", "L", location=location.belowbar, size=size.tiny)
+plotchar(shortSignal, "Short signal", "S", location=location.abovebar, size=size.tiny)
+plot(deltaPct, "Footprint Delta %", display=display.data_window)
+plot(imbScore, "Footprint Imbalance Score", display=display.data_window)
+plot(pocLoc, "Footprint POC Location", display=display.data_window)
+plot(rowCount, "Footprint Row Count", display=display.data_window)
