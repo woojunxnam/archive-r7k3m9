@@ -1,0 +1,47 @@
+[
+ {
+  "sleeve": "LC02 (ES)",
+  "recall": 1.0,
+  "precision": 0.9777777777777777,
+  "price_share_V1_quarterly": 0.9772727272727273,
+  "price_share_V2_contract": 1.0,
+  "PARITY_V1": "BLOCKED",
+  "PARITY_V2_PROPOSED": "BLOCKED"
+ },
+ {
+  "sleeve": "LC03 (NQ)",
+  "recall": 1.0,
+  "precision": 1.0,
+  "price_share_V1_quarterly": 0.9343434343434344,
+  "price_share_V2_contract": 1.0,
+  "PARITY_V1": "BLOCKED",
+  "PARITY_V2_PROPOSED": "PASS"
+ },
+ {
+  "sleeve": "LC05 (NQ)",
+  "recall": 0.9335548172757475,
+  "precision": 0.922824302134647,
+  "price_share_V1_quarterly": 0.9501779359430605,
+  "price_share_V2_contract": 0.99644128113879,
+  "PARITY_V1": "BLOCKED",
+  "PARITY_V2_PROPOSED": "BLOCKED"
+ },
+ {
+  "sleeve": "TS13-S01 (YM)",
+  "recall": 0.9754098360655737,
+  "precision": 0.937007874015748,
+  "price_share_V1_quarterly": 0.9159663865546218,
+  "price_share_V2_contract": 1.0,
+  "PARITY_V1": "BLOCKED",
+  "PARITY_V2_PROPOSED": "BLOCKED"
+ },
+ {
+  "sleeve": "TEST20 V1 (NQ, timestamp level)",
+  "recall": 0.9598540145985401,
+  "precision": 0.9538860103626943,
+  "price_share_V1_quarterly": 0.9321021184139054,
+  "price_share_V2_contract": 0.9956545355784899,
+  "PARITY_V1": "BLOCKED",
+  "PARITY_V2_PROPOSED": "BLOCKED"
+ }
+]

@@ -1,0 +1,247 @@
+{
+ "strategy": "TEST20 V1.1 MARGIN FIX",
+ "variant": "V1_SURVIVOR_STACK_3X",
+ "target": "NQ",
+ "window": [
+  "2019-09-03",
+  "2026-05-27"
+ ],
+ "coverage": "ES+MNQ+NQ complete 81-bar sessions (t96_parity.covered_dates_nq)",
+ "primary_sum_mode": "lazy",
+ "lazy": {
+  "timestamp_level_TEST46": {
+   "seed": "T20_V1_NQ",
+   "ledger_entries_window": 1918,
+   "engine_entries_window": 1930,
+   "matched": 1841,
+   "ledger_recall": 0.9598540145985401,
+   "engine_precision": 0.9538860103626943,
+   "price_within_1tick_share": 0.9321021184139054,
+   "median_abs_price_diff": 0.0,
+   "PARITY": "BLOCKED"
+  },
+  "timestamp_dir": {
+   "ledger": 1918,
+   "engine": 1930,
+   "matched": 1841,
+   "recall": 0.9598540145985401,
+   "precision": 0.9538860103626943
+  },
+  "leg_level_time_dir": {
+   "ledger": 1980,
+   "engine": 1991,
+   "matched": 1896,
+   "recall": 0.9575757575757575,
+   "precision": 0.9522852837769965
+  },
+  "leg_level_time_dir_leg": {
+   "ledger": 1980,
+   "engine": 1991,
+   "matched": 1887,
+   "recall": 0.953030303030303,
+   "precision": 0.9477649422400803
+  },
+  "leg_level_time_dir_leg_fam": {
+   "ledger": 1980,
+   "engine": 1991,
+   "matched": 1884,
+   "recall": 0.9515151515151515,
+   "precision": 0.946258161727775
+  },
+  "long_only_timestamp": {
+   "ledger": 1531,
+   "engine": 1548,
+   "matched": 1469,
+   "recall": 0.9595035924232528,
+   "precision": 0.9489664082687338
+  },
+  "long_only_leg_level": {
+   "ledger": 1588,
+   "engine": 1604,
+   "matched": 1507,
+   "recall": 0.948992443324937,
+   "precision": 0.9395261845386533
+  },
+  "short_only_timestamp": {
+   "ledger": 387,
+   "engine": 382,
+   "matched": 372,
+   "recall": 0.9612403100775194,
+   "precision": 0.9738219895287958
+  },
+  "short_only_leg_level": {
+   "ledger": 392,
+   "engine": 387,
+   "matched": 377,
+   "recall": 0.9617346938775511,
+   "precision": 0.9741602067183462
+  },
+  "L1_only": {
+   "ledger": 1514,
+   "engine": 1516,
+   "matched": 1452,
+   "recall": 0.9590488771466315,
+   "precision": 0.9577836411609498
+  },
+  "L2_only": {
+   "ledger": 391,
+   "engine": 399,
+   "matched": 362,
+   "recall": 0.9258312020460358,
+   "precision": 0.9072681704260651
+  },
+  "L3_only": {
+   "ledger": 75,
+   "engine": 76,
+   "matched": 70,
+   "recall": 0.9333333333333333,
+   "precision": 0.9210526315789473
+  },
+  "L2_only_time_dir": {
+   "ledger": 391,
+   "engine": 399,
+   "matched": 364,
+   "recall": 0.9309462915601023,
+   "precision": 0.9122807017543859
+  },
+  "addon_legs_only": {
+   "ledger": 410,
+   "engine": 421,
+   "matched": 380,
+   "recall": 0.926829268292683,
+   "precision": 0.9026128266033254
+  },
+  "exit_diag": {
+   "matched_legs": 1887,
+   "same_exit_time": 0.9968203497615262,
+   "same_exit_reason": 1.0
+  },
+  "price_diag_per_contract": {
+   "n": 1841,
+   "contracts": 28,
+   "within_1tick_share_per_contract_median": 0.9956545355784899,
+   "exact_share": 0.9913090711569799,
+   "median_abs_diff": 0.0
+  },
+  "ledger_legs_total_window": 1980,
+  "engine_legs_total_window": 1991
+ },
+ "eager": {
+  "timestamp_level_TEST46": {
+   "seed": "T20_V1_NQ",
+   "ledger_entries_window": 1918,
+   "engine_entries_window": 1888,
+   "matched": 982,
+   "ledger_recall": 0.5119916579770595,
+   "engine_precision": 0.5201271186440678,
+   "price_within_1tick_share": 0.9317718940936863,
+   "median_abs_price_diff": 0.0,
+   "PARITY": "BLOCKED"
+  },
+  "timestamp_dir": {
+   "ledger": 1918,
+   "engine": 1888,
+   "matched": 981,
+   "recall": 0.5114702815432742,
+   "precision": 0.5195974576271186
+  },
+  "leg_level_time_dir": {
+   "ledger": 1980,
+   "engine": 1945,
+   "matched": 991,
+   "recall": 0.5005050505050505,
+   "precision": 0.5095115681233933
+  },
+  "leg_level_time_dir_leg": {
+   "ledger": 1980,
+   "engine": 1945,
+   "matched": 894,
+   "recall": 0.45151515151515154,
+   "precision": 0.4596401028277635
+  },
+  "leg_level_time_dir_leg_fam": {
+   "ledger": 1980,
+   "engine": 1945,
+   "matched": 886,
+   "recall": 0.44747474747474747,
+   "precision": 0.45552699228791776
+  },
+  "long_only_timestamp": {
+   "ledger": 1531,
+   "engine": 1549,
+   "matched": 734,
+   "recall": 0.47942521227955587,
+   "precision": 0.47385409941898
+  },
+  "long_only_leg_level": {
+   "ledger": 1588,
+   "engine": 1603,
+   "matched": 637,
+   "recall": 0.40113350125944586,
+   "precision": 0.39737991266375544
+  },
+  "short_only_timestamp": {
+   "ledger": 387,
+   "engine": 339,
+   "matched": 247,
+   "recall": 0.6382428940568475,
+   "precision": 0.7286135693215339
+  },
+  "short_only_leg_level": {
+   "ledger": 392,
+   "engine": 342,
+   "matched": 249,
+   "recall": 0.6352040816326531,
+   "precision": 0.7280701754385965
+  },
+  "L1_only": {
+   "ledger": 1514,
+   "engine": 1477,
+   "matched": 773,
+   "recall": 0.5105680317040951,
+   "precision": 0.5233581584292485
+  },
+  "L2_only": {
+   "ledger": 391,
+   "engine": 389,
+   "matched": 82,
+   "recall": 0.20971867007672634,
+   "precision": 0.21079691516709512
+  },
+  "L3_only": {
+   "ledger": 75,
+   "engine": 79,
+   "matched": 31,
+   "recall": 0.41333333333333333,
+   "precision": 0.3924050632911392
+  },
+  "L2_only_time_dir": {
+   "ledger": 391,
+   "engine": 389,
+   "matched": 87,
+   "recall": 0.22250639386189258,
+   "precision": 0.2236503856041131
+  },
+  "addon_legs_only": {
+   "ledger": 410,
+   "engine": 421,
+   "matched": 107,
+   "recall": 0.26097560975609757,
+   "precision": 0.25415676959619954
+  },
+  "exit_diag": {
+   "matched_legs": 894,
+   "same_exit_time": 0.9977628635346756,
+   "same_exit_reason": 1.0
+  },
+  "price_diag_per_contract": {
+   "n": 982,
+   "contracts": 28,
+   "within_1tick_share_per_contract_median": 0.9928716904276986,
+   "exact_share": 0.9898167006109979,
+   "median_abs_diff": 0.0
+  },
+  "ledger_legs_total_window": 1980,
+  "engine_legs_total_window": 1945
+ }
+}
