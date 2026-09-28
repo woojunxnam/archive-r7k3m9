@@ -7,3 +7,5 @@ TEST48,0,0,89301,0,nested GA lane lane_ac,2026-09-28T03:32:30
 TEST48,0,0,0,0,final gate,2026-09-28T03:33:00
 TEST49,72,0,0,0,simple continuation grid,2026-09-28T03:33:44
 TEST49,0,0,90567,0,nested GA lane lane_ct,2026-09-28T03:35:28
+TEST50,512,0,0,0,simple compression->expansion grid,2026-09-28T03:37:46
+TEST50,512,0,0,0,simple compression->expansion grid,2026-09-28T03:38:06

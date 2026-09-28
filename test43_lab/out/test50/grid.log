@@ -1,0 +1,107 @@
+ES done
+MNQ done
+    inst                comp              exp  stop   exit  trades_2021  avg_trade  excess_trade  t_excess  standalone_avg_day  matched_excess_day  folds_pos  fold_median  corr_C43  comb_worst_day   PASS
+1     ES         K1_RANGE3.0     X1_BOX_BREAK  True  X1600          981       0.65          2.34      0.88                1.37                1.87          4         1.19      0.26        -1786.21  False
+9     ES         K1_RANGE3.0       X2_EXP_BAR  True  X1600          586       3.18          5.82      1.68                1.76                2.59          3         1.61      0.14        -1688.77  False
+17    ES         K1_RANGE3.0      X3_HL_BREAK  True  X1600          856       1.29          3.22      1.13                1.33                1.88          4         1.08      0.25        -1786.21  False
+25    ES         K1_RANGE3.0  X4_BREAK_RETEST  True  X1600          457       4.22          7.14      1.89                2.07                2.71          3         1.65      0.19        -1802.46  False
+33    ES         K1_RANGE4.0     X1_BOX_BREAK  True  X1600         1078       1.04          2.83      0.89                3.13                3.77          4         1.74      0.23        -1655.23  False
+41    ES         K1_RANGE4.0       X2_EXP_BAR  True  X1600          823       4.29          6.64      1.76                3.24                4.15          4         1.36      0.12        -1688.77  False
+49    ES         K1_RANGE4.0      X3_HL_BREAK  True  X1600          963       1.78          3.79      1.12                3.02                3.73          4         2.97      0.21        -1655.23  False
+57    ES         K1_RANGE4.0  X4_BREAK_RETEST  True  X1600          568       5.93          8.50      1.86                3.34                4.00          3         3.05      0.17        -1708.76  False
+65    ES         K1_RANGE5.0     X1_BOX_BREAK  True  X1600         1113       3.47          5.39      1.65                5.35                6.23          5         3.40      0.25        -1745.02  False
+73    ES         K1_RANGE5.0       X2_EXP_BAR  True  X1600          894       1.52          3.50      1.08                1.04                1.78          3         1.48      0.21        -1813.71  False
+81    ES         K1_RANGE5.0      X3_HL_BREAK  True  X1600          995       3.29          5.15      1.49                4.47                5.18          5         1.93      0.24        -1711.26  False
+89    ES         K1_RANGE5.0  X4_BREAK_RETEST  True  X1600          626       3.30          5.86      1.27                1.74                2.52          3         2.15      0.18        -1655.23  False
+97    ES          K2_RVOL0.5     X1_BOX_BREAK  True  X1600          889       0.05          1.23      0.45                1.69                1.68          3         1.51      0.27        -1790.02  False
+105   ES          K2_RVOL0.5       X2_EXP_BAR  True  X1600          509       1.26          3.01      0.82                0.86                1.30          2        -0.44      0.15        -1773.77  False
+113   ES          K2_RVOL0.5      X3_HL_BREAK  True  X1600          801      -2.39         -0.70     -0.25               -0.32               -0.02          1        -1.01      0.24        -1796.27  False
+121   ES          K2_RVOL0.5  X4_BREAK_RETEST  True  X1600          456       2.28          4.85      1.35                1.45                1.98          3         2.70      0.21        -1655.23  False
+129   ES          K2_RVOL0.7     X1_BOX_BREAK  True  X1600         1049       1.27          2.87      0.89                2.94                3.33          5         2.68      0.26        -1790.02  False
+137   ES          K2_RVOL0.7       X2_EXP_BAR  True  X1600          807       0.52          2.32      0.65                0.29                0.92          3         0.42      0.15        -1773.77  False
+145   ES          K2_RVOL0.7      X3_HL_BREAK  True  X1600          942       1.94          3.65      1.10                3.00                3.42          4         2.79      0.24        -1796.27  False
+153   ES          K2_RVOL0.7  X4_BREAK_RETEST  True  X1600          551       3.76          6.01      1.72                2.52                3.05          4         0.62      0.23        -1655.23  False
+161   ES  K3_CONTRACTION0.35     X1_BOX_BREAK  True  X1600          761       0.03          3.42      1.21                0.87                2.33          3         2.24      0.17        -1833.39  False
+169   ES  K3_CONTRACTION0.35       X2_EXP_BAR  True  X1600          437       0.33          3.38      0.78                0.28                0.98          2        -2.13      0.10        -1833.39  False
+177   ES  K3_CONTRACTION0.35      X3_HL_BREAK  True  X1600          646      -2.35          1.33      0.43               -0.74                0.64          3         0.70      0.16        -1833.39  False
+185   ES  K3_CONTRACTION0.35  X4_BREAK_RETEST  True  X1600          344      -0.85          3.53      0.84               -0.19                0.69          2        -0.11      0.13        -1890.89  False
+193   ES             NONE0.0       X2_EXP_BAR  True  X1600          931       2.86          4.29      1.09                2.96                3.28          3         1.43      0.19        -1773.77  False
+201   ES             NONE0.0      X3_HL_BREAK  True  X1600         1024       0.44          2.16      0.60                2.36                2.91          5         2.60      0.25        -1890.89  False
+209   ES         K1_RANGE3.0        COMP_ONLY  True  X1600         1254       0.10          1.76      0.78               -0.24                0.31          4         0.71      0.27        -1707.46  False
+217   ES         K1_RANGE4.0        COMP_ONLY  True  X1600         1339       0.78          2.25      0.81                1.90                2.04          3         1.96      0.25        -1751.21  False
+225   ES         K1_RANGE5.0        COMP_ONLY  True  X1600         1351      -1.84         -0.38     -0.15               -0.19               -0.28          2        -1.45      0.33        -1821.21  False
+233   ES          K2_RVOL0.5        COMP_ONLY  True  X1600         1203      -1.74         -0.28     -0.13               -1.33               -1.04          2        -0.72      0.30        -1811.21  False
+241   ES          K2_RVOL0.7        COMP_ONLY  True  X1600         1329      -0.95          0.40      0.15               -0.12               -0.11          3         0.82      0.27        -1776.27  False
+249   ES  K3_CONTRACTION0.35        COMP_ONLY  True  X1600         1145      -1.22          0.87      0.40               -0.63                0.40          3         0.55      0.21        -1810.89  False
+257  MNQ         K1_RANGE3.0     X1_BOX_BREAK  True  X1600          964       7.13          4.06      0.77                6.26                3.06          5         3.73      0.25        -1880.74  False
+265  MNQ         K1_RANGE3.0       X2_EXP_BAR  True  X1600          537      14.74         10.67      1.32                7.36                5.23          3         3.01      0.13        -1863.28  False
+273  MNQ         K1_RANGE3.0      X3_HL_BREAK  True  X1600          842       7.89          5.03      0.89                6.33                3.64          4         3.58      0.22        -1880.74  False
+281  MNQ         K1_RANGE3.0  X4_BREAK_RETEST  True  X1600          467      14.87         11.61      1.45                6.15                4.41          5         4.81      0.17        -1924.74  False
+289  MNQ         K1_RANGE4.0     X1_BOX_BREAK  True  X1600         1087      10.01          6.36      1.20                8.99                4.93          5         9.99      0.29        -1915.24  False
+297  MNQ         K1_RANGE4.0       X2_EXP_BAR  True  X1600          805       8.93          4.72      0.73                5.49                2.15          4         2.71      0.16        -1818.34  False
+305  MNQ         K1_RANGE4.0      X3_HL_BREAK  True  X1600          962      12.14          9.03      1.61               10.24                7.10          5         8.82      0.26        -1894.84  False
+313  MNQ         K1_RANGE4.0  X4_BREAK_RETEST  True  X1600          549      15.45         11.82      1.72                8.04                6.14          5         8.03      0.21        -1876.10  False
+321  MNQ         K1_RANGE5.0     X1_BOX_BREAK  True  X1600         1117       9.56          5.30      0.98                9.37                4.56          5         8.64      0.30        -1934.63  False
+329  MNQ         K1_RANGE5.0       X2_EXP_BAR  True  X1600          903       2.64         -2.18     -0.41                1.84               -2.39          4         1.87      0.25        -1818.34  False
+337  MNQ         K1_RANGE5.0      X3_HL_BREAK  True  X1600         1012       9.36          5.10      0.90                8.09                3.73          5         6.23      0.29        -1934.63  False
+345  MNQ         K1_RANGE5.0  X4_BREAK_RETEST  True  X1600          593      14.87         10.83      1.60                6.93                4.58          5         6.83      0.24        -1940.78  False
+353  MNQ          K2_RVOL0.5     X1_BOX_BREAK  True  X1600          906       5.97          2.69      0.60                5.10                1.93          5         3.72      0.33        -1888.78  False
+361  MNQ          K2_RVOL0.5       X2_EXP_BAR  True  X1600          480       6.21          3.28      0.52                3.13                1.65          3         1.46      0.17        -1757.28  False
+369  MNQ          K2_RVOL0.5      X3_HL_BREAK  True  X1600          796       4.16          1.11      0.24                3.85                1.19          4         2.54      0.31        -1915.78  False
+377  MNQ          K2_RVOL0.5  X4_BREAK_RETEST  True  X1600          454       9.60          6.83      1.15                4.07                2.74          4         3.04      0.26        -1924.74  False
+385  MNQ          K2_RVOL0.7     X1_BOX_BREAK  True  X1600         1061       6.41          1.93      0.37                7.01                2.19          5         7.68      0.29        -1880.74  False
+393  MNQ          K2_RVOL0.7       X2_EXP_BAR  True  X1600          784       4.61          0.61      0.10                1.60               -1.52          3         0.42      0.18        -1818.34  False
+401  MNQ          K2_RVOL0.7      X3_HL_BREAK  True  X1600          951       6.96          3.03      0.54                7.05                3.09          5         7.18      0.27        -1894.84  False
+409  MNQ          K2_RVOL0.7  X4_BREAK_RETEST  True  X1600          549      13.78          9.26      1.37                7.31                4.79          5         6.07      0.23        -1924.74  False
+417  MNQ  K3_CONTRACTION0.35     X1_BOX_BREAK  True  X1600          828      -1.50         -3.55     -0.77               -1.63               -3.52          2        -2.70      0.26        -2039.63  False
+425  MNQ  K3_CONTRACTION0.35       X2_EXP_BAR  True  X1600          446       3.72          0.26      0.04                1.23               -0.24          2        -2.14      0.10        -1948.13  False
+433  MNQ  K3_CONTRACTION0.35      X3_HL_BREAK  True  X1600          710       0.10         -1.71     -0.35               -0.37               -1.81          3         1.81      0.23        -2039.63  False
+441  MNQ  K3_CONTRACTION0.35  X4_BREAK_RETEST  True  X1600          370      -3.18         -3.71     -0.55               -1.68               -2.04          2        -1.10      0.14        -2104.63  False
+449  MNQ             NONE0.0       X2_EXP_BAR  True  X1600          956       5.85         -0.11     -0.02                5.18               -0.18          3         5.18      0.22        -1875.34  False
+457  MNQ             NONE0.0      X3_HL_BREAK  True  X1600         1016       6.98          2.31      0.39                6.78                1.88          5         6.47      0.30        -2039.63  False
+465  MNQ         K1_RANGE3.0        COMP_ONLY  True  X1600         1280       5.86          1.96      0.45                6.04                0.61          4         1.26      0.26        -1749.24  False
+473  MNQ         K1_RANGE4.0        COMP_ONLY  True  X1600         1345       7.08          2.44      0.52                8.30                1.44          5        10.39      0.31        -1832.24  False
+481  MNQ         K1_RANGE5.0        COMP_ONLY  True  X1600         1352       2.75         -2.26     -0.51                4.79               -2.77          4         8.32      0.39        -1921.24  False
+489  MNQ          K2_RVOL0.5        COMP_ONLY  True  X1600         1227       2.20         -1.57     -0.41                0.64               -4.35          3         1.08      0.33        -1868.78  False
+497  MNQ          K2_RVOL0.7        COMP_ONLY  True  X1600         1336       2.84         -1.42     -0.31                4.47               -1.82          4         6.47      0.30        -1829.34  False
+505  MNQ  K3_CONTRACTION0.35        COMP_ONLY  True  X1600         1214       1.65         -1.06     -0.29                0.63               -2.80          4         1.76      0.30        -1951.63  False
+    inst         comp              exp   stop      exit  trades_2021  avg_trade  excess_trade  t_excess  standalone_avg_day  matched_excess_day  folds_pos  fold_median  corr_C43  comb_worst_day   PASS
+40    ES  K1_RANGE4.0       X2_EXP_BAR   True      X120          822       5.15          8.18      2.75                4.14                5.67          4         1.12      0.09        -1688.77  False
+383  MNQ   K2_RVOL0.5  X4_BREAK_RETEST  False  NEXTOPEN          454      45.83         28.42      2.72               14.37                8.92          4        11.59      0.17        -1655.23  False
+8     ES  K1_RANGE3.0       X2_EXP_BAR   True      X120          585       2.77          5.80      2.12                1.52                2.68          4         1.16      0.12        -1688.77  False
+319  MNQ  K1_RANGE4.0  X4_BREAK_RETEST  False  NEXTOPEN          549      41.43         21.89      2.07               17.01                9.62          5        15.33      0.22        -2050.60  False
+192   ES      NONE0.0       X2_EXP_BAR   True      X120          931       2.63          5.03      2.02                2.78                4.22          5         3.36      0.15        -1746.21  False
+72    ES  K1_RANGE5.0       X2_EXP_BAR   True      X120          893       2.11          4.77      1.96                1.84                3.33          4         2.21      0.16        -1813.71  False
+317  MNQ  K1_RANGE4.0  X4_BREAK_RETEST  False     X1600          549      17.61         13.98      1.93                9.80                7.90          5        11.26      0.23        -2027.23  False
+27    ES  K1_RANGE3.0  X4_BREAK_RETEST   True  NEXTOPEN          457      15.76         11.84      1.92                4.24                3.11          4         5.40      0.24        -1802.46  False
+25    ES  K1_RANGE3.0  X4_BREAK_RETEST   True     X1600          457       4.22          7.14      1.89                2.07                2.71          3         1.65      0.19        -1802.46  False
+57    ES  K1_RANGE4.0  X4_BREAK_RETEST   True     X1600          568       5.93          8.50      1.86                3.34                4.00          3         3.05      0.17        -1708.76  False
+379  MNQ   K2_RVOL0.5  X4_BREAK_RETEST   True  NEXTOPEN          454      35.89         18.49      1.85               11.50                6.05          4        10.58      0.18        -1924.74  False
+360  MNQ   K2_RVOL0.5       X2_EXP_BAR   True      X120          480      10.60          9.44      1.79                4.53                3.80          4         5.43      0.13        -1757.28  False
+64    ES  K1_RANGE5.0     X1_BOX_BREAK   True      X120         1113       1.55          4.32      1.79                3.57                5.36          3         2.63      0.18        -1745.02  False
+41    ES  K1_RANGE4.0       X2_EXP_BAR   True     X1600          823       4.29          6.64      1.76                3.24                4.15          4         1.36      0.12        -1688.77  False
+313  MNQ  K1_RANGE4.0  X4_BREAK_RETEST   True     X1600          549      15.45         11.82      1.72                8.04                6.14          5         8.03      0.21        -1876.10  False
+153   ES   K2_RVOL0.7  X4_BREAK_RETEST   True     X1600          551       3.76          6.01      1.72                2.52                3.05          4         0.62      0.23        -1655.23  False
+31    ES  K1_RANGE3.0  X4_BREAK_RETEST  False  NEXTOPEN          457      15.47         11.55      1.70                3.24                2.11          4         4.73      0.22        -1802.98  False
+9     ES  K1_RANGE3.0       X2_EXP_BAR   True     X1600          586       3.18          5.82      1.68                1.76                2.59          3         1.61      0.14        -1688.77  False
+65    ES  K1_RANGE5.0     X1_BOX_BREAK   True     X1600         1113       3.47          5.39      1.65                5.35                6.23          5         3.40      0.25        -1745.02  False
+305  MNQ  K1_RANGE4.0      X3_HL_BREAK   True     X1600          962      12.14          9.03      1.61               10.24                7.10          5         8.82      0.26        -1894.84  False
+264  MNQ  K1_RANGE3.0       X2_EXP_BAR   True      X120          537      12.55         10.65      1.61                6.48                5.48          4         2.74      0.10        -1752.10  False
+345  MNQ  K1_RANGE5.0  X4_BREAK_RETEST   True     X1600          593      14.87         10.83      1.60                6.93                4.58          5         6.83      0.24        -1940.78  False
+58    ES  K1_RANGE4.0  X4_BREAK_RETEST   True     X1615          568       5.87          7.18      1.58                3.17                3.26          3         3.48      0.18        -1708.76  False
+285  MNQ  K1_RANGE3.0  X4_BREAK_RETEST  False     X1600          467      16.50         13.24      1.57                6.99                5.25          5         4.75      0.18        -2027.23  False
+42    ES  K1_RANGE4.0       X2_EXP_BAR   True     X1615          823       4.84          5.89      1.56                3.58                3.71          4         1.83      0.13        -1688.77  False
+                     matched_excess_day       t_excess      
+                                    max  mean      max  mean
+inst exp                                                    
+ES   COMP_ONLY                     2.04  0.22     0.81  0.31
+     X1_BOX_BREAK                  6.23  3.20     1.65  1.00
+     X2_EXP_BAR                    4.15  2.14     1.76  1.12
+     X3_HL_BREAK                   5.18  2.53     1.49  0.81
+     X4_BREAK_RETEST               4.00  2.49     1.89  1.49
+MNQ  COMP_ONLY                     1.44 -1.61     0.52 -0.09
+     X1_BOX_BREAK                  4.93  2.19     1.20  0.53
+     X2_EXP_BAR                    5.23  0.67     1.32  0.33
+     X3_HL_BREAK                   7.10  2.69     1.61  0.60
+     X4_BREAK_RETEST               6.14  3.43     1.72  1.12
+finalists 0 PASS 0
