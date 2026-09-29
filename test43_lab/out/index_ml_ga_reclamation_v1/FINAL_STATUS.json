@@ -1,6 +1,3 @@
-# INDEX_ML_GA_RECLAMATION_V1 — FINAL REPORT
-
-```json
 {
  "CURRENT_OFFICIAL_MAIN": "MAIN_GROWTH_V1 = T61-R1C_ATOMIC_CAP6 + FIXED_CLUE_BASKET_V1 (unchanged)",
  "MAIN_AVG_DAY": "143.21 full sample (151.78 on the stitched window 2021-01-01..2026-05-27)",
@@ -69,17 +66,3 @@
  "NEW_OOS_OPENED": "NO",
  "LIVE_AUTHORIZATION": "NO"
 }
-```
-
-## Phase summary
-- P0A TEST114 exact-clock correction: still negative -> GHLZ closed.  P0B engine audit PASS.
-- P1 bank frozen with exact MASTER event parity.
-- P3 nested ML (64 configs): nested Tier B only C1 and C7; ML rarely beats the take-all population.
-- P4 event-conditioned HTF: saturated.
-- P5 exhaustive structural GA (2,592 genomes): no stable genome (C1/C4 GA_OVERFIT_CLUE_ONLY).
-- P6 consensus: 6 candidates, matched-beta excess ~ raw dollars, but the plain ORB reference earns more than any candidate; DSR < 0.95 everywhere.
-- P7 stress: C1, C2, C7 pass; only C2 passes a portfolio route (B).
-- P8 management: fresh recovery stops for C1; winner pyramid positive for C1/C2 (CIs include 0).
-- P9: best relaxed frontier = Main + C2 + winner pyramid: +6.51 $/day, ret/DD 0.01128 vs 0.01089, MaxDD 14,036 vs 13,936.
-
-Every accepted item: HISTORICAL_SELECTION_EXPOSED = YES, RELAXED_GATE_SELECTION_EXPOSED = YES.  Official Main unchanged.  Cross-asset not opened (INDEX not fully saturated; cross-asset would in any case need user authorization).

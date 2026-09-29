@@ -1,0 +1,22 @@
+{
+ "FRONTIER_A": "C2+MGMTx2",
+ "FRONTIER_B": "C2+MGMTx1",
+ "FRONTIER_C": "C2x1",
+ "FRONTIER_D": "C1+MGMTx1",
+ "PARETO": [
+  "MAIN_ONLY",
+  "C7x1",
+  "C1x1",
+  "C1x1 + C7x1",
+  "C1+MGMTx1",
+  "C1+MGMTx1 + C7x1",
+  "C2x1",
+  "C2x1 + C7x1",
+  "C2x2",
+  "C2x2 + C7x1",
+  "C2+MGMTx1",
+  "C2+MGMTx2",
+  "C2+MGMTx2 + C7x1"
+ ],
+ "N_PORTFOLIOS": 45
+}
