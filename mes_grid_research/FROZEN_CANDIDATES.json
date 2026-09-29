@@ -1,0 +1,71 @@
+{
+ "frozen_at": "2026-09-29",
+ "git_head_before_freeze": "eee8a0fd08bf26a273f24df5d65863cb1ff52ddc",
+ "engine": "0.2.0",
+ "exec": "EXEC-1.1",
+ "roll": "ROLL-1.0",
+ "rule": "Frozen BEFORE any external/cross-market data was downloaded. No retuning allowed on external data.",
+ "candidates": {
+  "C32_FQA_32_16_16": {
+   "cfg": {
+    "rec_activation": "always",
+    "rec_anchor": "low60",
+    "rec_spacing": "float",
+    "rec_step": 5.0,
+    "rec_tp": 3.0,
+    "core_cap": 16,
+    "rec_cap": 16,
+    "max_total": 32,
+    "recovery": {
+     "h": 16,
+     "rec_tp": 2.0,
+     "rec_step": 10.0,
+     "layer_x": 5.0
+    },
+    "add_trigger": "armed",
+    "reversal": "ll_fail"
+   },
+   "sha256": "170a560393e3938a3a2a755d14c3a646fce51edfec634d15e025872c039b2e09"
+  },
+  "C14_FQA_14_8_6": {
+   "cfg": {
+    "rec_activation": "always",
+    "rec_anchor": "low60",
+    "rec_spacing": "float",
+    "rec_step": 5.0,
+    "rec_tp": 3.0,
+    "core_cap": 8,
+    "rec_cap": 6,
+    "max_total": 14,
+    "recovery": {
+     "h": 8,
+     "rec_tp": 2.0,
+     "rec_step": 10.0,
+     "layer_x": 5.0
+    },
+    "add_trigger": "armed",
+    "reversal": "ll_fail"
+   },
+   "sha256": "919ca63a92d3f4c1cc262bdd7930c1048c48c08ffff19fe23b43dfe35e2ce79b"
+  },
+  "C10_FQ_10_5_5": {
+   "cfg": {
+    "rec_activation": "always",
+    "rec_anchor": "low60",
+    "rec_spacing": "float",
+    "rec_step": 5.0,
+    "rec_tp": 3.0,
+    "core_cap": 5,
+    "rec_cap": 5,
+    "max_total": 10,
+    "recovery": {
+     "h": 5,
+     "rec_tp": 2.0,
+     "rec_step": 10.0,
+     "layer_x": 5.0
+    }
+   },
+   "sha256": "75e8d72c502171141952e151da075b6028707c17a904577ec0cb42b5316d51fc"
+  }
+ }
+}
