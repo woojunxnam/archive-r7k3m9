@@ -1,1 +1,16 @@
 action,population,n,incremental_ev,ci_lo,ci_hi,slip4_ev,folds_pos,note
+ENTRY_TAKE_ALL,D2,5943,3.773,,,-14.167,3,$/day on stitched window
+ENTRY_TAKE_ALL,D3,2558,5.093,,,-2.836,3,$/day on stitched window
+ENTRY_TAKE_ALL,D7,2393,9.203,,,1.975,4,$/day on stitched window
+ENTRY_TAKE_ALL,D8,1388,2.361,,,-1.836,4,$/day on stitched window
+ENTRY_TAKE_ALL,C2,590,6.791,,,5.023,4,$/day on stitched window
+EXIT_IF_NOT_WORKING_10m,C2,303,-1.808,,,nan,1,$/day on stitched window
+EXIT_IF_NOT_WORKING_20m,C2,281,-0.957,,,nan,2,$/day on stitched window
+EXIT_IF_NOT_WORKING_30m,C2,276,-1.649,,,nan,1,$/day on stitched window
+ADD1_FIRST_WINNER_GENERIC,C2,547,6.303,,,4.65,4,$/day on stitched window
+ADD1_FIRST_UNDERWATER_GENERIC,C2,519,3.18,,,1.631,4,$/day on stitched window
+EXIT_X60_vs_X1615,C2,540,-6.404,,,nan,1,$/day on stitched window
+EXIT_X120_vs_X1615,C2,540,-5.977,,,nan,2,$/day on stitched window
+EXIT_X1615_vs_X1615,C2,540,0.0,,,nan,0,$/day on stitched window
+EXIT_XRES_vs_X1615,C2,540,-5.23,,,nan,1,$/day on stitched window
+EXIT_XSTRUCT_vs_X1615,C2,540,-2.278,,,nan,2,$/day on stitched window

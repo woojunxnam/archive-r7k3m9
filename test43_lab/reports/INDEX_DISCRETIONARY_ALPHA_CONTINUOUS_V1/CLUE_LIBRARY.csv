@@ -3,3 +3,4 @@ PH1,C2_BASE,HISTORICAL_SMALL_DIVERSIFIER_CANDIDATE (full-chain DSR 0.27 / PBO 0.
 PH1,C2_GENERIC_WINNER_PRESS,GENERIC_WINNER_PRESS,first winner checkpoint add +15.90 $/add
 PH3,D7_BREAKOUT_FAILURE_CONVERSION,WEAK (beats pattern null at 120m; below cost),
 PH3,D1B,ECONOMIC_RESEARCH_CANDIDATE = C2 derivative,no location value
+PH5,D7_TAKE_ALL,"RAW_ECONOMICS_POSITIVE (+9.20 $/day, SLIP4 +1.98) but failed magnitude-null gate",generic drift suspect

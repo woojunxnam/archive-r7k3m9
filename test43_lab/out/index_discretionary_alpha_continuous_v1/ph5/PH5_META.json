@@ -1,0 +1,38 @@
+{
+ "hold_curves": [
+  {
+   "checkpoint_min": 10,
+   "hold_by_ret_quintile": [
+    7.85,
+    9.45,
+    -2.5,
+    31.24,
+    40.09
+   ],
+   "spearman": 0.7
+  },
+  {
+   "checkpoint_min": 20,
+   "hold_by_ret_quintile": [
+    -0.05,
+    11.16,
+    10.58,
+    30.91,
+    30.57
+   ],
+   "spearman": 0.7999999999999999
+  },
+  {
+   "checkpoint_min": 30,
+   "hold_by_ret_quintile": [
+    -3.57,
+    24.07,
+    -5.21,
+    30.22,
+    39.45
+   ],
+   "spearman": 0.7
+  }
+ ],
+ "n_ml_configs": 33
+}

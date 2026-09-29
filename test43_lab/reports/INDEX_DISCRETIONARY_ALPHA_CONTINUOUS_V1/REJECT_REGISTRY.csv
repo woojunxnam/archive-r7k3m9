@@ -9,3 +9,7 @@ PH3,D4_CONFLUENCE,0/9 coherent
 PH3,D5_ROOM,0/9 coherent
 PH3,D6_APPROACH,0/24 coherent
 PH4,C2_XRES / C2_XSTRUCT,resistance and structural exits reduce C2 value
+PH5,MODEL_E,never beats take-all
+PH5,MODEL_H / EXIT_IF_NOT_WORKING,negative
+PH5,MODEL_X / XRES / XSTRUCT / X60 / X120,all worse than 16:15
+PH5,MODEL_A,no gain over generic press
