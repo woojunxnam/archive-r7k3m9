@@ -180,7 +180,7 @@ def jobs():
 if __name__ == "__main__":
     js = jobs()
     print(len(js), "configs")
-    if len(sys.argv) > 1 and sys.argv[1] == "--count":
+    if "--count" in sys.argv:
         sys.exit(0)
-    df = run_batch("FACTORY_S1", js, procs=4)
+    df = run_batch(sys.argv[1] if len(sys.argv) > 1 else "FACTORY_S1", js, procs=4)
     print(df[["name", "total_mtm", "max_mtm_dd", "lock32_days", "share32", "trades_day"]].to_string())

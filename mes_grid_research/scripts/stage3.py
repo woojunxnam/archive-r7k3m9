@@ -105,4 +105,4 @@ if __name__ == "__main__":
         os.path.join(ROOT, "results", "FACTORY_S3", "stage2_candidates.csv"), index=False)
     js = perturb()
     print(len(js), "robustness configs")
-    run_batch("FACTORY_S3", js, procs=4)
+    run_batch(sys.argv[1] if len(sys.argv) > 1 else "FACTORY_S3", js, procs=4)

@@ -55,4 +55,4 @@ def combos():
 if __name__ == "__main__":
     js = combos()
     print(len(js), "interaction configs")
-    run_batch("FACTORY_S4", js, procs=4)
+    run_batch(sys.argv[1] if len(sys.argv) > 1 else "FACTORY_S4", js, procs=4)

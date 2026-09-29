@@ -70,6 +70,16 @@ def summarize(e, m, cfg):
                         f"{ln}_rotations": int((lt.reason == "rotate").sum()) if len(lt) else 0,
                         f"{ln}_full_share": d["full_share_rth"], f"{ln}_zero_free_days": d["longest_full"][0][0] if d["longest_full"] else 0.0,
                         f"{ln}_free_avg": float((d["capacity"] - lq).mean()), f"{ln}_max": int(lq.max())})
+    fl_ = e.fills_df
+    if len(fl_):
+        ev = np.sort(fl_.dt.values)
+        en = np.sort(fl_[fl_.side == "BUY"].dt.values)
+        g = np.diff(ev) / np.timedelta64(1, "D")
+        ge = np.diff(np.concatenate([en, [dt[-1]]])) / np.timedelta64(1, "D")
+        row["no_fill_days"] = float(g.max()) if len(g) else 0.0
+        row["no_entry_days"] = float(ge.max()) if len(ge) else 0.0
+        fday = pd.DatetimeIndex(fl_.dt).normalize().unique()
+        row["active_day_share"] = len(fday) / max(m["trading_days"], 1)
     if len(tr):
         lt = tr[tr.lane == "core"]
         row["core_trades_day"] = len(lt) / max(m["trading_days"], 1)

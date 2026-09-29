@@ -1,0 +1,23 @@
+name,cfg,reason
+N_cap16,{'cap_total': 16},"exposure cap: DD -48%, best ret/DD 2.88"
+N_cap20,{'cap_total': 20},"exposure cap: DD -36%, ret/DD 2.67"
+N_cap24,{'cap_total': 24},exposure cap: DD -23%
+Q_16_16_rec_layer,"{'core_cap': 16, 'rec_cap': 16, 'rec_activation': 'core_full', 'rec_anchor': 'runhigh', 'rec_spacing': 'ladder', 'rec_step': 5.0, 'rec_tp': 3.0, 'recovery': {'h': 16, 'rec_tp': 2.0, 'rec_step': 10.0, 'layer_x': 5.0}}","recovery mode: DD -52%, min equity 88k"
+Q_24_8_rec_confirm,"{'core_cap': 24, 'rec_cap': 8, 'rec_activation': 'core_full', 'rec_anchor': 'runhigh', 'rec_spacing': 'ladder', 'rec_step': 5.0, 'rec_tp': 3.0, 'recovery': {'h': 24, 'rec_tp': 2.0, 'rec_step': 10.0, 'layer_x': 5.0, 'confirm': 'vwap'}}","recovery+confirm: DD -44%, w2223 -76k"
+Q_24_8_rec_layer,"{'core_cap': 24, 'rec_cap': 8, 'rec_activation': 'core_full', 'rec_anchor': 'runhigh', 'rec_spacing': 'ladder', 'rec_step': 5.0, 'rec_tp': 3.0, 'recovery': {'h': 24, 'rec_tp': 2.0, 'rec_step': 10.0, 'layer_x': 5.0}}",recovery layer exit: DD -39%
+I_S6_recovexit,"{'state': {'t': (8, 16, 24), 'mult': (1.0, 1.5, 3.0, inf), 'recovery_exit': 'all_ind', 'rec_exit_x': 5.0}}",state machine + recovery layer exit: DD -36%
+C_tiersT3,"{'spacing': 'tiers', 'tiers': ((8, 5.0), (16, 10.0), (24, 20.0))}","tiered spacing + stop at 24 (== I_S2): DD -26%, no >24"
+I_S1,"{'state': {'t': (8, 16, 24), 'mult': (1.0, 1.5, 3.0, inf)}}",state machine inventory tiers: DD -25%
+I_S5_rec,"{'core_cap': 24, 'rec_cap': 8, 'rec_activation': 'state', 'rec_anchor': 'runhigh', 'rec_spacing': 'ladder', 'rec_step': 5.0, 'rec_tp': 3.0, 'state': {'t': (8, 16, 24), 'mult': (1.0, 1.5, 3.0, inf), 'rec_tp': {'ELEVATED': 4.0, 'HIGH': 3.0, 'CRITICAL': 2.5}}}","state + recycle: DD -23%, trades 4.3/day"
+D_16_16al_low60_float,"{'core_cap': 16, 'rec_cap': 16, 'rec_activation': 'always', 'rec_anchor': 'low60', 'rec_spacing': 'float', 'rec_step': 5.0, 'rec_tp': 3.0}","floating recycle near market: DD -18%, lock 59d, min eq 76k"
+C_atr1.5,"{'spacing': 'atr', 'atr_k': 1.5}","slow core ATR spacing: DD -21%, underwater 463d"
+C_fixed15.0,{'grid': 15.0},"slow core fixed: DD -12%, underwater 463d"
+C_convex0.2,"{'spacing': 'convex', 'convex_a': 0.2}",slow core convex: DD -12%
+C_volpct2.0,"{'spacing': 'volpct', 'volpct_k': 2.0}","vol-scaled spacing: min eq 49k, w2020 -134k"
+M_atr_spike1.5_core,"{'gov': 'atr_spike', 'gov_x': 1.5, 'gov_action': 'core'}","governor: 2020 DD -65k (vs -164k), min eq 108k"
+J_age15_recovery,"{'state': {'t': (1, 33, 33), 'age': 15.0, 'mult': (1, 1, 1, inf), 'recovery_exit': 'all_ind', 'rec_exit_x': 5.0, 'recovery_until': 1}}","cycle age recovery: 2022-23 DD -71k (vs -155k), lock 101d"
+L_armed_ll_fail,"{'add_trigger': 'armed', 'reversal': 'll_fail'}",smart add: +$51k P&L at equal DD
+L_armed_bull_hc,"{'add_trigger': 'armed', 'reversal': 'bull_hc'}",smart add: +$54k P&L at equal DD
+P_eth_gapdown_init,"{'eth': 'gapdown_init', 'eth_k': 0.5}",ETH gap-down init: underwater 289d (suspected path luck)
+C_tiersT3_E8,"{'spacing': 'tiers', 'tiers': ((8, 5.0), (16, 10.0), (24, 20.0)), 'core_cap': 24, 'emerg_cap': 8, 'emerg_step': 40.0, 'emerg_tp': 15.0}",tiers + emergency reserve
+B_16_16_newlow0_hi,"{'core_cap': 16, 'rec_cap': 16, 'rec_activation': 'core_full', 'rec_anchor': 'runhigh', 'rec_spacing': 'ladder', 'rec_step': 5.0, 'rec_tp': 3.0, 'rec_roll': 'newlow', 'rec_roll_x': 0.0}","rolling recycle: 32-lock 4d, min eq 67k (economics worse)"
