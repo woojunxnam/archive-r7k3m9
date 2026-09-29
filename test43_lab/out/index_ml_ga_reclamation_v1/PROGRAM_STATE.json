@@ -1,6 +1,6 @@
 {
  "PROGRAM": "INDEX_ML_GA_RECLAMATION_PROGRAM_V1",
- "PHASE": "P6_PREREG",
+ "PHASE": "P6_DONE",
  "NEXT": "P0A TEST114_AUDIT_CORRECTION_1",
  "BASE_HEAD": "be5e15f",
  "MAIN": {
@@ -35,5 +35,47 @@
   "C7_L1_SWH60"
  ],
  "EVENT_CONDITIONED_HTF": "SATURATED",
- "GA_RESULT": "C1/C4 GA_OVERFIT_CLUE_ONLY, C7 GA_FAIL"
+ "GA_RESULT": "C1/C4 GA_OVERFIT_CLUE_ONLY, C7 GA_FAIL",
+ "CONSENSUS": {
+  "C1_R1_TRAPPED_UNION": {
+   "choice": "A_TAKE_ALL",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "C2_P2_FAILED_FIRST": {
+   "choice": "A_TAKE_ALL",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "C3_P1_H2": {
+   "choice": NaN,
+   "label": "NO_TIER_B_ARM"
+  },
+  "C4_L2_FAMILY": {
+   "choice": "C_GA",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "C5_HTF1_30m": {
+   "choice": "A_TAKE_ALL",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "C6_AV_OR30": {
+   "choice": "A_TAKE_ALL",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "C7_L1_SWH60": {
+   "choice": "B_ML_NESTED",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "C8_CHOCH_15m": {
+   "choice": NaN,
+   "label": "NO_TIER_B_ARM"
+  },
+  "REF_A2_ACD": {
+   "choice": "A_TAKE_ALL",
+   "label": "CONSENSUS_CANDIDATE"
+  },
+  "REF_ORB15": {
+   "choice": "A_TAKE_ALL",
+   "label": "CONSENSUS_CANDIDATE"
+  }
+ }
 }
