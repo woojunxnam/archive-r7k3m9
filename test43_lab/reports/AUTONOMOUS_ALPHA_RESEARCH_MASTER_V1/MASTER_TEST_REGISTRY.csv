@@ -9,3 +9,4 @@ TEST105,level failure deep branch,NOT_RUN,NOT_RUN_BY_RULE (no coherent L2/L3 EVE
 TEST106,Fisher ACD opening auction,DONE,A2 = STRONG_CLUE at 60m (event level) BUT RESEARCH_DUPLICATE of plain ORB; no strategy phase,7363e7c,see MASTER_COMMIT_LEDGER,5,100,0,0,A2_A_UP_IMMEDIATE,
 TEST107,response speed / time-to-MFE,NOT_RUN,NOT_RUN_BY_RULE (no survivor; only STRONG_CLUE is a RESEARCH_DUPLICATE),rule in 319a7f6,,0,0,0,0,,
 TEST108,range budget veto,DONE,REJECT (0/12 curves COHERENT; VETO_HAS_VALUE = NO everywhere),4951038,see MASTER_COMMIT_LEDGER,4,400,0,0,none,
+TEST109,ICT falsification mini-lane,DONE,REJECT (0/18 EVENT_CLUE): FVG adds nothing beyond matched displacement,a05fae4,see MASTER_COMMIT_LEDGER,6,120,0,0,CHOCH_15m,

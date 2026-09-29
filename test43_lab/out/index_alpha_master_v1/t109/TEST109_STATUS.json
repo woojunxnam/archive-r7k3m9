@@ -1,0 +1,16 @@
+{
+ "TEST109_CLASSIFICATION": "REJECT (0/18 EVENT_CLUE): FVG adds nothing beyond matched displacement",
+ "FVG_VS_MATCHED_NO_FVG": "FVG_DISP 5m xF +0.0036 (60m, CI [-0.0014,+0.0086]); 15m ~0 -> a gap adds no information beyond the same 3-bar displacement",
+ "FVG_RETRACE": "5m WEAK (+0.003..+0.004), 15m REJECT",
+ "CHOCH": "15m WEAK at all 3 horizons (+0.007..+0.013, CIs include 0), 5m WEAK at 60m only; adjacency fails",
+ "FVG_AFTER_LEVEL_FAILURE": "NOT_RUN_BY_RULE",
+ "ICT_ADDS_ALPHA": "NO",
+ "DISTINCT_NEW_DEFINITIONS": 6,
+ "LEDGER_ROWS": 120,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "STRATEGY_PHASE_OPENED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
