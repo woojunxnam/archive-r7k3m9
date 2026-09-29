@@ -1,0 +1,144 @@
+{
+ "BASE": {},
+ "FQ_16_16_add": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "recovery": {
+   "h": 16,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ },
+ "FQ_12_20": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 12,
+  "rec_cap": 20,
+  "recovery": {
+   "h": 12,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  }
+ },
+ "FQ_16_16": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "recovery": {
+   "h": 16,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  }
+ },
+ "FQ_20_12": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 20,
+  "rec_cap": 12,
+  "recovery": {
+   "h": 20,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  }
+ },
+ "FQ_18_14_add": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 18,
+  "rec_cap": 14,
+  "recovery": {
+   "h": 18,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ },
+ "FLOAT_16_16": {
+  "core_cap": 16,
+  "rec_cap": 16,
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0
+ },
+ "FLOAT_16_16_S1": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "state": {
+   "t": [
+    8,
+    12,
+    16
+   ],
+   "mult": [
+    1.0,
+    1.5,
+    3.0,
+    Infinity
+   ]
+  }
+ },
+ "CAP16": {
+  "cap_total": 16
+ },
+ "CAP20_add": {
+  "add_trigger": "armed",
+  "reversal": "ll_fail",
+  "cap_total": 20
+ },
+ "QC24_gov": {
+  "core_cap": 24,
+  "rec_cap": 8,
+  "rec_activation": "core_full",
+  "rec_anchor": "runhigh",
+  "rec_spacing": "ladder",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "recovery": {
+   "h": 24,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0,
+   "confirm": "vwap"
+  },
+  "gov": "atr_spike",
+  "gov_x": 1.5,
+  "gov_action": "core"
+ },
+ "ADD_llfail": {
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ }
+}
