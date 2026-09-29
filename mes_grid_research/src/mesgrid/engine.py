@@ -196,7 +196,11 @@ class Strategy:
 
 
 class Engine:
-    def __init__(self, bars: Bars, strategy: Strategy, cfg: ExecConfig | None = None):
+    def __init__(self, bars: Bars, strategy: Strategy, cfg: ExecConfig | None = None, audit: bool = False):
+        self.audit = audit
+        self._opened_ids: set = set()
+        self._closed_ids: set = set()
+        self.audit_checks = 0
         self.bars = bars
         self.s = strategy
         self.cfg = cfg or ExecConfig()
@@ -252,6 +256,8 @@ class Engine:
         t = Tranche(self.next_tid, lane.spec.name, qty, px, ideal, i, b.dt[i], at_open, tp_px, tag,
                     self.cycle_id, lane.cycle_id, raw_basis=px - b.adj[i], contract=int(b.contract[i]))
         self.next_tid += 1
+        assert t.id not in self._opened_ids
+        self._opened_ids.add(t.id)
         lane._add(t)
         self._total += qty
         lane.last_entry_px = px
@@ -271,6 +277,8 @@ class Engine:
     def _close_tranche(self, lane: LaneState, t: Tranche, px, ideal, i, reason):
         b = self.bars
         pv = self.cfg.point_value
+        assert t.id in self._opened_ids and t.id not in self._closed_ids, "tranche closed twice or never opened"
+        self._closed_ids.add(t.id)
         lane._remove(t)
         self._total -= t.qty
         c = self._commission(t.qty)
@@ -490,6 +498,8 @@ class Engine:
             snap_rollreal.append(rollreal)
             for lnm in lane_names:
                 snap_lane[lnm].append(self.lanes[lnm]._qty)
+            if self.audit:
+                self._audit_bar(i)
             # 7) strategy decision for next bar
             self.s.observe(ctx, i)
             j = i + 1
@@ -505,6 +515,27 @@ class Engine:
 
         self._finalize(snap_idx, snap_qty, snap_sum, snap_real, snap_lane, snap_raw, snap_rollreal)
         return self
+
+    def _audit_bar(self, i):
+        """Per-bar conservation invariants (Phase-0 FQ audit)."""
+        open_ids = set()
+        tot = 0
+        for ln in self.lanes.values():
+            q = sum(t.qty for t in ln.tranches)
+            sm = sum(t.entry_px * t.qty for t in ln.tranches)
+            assert q == ln._qty, f"lane {ln.spec.name} cached qty {ln._qty} != tranche qty {q} at {i}"
+            assert abs(sm - ln._sum) < 1e-6, f"lane {ln.spec.name} cost-sum drift at {i}"
+            assert 0 <= q <= ln.spec.capacity, f"lane {ln.spec.name} capacity violated at {i}"
+            for t in ln.tranches:
+                assert t.lane == ln.spec.name and t.qty > 0
+                assert t.id not in open_ids, "tranche in two lanes"
+                open_ids.add(t.id)
+            tot += q
+        assert tot == self._total, f"engine total {self._total} != sum lanes {tot} at {i}"
+        assert tot <= self.max_total
+        assert open_ids.isdisjoint(self._closed_ids), "closed tranche still open"
+        assert open_ids | self._closed_ids == self._opened_ids, "tranche vanished without explicit close"
+        self.audit_checks += 1
 
     @staticmethod
     def _find(ln, tid):

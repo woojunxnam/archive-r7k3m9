@@ -63,6 +63,16 @@ DEFAULTS = dict(
     # ---- ETH context (labelled)
     eth=None,                    # None | "gapdown_init" | "openloc_init" | "onret_pause" | "below_onlow_adds"
     eth_k=0.5,
+    # ---- RUN-3 modules (all OFF by default)
+    rec_entry_mode="market",     # market | limit_close (resting limit at signal-bar close, 1 bar)
+    rec_exit="tp",               # tp | last | last2   (last/last2: LIFO layer exit on recycle lane)
+    rec_exit_x=3.0,
+    harvest=None,                # None | rec_prof | all_prof | partial_high
+    harvest_x=3.0,
+    acct_dd=None,                # None | dict(thr=$, mode=all|core|core_harvest|progressive, resume=0.8)
+    rec_filter=None,             # None | name of boolean feature array in F (smart recycle entry)
+    rec_cooldown_bars=0,         # bars after a recycle exit before a new recycle entry
+    core_filter=None,            # None | name of boolean feature array in F (core entry/add gate)
 )
 
 
@@ -97,7 +107,7 @@ class FactoryStrategy(Strategy):
         self.max_total = k["max_total"]
         self.lanes = [LaneSpec("core", min(k["core_cap"], self.max_total), "basket", k["basket_tp"])]
         if k["rec_cap"]:
-            self.lanes.append(LaneSpec("rec", k["rec_cap"], "individual", k["rec_tp"]))
+            self.lanes.append(LaneSpec("rec", k["rec_cap"], "individual" if k["rec_exit"] == "tp" else "none", k["rec_tp"]))
         if k["emerg_cap"]:
             self.lanes.append(LaneSpec("emerg", k["emerg_cap"], "individual", k["emerg_tp"]))
         self.params = {kk: v for kk, v in self.cfg.items() if DEFAULTS.get(kk) != v}
@@ -111,6 +121,8 @@ class FactoryStrategy(Strategy):
         self._recovering = False
         self._day_eth_ok = None
         self._basket_tp_cur = k["basket_tp"]
+        self._dd_paused = False
+        self._last_rec_exit_i = -10**9
 
     # ------------------------------------------------------------------ helpers
     def _age_days(self, ctx, i):
@@ -298,6 +310,8 @@ class FactoryStrategy(Strategy):
         k = self.cfg
         self._c = ctx.bars.c[i]
         for f in ctx.fills_this_bar:
+            if f["side"] == "SELL" and f["lane"] == "rec":
+                self._last_rec_exit_i = i
             tg = f.get("tag") or ""
             if tg.startswith("SO1"):
                 self._scaled = max(self._scaled, 1)
@@ -341,15 +355,34 @@ class FactoryStrategy(Strategy):
         a15 = F["atr15"][i]
 
         self._core_cap_now = self._core_cap_eff(ctx, i)
+        dd_mode = None
+        if k["acct_dd"]:
+            ad = k["acct_dd"]
+            dd = max(ctx.peak_equity - ctx.equity(i), 0.0)
+            if dd >= ad["thr"]:
+                self._dd_paused = True
+            elif dd < ad.get("resume", 0.8) * ad["thr"]:
+                self._dd_paused = False
+            if ad["mode"] == "progressive":
+                self._core_cap_now = min(self._core_cap_now, int(self.lanes[0].capacity * max(0.0, 1 - dd / ad["thr"]) + 0.5)) if dd > 0 else self._core_cap_now
+            elif self._dd_paused:
+                dd_mode = ad["mode"]
+        if dd_mode == "all":
+            buys_budget = 0
         if k["basket_tp_mode"] == "datr":
             core.spec.tp_pts = max(ceil_tick(k["basket_atr_k"] * F["datr"][i]), 5.0)
         # ================= CORE EXITS (strategy-managed, in addition to basket escape)
         if core.qty:
             out += self._core_exit_orders(ctx, i, core, in_rec_mode)
+        out += self._harvest_orders(ctx, i, out, dd_mode)
 
         # ================= CORE ENTRY / ADD
         core_allowed = core_tod_ok and buys_budget > 0 and not (governed and k["gov_action"] in ("core", "all"))
         if self._state == "CRITICAL" and self._state_mult() == math.inf:
+            core_allowed = False
+        if dd_mode in ("core", "core_harvest"):
+            core_allowed = False
+        if k["core_filter"] is not None and not bool(F[k["core_filter"]][i]):
             core_allowed = False
         if in_rec_mode:
             core_allowed = False
@@ -523,10 +556,45 @@ class FactoryStrategy(Strategy):
                     space_ok = all(abs(c - e) >= step for e in opens)
             else:
                 space_ok = True
+            if k["rec_filter"] is not None and not bool(F[k["rec_filter"]][i]):
+                space_ok = False
+            if (i - self._last_rec_exit_i) <= k["rec_cooldown_bars"] and k["rec_cooldown_bars"] > 0:
+                space_ok = False
             if space_ok and self._rec_anchor_ok(ctx, i, a15, bool(opens)):
-                out.append(Order("market_buy", "rec", 1, tp_pts=self._rec_tp(ctx, i), tag="rec"))
+                if k["rec_entry_mode"] == "limit_close":
+                    out.append(Order("limit_buy", "rec", 1, price=floor_tick(c), tp_pts=self._rec_tp(ctx, i), tag="rec_lmt"))
+                else:
+                    out.append(Order("market_buy", "rec", 1, tp_pts=self._rec_tp(ctx, i), tag="rec"))
         elif k["rec_roll"]:
             out += self._rec_roll_orders(ctx, i, a15, in_rec_mode)
+        return out
+
+    def _harvest_orders(self, ctx, i, existing, dd_mode):
+        k, b = self.cfg, ctx.bars
+        c = b.c[i]
+        out = []
+        taken = {o.tranche_id for o in existing if o.tranche_id is not None}
+        # recycle LIFO layer exits (Phase 4 B/C)
+        if k["rec_cap"] and k["rec_exit"] in ("last", "last2"):
+            rec = ctx.lane("rec")
+            tr = sorted(rec.tranches, key=lambda t: t.entry_idx)
+            if tr:
+                grp = tr[-1:] if k["rec_exit"] == "last" else tr[-2:]
+                px = ceil_tick(sum(t.entry_px for t in grp) / len(grp) + k["rec_exit_x"])
+                out += [Order("limit_sell", "rec", tranche_id=t.id, price=px, tag=f"R_{k['rec_exit']}") for t in grp if t.id not in taken]
+        mode = k["harvest"]
+        if dd_mode == "core_harvest":
+            mode = "all_prof"
+        if not mode:
+            return out
+        x = k["harvest_x"]
+        lanes = ["rec"] if mode == "rec_prof" else [n for n in ctx.lanes]
+        prof = [(n, t) for n in lanes for t in ctx.lane(n).tranches if c - t.entry_px >= x and t.id not in taken]
+        if mode == "partial_high":
+            if ctx.total_qty < 0.75 * ctx.max_total:
+                return out
+            prof = sorted(prof, key=lambda nt: nt[1].entry_px)[: max(len(prof) // 2, 1)] if prof else []
+        out += [Order("market_sell", n, tranche_id=t.id, tag=f"H_{mode}") for n, t in prof]
         return out
 
     def _rec_anchor_ok(self, ctx, i, a15, has_open):
