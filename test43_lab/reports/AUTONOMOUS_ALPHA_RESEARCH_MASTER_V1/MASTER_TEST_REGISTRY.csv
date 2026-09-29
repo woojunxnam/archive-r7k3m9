@@ -1,1 +1,2 @@
 test,family,status,classification,prereg_sha,result_sha,distinct_definitions,ledger_rows,ml_configs,ga_genomes,best_clue,note
+TEST99,HTF momentum scaling,DONE,REJECT (HTF1 WEAK_RESEARCH_CLUE_ONLY),b8da734,see MASTER_COMMIT_LEDGER,9,240,0,0,HTF1 30m 16:15 weak,

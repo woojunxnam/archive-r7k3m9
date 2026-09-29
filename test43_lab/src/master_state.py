@@ -49,3 +49,22 @@ def budget_add(st, test, defs=0, ml=0, ga=0, rows=0):
     st["CUM_DISTINCT_HYPOTHESES"] += defs; st["CUM_ML_CONFIGS"] += ml; st["CUM_GA_GENOMES"] += ga; st["CUM_LEDGER_ROWS"] += rows
     append("MASTER_RESEARCH_BUDGET.csv", {"test": test, "definitions": defs, "ml_configs": ml, "ga_genomes": ga, "cum_definitions": st["CUM_DISTINCT_HYPOTHESES"],
                                            "cum_ml": st["CUM_ML_CONFIGS"], "cum_ga": st["CUM_GA_GENOMES"]})
+
+
+def close_test(test, family, classification, prereg_sha, defs, rows, best_clue, clues=(), rejects=(), note="", next_test="", ml=0, ga=0, saturated=False):
+    """register a finished test (result commit SHA is filled into the commit ledger after the commit)."""
+    st = load_state()
+    append("MASTER_TEST_REGISTRY.csv", {"test": test, "family": family, "status": "DONE", "classification": classification, "prereg_sha": prereg_sha,
+                                        "result_sha": "see MASTER_COMMIT_LEDGER", "distinct_definitions": defs, "ledger_rows": rows, "ml_configs": ml,
+                                        "ga_genomes": ga, "best_clue": best_clue, "note": note})
+    for c in clues:
+        append("MASTER_CLUE_LIBRARY.csv", {"test": test, **c}); st["CLUES"].append(f"{test}:{c['variant']}@{c['horizon']}={c['label']}")
+    for r in rejects:
+        append("MASTER_REJECT_REGISTRY.csv", {"test": test, **r})
+    append("MASTER_COMMIT_LEDGER.csv", {"sha": prereg_sha, "kind": "PREREG", "test": test, "message": f"{test} preregistration"})
+    budget_add(st, test, defs, ml, ga, rows)
+    if saturated:
+        st["SATURATED_FAMILIES"].append(family)
+    st["TESTS"][test] = classification; st["CURRENT_TEST"] = test; st["PHASE"] = "RESULT"; st["NEXT_TEST"] = next_test
+    save_state(st)
+    return st

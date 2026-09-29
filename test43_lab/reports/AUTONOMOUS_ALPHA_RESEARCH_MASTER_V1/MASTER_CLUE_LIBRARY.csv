@@ -1,1 +1,2 @@
 test,variant,label,horizon,excess,ci_lo,years_pos,note
+TEST99,T99_HTF1_30m,WEAK_RESEARCH_CLUE_ONLY,h1615,0.0205,-0.006,6,"HTF1 family weak, adjacent 15m h24 consistent"

@@ -1,0 +1,9 @@
+{
+ "ledger_rows": 240,
+ "definitions_new": 9,
+ "reference_rows": 3,
+ "classes": {
+  "REJECT": 19,
+  "WEAK_RESEARCH_CLUE_ONLY": 8
+ }
+}

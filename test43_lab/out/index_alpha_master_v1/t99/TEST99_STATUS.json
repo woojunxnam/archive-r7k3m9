@@ -1,0 +1,20 @@
+{
+ "TEST99_PHASE0_PARITY": "PASS (5m, 15m, 30m, 60m max|diff| = 0 for ES/NQ/YM/RTY)",
+ "TEST99_CLASSIFICATION": "REJECT (no EVENT_CLUE; 0/27 primary tests with CI lower > 0; ~0.7 expected by chance)",
+ "HTF1_STRONG_BULL_BAR": "WEAK_RESEARCH_CLUE_ONLY (15m h12/h24, 30m h24/h1615, 60m h1615 positive point estimates; every CI includes 0; best 30m 16:15 xF +0.0205 ATR [-0.006, +0.047])",
+ "HTF2_2H_BREAKOUT": "REJECT (60-120m / 16:15 excess <= 0 at 30m/60m; 15m h12 weak only)",
+ "HTF3_TWO_BAR": "REJECT (60m h1615 weak only, isolated)",
+ "ADJACENT_TF_CONSISTENCY": "HTF1 only (15m<->30m at h24); no EVENT_CLUE to promote",
+ "STRATEGY_PHASE_OPENED": "NO",
+ "ML_RUN": "NO",
+ "GA_RUN": "NO",
+ "TEST99_EVENT_USED_AS_TEST101_ANCHOR": "NO (not an EVENT_CLUE)",
+ "DISTINCT_NEW_DEFINITIONS": 9,
+ "REFERENCE_DEFINITIONS": 3,
+ "LEDGER_ROWS": 240,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
