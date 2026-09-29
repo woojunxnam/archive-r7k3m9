@@ -1,0 +1,106 @@
+{
+  "research_source_commit": "42b8f8a1099152e86c5f424a81b6d79bb3843199",
+  "branch_at_handoff": "claude/test43-mes-optimization-lab-olvn9b",
+  "canonical_sources": [
+    {
+      "path": "test43_lab/frozen/t61_r1c/T61_R1C_MANIFEST.json",
+      "blob_sha": "b5f731425164015b4aaa2e904539ac9c7c07b5c3",
+      "role": "T61 frozen authority"
+    },
+    {
+      "path": "test43_lab/frozen/t61_r1c/T61_R1C_HASH_INDEX.csv",
+      "blob_sha": "58e6701726bd75df5fc85510db02854439ad591d",
+      "role": "T61 frozen integrity index"
+    },
+    {
+      "path": "test43_lab/shadow/forward_shadow.py",
+      "blob_sha": "8a482cd87e9b63506d631a0943461f30837bf922",
+      "role": "T61 forward-shadow runner"
+    },
+    {
+      "path": "test43_lab/shadow/shadow_engine.py",
+      "blob_sha": "452d4dc1add602b3ade854431fcf4e1694e627e2",
+      "role": "T61 forward compute/output contract"
+    },
+    {
+      "path": "test43_lab/frozen/fixed_clue_basket_v1/MANIFEST.json",
+      "blob_sha": "4b12cea7a9ae15ca482fccea4846d5754870467f",
+      "role": "Fixed clue basket authority"
+    },
+    {
+      "path": "test43_lab/frozen/fixed_clue_basket_v1/HASH_INDEX.csv",
+      "blob_sha": "1d6e67975c70015ed43ff65ab099569547a2989e",
+      "role": "Basket frozen integrity index"
+    },
+    {
+      "path": "test43_lab/frozen/fixed_clue_basket_v1/src/t94b_basket.py",
+      "blob_sha": "c6174bf1392da75ebc0c947ea607cd60fe873174",
+      "role": "Basket member generation + joint allocation reference"
+    },
+    {
+      "path": "test43_lab/src/t95_common.py",
+      "blob_sha": "995800470e551a31ef11be5336bea2fc9e09a20b",
+      "role": "MAIN_GROWTH_V1 daily/occupancy baseline"
+    },
+    {
+      "path": "test43_lab/src/t103_pullback.py",
+      "blob_sha": "0ff1e20b2c378dd21911148aa477ce916dc10472",
+      "role": "Exact P2_FAILED_FIRST signal definition"
+    },
+    {
+      "path": "test43_lab/src/rp_bank.py",
+      "blob_sha": "0b7227c929a7dffb4f11f1397baefcde998827af",
+      "role": "C2 event-bank reproduction and feature/target semantics"
+    },
+    {
+      "path": "test43_lab/src/t96_data.py",
+      "blob_sha": "7f76a7eb1e59c94eb48cd0511670274b0ed9ea53",
+      "role": "ES/NQ/YM/RTY data and micro execution mapping"
+    },
+    {
+      "path": "test43_lab/src/t97_engine.py",
+      "blob_sha": "6cf41ff8e2167b070c38b8099795bd7a74ae7176",
+      "role": "5m event timing and next-open semantics"
+    },
+    {
+      "path": "test43_lab/src/mp_engine.py",
+      "blob_sha": "e22a5718f36a03e4aebe87111dd1b76cb9f6cd73",
+      "role": "Causal event-study market layer used by C2"
+    },
+    {
+      "path": "test43_lab/src/da_mgmt.py",
+      "blob_sha": "f36b4bf9b767e31725402286a44a57e1217427ca",
+      "role": "Winner checkpoint construction"
+    },
+    {
+      "path": "test43_lab/src/da_ph9.py",
+      "blob_sha": "1dfc35fa2b683b56bc997d622cb9d83d935e9a31",
+      "role": "Exact first-winner ADD1 order construction"
+    },
+    {
+      "path": "test43_lab/src/rp_p9.py",
+      "blob_sha": "933a6fd2e4ca9008fc466f6cd9ff080fb4f19a6b",
+      "role": "Historical V2 integrated capacity/portfolio allocator"
+    },
+    {
+      "path": "test43_lab/src/fa_audit4.py",
+      "blob_sha": "d1e19c21600737850f30f521d2f377bb3a4b4b71",
+      "role": "Winner-press vs frontload final audit"
+    },
+    {
+      "path": "test43_lab/src/rp_econ.py",
+      "blob_sha": "08eeb86fe9b5b860fe3da6c635b6efd72e3e71bf",
+      "role": "Stitched MAIN context and metrics"
+    },
+    {
+      "path": "test43_lab/out/final_index_closure_audit_v1/FINAL_STATUS.json",
+      "blob_sha": "2476dd2a1882344bc515c62b608f5926371408a4",
+      "role": "Final closure/V2 evidence reference"
+    }
+  ],
+  "frozen_packages": [
+    "test43_lab/frozen/t61_r1c/",
+    "test43_lab/frozen/fixed_clue_basket_v1/"
+  ],
+  "rule": "Do not copy/edit canonical research logic in place. Dashboard adapters should call or port from these pinned sources and prove parity."
+}

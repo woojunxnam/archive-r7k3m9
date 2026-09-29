@@ -1,0 +1,74 @@
+{
+  "package": "MAIN_GROWTH_V2_MICRO_DASHBOARD_HANDOFF_V1",
+  "portfolio_name": "MAIN_GROWTH_V2",
+  "operational_label": "LIVE_CANDIDATE_FOR_DASHBOARD",
+  "sizing": "MICRO_ONLY",
+  "research_source_commit": "42b8f8a1099152e86c5f424a81b6d79bb3843199",
+  "research_data_end": "2026-05-27",
+  "forward_oos_start": "2026-09-29",
+  "broker_live_authorization": "NO",
+  "portfolio": {
+    "main_v1": {
+      "definition": "T61-R1C_ATOMIC_CAP6 + FIXED_CLUE_BASKET_V1",
+      "t61": {
+        "description": "C43 x2 + TEST53 residual, atomic MNQ netting",
+        "caps": {
+          "MNQ": 6
+        },
+        "MES_peak_historical": 6,
+        "overnight": true
+      },
+      "basket": {
+        "members": {
+          "T66_ML_OPENING": "1 MNQ",
+          "T68_RAW_BREAKS": "1 MNQ",
+          "T67_TOM_INTRADAY": "2 MES",
+          "PG12_ML": "1 MNQ"
+        },
+        "capacity": "T61 priority; T61+basket MNQ<=6, MES<=8",
+        "overnight": "member-specific; use frozen generator semantics"
+      }
+    },
+    "c2_base": {
+      "canonical_name": "C2_P2_FAILED_FIRST",
+      "signal_instruments": [
+        "ES",
+        "NQ",
+        "YM",
+        "RTY"
+      ],
+      "execution_contract_map": {
+        "ES": "MES",
+        "NQ": "MNQ",
+        "YM": "MYM",
+        "RTY": "M2K"
+      },
+      "size": "1 micro per filled C2 base",
+      "entry": "next legal open after completed P2_FAILED_FIRST 5m trigger",
+      "exit": "16:15 ET",
+      "overnight": false
+    },
+    "winner_add1": {
+      "size": "1 additional micro of the same instrument",
+      "eligibility": "first completed 5m checkpoint after C2 entry with close > C2 base entry, >=30 minutes remaining to 16:15, and checkpoint is not an independent C3/C5/C6/C7/C8 event bar",
+      "entry": "next legal open after eligible checkpoint",
+      "exit": "same frozen 16:15 ET exit as parent C2",
+      "overnight": false,
+      "add2": "NOT PART OF V2"
+    }
+  },
+  "integrated_capacity_research": {
+    "caps": {
+      "MES": 8,
+      "MNQ": 6,
+      "MYM": 4,
+      "M2K": 4
+    },
+    "priority": [
+      "MAIN_GROWTH_V1",
+      "C2_BASE",
+      "C2_WINNER_ADD1"
+    ],
+    "warning": "Historical C2 allocator used a future-interval max occupancy precheck. This is not live-causal; see 09_LIVE_IMPLEMENTATION_GAPS.md."
+  }
+}

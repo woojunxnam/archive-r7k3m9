@@ -1,0 +1,37 @@
+{
+  "portfolio": "MAIN_GROWTH_V2 = MAIN_GROWTH_V1 + C2_P2_FAILED_FIRST + FIRST_WINNER_ADD1",
+  "comparison_window": "2021-01-01 through 2026-05-27",
+  "avg_day": 160.6549060334634,
+  "slip4_avg_day": 157.36372956287514,
+  "max_dd": 14105.269999999935,
+  "worst_day": -4791.919999999968,
+  "ret_dd": 0.011389707962588744,
+  "incremental_vs_main_v1": 8.875389705882355,
+  "peak_contracts_research": {
+    "MES": 8,
+    "MNQ": 6,
+    "MYM": 2,
+    "M2K": 2
+  },
+  "official_main_v1_reference": {
+    "full_avg_day": 143.2070661720334,
+    "stitched_2021plus_avg_day": 151.77951632758104,
+    "max_dd": 13936.302365193056,
+    "worst_day": -4666.439999999971,
+    "ret_dd_full": 0.010275829443088406,
+    "ret_dd_2021plus": 0.01089094598770062
+  },
+  "selection_risk": {
+    "final_selection_dsr": 0.023,
+    "pbo": 0.36,
+    "reality_check_p": 0.36,
+    "note": "V2 is user-promoted LIVE CANDIDATE, not statistically independent proof. C2/winner sleeve remains historical-selection-exposed."
+  },
+  "winner_press": {
+    "classification": "CAPACITY_TIMING_VALUE",
+    "pure_timing_day": -0.41834558823530443,
+    "capacity_effect_day": 0.533279411764708,
+    "total_vs_fair_frontload_day": 0.11493382352940351,
+    "note": "Winner press is management/capacity timing, not new entry alpha."
+  }
+}
