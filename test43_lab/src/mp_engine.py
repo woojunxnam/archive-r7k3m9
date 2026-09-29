@@ -130,3 +130,25 @@ def md(path, title, blocks):
     for b in blocks:
         lines.append(b.to_markdown(floatfmt=".4f") if isinstance(b, pd.DataFrame) else str(b)); lines.append("")
     open(path, "w").write("\n".join(lines) + "\n")
+
+
+def run_family(test, family, evsets, nullf, adj, primary=("h12", "h24", "h1615"), outdir=None, horizons=HZ):
+    """evaluate every definition, classify with adjacency (same sign, >= 50% magnitude of an adjacent definition), write ledger + csvs."""
+    R = []; pooled = {}
+    for name, evs in evsets.items():
+        rows = evaluate(name, evs, nullf, horizons=horizons, primary=primary, meta={"family": family}); R.extend(rows); pooled[name] = rows[-1]
+        print(name, rows[-1]["n_events"], {k: round(rows[-1][f"{k}_xF"], 4) for k in horizons}, flush=True)
+    fin = []
+    for name, r in pooled.items():
+        for key in primary:
+            x = r[f"{key}_xF"]
+            aok = any(np.sign(pooled[a][f"{key}_xF"]) == np.sign(x) and abs(pooled[a][f"{key}_xF"]) >= 0.5 * abs(x) for a in adj.get(name, []))
+            fin.append({"variant": name, "horizon": key, "n": r[f"{key}_n"], "mean": r[f"{key}_mean"], "cost_atr": r["cost_atr"], "xF": x,
+                        "xF_lo": r[f"{key}_xF_lo"], "xF_hi": r[f"{key}_xF_hi"], "years_pos": r[f"{key}_years_pos"], "inst_pos": r[f"{key}_inst_pos"],
+                        "xF_2021": r[f"{key}_xF_2021"], "x2022": r[f"{key}_x2022"], "xA": r[f"{key}_xA"], "xC": r[f"{key}_xC"], "adjacent_ok": aok,
+                        "fallback": r[f"{key}_fallback"], "class": classify(r, key, adjacent_ok=aok)})
+    D = pd.DataFrame(R); F = pd.DataFrame(fin)
+    if outdir:
+        os.makedirs(outdir, exist_ok=True); D.to_csv(os.path.join(outdir, f"{test}_EVENTS.csv"), index=False); F.to_csv(os.path.join(outdir, f"{test}_CLASSIFICATION.csv"), index=False)
+    n = ledger(R, test, family, "PHASE1")
+    return D, F, n
