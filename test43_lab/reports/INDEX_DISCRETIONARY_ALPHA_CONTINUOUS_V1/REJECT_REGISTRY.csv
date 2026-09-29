@@ -1,2 +1,10 @@
 phase,item,reason
 PH1,C2_FRESH_SIGNAL_WINNER_ADD,signal minus matched generic winner = -13.26 $/add
+PH3,D1,negative; below reclaim null
+PH3,D2,~0/negative
+PH3,D3,below cost
+PH3,D7,below cost after SLIP4
+PH3,D8,no location value; below cost
+PH3,D4_CONFLUENCE,0/9 coherent
+PH3,D5_ROOM,0/9 coherent
+PH3,D6_APPROACH,0/24 coherent

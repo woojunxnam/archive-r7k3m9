@@ -1,3 +1,5 @@
 phase,item,label,note
 PH1,C2_BASE,HISTORICAL_SMALL_DIVERSIFIER_CANDIDATE (full-chain DSR 0.27 / PBO 0.84),base kept; not proven
 PH1,C2_GENERIC_WINNER_PRESS,GENERIC_WINNER_PRESS,first winner checkpoint add +15.90 $/add
+PH3,D7_BREAKOUT_FAILURE_CONVERSION,WEAK (beats pattern null at 120m; below cost),
+PH3,D1B,ECONOMIC_RESEARCH_CANDIDATE = C2 derivative,no location value

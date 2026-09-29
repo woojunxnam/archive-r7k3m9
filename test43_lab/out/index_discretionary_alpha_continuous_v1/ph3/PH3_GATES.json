@@ -1,0 +1,60 @@
+{
+ "D1": {
+  "n": 387,
+  "CLASS": "REJECT",
+  "LOCATION_VALUE": false,
+  "PATTERN_VALUE": false,
+  "pos_horizons": []
+ },
+ "D1B": {
+  "n": 666,
+  "CLASS": "ECONOMIC_RESEARCH_CANDIDATE",
+  "LOCATION_VALUE": false,
+  "PATTERN_VALUE": true,
+  "pos_horizons": [
+   "h6",
+   "h12",
+   "h24",
+   "h1615"
+  ]
+ },
+ "D2": {
+  "n": 7506,
+  "CLASS": "REJECT",
+  "LOCATION_VALUE": false,
+  "PATTERN_VALUE": false,
+  "pos_horizons": [
+   "h24"
+  ]
+ },
+ "D3": {
+  "n": 3283,
+  "CLASS": "REJECT",
+  "LOCATION_VALUE": true,
+  "PATTERN_VALUE": true,
+  "pos_horizons": [
+   "h24"
+  ]
+ },
+ "D7": {
+  "n": 3005,
+  "CLASS": "REJECT",
+  "LOCATION_VALUE": true,
+  "PATTERN_VALUE": true,
+  "pos_horizons": [
+   "h6",
+   "h24"
+  ]
+ },
+ "D8": {
+  "n": 1782,
+  "CLASS": "REJECT",
+  "LOCATION_VALUE": false,
+  "PATTERN_VALUE": true,
+  "pos_horizons": [
+   "h12",
+   "h24",
+   "h1615"
+  ]
+ }
+}

@@ -1,1 +1,7 @@
 mechanism,phase,definition,n_events,status,value_type,note
+D1,PH3,see PH3 prereg,387,REJECT,,pos horizons []
+D2,PH3,see PH3 prereg,7506,REJECT,,pos horizons ['h24']
+D3,PH3,see PH3 prereg,3283,REJECT,LOCATION+PATTERN,pos horizons ['h24']
+D7,PH3,see PH3 prereg,3005,REJECT,LOCATION+PATTERN,"pos horizons ['h6', 'h24']"
+D1B,PH3,see PH3 prereg,666,ECONOMIC_RESEARCH_CANDIDATE,PATTERN,"pos horizons ['h6', 'h12', 'h24', 'h1615']"
+D8,PH3,see PH3 prereg,1782,REJECT,PATTERN,"pos horizons ['h12', 'h24', 'h1615']"
