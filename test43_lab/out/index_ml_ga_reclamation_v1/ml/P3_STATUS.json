@@ -1,0 +1,70 @@
+{
+ "ML_CONFIGS_RUN": 64,
+ "TIER_B_NESTED_SELECTED": [
+  "C1_R1_TRAPPED_UNION",
+  "C7_L1_SWH60"
+ ],
+ "C1_NESTED": "16.80 $/day, SLIP4 7.92, 4/5 folds, 2,904 trades, corr Main 0.45 \u2014 BELOW its own take-all (20.44): ML does not add selection value",
+ "C7_NESTED": "6.36 $/day, SLIP4 4.31, 3/5 folds, 678 trades, corr 0.38 \u2014 above take-all (4.31)",
+ "ML_BEATS_TAKE_ALL": {
+  "C1_R1_TRAPPED_UNION": false,
+  "C2_P2_FAILED_FIRST": false,
+  "C3_P1_H2": false,
+  "C4_L2_FAMILY": false,
+  "C5_HTF1_30m": false,
+  "C6_AV_OR30": false,
+  "C7_L1_SWH60": true,
+  "C8_CHOCH_15m": false
+ },
+ "TAKE_ALL_TIER_B": [
+  "C1_R1_TRAPPED_UNION",
+  "C2_P2_FAILED_FIRST",
+  "C5_HTF1_30m",
+  "C6_AV_OR30",
+  "REF_A2_ACD",
+  "REF_ORB15"
+ ],
+ "BETA_WARNING": "take-all raw dollars are positive for most populations including the plain ORB reference (26.74 $/day, corr Main 0.57): 2021-2026 intraday long exposure earns index drift. Raw dollars are NOT alpha; P7 reports matched-beta excess for every candidate.",
+ "BEST_OF_8_SELECTION_EXPOSED": [
+  {
+   "family": "C1_R1_TRAPPED_UNION",
+   "config": "K8",
+   "avg_day": 16.90380147058826
+  },
+  {
+   "family": "C8_CHOCH_15m",
+   "config": "K4",
+   "avg_day": 12.934433823529414
+  },
+  {
+   "family": "C4_L2_FAMILY",
+   "config": "K3",
+   "avg_day": 11.959279411764731
+  },
+  {
+   "family": "C6_AV_OR30",
+   "config": "K1",
+   "avg_day": 10.838713235294104
+  },
+  {
+   "family": "C5_HTF1_30m",
+   "config": "K6",
+   "avg_day": 10.663955882352932
+  },
+  {
+   "family": "C7_L1_SWH60",
+   "config": "K8",
+   "avg_day": 6.237808823529418
+  },
+  {
+   "family": "C2_P2_FAILED_FIRST",
+   "config": "K6",
+   "avg_day": 5.166742647058828
+  },
+  {
+   "family": "C3_P1_H2",
+   "config": "K1",
+   "avg_day": 4.354191176470577
+  }
+ ]
+}
