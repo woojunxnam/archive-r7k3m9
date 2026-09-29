@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parents[3]
+ROOT = HERE.parents[2]
 MAN = json.loads((HERE / "03_SOURCE_MANIFEST.json").read_text())
 EXPECTED_COMMIT = MAN["research_source_commit"]
 
