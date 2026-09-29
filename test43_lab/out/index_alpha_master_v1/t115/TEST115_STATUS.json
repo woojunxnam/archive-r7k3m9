@@ -1,0 +1,16 @@
+{
+ "TEST115_CLASSIFICATION": "REJECT (0/8 curves COHERENT; STRENGTH_ADDS_VALUE = NO)",
+ "T1_ADX_IN_UPTREND": "not coherent (Spearman -0.3); weakest trend quintile best",
+ "T2_STAGE2_SLOPE": "not coherent (-0.6); steepest stage-2 slopes worst",
+ "T3_TSMOM_12M": "not coherent (-0.8/-0.6); top TSMOM quintiles negative vs direction null",
+ "T4_TSMOM_1M": "flat",
+ "STRENGTH_BEYOND_DIRECTION": "NO (if anything stronger trends have lower intraday long excess; never significant)",
+ "DISTINCT_NEW_DEFINITIONS": 4,
+ "LEDGER_ROWS": 40,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "STRATEGY_PHASE_OPENED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
