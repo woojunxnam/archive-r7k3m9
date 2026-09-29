@@ -1,0 +1,62 @@
+# P0B common engine audit — results (prereg 8293ba9)
+
+VERDICT: **PASS** — no shared bug; no TEST99-115 result invalidated.
+
+```json
+{
+ "1_causal_bins_prefix_mismatch": 0,
+ "2_pool_event_overlap": 0,
+ "2_null_on_nonevent_bars": 0,
+ "2_fallback_shares": [
+  0.9978330588541215,
+  0.002166941145878478,
+  0.0
+ ],
+ "3_date_key_mismatch": 0,
+ "4_cost_maxdiff": 0.0,
+ "5_s21_mismatch": 0,
+ "6_h24_max_decision_bar": 55,
+ "6_h12_finite_share_b_le_67": 1.0,
+ "7_entry_mismatch": 0,
+ "8_h24_maxdiff": 0.0,
+ "9_atr_corr_prior_TR14": 0.9993590134164305,
+ "9_atr_corr_prior_range14": 0.9904628714942697,
+ "9_atr_corr_INCLUDING_current_TR14": 0.991876093264892,
+ "9_atr_uses_current_session": false,
+ "10_nan_ohlc_in_full_sessions": 1458,
+ "10_nan_bars_by_bar_index_top": {
+  "0": 4,
+  "1": 4,
+  "2": 4,
+  "3": 4,
+  "4": 4
+ },
+ "10_events_on_nan_bars": 0,
+ "11_detector_notes": {
+  "ES_L1_SWH60_cross_on_level_change_bar": 0,
+  "ES_L1_SWH60_events": 329,
+  "ES_L2_SWL60_cross_on_level_change_bar": 0,
+  "ES_L2_SWL60_events": 257,
+  "ES_ORH_cross_at_b5": 0,
+  "NQ_L1_SWH60_cross_on_level_change_bar": 0,
+  "NQ_L1_SWH60_events": 348,
+  "NQ_L2_SWL60_cross_on_level_change_bar": 0,
+  "NQ_L2_SWL60_events": 242,
+  "NQ_ORH_cross_at_b5": 0,
+  "YM_L1_SWH60_cross_on_level_change_bar": 0,
+  "YM_L1_SWH60_events": 320,
+  "YM_L2_SWL60_cross_on_level_change_bar": 0,
+  "YM_L2_SWL60_events": 262,
+  "YM_ORH_cross_at_b5": 0,
+  "RTY_L1_SWH60_cross_on_level_change_bar": 0,
+  "RTY_L1_SWH60_events": 326,
+  "RTY_L2_SWL60_cross_on_level_change_bar": 0,
+  "RTY_L2_SWL60_events": 238,
+  "RTY_ORH_cross_at_b5": 0
+ },
+ "SHARED_BUG_FAILS": [],
+ "P0B_VERDICT": "PASS"
+}
+```
+
+Notes: (10) 1,458 NaN 5m closes in full sessions are 4 sessions with missing RTH data; no event fires on a NaN bar. (11) SWH60/SWL60 same-bar level usage affected 0 events; ORH/ORL at b=5 produced 0 crosses. (12) contemporaneous nulls documented as comparators only.
