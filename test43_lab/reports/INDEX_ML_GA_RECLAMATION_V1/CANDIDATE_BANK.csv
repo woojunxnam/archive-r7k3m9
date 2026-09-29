@@ -1,1 +1,11 @@
 candidate,source_test,definition,frozen_horizon,n_events,role,tier_a,note
+C1_R1_TRAPPED_UNION,r1,R1_TRAPPED_UNION,h1615,4316,ML reclamation (trapped-seller union),YES,"{""n"": 4316, ""mean"": 0.01717, ""xF"": 0.01383, ""years_pos_min"": 7, ""years_pos_max"": 7, ""inst_pos"": 4, ""cost"": 0.01086}"
+C2_P2_FAILED_FIRST,t103,P2_FAILED_FIRST,h1615,713,family ML + strategy economics,YES,"{""n"": 713, ""mean"": 0.03735, ""xF"": 0.03342, ""years_pos_min"": 4, ""years_pos_max"": 4, ""inst_pos"": 3, ""cost"": 0.0109}"
+C3_P1_H2,t103,P1_H2,h1615,1920,comparison / pullback module,YES,"{""n"": 1920, ""mean"": 0.016, ""xF"": 0.01275, ""years_pos_min"": 6, ""years_pos_max"": 6, ""inst_pos"": 3, ""cost"": 0.0109}"
+C4_L2_FAMILY,t104,L2_PDL+L2_PWL+L2_ORL+L2_SWL60+L2_L2H,h1615,6608,level-failure family ML (level type categorical),YES,"{""n"": 6608, ""mean"": 0.01849, ""xF"": 0.01656, ""years_pos_min"": 5, ""years_pos_max"": 7, ""inst_pos"": 4, ""cost"": 0.01086}"
+C5_HTF1_30m,t99,T99_HTF1_30m,h1615,3159,market-condition ML,YES,"{""n"": 3159, ""mean"": 0.01753, ""xF"": 0.02051, ""years_pos_min"": 6, ""years_pos_max"": 6, ""inst_pos"": 4, ""cost"": 0.01097}"
+C6_AV_OR30,t101,AV_OR30,h1615,4016,AVWAP ML,YES,"{""n"": 4016, ""mean"": 0.01395, ""xF"": 0.01291, ""years_pos_min"": 6, ""years_pos_max"": 6, ""inst_pos"": 4, ""cost"": 0.01073}"
+C7_L1_SWH60,t104,L1_SWH60,h1615,1255,level break-retest ML,YES,"{""n"": 1255, ""mean"": 0.01542, ""xF"": 0.01368, ""years_pos_min"": 6, ""years_pos_max"": 6, ""inst_pos"": 3, ""cost"": 0.01073}"
+C8_CHOCH_15m,t109,CHOCH_15m,h1615,3244,low priority,YES,"{""n"": 3244, ""mean"": 0.01412, ""xF"": 0.01316, ""years_pos_min"": 7, ""years_pos_max"": 7, ""inst_pos"": 4, ""cost"": 0.01083}"
+REF_A2_ACD,t106,A2_A_UP_IMMEDIATE,h12,3722,reference / duplicate control,REFERENCE_ONLY,nan
+REF_ORB15,t106,ORB_COMPARATOR,h12,4724,reference,REFERENCE_ONLY,nan
