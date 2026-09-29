@@ -1,0 +1,16 @@
+{
+ "TEST101_CLASSIFICATION": "REJECT (0/18 EVENT_CLUE; AV_OR30 WEAK_RESEARCH_CLUE_ONLY at all 3 primary horizons)",
+ "AV_OR30": "WEAK_RESEARCH_CLUE_ONLY: xF +0.0089 (60m, CI [-0.0010,+0.0189]), +0.0086 (120m), +0.0129 (16:15); 6/8 years, 4/4 instruments, 2021+ stronger; adjacency FAILS (AV_BRK12 / AV_PDH not consistent)",
+ "AV_BRK12": "REJECT",
+ "AV_PDH": "REJECT (60m weak only)",
+ "AVWAP_VS_SESSION_VWAP": "AVWAP hold > session-VWAP hold on raw mean in 12/12 anchor x horizon cells (+0.005..+0.011 ATR); session-VWAP hold after an upside anchor is NEGATIVE vs F101 (deeper pullback confound: the SV hold occurs later / deeper)",
+ "EVENT_ANCHORED_VWAP_ADDS_ALPHA": "NO (not an EVENT_CLUE)",
+ "DISTINCT_NEW_DEFINITIONS": 6,
+ "LEDGER_ROWS": 120,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "STRATEGY_PHASE_OPENED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
