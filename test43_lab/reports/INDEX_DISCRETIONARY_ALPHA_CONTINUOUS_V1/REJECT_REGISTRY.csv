@@ -8,3 +8,4 @@ PH3,D8,no location value; below cost
 PH3,D4_CONFLUENCE,0/9 coherent
 PH3,D5_ROOM,0/9 coherent
 PH3,D6_APPROACH,0/24 coherent
+PH4,C2_XRES / C2_XSTRUCT,resistance and structural exits reduce C2 value

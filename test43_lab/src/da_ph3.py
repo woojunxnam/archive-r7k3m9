@@ -36,7 +36,7 @@ def sup_machines(m, lvl, band):
                 if b > fb + 12:
                     st = 0
                 elif c[s, b] > L0:
-                    out["LN1"][s, b] = True; st = 2
+                    out["LN1"][s, b] = True; aux[("LN1", s, b)] = (L0, fb); st = 2
                 continue
             if c[s, b] < L0:
                 st = 0; continue
@@ -54,14 +54,14 @@ def sup_machines(m, lvl, band):
             L = lvl[s, b - 1]
             if st == 0:
                 if L == L and l_[s, b] < L and c[s, b] > L and c[s, b - 1] > L:
-                    L0, sl, sr, fb = L, l_[s, b], b, b; out["LN2"][s, b] = True; st = 2
+                    L0, sl, sr, fb = L, l_[s, b], b, b; out["LN2"][s, b] = True; aux[("LN2", s, b)] = (L0, fb); st = 2
                 elif L == L and c[s, b] < L and c[s, b - 1] >= L:
                     L0, sl, fb = L, l_[s, b], b; st = 1
                 continue
             if st == 1:
                 sl = min(sl, l_[s, b])
                 if c[s, b] > L0:
-                    sr = b; out["LN2"][s, b] = True; st = 2
+                    sr = b; out["LN2"][s, b] = True; aux[("LN2", s, b)] = (L0, fb); st = 2
                 elif b > fb + 3:
                     st = 0
                 continue
@@ -80,6 +80,9 @@ def sup_machines(m, lvl, band):
     return out, aux
 
 
+AUXB = {}
+
+
 def brk_machines(m, lvl, band):
     n = m.n; c, h, l_ = m.c, m.h, m.l; out = {k: np.zeros((n, NB), bool) for k in ("D3", "D7", "LN3")}
     for s in range(n):
@@ -93,7 +96,7 @@ def brk_machines(m, lvl, band):
                     if L == L and c[s, b] > L and c[s, b - 1] <= L:
                         st, L0, bb, mh = 1, L, b, h[s, b]
                         if kind == "D3":
-                            out["LN3"][s, b] = True
+                            out["LN3"][s, b] = True; AUXB[("LN3", s, b)] = L
                     continue
                 mprev = mh; mh = max(mh, h[s, b])
                 if kind == "D3":
@@ -109,7 +112,7 @@ def brk_machines(m, lvl, band):
                     elif st == 3 and c[s, b] < c[s, b - 1]:
                         st = 4
                     elif st == 4 and c[s, b] > mprev:
-                        out["D3"][s, b] = True; st = 0
+                        out["D3"][s, b] = True; AUXB[("D3", s, b)] = L0; st = 0
                 else:
                     if st == 1:
                         if c[s, b] < L0:
@@ -125,7 +128,7 @@ def brk_machines(m, lvl, band):
                         if c[s, b] < L0:
                             st = 0
                         elif c[s, b] > mprev:
-                            out["D7"][s, b] = True; st = 0
+                            out["D7"][s, b] = True; AUXB[("D7", s, b)] = L0; st = 0
     return out
 
 
