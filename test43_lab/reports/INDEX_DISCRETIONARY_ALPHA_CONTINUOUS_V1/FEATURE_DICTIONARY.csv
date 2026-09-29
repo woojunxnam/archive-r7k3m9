@@ -1,1 +1,19 @@
 feature,definition,available_at,normalization,group
+up_room,(R* - close)/ATR_d; NaN if no known resistance,bar b,ATR_d,room
+down_room,(close - S*)/ATR_d,bar b,ATR_d,room
+no_res,no known resistance above,bar b,binary,room
+room_asym,up/(up+down),bar b,ratio,room
+conf_sup_15,support levels within 0.15 ATR_d of S* (0.10/0.20 sensitivities),bar b,count,confluence
+conf_res_15,resistance levels within 0.15 ATR_d of R*,bar b,count,confluence
+sup_spacing,(S* - next support)/ATR_d,bar b,ATR_d,confluence
+sup_age,bars since S* value appeared (cap 405),bar b,bars,level
+sup_touch,prior session touches of S*,bar b,count,level
+sup_type,type code of S*,bar b,categorical,level
+res_type,type code of R*,bar b,categorical,level
+disp6,(c - c[-6])/ATR_d,bar b,ATR_d,approach
+bars_since_high,bars since session high,bar b,bars,approach
+bear_frac6,bearish share last 6 bars,bar b,ratio,approach
+consec_bear,consecutive bearish bars,bar b,count,approach
+range_contract,mean range last 3 / prior 6,bar b,ratio,approach
+lower_wick,lower wick / range,bar b,ratio,approach
+cpos_chg3,close-position change over 3 bars,bar b,ratio,approach
