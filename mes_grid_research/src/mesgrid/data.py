@@ -37,6 +37,7 @@ class Bars:
     in_window: np.ndarray   # bool: bar-end in [09:31, 16:15]
     tradeable: np.ndarray   # bool: in_window & not holiday
     holiday_days: set
+    v: np.ndarray = None    # volume (optional)
 
     def __len__(self):
         return len(self.c)
@@ -69,7 +70,8 @@ def bars_from_frame(df: pd.DataFrame, holiday_filter: bool = True) -> Bars:
     return Bars(dt=dt, o=df["o"].values.astype(float), h=df["h"].values.astype(float),
                 l=df["l"].values.astype(float), c=df["c"].values.astype(float), adj=adj,
                 contract=contract, contract_names=contract_names, day=day, minute=minute,
-                in_window=in_window, tradeable=in_window & ~hol_mask, holiday_days=holidays)
+                in_window=in_window, tradeable=in_window & ~hol_mask, holiday_days=holidays,
+                v=df["v"].values.astype(float) if "v" in df else None)
 
 
 def sha256_file(path: str) -> str:
@@ -85,7 +87,7 @@ def load_canonical(path: str = CANONICAL_PATH, verify: bool = True, start=None, 
         s = sha256_file(path)
         if s != DATASET_SHA256:
             raise RuntimeError(f"dataset hash mismatch: {s}")
-    df = pd.read_parquet(path, columns=["dt", "o", "h", "l", "c", "cum_adjustment", "contract"])
+    df = pd.read_parquet(path, columns=["dt", "o", "h", "l", "c", "v", "cum_adjustment", "contract"])
     if start is not None:
         df = df[df.dt >= pd.Timestamp(start)]
     if end is not None:

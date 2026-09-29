@@ -296,9 +296,16 @@ def test_lane_capacity_separation():
         run(mk(rows), [BSK(2), IND(1, 50.0)], lambda ctx, i: [Order("market_buy", "rec")] * 2, max_total=3)
 
 
-def test_lane_capacities_cannot_exceed_total():
+def test_overlapping_lane_capacities_total_still_enforced():
+    # lanes may overlap (dynamic allocation) but the absolute ceiling is enforced
     with pytest.raises(AssertionError):
-        run(mk(flat_bars(2)), [BSK(30), IND(4)], {}, max_total=32)
+        run(mk(flat_bars(2)), [BSK(33), IND(4)], {}, max_total=32)
+    rows = flat_bars(6)
+    e = run(mk(rows), [BSK(3), IND(3)], lambda ctx, i: [Order("market_buy", "core")] if ctx.total_qty < 4 and ctx.lane("core").free else
+            ([Order("market_buy", "rec")] if ctx.total_qty < 4 else []), max_total=4)
+    assert e.state.qty.max() == 4
+    with pytest.raises(AssertionError):
+        run(mk(rows), [BSK(3), IND(3)], lambda ctx, i: [Order("market_buy", "core"), Order("market_buy", "core"), Order("market_buy", "rec")] * (ctx.total_qty < 4), max_total=4)
 
 
 # 16 MTM equity -----------------------------------------------------------------------------------

@@ -1,0 +1,601 @@
+"""FactoryStrategy: one modular long-only inventory strategy whose DEFAULT config reproduces Baseline A.
+
+Every research module is switched by config keys (see DEFAULTS). Decisions use only bars <= i and causal
+features (features.py). Orders are for bar i+1 (engine enforces). Lanes:
+  core  - averaging lane, basket escape (+ optional layer exits)
+  rec   - recycle lane, individual TP (+ optional rolling replacement)
+  emerg - emergency reserve lane, individual TP, usable only under an explicit condition
+"""
+from __future__ import annotations
+
+import math
+
+import numpy as np
+
+from .engine import LaneSpec, Order, Strategy, ceil_tick, floor_tick
+
+NS_DAY = 86400 * 10**9
+
+DEFAULTS = dict(
+    max_total=32,
+    # ---- architecture
+    core_cap=32, rec_cap=0, emerg_cap=0,
+    dyn_alloc=None,            # None | "vol" | "dd" | "age": shrink effective core cap
+    # ---- core exit
+    basket_tp=25.0, basket_tp_mode="pts", basket_atr_k=0.4,   # "pts" | "datr"
+    layer_exit=None,           # None|"last"|"last2"|"last4"|"all_ind"|"newest_prof"|"deepest_prof"|"partial"
+    layer_x=5.0, layer_min_qty=1,
+    scale_out=None,            # None | (x1, x2, x3) basket scale-out 25/25/50 at avg+x
+    reclaim_exit=None,         # None | "vwap" | "prev_close": sell whole core at market when reclaimed & avg+min in profit
+    reclaim_min=5.0,
+    # ---- core add spacing
+    spacing="fixed", grid=5.0,
+    convex_a=0.1, tiers=((8, 5.0), (16, 10.0), (24, 20.0), (32, 40.0)),
+    atr_k=1.0, pct=0.001, dd_D=25000.0, age_A=10.0, volpct_k=1.0,
+    add_ref=None,              # None(auto) | "last_fill" | "lowest"
+    # ---- core add trigger
+    add_trigger="close",       # "close" | "limit" | "armed"
+    reversal="bull_hc",        # for armed: bull_hc|prev_high|two_bar|ll_fail|wick|upper_q|rex
+    cooldown_bars=1, cooldown_min=0,
+    # ---- initial entry
+    init="immediate",          # immediate|vwap|range|bb|keltner|sess_dd|prev_dd
+    init_k=0.5, init_x=10.0, init_pct=0.2,
+    # ---- recycle lane
+    rec_activation="core_full",  # always|core_full|state
+    rec_anchor="runhigh",        # runhigh|low30|low60|vwap|range|swing
+    rec_spacing="ladder",        # ladder|float
+    rec_step=5.0, rec_tp=3.0, rec_tp_mode="pts",   # pts|atr|inv|age|vol
+    rec_tp_atr_k=0.3, rec_vwap_k=1.0,
+    rec_roll=None,               # None | "pts" | "atr" | "newlow" | "reversal"
+    rec_roll_x=20.0, rec_roll_select="highest",   # highest|oldest
+    # ---- emergency lane
+    emerg_step=20.0, emerg_tp=10.0, emerg_access="others_full",   # others_full|critical
+    # ---- freefall governor
+    gov=None, gov_x=None, gov_action="core",   # gov: atr_spike|atr_pct|vwap_dev|lower_lows|mom15|mom30|mom60|range_exp|rvol
+    # ---- state machine / recovery
+    state=None,                  # None | dict(t=(8,16,24), dd=None, age=None, mult=(1,1.5,3,inf), rec_tp=None,
+                                 #   recovery_exit=None, rec_exit_x=5.0, recovery_until=12)
+    recovery=None,               # None | dict(h=24, rec_tp=2.0, rec_step=10.0, layer_x=None, confirm="vwap")
+    # ---- exposure caps (apply to all new buys)
+    cap_total=None, eq_cap_Q=None, dd_cap_X=None, vol_cap=False, notional_L=None,
+    # ---- time of day
+    skip_first=0, lunch_core_off=False, core_cutoff=None, late_rec_tp=None,
+    # ---- ETH context (labelled)
+    eth=None,                    # None | "gapdown_init" | "openloc_init" | "onret_pause" | "below_onlow_adds"
+    eth_k=0.5,
+)
+
+
+def _reversal(kind, F, b, i):
+    o, h, l, c = b.o[i], b.h[i], b.l[i], b.c[i]
+    if kind == "bull_hc":
+        return c > o and c > F["prev_c"][i]
+    if kind == "prev_high":
+        return c > F["prev_high"][i]
+    if kind == "two_bar":
+        return F["prev_c"][i] < F["prev_open"][i] and c > o and c > F["prev_open"][i]
+    if kind == "ll_fail":
+        return F["prev_low"][i] < F["prev_low2"][i] and l >= F["prev_low"][i] and c > F["prev_c"][i]
+    if kind == "wick":
+        rng = h - l
+        return rng > 0 and (min(o, c) - l) >= 0.5 * rng and c >= o
+    if kind == "upper_q":
+        rng = h - l
+        return rng > 0 and c >= l + 0.75 * rng
+    if kind == "rex":
+        return F["range1"][i - 1] > 2 * F["range1_avg20"][i - 1] and F["range1"][i] < F["range1"][i - 1] and c > o
+    raise ValueError(kind)
+
+
+class FactoryStrategy(Strategy):
+    def __init__(self, F: dict, **cfg):
+        unknown = set(cfg) - set(DEFAULTS)
+        assert not unknown, f"unknown config keys {unknown}"
+        self.cfg = dict(DEFAULTS, **cfg)
+        k = self.cfg
+        self.F = F
+        self.max_total = k["max_total"]
+        self.lanes = [LaneSpec("core", min(k["core_cap"], self.max_total), "basket", k["basket_tp"])]
+        if k["rec_cap"]:
+            self.lanes.append(LaneSpec("rec", k["rec_cap"], "individual", k["rec_tp"]))
+        if k["emerg_cap"]:
+            self.lanes.append(LaneSpec("emerg", k["emerg_cap"], "individual", k["emerg_tp"]))
+        self.params = {kk: v for kk, v in self.cfg.items() if DEFAULTS.get(kk) != v}
+        self.params["strategy"] = "FactoryStrategy"
+        self._hi = None
+        self._armed = None
+        self._last_core_add_i = -10**9
+        self._last_core_add_dt = None
+        self._scaled = 0
+        self._state = "NORMAL"
+        self._recovering = False
+        self._day_eth_ok = None
+        self._basket_tp_cur = k["basket_tp"]
+
+    # ------------------------------------------------------------------ helpers
+    def _age_days(self, ctx, i):
+        s = ctx.cycle_start_idx
+        if s is None:
+            return 0.0
+        return float((ctx.bars.dt[i] - ctx.bars.dt[s]).astype("int64")) / NS_DAY
+
+    def _update_state(self, ctx, i):
+        st = self.cfg["state"]
+        q = ctx.total_qty
+        if not st:
+            return
+        t1, t2, t3 = st.get("t", (8, 16, 24))
+        crit = q >= t3
+        if st.get("dd") is not None and ctx.unrealized(i) <= -st["dd"]:
+            crit = True
+        if st.get("age") is not None and self._age_days(ctx, i) >= st["age"] and q >= t1:
+            crit = True
+        if crit:
+            self._state = "CRITICAL"
+            if st.get("recovery_exit") is not None:
+                self._recovering = True
+            return
+        if self._recovering and q >= st.get("recovery_until", 12):
+            self._state = "RECOVERY"
+            return
+        self._recovering = False
+        self._state = "NORMAL" if q < t1 else ("ELEVATED" if q < t2 else "HIGH")
+
+    def _state_mult(self):
+        st = self.cfg["state"]
+        if not st:
+            return 1.0
+        m = st.get("mult", (1.0, 1.5, 3.0, math.inf))
+        return {"NORMAL": m[0], "ELEVATED": m[1], "HIGH": m[2], "CRITICAL": m[3], "RECOVERY": m[3]}[self._state]
+
+    def _in_recovery_mode(self, ctx, i):
+        r = self.cfg["recovery"]
+        if not r:
+            return False
+        if ctx.total_qty >= r.get("h", 24):
+            self._rec_mode = True
+        elif ctx.total_qty < r.get("exit", 12):
+            self._rec_mode = False
+        return getattr(self, "_rec_mode", False)
+
+    def _core_step(self, ctx, i, n):
+        """spacing for the next core add when core holds n contracts"""
+        k, F = self.cfg, self.F
+        sp = k["spacing"]
+        if sp == "fixed":
+            s = k["grid"]
+        elif sp == "convex":
+            s = k["grid"] * (1 + k["convex_a"] * max(n - 1, 0))
+        elif sp == "tiers":
+            s = math.inf
+            for upto, step in k["tiers"]:
+                if n < upto:
+                    s = step
+                    break
+        elif sp == "atr":
+            s = k["atr_k"] * F["atr15"][i]
+        elif sp == "pct":
+            s = k["pct"] * (ctx.bars.c[i] - ctx.bars.adj[i])       # raw price level
+        elif sp == "dd":
+            s = k["grid"] * (1 + max(-ctx.unrealized(i), 0) / k["dd_D"])
+        elif sp == "age":
+            s = k["grid"] * (1 + self._age_days(ctx, i) / k["age_A"])
+        elif sp == "volpct":
+            s = k["grid"] * (1 + k["volpct_k"] * 2 * max(F["datr_pct"][i] - 0.5, 0) * 2)
+        else:
+            raise ValueError(sp)
+        return max(s * self._state_mult(), 0.25)
+
+    def _core_cap_eff(self, ctx, i):
+        k = self.cfg
+        cap = self.lanes[0].capacity
+        d = k["dyn_alloc"]
+        if d == "vol":
+            cap = min(cap, 20 if self.F["datr_pct"][i] > 0.8 else cap)
+        elif d == "dd":
+            u = -ctx.unrealized(i)
+            cap = min(cap, cap - int(u // 25000) * 4) if u > 0 else cap
+        elif d == "age":
+            a = self._age_days(ctx, i)
+            cap = min(cap, cap - int(a // 10) * 4)
+        return max(cap, 0)
+
+    def _total_cap_eff(self, ctx, i):
+        k, F, b = self.cfg, self.F, ctx.bars
+        cap = self.max_total
+        if k["cap_total"]:
+            cap = min(cap, k["cap_total"])
+        eq = None
+        if k["eq_cap_Q"]:
+            eq = ctx.equity(i)
+            cap = min(cap, max(int(eq // k["eq_cap_Q"]), 0))
+        if k["dd_cap_X"]:
+            eq = eq if eq is not None else ctx.equity(i)
+            dd = max(ctx.peak_equity - eq, 0)
+            cap = min(cap, self.max_total - int(dd // k["dd_cap_X"]) * 4)
+        if k["vol_cap"]:
+            p = F["datr_pct"][i]
+            cap = min(cap, 32 if p < 0.7 else (24 if p < 0.9 else 16))
+        if k["notional_L"]:
+            eq = eq if eq is not None else ctx.equity(i)
+            raw = b.c[i] - b.adj[i]
+            cap = min(cap, max(int(k["notional_L"] * max(eq, 0) / (raw * 5.0)), 0))
+        return max(cap, 0)
+
+    def _governed(self, i):
+        k, F, b = self.cfg, self.F, None
+        g = k["gov"]
+        if not g:
+            return False
+        x = k["gov_x"]
+        a15 = F["atr15"][i]
+        if g == "atr_spike":
+            return F["atr15_rel"][i] > (x or 1.5)
+        if g == "atr_pct":
+            return F["datr_pct"][i] > (x or 0.85)
+        if g == "vwap_dev":
+            return (self._c - F["vwap"][i]) / a15 < -(x or 2.0)
+        if g == "lower_lows":
+            return bool(F["lower_lows"][i])
+        if g in ("mom15", "mom30", "mom60"):
+            return F[g][i] / a15 < -(x or 1.5)
+        if g == "range_exp":
+            return F["range30"][i] / a15 > (x or 3.0)
+        if g == "rvol":
+            return F["rvol_ratio"][i] > (x or 2.0)
+        raise ValueError(g)
+
+    def _init_ok(self, ctx, i):
+        k, F, c = self.cfg, self.F, self._c
+        m = k["init"]
+        a15 = F["atr15"][i]
+        if k["eth"] == "gapdown_init" and not (F["gap"][i] < -k["eth_k"] * a15):
+            return False
+        if k["eth"] == "openloc_init" and not (F["eth_open_loc"][i] < 0.5):
+            return False
+        if m == "immediate":
+            return True
+        if m == "vwap":
+            return c <= F["vwap"][i] - k["init_k"] * a15
+        if m == "range":
+            return F["rangepos120"][i] <= k["init_pct"]
+        if m == "bb":
+            return c <= F["bb_lower"][i]
+        if m == "keltner":
+            return c <= F["kelt_lower"][i]
+        if m == "sess_dd":
+            return c <= F["sess_high"][i] - k["init_x"]
+        if m == "prev_dd":
+            return c <= F["prev_close"][i] - k["init_x"]
+        raise ValueError(m)
+
+    def _rec_tp(self, ctx, i):
+        k, F = self.cfg, self.F
+        m = k["rec_tp_mode"]
+        tp = k["rec_tp"]
+        if m == "atr":
+            tp = max(k["rec_tp_atr_k"] * F["atr15"][i], 1.0)
+        elif m == "inv":
+            q = ctx.total_qty + 1
+            tp = 5.0 if q <= 8 else (4.0 if q <= 16 else (3.0 if q <= 24 else 2.5))
+        elif m == "age":
+            a = self._age_days(ctx, i)
+            tp = k["rec_tp"] if a < 5 else (k["rec_tp"] * 0.75 if a < 20 else k["rec_tp"] * 0.5)
+        elif m == "vol":
+            tp = k["rec_tp"] * min(max(F["datr"][i] / 60.0, 0.5), 2.0)
+        st = k["state"]
+        if st and st.get("rec_tp") and self._state in st["rec_tp"]:
+            tp = st["rec_tp"][self._state]
+        r = k["recovery"]
+        if r and getattr(self, "_rec_mode", False):
+            tp = r.get("rec_tp", tp)
+        if k["late_rec_tp"] is not None and ctx.bars.minute[i] >= 15 * 60:
+            tp = k["late_rec_tp"]
+        return max(ceil_tick(tp), 0.25)
+
+    # ------------------------------------------------------------------ hooks
+    def observe(self, ctx, i):
+        k = self.cfg
+        self._c = ctx.bars.c[i]
+        for f in ctx.fills_this_bar:
+            tg = f.get("tag") or ""
+            if tg.startswith("SO1"):
+                self._scaled = max(self._scaled, 1)
+            elif tg.startswith("SO2"):
+                self._scaled = max(self._scaled, 2)
+        self._update_state(ctx, i)
+        if k["rec_cap"]:
+            rec = ctx.lane("rec")
+            if rec.qty == 0 and self._rec_active(ctx):
+                self._hi = self._c if self._hi is None else max(self._hi, self._c)
+            else:
+                self._hi = None
+
+    def _rec_active(self, ctx):
+        a = self.cfg["rec_activation"]
+        if a == "always":
+            return True
+        if a == "core_full":
+            return ctx.lane("core").qty >= getattr(self, "_core_cap_now", self.lanes[0].capacity)
+        if a == "state":
+            return self._state != "NORMAL"
+        raise ValueError(a)
+
+    def on_bar_close(self, ctx, i):
+        k, F, b = self.cfg, self.F, ctx.bars
+        c = self._c = b.c[i]
+        out = []
+        core = ctx.lane("core")
+        minute = b.minute[i]
+        total_cap = self._total_cap_eff(ctx, i)
+        buys_budget = total_cap - ctx.total_qty
+        # time of day gating for new buys (decision at close of bar i -> fill at i+1 open = minute i)
+        tod_ok = minute - 571 + 1 >= k["skip_first"]
+        core_tod_ok = tod_ok
+        if k["lunch_core_off"] and 11 * 60 + 30 <= minute < 13 * 60 + 30:
+            core_tod_ok = False
+        if k["core_cutoff"] is not None and minute >= k["core_cutoff"]:
+            core_tod_ok = False
+        governed = self._governed(i)
+        in_rec_mode = self._in_recovery_mode(ctx, i)
+        a15 = F["atr15"][i]
+
+        self._core_cap_now = self._core_cap_eff(ctx, i)
+        if k["basket_tp_mode"] == "datr":
+            core.spec.tp_pts = max(ceil_tick(k["basket_atr_k"] * F["datr"][i]), 5.0)
+        # ================= CORE EXITS (strategy-managed, in addition to basket escape)
+        if core.qty:
+            out += self._core_exit_orders(ctx, i, core, in_rec_mode)
+
+        # ================= CORE ENTRY / ADD
+        core_allowed = core_tod_ok and buys_budget > 0 and not (governed and k["gov_action"] in ("core", "all"))
+        if self._state == "CRITICAL" and self._state_mult() == math.inf:
+            core_allowed = False
+        if in_rec_mode:
+            core_allowed = False
+            conf = k["recovery"].get("confirm")
+            if conf == "vwap" and c > F["vwap"][i]:
+                core_allowed = core_tod_ok and buys_budget > 0
+        if k["eth"] == "onret_pause" and F["eth_on_ret"][i] < -k["eth_k"] * F["datr"][i]:
+            core_allowed = False
+        if k["eth"] == "below_onlow_adds" and core.qty and not (c < F["eth_on_low"][i]):
+            core_allowed = False
+        sold_core = sum(1 for od in out if od.lane == "core" and od.kind == "market_sell")
+        if core_allowed and core.qty == 0 and sold_core == 0:
+            if self._init_ok(ctx, i):
+                out.append(Order("market_buy", "core", 1, tag="init"))
+                buys_budget -= 1
+                self._scaled = 0
+        elif core_allowed and core.qty > 0 and core.qty < self._core_cap_now and core.free > 0:
+            ref_mode = k["add_ref"] or ("lowest" if k["layer_exit"] else "last_fill")
+            ref = core.last_entry_px if ref_mode == "last_fill" else min(t.entry_px for t in core.tranches)
+            step = self._core_step(ctx, i, core.qty)
+            level = ref - step
+            cool_ok = (i - self._last_core_add_i) >= k["cooldown_bars"]
+            if k["cooldown_min"] and self._last_core_add_dt is not None:
+                cool_ok = cool_ok and (b.dt[i] - self._last_core_add_dt) >= np.timedelta64(int(k["cooldown_min"]), "m")
+            if cool_ok and math.isfinite(level):
+                trig = k["add_trigger"]
+                if trig == "close":
+                    if c <= level:
+                        out.append(Order("market_buy", "core", 1, tag="add")); buys_budget -= 1
+                        self._mark_add(b, i)
+                elif trig == "limit":
+                    lv = floor_tick(level)
+                    if c > lv:
+                        out.append(Order("limit_buy", "core", 1, price=lv, tag="add_lmt")); buys_budget -= 1
+                    else:
+                        out.append(Order("market_buy", "core", 1, tag="add")); buys_budget -= 1
+                    self._mark_add(b, i, soft=True)
+                elif trig == "armed":
+                    if b.l[i] <= level:
+                        self._armed = level if self._armed is None else min(self._armed, level)
+                    if self._armed is not None:
+                        if c > self._armed + step:
+                            self._armed = None
+                        elif _reversal(k["reversal"], F, b, i):
+                            out.append(Order("market_buy", "core", 1, tag="add_rev")); buys_budget -= 1
+                            self._armed = None
+                            self._mark_add(b, i)
+        if core.qty == 0:
+            self._armed = None
+
+        # ================= RECYCLE
+        if k["rec_cap"] and buys_budget > 0 and tod_ok and not (governed and k["gov_action"] == "all"):
+            out += self._rec_orders(ctx, i, a15, in_rec_mode)
+        elif k["rec_cap"] and k["rec_roll"]:
+            out += self._rec_roll_orders(ctx, i, a15, in_rec_mode)   # rotations are inventory-neutral
+
+        # ================= EMERGENCY
+        if k["emerg_cap"] and tod_ok:
+            out += self._emerg_orders(ctx, i)
+
+        # final capacity guard
+        return self._fit(ctx, out, total_cap)
+
+    def _mark_add(self, b, i, soft=False):
+        self._last_core_add_i = i
+        self._last_core_add_dt = b.dt[i]
+
+    def _fit(self, ctx, out, total_cap):
+        sells = [o for o in out if o.kind in ("market_sell", "limit_sell")]
+        buys = [o for o in out if o.kind in ("market_buy", "limit_buy")]
+        msell = {}
+        for o in sells:
+            if o.kind == "market_sell":
+                msell[o.lane] = msell.get(o.lane, 0) + 1
+        keep = []
+        tot = ctx.total_qty - sum(msell.values())
+        lane_add = {}
+        for o in buys:
+            ln = ctx.lane(o.lane)
+            la = lane_add.get(o.lane, 0)
+            if la + o.qty > ln.free + msell.get(o.lane, 0):
+                continue
+            is_rot = o.tag == "rot_buy"
+            if not is_rot and tot + o.qty > min(total_cap, ctx.max_total):
+                continue
+            if tot + o.qty > ctx.max_total:
+                continue
+            keep.append(o)
+            tot += o.qty
+            lane_add[o.lane] = la + o.qty
+        return sells + keep
+
+    def _core_exit_orders(self, ctx, i, core, in_rec_mode):
+        k, F, b = self.cfg, self.F, ctx.bars
+        c = b.c[i]
+        out = []
+        tr = sorted(core.tranches, key=lambda t: t.entry_idx)
+        mode = k["layer_exit"]
+        x = k["layer_x"]
+        st = k["state"]
+        if st and st.get("recovery_exit") is not None and self._state in ("RECOVERY", "CRITICAL"):
+            mode, x = st["recovery_exit"], st.get("rec_exit_x", 5.0)
+        r = k["recovery"]
+        if r and in_rec_mode and r.get("layer_x"):
+            mode, x = "all_ind", r["layer_x"]
+        if mode and len(tr) >= k["layer_min_qty"]:
+            if mode == "last":
+                t = tr[-1]
+                out.append(Order("limit_sell", "core", tranche_id=t.id, price=ceil_tick(t.entry_px + x), tag="L_last"))
+            elif mode in ("last2", "last4"):
+                m = 2 if mode == "last2" else 4
+                grp = tr[-m:]
+                px = ceil_tick(sum(t.entry_px for t in grp) / len(grp) + x)
+                out += [Order("limit_sell", "core", tranche_id=t.id, price=px, tag=f"L_{mode}") for t in grp]
+            elif mode == "all_ind":
+                out += [Order("limit_sell", "core", tranche_id=t.id, price=ceil_tick(t.entry_px + x), tag="L_ind") for t in tr]
+            elif mode in ("newest_prof", "deepest_prof", "partial"):
+                prof = [t for t in tr if c - t.entry_px >= x]
+                if prof:
+                    if mode == "newest_prof":
+                        sel = [prof[-1]]
+                    elif mode == "deepest_prof":
+                        sel = [min(prof, key=lambda t: t.entry_px)]
+                    else:
+                        sel = prof[: max(len(prof) // 2, 1)]
+                    out += [Order("market_sell", "core", tranche_id=t.id, tag=f"L_{mode}") for t in sel]
+        if k["scale_out"] and core.qty >= 4:
+            avg = core.avg
+            x1, x2, x3 = k["scale_out"]
+            n = core.qty
+            # 25% at +x1, next 25% at +x2 (the basket escape at +x3 handles the rest)
+            if self._scaled == 0:
+                grp = sorted(tr, key=lambda t: -t.entry_px)[: max(n // 4, 1)]
+                out += [Order("limit_sell", "core", tranche_id=t.id, price=ceil_tick(avg + x1), tag="SO1") for t in grp]
+            elif self._scaled == 1:
+                grp = sorted(tr, key=lambda t: -t.entry_px)[: max(n // 3, 1)]
+                out += [Order("limit_sell", "core", tranche_id=t.id, price=ceil_tick(avg + x2), tag="SO2") for t in grp]
+        if k["reclaim_exit"] and core.avg is not None and c >= core.avg + k["reclaim_min"]:
+            lvl = F["vwap"][i] if k["reclaim_exit"] == "vwap" else F["prev_close"][i]
+            if np.isfinite(lvl) and c > lvl and F["prev_c"][i] <= lvl:
+                out += [Order("market_sell", "core", tranche_id=t.id, tag="reclaim") for t in tr]
+        # de-duplicate: one order per tranche (market beats limit)
+        seen, ded = set(), []
+        for o in sorted(out, key=lambda o: o.kind != "market_sell"):
+            if o.tranche_id in seen:
+                continue
+            seen.add(o.tranche_id)
+            ded.append(o)
+        return ded
+
+    def _rec_orders(self, ctx, i, a15, in_rec_mode):
+        k, F, b = self.cfg, self.F, ctx.bars
+        rec = ctx.lane("rec")
+        c = b.c[i]
+        out = []
+        if not self._rec_active(ctx):
+            return out
+        step = k["rec_step"]
+        r = k["recovery"]
+        if r and in_rec_mode:
+            step = r.get("rec_step", step)
+        st = k["state"]
+        if st and st.get("rec_step_mult"):
+            step *= st["rec_step_mult"].get(self._state, 1.0)
+        if rec.free > 0:
+            opens = [t.entry_px for t in rec.tranches]
+            if opens:
+                if k["rec_spacing"] == "ladder":
+                    space_ok = c <= min(opens) - step
+                else:
+                    space_ok = all(abs(c - e) >= step for e in opens)
+            else:
+                space_ok = True
+            if space_ok and self._rec_anchor_ok(ctx, i, a15, bool(opens)):
+                out.append(Order("market_buy", "rec", 1, tp_pts=self._rec_tp(ctx, i), tag="rec"))
+        elif k["rec_roll"]:
+            out += self._rec_roll_orders(ctx, i, a15, in_rec_mode)
+        return out
+
+    def _rec_anchor_ok(self, ctx, i, a15, has_open):
+        k, F, b = self.cfg, self.F, ctx.bars
+        c = b.c[i]
+        an = k["rec_anchor"]
+        if an == "runhigh":
+            if has_open:
+                return True        # ladder/float spacing already enforced
+            return self._hi is not None and c <= self._hi - k["rec_step"]
+        if an in ("low30", "low60"):
+            lowp = F[an][i - 1] if i > 0 else np.nan
+            return np.isfinite(lowp) and b.l[i] <= lowp and c >= b.l[i] + 0.25 * a15
+        if an == "vwap":
+            return c <= F["vwap"][i] - k["rec_vwap_k"] * a15
+        if an == "range":
+            return F["rangepos120"][i] <= 0.15
+        if an == "swing":
+            return c <= F["high30"][i] - k["rec_step"] and c > F["prev_high"][i]
+        raise ValueError(an)
+
+    def _rec_roll_orders(self, ctx, i, a15, in_rec_mode):
+        k, F, b = self.cfg, self.F, ctx.bars
+        rec = ctx.lane("rec")
+        if rec.free > 0 or not rec.tranches:
+            return []
+        c = b.c[i]
+        lo = min(t.entry_px for t in rec.tranches)
+        m = k["rec_roll"]
+        x = k["rec_roll_x"]
+        if m == "pts":
+            trig = c <= lo - x
+        elif m == "atr":
+            trig = c <= lo - x * a15
+        elif m == "newlow":
+            trig = c <= lo - k["rec_step"] and np.isfinite(F["low60"][i - 1]) and b.l[i] < F["low60"][i - 1]
+        elif m == "reversal":
+            trig = c <= lo - x and c > F["prev_high"][i]
+        else:
+            raise ValueError(m)
+        if not trig:
+            return []
+        if k["rec_roll_select"] == "oldest":
+            sel = min(rec.tranches, key=lambda t: t.entry_idx)
+        else:   # highest cost == worst distance-to-market for a long
+            sel = max(rec.tranches, key=lambda t: t.entry_px)
+        return [Order("market_sell", "rec", tranche_id=sel.id, tag="rotate"),
+                Order("market_buy", "rec", 1, tp_pts=self._rec_tp(ctx, i), tag="rot_buy")]
+
+    def _emerg_orders(self, ctx, i):
+        k, b = self.cfg, ctx.bars
+        em = ctx.lane("emerg")
+        if em.free <= 0:
+            return []
+        acc = k["emerg_access"]
+        others_full = all(ln.free <= 0 for nm, ln in ctx.lanes.items() if nm != "emerg")
+        if acc == "others_full":
+            ok = others_full
+        elif acc == "critical":
+            ok = self._state == "CRITICAL" or others_full
+        else:
+            raise ValueError(acc)
+        if not ok:
+            return []
+        allp = [t.entry_px for ln in ctx.lanes.values() for t in ln.tranches]
+        ref = min(allp) if allp else b.c[i]
+        eopen = [t.entry_px for t in em.tranches]
+        if eopen:
+            ref = min(min(eopen), ref)
+        if b.c[i] <= ref - k["emerg_step"]:
+            return [Order("market_buy", "emerg", 1, tp_pts=k["emerg_tp"], tag="emerg")]
+        return []

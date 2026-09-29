@@ -1,4 +1,4 @@
-# EXECUTION_SPEC — version `EXEC-1.0` (conservative)
+# EXECUTION_SPEC — version `EXEC-1.1` (conservative) + roll model `ROLL-1.0`
 
 엔진: `src/mesgrid/engine.py` (`ENGINE_VERSION` 참조). 모든 결과 파일에 이 spec 버전을 기록한다.
 spec을 바꾸면 버전을 올리고 이 문서에 변경 이력을 남긴다. 결과가 좋아지는 방향으로 가정을 고르지 않는다.
@@ -49,6 +49,14 @@ spec을 바꾸면 버전을 올리고 이 문서에 변경 이력을 남긴다. 
 ### 4.5 Individual TP
 - tranche 체결가 + tp_pts (tick grid 올림)에 sell limit.
 
+### 4.6 Strategy limit sell (layer exit, EXEC-1.1)
+- 전략이 bar t 종료 시 특정 tranche에 대해 가격 P의 sell limit을 지정 → bar t+1에만 유효.
+- 체결 규칙은 4.3과 동일 (gap-through: max(P, O−tick); intrabar: H ≥ P+tick → P).
+- 대상 tranche는 이미 존재하던 것만 가능 → intrabar 매수 직후 같은 bar 청산은 구조적으로 불가.
+
+### 4.7 Rolling replacement
+- 같은 bar에 market_sell(특정 tranche) + market_buy 가능. open에서 sell 먼저, buy 나중 → 순 inventory 불변.
+
 ## 5. Same-bar 규칙 (1분 OHLC는 H/L 순서 불명)
 1. open에서 체결된 진입(market, gap-through limit)은 같은 bar 안의 TP 조건 충족 시 청산 허용.
 2. **intrabar limit BUY로 체결된 tranche는 같은 bar에서 청산 금지** (가장 이른 청산 = 다음 bar).
@@ -65,11 +73,20 @@ spec을 바꾸면 버전을 올리고 이 문서에 변경 이력을 남긴다. 
 - slippage: market 및 gap-through 체결 1 tick 불리 (= $1.25/contract). intrabar limit 체결은 slippage 0 (limit 가격 체결, 대신 관통 요건).
 - 보고: gross P&L (slippage·commission 제외 이상 가격 기준), slippage 비용, commission, net.
 
-## 8. Roll
-- 가격은 additive adjusted 연속. roll(계약 변경) 시 보유 수량 × roll_cost_per_contract 부과.
-- 기본 roll_cost_per_contract = 2 sides × $0.62 + 1 tick($1.25) = **$2.49** (calendar spread 1 tick 가정).
-- P&L은 adjusted 가격 차이로 계산 → roll 시점 spread로 롤오버한 것과 동등.
-- 실제 roll은 roll일 RTH 중에 해야 하나 데이터 roll은 17:00→18:01. 시점 차이에 따른 spread 변동은 무시(근사).
+## 8. Roll — `ROLL-1.0` (roll-aware accounting gate, 2026-09-29)
+**데이터 사실** (DATA_AUDIT §4): 가격 = raw + cum_adjustment, 첫 계약 ESM9 기준 forward additive. roll 28회 모두 17:00(구계약 마지막 bar) → 18:01(신계약 첫 bar). `roll_adjacent` = 신계약 첫 세션 전체(18:01~다음날 17:00). 동시호가(두 계약 동시 가격)는 데이터에 없음 → **calendar spread = cum_old − cum_new**(데이터 조정값)로 정의.
+
+**tranche 원장**: 모든 tranche는 논리 ID를 유지하며 `contract`, `raw_basis`(현재 계약 raw 원가), `rolls`, `roll_realized`를 가진다.
+roll bar r (구계약 마지막 bar r−1)에서 보유 중인 모든 tranche에 대해:
+- 구계약 청산가 P_old = c[r−1] − cum_old, 신계약 진입가 P_new = P_old + spread.
+- `basis_adjust` (기본): raw_basis += spread (실현 없음, 원가를 신계약 가격으로 이동).
+- `close_reopen` (브로커 보고용): 구계약 leg P&L = (P_old − raw_basis) 실현, raw_basis = P_new.
+- 두 모드는 **경제적으로 동일**(equity 곡선 동일). realized/unrealized 분할만 다름.
+- 불변식 (청산 시 assert): raw 최종 leg + 누적 roll_realized == adjusted 가격 P&L. 전체 Baseline A 실행 최대 오차 0.0.
+- 비용: 계약당 roll_commission_sides(기본 2) × commission + roll_slippage_ticks(기본 1) × tick × $5 = **$2.49** (spread 주문 1 tick). 설정 가능. 2× slippage 민감도 = $3.74.
+- 목표가(basket/TP)는 adjusted 공간에서 계산 = 신계약 raw 기준으로 raw_basis 평균 + TP와 동일 (테스트 `test_exit_after_roll_ledger_invariant_and_target`).
+- naive unadjusted 연속가(roll 무시)는 금지: roll마다 가짜 P&L 발생 (테스트 `test_naive_raw_continuous_creates_phantom_profit`, Baseline A에서 +$23.8k 가짜 이익).
+- 근사: 실제 roll은 roll일 RTH 중 실행. 17:00 기준 spread와의 차이는 무시.
 
 ## 9. MTM / Equity
 - equity(t) = 초기자본 + realized_net(t) + unrealized(t) − roll_costs(t).
@@ -96,3 +113,4 @@ spec을 바꾸면 버전을 올리고 이 문서에 변경 이력을 남긴다. 
 
 ## 변경 이력
 - EXEC-1.0 (2026-09-29): 최초 작성.
+- EXEC-1.1 / ROLL-1.0 (2026-09-29): roll-aware tranche 원장, 설정 가능한 roll commission/slippage, `limit_sell`(전략 지정 tranche 청산) 주문, market_sell과 같은 bar의 교체 매수 허용(capacity 선반영), lane capacity 중첩 허용(절대 한도 32는 엔진이 강제). 기존 결과 수치 변화 없음(BASE_A 재현 확인).

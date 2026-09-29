@@ -1,0 +1,294 @@
+{
+ "V1_roll_basis_adjust": {
+  "windows": {
+   "2020": {
+    "worst_unreal": -167687.5,
+    "worst_dt": "2020-03-22 18:04",
+    "qty": 32,
+    "basket_avg_adj": 3222.546875,
+    "basket_avg_raw": 3222.046875,
+    "raw_price": 2174.0,
+    "adj_price": 2174.5,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 159.36,
+    "roll_leg_pnl_in_window": -154895.0,
+    "recovery_dt": "2020-06-08 15:42",
+    "lock": [
+     145.00694444444446,
+     "2020-02-26T13:41:00.000000000",
+     "2020-07-20T13:51:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -168005.18000000008
+   },
+   "2022_23": {
+    "worst_unreal": -168926.25,
+    "worst_dt": "2022-10-13 09:33",
+    "qty": 32,
+    "basket_avg_adj": 4610.0390625,
+    "basket_avg_raw": 4559.2890625,
+    "raw_price": 3503.5,
+    "adj_price": 3554.25,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 8,
+    "roll_cost_in_window": 637.4400000000003,
+    "roll_leg_pnl_in_window": -555131.25,
+    "recovery_dt": "2023-12-14 08:57",
+    "lock": [
+     616.0604166666667,
+     "2022-04-11T10:45:00.000000000",
+     "2023-12-18T12:12:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -171023.68999999994
+   },
+   "2025": {
+    "worst_unreal": -204661.25,
+    "worst_dt": "2025-04-06 18:03",
+    "qty": 32,
+    "basket_avg_adj": 5636.6328125,
+    "basket_avg_raw": 6114.1328125,
+    "raw_price": 4835.0,
+    "adj_price": 4357.5,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 159.36,
+    "roll_leg_pnl_in_window": -73442.5,
+    "recovery_dt": "2025-06-26 04:26",
+    "lock": [
+     121.16597222222222,
+     "2025-02-25T10:07:00.000000000",
+     "2025-06-26T14:06:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -204875.1899999999
+   }
+  },
+  "ledger_error": 0.0,
+  "n_ledger": 540,
+  "roll_commission": 669.6,
+  "roll_slippage": 675.0000000000001,
+  "end_realized_broker": 479737.3100000273,
+  "end_unrealized_broker": 560.0
+ },
+ "V2_roll_close_reopen": {
+  "windows": {
+   "2020": {
+    "worst_unreal": -167687.5,
+    "worst_dt": "2020-03-22 18:04",
+    "qty": 32,
+    "basket_avg_adj": 3222.546875,
+    "basket_avg_raw": 2399.5,
+    "raw_price": 2174.0,
+    "adj_price": 2174.5,
+    "realized_broker_minus_logical": -131607.5,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 159.36,
+    "roll_leg_pnl_in_window": -23287.5,
+    "recovery_dt": "2020-06-08 15:42",
+    "lock": [
+     145.00694444444446,
+     "2020-02-26T13:41:00.000000000",
+     "2020-07-20T13:51:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -168005.18000000008
+   },
+   "2022_23": {
+    "worst_unreal": -168926.25,
+    "worst_dt": "2022-10-13 09:33",
+    "qty": 32,
+    "basket_avg_adj": 4610.0390625,
+    "basket_avg_raw": 4137.0,
+    "raw_price": 3503.5,
+    "adj_price": 3554.25,
+    "realized_broker_minus_logical": -67566.25,
+    "rolls_with_inventory": 8,
+    "roll_cost_in_window": 637.4400000000003,
+    "roll_leg_pnl_in_window": -80453.75,
+    "recovery_dt": "2023-12-14 08:57",
+    "lock": [
+     616.0604166666667,
+     "2022-04-11T10:45:00.000000000",
+     "2023-12-18T12:12:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -171023.68999999994
+   },
+   "2025": {
+    "worst_unreal": -204661.25,
+    "worst_dt": "2025-04-06 18:03",
+    "qty": 32,
+    "basket_avg_adj": 5636.6328125,
+    "basket_avg_raw": 5731.75,
+    "raw_price": 4835.0,
+    "adj_price": 4357.5,
+    "realized_broker_minus_logical": -61181.25,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 159.36,
+    "roll_leg_pnl_in_window": -12261.25,
+    "recovery_dt": "2025-06-26 04:26",
+    "lock": [
+     121.16597222222222,
+     "2025-02-25T10:07:00.000000000",
+     "2025-06-26T14:06:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -204875.1899999999
+   }
+  },
+  "ledger_error": 0.0,
+  "n_ledger": 540,
+  "roll_commission": 669.6,
+  "roll_slippage": 675.0000000000001,
+  "end_realized_broker": 479737.3100000273,
+  "end_unrealized_broker": 560.0
+ },
+ "V3_roll_2x_slippage": {
+  "windows": {
+   "2020": {
+    "worst_unreal": -167687.5,
+    "worst_dt": "2020-03-22 18:04",
+    "qty": 32,
+    "basket_avg_adj": 3222.546875,
+    "basket_avg_raw": 3222.046875,
+    "raw_price": 2174.0,
+    "adj_price": 2174.5,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 239.36000000000007,
+    "roll_leg_pnl_in_window": -154895.0,
+    "recovery_dt": "2020-06-08 15:51",
+    "lock": [
+     145.00694444444446,
+     "2020-02-26T13:41:00.000000000",
+     "2020-07-20T13:51:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -168045.18000000008
+   },
+   "2022_23": {
+    "worst_unreal": -168926.25,
+    "worst_dt": "2022-10-13 09:33",
+    "qty": 32,
+    "basket_avg_adj": 4610.0390625,
+    "basket_avg_raw": 4559.2890625,
+    "raw_price": 3503.5,
+    "adj_price": 3554.25,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 8,
+    "roll_cost_in_window": 957.4400000000004,
+    "roll_leg_pnl_in_window": -555131.25,
+    "recovery_dt": "2023-12-14 09:07",
+    "lock": [
+     616.0604166666667,
+     "2022-04-11T10:45:00.000000000",
+     "2023-12-18T12:12:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -171103.68999999994
+   },
+   "2025": {
+    "worst_unreal": -204661.25,
+    "worst_dt": "2025-04-06 18:03",
+    "qty": 32,
+    "basket_avg_adj": 5636.6328125,
+    "basket_avg_raw": 6114.1328125,
+    "raw_price": 4835.0,
+    "adj_price": 4357.5,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 239.36000000000007,
+    "roll_leg_pnl_in_window": -73442.5,
+    "recovery_dt": "2025-06-26 04:26",
+    "lock": [
+     121.16597222222222,
+     "2025-02-25T10:07:00.000000000",
+     "2025-06-26T14:06:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -204915.1899999999
+   }
+  },
+  "ledger_error": 0.0,
+  "n_ledger": 540,
+  "roll_commission": 669.6,
+  "roll_slippage": 1350.0,
+  "end_realized_broker": 479062.3100000273,
+  "end_unrealized_broker": 560.0
+ },
+ "V4_naive_raw_no_roll": {
+  "windows": {
+   "2020": {
+    "worst_unreal": -169447.5,
+    "worst_dt": "2020-03-22 18:04",
+    "qty": 32,
+    "basket_avg_adj": 3233.046875,
+    "basket_avg_raw": 3233.046875,
+    "raw_price": 2174.0,
+    "adj_price": 2174.0,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 0.0,
+    "roll_leg_pnl_in_window": -156655.0,
+    "recovery_dt": "2020-07-20 13:42",
+    "lock": [
+     145.82638888888889,
+     "2020-02-26T13:41:00.000000000",
+     "2020-07-21T09:31:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -169685.50000000006
+   },
+   "2022_23": {
+    "worst_unreal": -177727.5,
+    "worst_dt": "2022-10-13 09:33",
+    "qty": 32,
+    "basket_avg_adj": 4614.296875,
+    "basket_avg_raw": 4614.296875,
+    "raw_price": 3503.5,
+    "adj_price": 3503.5,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 8,
+    "roll_cost_in_window": 0.0,
+    "roll_leg_pnl_in_window": -564460.0,
+    "recovery_dt": "2023-07-27 08:35",
+    "lock": [
+     690.7520833333333,
+     "2022-01-20T15:28:00.000000000",
+     "2023-12-12T09:31:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -180360.0
+   },
+   "2025": {
+    "worst_unreal": -196421.25,
+    "worst_dt": "2025-04-06 18:03",
+    "qty": 32,
+    "basket_avg_adj": 6062.6328125,
+    "basket_avg_raw": 6062.6328125,
+    "raw_price": 4835.0,
+    "adj_price": 4835.0,
+    "realized_broker_minus_logical": 0.0,
+    "rolls_with_inventory": 2,
+    "roll_cost_in_window": 0.0,
+    "roll_leg_pnl_in_window": -65202.5,
+    "recovery_dt": "2025-06-11 08:31",
+    "lock": [
+     118.975,
+     "2025-02-25T10:07:00.000000000",
+     "2025-06-24T09:31:00.000000000",
+     "False"
+    ],
+    "window_mtm_dd": -196555.5099999999
+   }
+  },
+  "ledger_error": 0.0,
+  "n_ledger": 540,
+  "roll_commission": 669.6,
+  "roll_slippage": -669.6,
+  "end_realized_broker": 503513.2300000272,
+  "end_unrealized_broker": 560.0
+ }
+}
