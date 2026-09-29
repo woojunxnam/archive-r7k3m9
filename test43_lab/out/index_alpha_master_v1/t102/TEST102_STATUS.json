@@ -1,0 +1,16 @@
+{
+ "TEST102_CLASSIFICATION": "REJECT (S1 not COHERENT; S2/S3 0/9 EVENT_CLUE; S4 NOT_RUN_BY_RULE)",
+ "S1_PHASE": "NOT COHERENT (monotone DEcreasing at 120m/16:15: low phase better, Spearman -0.9/-1.0, but top-minus-bottom CI includes 0); no momentum value in ATR phase once session move is held fixed",
+ "S2_RIBBON_ONSET": "WEAK_RESEARCH_CLUE_ONLY at 60m only",
+ "S3_RIBBON_PULLBACK": "E21 / E8 WEAK at 60m only (xF +0.004..+0.005, CI includes 0); negative at 120m",
+ "S4": "NOT_RUN_BY_RULE (S1 has no value)",
+ "ATR_PHASE_RIBBON_ADDS_ALPHA": "NO",
+ "DISTINCT_NEW_DEFINITIONS": 4,
+ "LEDGER_ROWS": 160,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "STRATEGY_PHASE_OPENED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}

@@ -1,0 +1,13 @@
+{
+ "ledger_rows": 160,
+ "definitions_new": 4,
+ "S1_COHERENT": [
+  false,
+  false,
+  false
+ ],
+ "classes": {
+  "REJECT": 6,
+  "WEAK_RESEARCH_CLUE_ONLY": 3
+ }
+}

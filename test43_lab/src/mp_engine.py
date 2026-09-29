@@ -39,14 +39,14 @@ def causal_bins(m, pop, x, q):
     return out
 
 
-def cell_null(m, ev, pop, key, bins, minn=10):
+def cell_null(m, ev, pop, key, bins, minn=10, target=None):
     """null value per bar = mean fwd return of NON-event pop bars in the same cell; cells = year x vt x tod3 x bins, fallback drop year, then vt."""
     r = m.R[key]; okb = np.all([b >= 0 for b in bins], 0) if bins else np.ones(r.shape, bool)
     z = 0
     for b in bins:
         z = z * 10 + b
     levels = [((m.year * 10 + m.vt) * 10 + m.tod3) * 10 ** 6 + z, (m.vt * 10 + m.tod3) * 10 ** 6 + z, m.tod3 * 10 ** 6 + z]
-    pool = pop & ~ev & m.valid & ~np.isnan(r) & okb; tgt = ev & okb
+    pool = pop & ~ev & m.valid & ~np.isnan(r) & okb; tgt = (ev if target is None else target) & okb
     null = np.full(r.shape, np.nan); lev = np.full(r.shape, -1)
     for li, cell in enumerate(levels):
         s = pd.Series(r[pool]).groupby(cell[pool]).agg(["sum", "count"]); s = s[s["count"] >= minn]
@@ -152,3 +152,44 @@ def run_family(test, family, evsets, nullf, adj, primary=("h12", "h24", "h1615")
         os.makedirs(outdir, exist_ok=True); D.to_csv(os.path.join(outdir, f"{test}_EVENTS.csv"), index=False); F.to_csv(os.path.join(outdir, f"{test}_CLASSIFICATION.csv"), index=False)
     n = ledger(R, test, family, "PHASE1")
     return D, F, n
+
+
+def boot_diff(v, g, cl, reps=REPS, seed=7):
+    ok = ~np.isnan(v); v, g, cl = v[ok], g[ok].astype(float), cl[ok]
+    u, inv = np.unique(cl, return_inverse=True)
+    s1 = np.bincount(inv, v * g); c1 = np.bincount(inv, g); s0 = np.bincount(inv, v * (1 - g)); c0 = np.bincount(inv, 1 - g)
+    rng = np.random.default_rng(seed); out = np.empty(reps)
+    for r in range(reps):
+        i = rng.integers(0, len(u), len(u)); out[r] = s1[i].sum() / max(c1[i].sum(), 1) - s0[i].sum() / max(c0[i].sum(), 1)
+    return float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5))
+
+
+def response_curve(name, feat, pops, nullf, q=5, horizons=HZ, primary=("h12", "h24", "h1615")):
+    """feat / pops: {inst: array}; causal q-quantile bins from pop bars; per-bin pooled excess vs nullf; TEST98 coherence rule."""
+    from scipy.stats import spearmanr
+    M = markets(); rows = []; coh = []
+    B = {i: causal_bins(M[i], pops[i], feat[i], q) for i in feat}
+    for key in horizons:
+        xs, bs, cls, yrs, ins = [], [], [], [], []
+        for i in feat:
+            m = M[i]; ev = pops[i] & m.valid & (m.bidx <= BMAX) & (B[i] >= 0)
+            nl, _ = nullf(m, i, ev, key); x = (m.R[key] - nl)[ev]
+            xs.append(x); bs.append(B[i][ev]); cls.append(m.date[ev]); yrs.append(m.year[ev]); ins.append(np.full(ev.sum(), i))
+            for b in range(q):
+                sel = B[i][ev] == b
+                rows.append({"feature": name, "horizon": key, "instrument": i, "bin": b, "n": int(sel.sum()), "xN": float(np.nanmean(x[sel])) if sel.any() else np.nan,
+                             "mean": float(np.nanmean(m.R[key][ev][sel])) if sel.any() else np.nan})
+        x = np.concatenate(xs); b = np.concatenate(bs); cl = np.concatenate(cls); yr = np.concatenate(yrs); ins = np.concatenate(ins)
+        bm = [float(np.nanmean(x[b == k])) if (b == k).any() else np.nan for k in range(q)]
+        for k in range(q):
+            rows.append({"feature": name, "horizon": key, "instrument": "POOLED", "bin": k, "n": int((b == k).sum()), "xN": bm[k]})
+        if key in primary:
+            ok = [k for k in range(q) if bm[k] == bm[k]]; rho = float(spearmanr(ok, [bm[k] for k in ok])[0]) if len(ok) >= 3 else np.nan
+            sel = (b == 0) | (b == q - 1); lo, hi = boot_diff(x[sel], (b[sel] == q - 1), cl[sel]); d = bm[q - 1] - bm[0]
+            ysg = [np.sign(np.nanmean(x[(yr == y) & (b == q - 1)]) - np.nanmean(x[(yr == y) & (b == 0)])) for y in np.unique(yr)]
+            isg = [np.sign(np.nanmean(x[(ins == i) & (b == q - 1)]) - np.nanmean(x[(ins == i) & (b == 0)])) for i in feat]
+            yok = int(sum(s == np.sign(d) for s in ysg)); iok = int(sum(s == np.sign(d) for s in isg))
+            c = abs(rho) >= 0.9 and (lo > 0 or hi < 0) and yok >= 5 and iok >= 3
+            coh.append({"feature": name, "horizon": key, "spearman": rho, "top_minus_bottom": d, "ci_lo": lo, "ci_hi": hi, "years_same_sign": yok,
+                        "inst_same_sign": iok, "COHERENT": bool(c), "best_bin": int(np.nanargmax(bm)), "best_bin_xN": float(np.nanmax(bm)), "bins": str([round(v, 4) for v in bm])})
+    return pd.DataFrame(rows), pd.DataFrame(coh)
