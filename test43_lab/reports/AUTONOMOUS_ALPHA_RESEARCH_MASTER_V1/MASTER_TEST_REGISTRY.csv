@@ -10,3 +10,6 @@ TEST106,Fisher ACD opening auction,DONE,A2 = STRONG_CLUE at 60m (event level) BU
 TEST107,response speed / time-to-MFE,NOT_RUN,NOT_RUN_BY_RULE (no survivor; only STRONG_CLUE is a RESEARCH_DUPLICATE),rule in 319a7f6,,0,0,0,0,,
 TEST108,range budget veto,DONE,REJECT (0/12 curves COHERENT; VETO_HAS_VALUE = NO everywhere),4951038,see MASTER_COMMIT_LEDGER,4,400,0,0,none,
 TEST109,ICT falsification mini-lane,DONE,REJECT (0/18 EVENT_CLUE): FVG adds nothing beyond matched displacement,a05fae4,see MASTER_COMMIT_LEDGER,6,120,0,0,CHOCH_15m,
+TEST110,bounded recovery inventory,NOT_RUN,NOT_RUN_BY_RULE (no positive validated base),rule in 319a7f6,,0,0,0,0,,
+TEST111,survivor-only overnight extension,NOT_RUN,NOT_RUN_BY_RULE (no survivor),rule in 319a7f6,,0,0,0,0,,
+TEST113,cross-index synchrony,NOT_RUN,NOT_RUN_BY_RULE (no non-duplicate EVENT_CLUE mechanism),rule in 319a7f6,,0,0,0,0,,
