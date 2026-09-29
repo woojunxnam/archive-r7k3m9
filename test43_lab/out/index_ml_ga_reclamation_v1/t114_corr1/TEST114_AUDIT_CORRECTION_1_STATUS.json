@@ -1,0 +1,9 @@
+{
+ "TEST114_CLOCK_CORRECTION_STATUS": "CORRECTED (exit FP[389] = 15:59 price -> C[389] = 16:00 close; 16:15 sensitivity FP[404] -> C[404]); entry / references were already correct",
+ "G1_R1_CORRECTED": "xN -0.0074 ATR [-0.0176,+0.0029] (was -0.0082); 0/4 instruments positive; 2/8 years",
+ "G2_R1_R12_CORRECTED": "xN -0.0015 (REJECT)",
+ "G1_R1_X1615_CORRECTED": "xN -0.0067 (REJECT)",
+ "DUPLICATION_TEST_CORRECTED": "r1>0 minus r1<=0 within TB sessions -0.0161 [-0.0328,-0.0006] (reversal persists)",
+ "GHLZ_REPLICATION": "CLOSED (sign remains negative after the exact-clock correction; not materially changed)",
+ "CORRECTED_RESULT_REPLACES_OLD": "YES (no averaging)"
+}
