@@ -1,0 +1,49 @@
+{
+ "NR2_STRESS": {
+  "trades": 2108,
+  "avg_day": 7.14766911764706,
+  "slip4": 0.7539191176470611,
+  "delay1": 7.402816176470576,
+  "missed20": 4.319536764705884,
+  "remove_top3": -1265.2900000000009,
+  "folds": {
+   "O1": 0.8815415019762818,
+   "O2": 7.093187250996023,
+   "O3": 15.115617529880465,
+   "O4": -17.003293650793626,
+   "O5": 23.25274787535411
+  },
+  "folds_pos": 4,
+  "y2022": 1780.390000000002,
+  "max_dd": 8679.689999999977,
+  "worst_day": -4195.97,
+  "corr_main": 0.4043348430479181,
+  "incr": 7.1476691176470695,
+  "comb_ret_dd": 0.010522190473782212,
+  "main_ret_dd": 0.01089094598770062,
+  "comb_max_dd": 15104.001951040671,
+  "comb_worst": -5929.846893120728,
+  "STRESS_PASS": false,
+  "ROUTE_A": false,
+  "ROUTE_B": false,
+  "ROUTE_C": false,
+  "overlap_with_C2_sessions": 0.1018047200370199
+ },
+ "frontiers": {
+  "FRONTIER_A": "C2+W1+W2",
+  "FRONTIER_B": "C2+W1",
+  "FRONTIER_C": "C2",
+  "FRONTIER_D": "C2+W1+W2"
+ },
+ "diag": {
+  "selected": "C2+W1",
+  "series_in_matrix": 3818,
+  "N_trials": 6450,
+  "daily_sharpe": 0.03969719335923486,
+  "sr0": 0.08983065097878408,
+  "DSR": 0.024729633385386144,
+  "PBO": 0.354001554001554,
+  "reality_check_p": 0.362,
+  "status": "COMPUTED_WITH_LIMITATION (nested per-fold choices, 33 PH5 ML policies, 2,592 reclamation genomes and NR1 / NR3 counted in N only)"
+ }
+}
