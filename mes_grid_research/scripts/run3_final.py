@@ -3,6 +3,7 @@ ES-signal / MES-economics proxy backtests."""
 import json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from run3_lib import FQ, run_batch
+from run3_p45 import extra
 
 FIN = {
     "BASE": {},
@@ -28,4 +29,4 @@ if __name__ == "__main__":
         jobs.append((f"{n}__slip2", c, dict(slippage_ticks=2), True, None))
         jobs.append((f"{n}__slip3", c, dict(slippage_ticks=3), True, None))
     print(len(jobs))
-    run_batch("RUN3_FINAL", jobs, procs=3)
+    run_batch("RUN3_FINAL", jobs, procs=int(os.environ.get("PROCS", "2")), extra_feature_fn=extra)

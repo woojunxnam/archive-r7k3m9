@@ -21,3 +21,10 @@
 | D-017 | 2026-09-29 | Rolling recycle(B)은 capacity 유지 도구로만 기록, 단독 후보로 승격하지 않음 | lock 4-8일이지만 DD 악화, 손익 -30%: 하락 중 손실 실현이 평균회귀 edge를 제거 |
 | D-018 | 2026-09-29 | 1차 결선 구조 = FQ 계열(항상 활성 floating recycle low60 + 회복모드 layer exit). 최종 선정 아님(in-sample, ES 데이터, slippage 민감) | capacity와 DD를 동시에 개선한 유일한 강건 계열 |
 | D-019 | 2026-09-29 | 합성 점수 금지 유지. Pareto는 (손익, Max MTM DD, 무진입일) 3축 비지배 집합으로 산출, 나머지 지표는 병기 | 사용자 지시 |
+| D-020 | 2026-09-29 | RUN-3 이후 모든 결과 라벨 = "ES-signal / MES-economics proxy backtest". ES OHLC를 MES 가격 proxy로 사용($5/pt). MES 데이터는 최종 frozen 검증에만 사용 | ES→MES 아키텍처 addendum. MES 체결 품질·roll 정렬은 미검증 |
+| D-021 | 2026-09-29 | 엔진 `audit=True` 모드: 매 bar lane/tranche 수량 일치, cost-sum drift, capacity, 열림=닫힘+보유, 사라진 tranche 금지를 강제. `audit.reconcile()`로 realized = Σ(exit−entry)×qty×5 − commission − roll 검증 | FQ 수익이 회계 오류가 아님을 증명(Phase 0, 713,842 bar×3 후보 PASS, 오차 ~5e-8) |
+| D-022 | 2026-09-29 | 2022–2026은 OOS가 아니다(FQ는 2019–2026 전체에서 발견). 진짜 OOS = 2026-05-28 이후 ES 또는 MES 데이터에서 frozen 후보(FROZEN_CANDIDATES.json, commit 3536a01) 1회 실행 | 사용자 규칙 |
+| D-023 | 2026-09-29 | 외부 데이터가 없어 YM(다우 선물) 동기간 cross-market 검증을 1회 수행(가격을 ES 수준으로 k 배율 변환, 규칙 재조정 없음). OOS가 아닌 "다른 시장 구조 검증"으로만 표기 | 시간 OOS 불가 시 차선책. 같은 기간·상관 높은 시장이므로 증거력 제한 |
+| D-024 | 2026-09-29 | Bottom event study 결론: 단일/2단/3단 bottom 조건과 chronological ML(AUC 0.50–0.51) 모두 신뢰할 만한 edge 없음 → FQ 수익원은 bottom picking이 아니라 재고 구조 + ES 상승 drift로 해석. Smart-entry 필터는 recycle 활동을 줄이는 "위험 조절기"로만 평가 | BOTTOM_EVENT_STUDY.csv, results/RUN3_BOTTOM |
+| D-025 | 2026-09-29 | 계좌 DD 기반 core-pause 계열(core/core_harvest/progressive)은 FQ에서 무효과로 판정 — FQ의 recovery mode가 이미 core 추가를 멈춤. "all" pause와 equity-cap은 depth를 줄이지만 무진입 300–760일을 만들어 활동 유지 목표에 실패 | results/RUN3_P45 |
+| D-026 | 2026-09-29 | 32계약 이하 FQ에서 "활동 유지"와 "fresh-start depth ≤ $75k" 는 동시 달성 불가(이 모델 공간 내). recycle slot ≤12 → 2022–2024에 무진입 160–620일, recycle slot ≥16(총 32) → worst fresh min equity $22–35k | Phase 2 frontier |

@@ -8,7 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXP = sys.argv[1] if len(sys.argv) > 1 else "RUN3_FINAL"
 SUMM = pd.read_csv(os.path.join(ROOT, "results", EXP, "summary.csv")).set_index("name")
 rng = np.random.default_rng(20260929)
-rows, boots = [], []
+rows, boots, regs = [], [], []
 for d in sorted(glob.glob(os.path.join(ROOT, "results", EXP, "*", "daily.csv"))):
     name = d.split(os.sep)[-2]
     s = SUMM.loc[name]
@@ -52,12 +52,19 @@ for d in sorted(glob.glob(os.path.join(ROOT, "results", EXP, "*", "daily.csv")))
                           losing_streak_p95=np.percentile(streak, 95)))
     # remove-one-regime
     yr = dp.groupby(dp.index.year).sum()
+    tot = dp.sum()
+    reg = dict(name=name, total=tot, **{f"y{y}": yr.get(y, 0.0) for y in range(2019, 2027)})
     for y in (2020, 2022, 2025):
-        pass
+        reg[f"ex_{y}"] = tot - yr.get(y, 0.0)
+    reg["worst_year"] = yr.min(); reg["n_neg_years"] = int((yr < 0).sum())
+    reg["best_year_share"] = yr.max() / tot if tot > 0 else np.nan
+    regs.append(reg)
 out = pd.DataFrame(rows)
 bt = pd.DataFrame(boots)
 out.to_csv(os.path.join(ROOT, "results", EXP, "safe_scaling.csv"), index=False)
 bt.to_csv(os.path.join(ROOT, "results", EXP, "bootstrap.csv"), index=False)
+rg = pd.DataFrame(regs); rg.to_csv(os.path.join(ROOT, "results", EXP, "regime_removal.csv"), index=False)
 pd.set_option("display.width", 250)
 print(out.round(1).to_string(index=False))
 print(bt.round(1).to_string(index=False))
+print(rg.round(0).to_string(index=False))
