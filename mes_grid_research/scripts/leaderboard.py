@@ -39,7 +39,7 @@ def build(df):
     for _, r in df.iterrows():
         c = by.loc[r.control] if r.control in by.index else base
         lock = r.sat_days if r.family == "N" else r.lock32_days
-        d = dict(module=r.module, family=r.family, name=r.name, control=r.control,
+        d = dict(module=r.module, family=r.family, name=r["name"], control=r.control,
                  total_mtm=r.total_mtm, realized=r.realized, unreal_end=r.unreal_end, open_qty_end=r.open_qty_end,
                  max_mtm_dd=r.max_mtm_dd, lock_days=lock, lock32_days=r.lock32_days, share32=r.share32,
                  share_gt24=r.share_gt24, trades_day=r.trades_day, underwater_days=r.underwater_days, cost=r.cost,
