@@ -44,3 +44,6 @@ TEST109,FVG_RETRACE_5m,no EVENT_CLUE
 TEST109,FVG_RETRACE_15m,no EVENT_CLUE
 TEST109,CHOCH_5m,no EVENT_CLUE
 TEST109,CHOCH_15m,no EVENT_CLUE
+TEST112,R1,response curve not coherent
+TEST112,R2,response curve not coherent
+TEST112,R3,response curve not coherent

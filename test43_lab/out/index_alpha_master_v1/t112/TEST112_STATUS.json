@@ -1,0 +1,16 @@
+{
+ "TEST112_CLASSIFICATION": "REJECT (0/3 states COHERENT; no overlay applied)",
+ "R1_VOL_REGIME": "not coherent (Spearman -0.2)",
+ "R2_TREND_EXTENSION": "not coherent (Spearman -0.4): the most-extended quintile has Main mean -7.6 $/day (best-minus-worst CI excludes 0) but the adjacent quintile is the BEST (261.8 $/day) -> isolated cell, rejected by the response-curve rule",
+ "R3_RECENT_DRAWDOWN": "not coherent (Spearman -0.6)",
+ "OVERLAY_VALUE": "NO",
+ "MAIN_MODIFIED": "NO",
+ "DISTINCT_NEW_DEFINITIONS": 3,
+ "LEDGER_ROWS": 15,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "STRATEGY_PHASE_OPENED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
