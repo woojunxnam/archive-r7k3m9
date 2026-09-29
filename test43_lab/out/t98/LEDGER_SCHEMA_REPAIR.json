@@ -1,0 +1,6 @@
+{"repair": "TEST98_RESEARCH_LEDGER schema repair (bookkeeping only, no economics recomputed)",
+ "old_header": "variant,horizon,instrument,n,xF", "new_header": "variant,horizon,instrument,n,xF,note",
+ "PHASE1_LEDGER_ROWS": 6475, "AUDIT_CORRECTION_ROWS": 20, "CONCEPTUAL_FEATURE_DEFINITIONS": 37,
+ "note_values": {"PHASE1": 6125, "PHASE1_SUPERSEDED_BY_PQ2_bullrun12_CORR": 175, "PHASE1_SUPERSEDED_BY_PQ2_hlrun12_CORR": 175, "CORR1": 20},
+ "superseded": {"PQ2_bullrun12": "PQ2_bullrun12_CORR", "PQ2_hlrun12": "PQ2_hlrun12_CORR"},
+ "values_changed": 0}
