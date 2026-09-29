@@ -1,6 +1,6 @@
 {
  "PROGRAM": "INDEX_ML_GA_RECLAMATION_PROGRAM_V1",
- "PHASE": "P7_PREREG",
+ "PHASE": "P7_DONE",
  "NEXT": "P0A TEST114_AUDIT_CORRECTION_1",
  "BASE_HEAD": "be5e15f",
  "MAIN": {
@@ -77,5 +77,13 @@
    "choice": "A_TAKE_ALL",
    "label": "CONSENSUS_CANDIDATE"
   }
- }
+ },
+ "STRESS_PASS": [
+  "C1_R1_TRAPPED_UNION",
+  "C2_P2_FAILED_FIRST",
+  "C7_L1_SWH60"
+ ],
+ "ROUTE_B": [
+  "C2_P2_FAILED_FIRST"
+ ]
 }
