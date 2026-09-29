@@ -1,0 +1,16 @@
+{
+ "ledger_rows": 460,
+ "definitions_new": 15,
+ "classes": {
+  "WEAK_RESEARCH_CLUE_ONLY": 25,
+  "REJECT": 14
+ },
+ "curves_coherent": [
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+ ]
+}
