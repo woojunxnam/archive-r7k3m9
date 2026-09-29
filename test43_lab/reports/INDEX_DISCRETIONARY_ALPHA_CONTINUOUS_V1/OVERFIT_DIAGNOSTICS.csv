@@ -1,2 +1,3 @@
 scope,trials,dsr,pbo,reality_check_p,status
 reclamation chain -> C2+MGMTx1 increment,2722,0.265,0.8383,0.155,COMPUTED_WITH_LIMITATION
+FULL CHAIN (reclamation + discretionary) -> C2+W1x1,6441,0.0247,0.3537,0.362,COMPUTED_WITH_LIMITATION

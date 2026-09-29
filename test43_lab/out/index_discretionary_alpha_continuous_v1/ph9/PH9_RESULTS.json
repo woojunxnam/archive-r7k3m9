@@ -1,0 +1,19 @@
+{
+ "frontiers": {
+  "FRONTIER_A": "C2+W1+W2x1",
+  "FRONTIER_B": "C2+W1x1",
+  "FRONTIER_C": "C2x1",
+  "FRONTIER_D": "C2+W1+W2x1"
+ },
+ "diag": {
+  "selected": "C2+W1x1",
+  "series_in_matrix": 3816,
+  "N_trials": 6441,
+  "daily_sharpe": 0.03969719335923486,
+  "sr0": 0.08982257833326251,
+  "DSR": 0.02474796021481582,
+  "PBO": 0.3536907536907537,
+  "reality_check_p": 0.362,
+  "status": "COMPUTED_WITH_LIMITATION (nested per-fold choices and 33 PH5 ML policies and 2,592 reclamation genomes counted in N only)"
+ }
+}

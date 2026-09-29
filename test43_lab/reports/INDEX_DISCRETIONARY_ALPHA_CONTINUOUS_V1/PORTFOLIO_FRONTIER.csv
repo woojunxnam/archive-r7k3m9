@@ -1,1 +1,5 @@
 frontier,members,avg_day,slip4_avg_day,max_dd,worst_day,ret_dd,gap_to_600,note
+FRONTIER_A,MAIN + C2+W1+W2x1,163.88,159.2,15048,-4857,0.01089,436.12,routes A=False B=False C=False
+FRONTIER_B,MAIN + C2+W1x1,160.65,157.36,14105,-4792,0.01139,439.35,routes A=True B=True C=False
+FRONTIER_C,MAIN + C2x1,156.74,155.02,13980,-4728,0.01121,443.26,routes A=False B=True C=False
+FRONTIER_D,MAIN + C2+W1+W2x1,163.88,159.2,15048,-4857,0.01089,436.12,routes A=False B=False C=False
