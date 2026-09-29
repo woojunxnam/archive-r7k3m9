@@ -8,3 +8,4 @@ TEST104,level interaction factory,DONE,"REJECT by ESP-1 (0/39 EVENT_CLUE); L2 fa
 TEST105,level failure deep branch,NOT_RUN,NOT_RUN_BY_RULE (no coherent L2/L3 EVENT_CLUE in TEST104),rule in 3ead923,,0,0,0,0,,
 TEST106,Fisher ACD opening auction,DONE,A2 = STRONG_CLUE at 60m (event level) BUT RESEARCH_DUPLICATE of plain ORB; no strategy phase,7363e7c,see MASTER_COMMIT_LEDGER,5,100,0,0,A2_A_UP_IMMEDIATE,
 TEST107,response speed / time-to-MFE,NOT_RUN,NOT_RUN_BY_RULE (no survivor; only STRONG_CLUE is a RESEARCH_DUPLICATE),rule in 319a7f6,,0,0,0,0,,
+TEST108,range budget veto,DONE,REJECT (0/12 curves COHERENT; VETO_HAS_VALUE = NO everywhere),4951038,see MASTER_COMMIT_LEDGER,4,400,0,0,none,

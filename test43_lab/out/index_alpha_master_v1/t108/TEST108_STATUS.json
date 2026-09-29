@@ -1,0 +1,14 @@
+{
+ "TEST108_CLASSIFICATION": "REJECT (0/12 curves COHERENT; VETO_HAS_VALUE = NO everywhere)",
+ "RB1_CONSUMED_RANGE_ON_BRK12": "weak negative slope (Spearman -0.5..-0.7), CI includes 0; veto of the top quintile improves the base by only +0.0006..+0.0015 ATR",
+ "RB_ON_ORB15": "no negative slope; the most-consumed quintile is among the best (vetoing it HURTS by -0.0004..-0.0029 ATR)",
+ "RANGE_BUDGET_VETO_ADDS_VALUE": "NO",
+ "DISTINCT_NEW_DEFINITIONS": 4,
+ "LEDGER_ROWS": 400,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "STRATEGY_PHASE_OPENED": "NO",
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}
