@@ -1,0 +1,20 @@
+{
+ "TEST106_CLASSIFICATION": "A2 = STRONG_CLUE at 60m (event level) BUT RESEARCH_DUPLICATE of plain ORB; no strategy phase",
+ "A2_A_UP_IMMEDIATE": "STRONG_CLUE at 60m: xF +0.0137 ATR [+0.0010,+0.0266], 6/8 years, 4/4 instruments, gross 0.0139 > cost 0.0108, xC > 0, 2021+ > 0, adjacent A1 consistent; 120m / 16:15 WEAK",
+ "A1_A_UP_HELD": "WEAK at 60m / 120m; time acceptance does NOT improve on the immediate trigger (A1 < A2 at every horizon)",
+ "A3_FAILED_A_DOWN": "WEAK at 120m / 16:15 (xF +0.017 / +0.019, CIs include 0; 2022 negative)",
+ "A4_C_UP": "REJECT / WEAK (n 538)",
+ "ORB_COMPARATOR": "WEAK (60m xF +0.0080 [-0.0036,+0.0188]; 16:15 +0.0182 [-0.0061,+0.0432])",
+ "ACD_VS_ORB": "A2 minus ORB excess (date-clustered CI): 60m +0.0058 [-0.0019,+0.0134], 120m +0.0081 [-0.0006,+0.0173], 16:15 -0.0066 [-0.0174,+0.0041] -> not distinguishable from plain ORB at any horizon -> RESEARCH_DUPLICATE (ORB retention family closed in TEST49)",
+ "SAME_SESSION_RAW_COMPARISON": "reported but INVALID for inference (conditioning on a later A-up / A-down trigger selects ORB outcomes)",
+ "ECONOMIC_FEASIBILITY_NOTE": "even if opened: net 60m edge ~0.003 ATR_d per event (~$1-2/trade at 1 micro), ~130 events / instrument / year -> order of $1/day, far below the +$3 DIVERSIFIER / +$10 STANDARD gates",
+ "STRATEGY_PHASE_OPENED": "NO (RESEARCH_DUPLICATE)",
+ "MULTIPLE_TESTING": "15 primary tests, ~0.4 chance passes expected; 1 observed (A2 60m)",
+ "DISTINCT_NEW_DEFINITIONS": 5,
+ "LEDGER_ROWS": 100,
+ "ML_CONFIGS": 0,
+ "GA_GENOMES": 0,
+ "NEW_OOS_OPENED": "NO",
+ "LIVE_AUTHORIZATION": "NO",
+ "PORTFOLIO_MEMBERSHIP_CHANGED": "NO"
+}

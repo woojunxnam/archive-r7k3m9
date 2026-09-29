@@ -1,0 +1,9 @@
+{
+ "ledger_rows": 100,
+ "definitions_new": 5,
+ "classes": {
+  "WEAK_RESEARCH_CLUE_ONLY": 10,
+  "REJECT": 4,
+  "STRONG_CLUE": 1
+ }
+}
