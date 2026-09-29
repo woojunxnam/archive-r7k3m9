@@ -1,22 +1,20 @@
 # NEXT_ACTION (단 하나)
 
-## CR_002 — R3 Rolling Recycle: 손실실현 교체로 recycle capacity를 현재가 근처에 유지할 수 있는가
+## RUN-3 — FQ 계열의 자본위험 보정 + 체결 현실성 (Capital-at-risk calibration & execution realism)
 
-### 배경
-CR_001에서 R1(profit-only)은 추세 하락 시 recycle lane도 함께 잠겨(lane full 42–69%) capacity 유지 목표를 달성하지 못했다.
-손실을 실현하지 않는 recycle 변형(R2 dynamic zone, R4 inventory-aware TP)은 잠긴 slot을 풀 수 없으므로, capacity 유지 가설을 직접 검증하는 유일한 후보는 R3다.
+### 왜
+FQ(floating recycle + 회복모드)는 capacity(무진입 6일)와 DD(−$116k~−$130k)를 동시에 개선한 유일한 강건 계열이지만:
+1. 2022-01 fresh start에서 최소 equity ~$28k (시작 $150k 대비 −81%) → 여전히 실거래 불가 수준의 깊이.
+2. Max DD가 slippage 2틱에서 −$122k → −$148k로 민감 (recycle 약 3회/일, TP 3pt).
+3. 2022 장기 하락 underwater ~708일은 어떤 모듈로도 해결되지 않음 (보유 재고의 경제적 손실은 사라지지 않음).
 
-### 가설
-recycle lane이 가득 찼고 가격이 최저 recycle 진입가보다 `roll_trigger` 이상 더 내려갔을 때, **가장 높은 원가의 recycle tranche를 market 손절 후 현재가 근처에서 재매수**하면
-recycle 거래가 하락장에서도 계속되어 (a) recycle lane full 시간이 줄고 (b) 총 경제적 P&L(realized + unrealized)이 R1보다 나빠지지 않는다.
+### 사전 등록 설계
+- 대상: FQ_16_16_add, FQ_12_20 (control: BASE, CAP16, FQ 원본)
+- A. 자본위험 보정: total ceiling 10/12/14/16/20/24 × core/rec 비율 고정 → **1차 판정 지표 = fresh-start(2020-02, 2022-01, 2025-02) 최소 equity ≥ $75k(자본의 50%)**, 부차: 손익, 무진입일
+- B. 체결 현실성: recycle 진입을 market(next open) vs limit(현재 low60 기준) 비교, slippage 1/2/3틱, recycle TP 2.5/3/4 → DD의 slippage 탄력성 측정
+- C. 기간 분할: 2019-2021 설계 / 2022-2026 검증을 명시적으로 고정 (파라미터 재선택 금지)
+- D. (분리 등록) 극단 tail 위험정책: 계좌 DD −X% 도달 시 core 신규 금지 vs 부분 청산 — 강제청산은 별도 위험정책 실험으로만
+- 보고: realized/unrealized/총 MTM, open inventory, MTM DD, 무진입일, fresh-start 최소 equity, slippage 탄력성
 
-### 설계 (사전 등록)
-- control: CR_001의 `C24_8_tp3.0_core_full`, `C16_16_tp3.0_core_full` (R1)
-- 변경: R3 교체 규칙만 추가 (동일 bar에 sell 1 + buy 1, 둘 다 다음 open market; 순 inventory 불변, 교체 1회/bar 이하)
-- 파라미터: roll_trigger ∈ {10, 20, 40} pt, 교체 쿨다운 없음(1차), rec_tp 3
-- 보고: realized/unrealized/총경제 P&L, 교체 횟수·교체 실현손실 합계, recycle lane full 비율, 최장 32-lock, Max MTM DD, 2025 regression 창, 2022-23 창, 비용
-- 주의: 교체는 노출을 줄이지 않음 → MTM DD 개선은 기대하지 않는다. "비용 없는 평단 인하"로 서술 금지.
-
-### 그 다음 후보 (참고, 지금 하지 않음)
-- core grid geometry (5pt 고정 grid는 32계약을 ~155pt = 가격의 약 2.6%에 소진 → convex/ATR widening) — lock의 1차 원인 후보.
-- freefall governor (신규 add만 pause).
+### 선결/병행
+- MES 1m 데이터 확보 (Massive MCP 인증 필요) → Phase 9 검증 준비

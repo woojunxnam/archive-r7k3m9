@@ -1,0 +1,104 @@
+{
+ "top10_dd": [
+  {
+   "peak": "2022-01-03",
+   "trough": "2022-10-12",
+   "recovered": "2023-12-13",
+   "depth": -111155.39999999455,
+   "days_to_trough": 282,
+   "days_underwater": 709,
+   "max_qty": 27
+  },
+  {
+   "peak": "2025-02-18",
+   "trough": "2025-04-08",
+   "recovered": "2025-06-26",
+   "depth": -93028.62999999884,
+   "days_to_trough": 49,
+   "days_underwater": 128,
+   "max_qty": 18
+  },
+  {
+   "peak": "2020-02-19",
+   "trough": "2020-03-22",
+   "recovered": "2020-07-20",
+   "depth": -72763.00999999986,
+   "days_to_trough": 32,
+   "days_underwater": 152,
+   "max_qty": 17
+  },
+  {
+   "peak": "2026-02-11",
+   "trough": "2026-03-27",
+   "recovered": "2026-04-14",
+   "depth": -36802.49999999895,
+   "days_to_trough": 44,
+   "days_underwater": 62,
+   "max_qty": 16
+  },
+  {
+   "peak": "2024-07-16",
+   "trough": "2024-08-07",
+   "recovered": "2024-08-19",
+   "depth": -27647.429999999353,
+   "days_to_trough": 22,
+   "days_underwater": 34,
+   "max_qty": 17
+  },
+  {
+   "peak": "2025-11-12",
+   "trough": "2025-11-20",
+   "recovered": "2025-12-03",
+   "depth": -19744.799999999814,
+   "days_to_trough": 8,
+   "days_underwater": 21,
+   "max_qty": 17
+  },
+  {
+   "peak": "2024-03-31",
+   "trough": "2024-04-18",
+   "recovered": "2024-05-15",
+   "depth": -19538.86999999953,
+   "days_to_trough": 18,
+   "days_underwater": 45,
+   "max_qty": 16
+  },
+  {
+   "peak": "2024-12-16",
+   "trough": "2025-01-12",
+   "recovered": "2025-01-23",
+   "depth": -18788.58999999927,
+   "days_to_trough": 27,
+   "days_underwater": 38,
+   "max_qty": 18
+  },
+  {
+   "peak": "2020-09-02",
+   "trough": "2020-09-23",
+   "recovered": "2020-10-12",
+   "depth": -17841.220000000263,
+   "days_to_trough": 21,
+   "days_underwater": 40,
+   "max_qty": 16
+  },
+  {
+   "peak": "2020-10-12",
+   "trough": "2020-11-01",
+   "recovered": "2020-11-06",
+   "depth": -15659.500000000291,
+   "days_to_trough": 20,
+   "days_underwater": 25,
+   "max_qty": 18
+  }
+ ],
+ "annual": {
+  "2019": 21321.819999999774,
+  "2020": 39538.49999999811,
+  "2021": 61258.9500000104,
+  "2022": -79128.76999999327,
+  "2023": 85079.94000000681,
+  "2024": 58924.36000001128,
+  "2025": 74225.68000001187,
+  "2026": 45244.36000000569
+ }
+}

@@ -19,6 +19,13 @@ def verdict(r):
     rg, lg, sg = r.dd_gain_vs_base, r.lock_gain_vs_base, r.share32_gain_vs_base
     eff = r.ret_over_dd / r.base_ret_over_dd if r.base_ret_over_dd else np.nan
     risk = rg >= 0.15 or lg >= 0.25
+    stops = r.no_entry_days > 400
+    if r.no_entry_days <= 60 and rg >= 0.15 and r.total_mtm > 0:
+        return "STRONG_RISK+CAPACITY"
+    if r.no_entry_days <= 60 and rg < 0.05:
+        return "CAPACITY_ONLY_NO_DD_GAIN"
+    if stops and risk:
+        return "RISK_VIA_SMALLER_LOCK(stops_trading)"
     if rg <= -0.05 and lg <= 0.05:
         return "HARMFUL_RISK"
     if risk and eff >= 1.0 and r.total_mtm > 0:
@@ -43,7 +50,9 @@ def build(df):
                  total_mtm=r.total_mtm, realized=r.realized, unreal_end=r.unreal_end, open_qty_end=r.open_qty_end,
                  max_mtm_dd=r.max_mtm_dd, lock_days=lock, lock32_days=r.lock32_days, share32=r.share32,
                  share_gt24=r.share_gt24, trades_day=r.trades_day, underwater_days=r.underwater_days, cost=r.cost,
-                 ret_over_dd=r.ret_over_dd, min_equity=r.min_equity,
+                 ret_over_dd=r.ret_over_dd, min_equity=r.min_equity, no_entry_days=r.get("no_entry_days"),
+                 active_day_share=r.get("active_day_share"), avg_notional=r.avg_notional,
+                 d_no_entry_vs_base=r.get("no_entry_days") - base.get("no_entry_days"),
                  d_pnl_vs_ctrl=r.total_mtm - c.total_mtm, d_dd_vs_ctrl=r.max_mtm_dd - c.max_mtm_dd,
                  d_lock_vs_ctrl=lock - c.lock32_days, d_share32_vs_ctrl=r.share32 - c.share32,
                  d_trades_day_vs_ctrl=r.trades_day - c.trades_day, d_underwater_vs_ctrl=r.underwater_days - c.underwater_days,

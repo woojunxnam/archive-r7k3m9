@@ -1,0 +1,419 @@
+{
+ "metrics": {
+  "label": "FQ_20_12__comm+25",
+  "realized_net": 316752.75000000815,
+  "realized_gross_trades": 337905.0,
+  "unrealized_end": 560.0,
+  "total_mtm_pnl": 317312.75000000815,
+  "open_qty_end": 4,
+  "profit_factor": 32.74778999730305,
+  "avg_trade": 46.35214379466239,
+  "median_trade": 13.45,
+  "win_rate": 0.9787078897477031,
+  "trades": 6857,
+  "entries": 6861,
+  "trading_days": 1773,
+  "trades_per_day": 3.867456288776086,
+  "years": 7.06080120161229,
+  "cagr_mtm": 0.17461417279514357,
+  "annual": {
+   "2019": {
+    "mtm_pnl": 21051.099999999977,
+    "realized": 20973.59999999999
+   },
+   "2020": {
+    "mtm_pnl": 38874.424999997515,
+    "realized": 38534.42499999749
+   },
+   "2021": {
+    "mtm_pnl": 70659.37500001388,
+    "realized": 71613.12500001388
+   },
+   "2022": {
+    "mtm_pnl": -88110.49999999424,
+    "realized": 5629.500000005763
+   },
+   "2023": {
+    "mtm_pnl": 85989.70000000554,
+    "realized": 5153.450000005512
+   },
+   "2024": {
+    "mtm_pnl": 76398.0250000155,
+    "realized": 81964.27500001556
+   },
+   "2025": {
+    "mtm_pnl": 65795.39999999979,
+    "realized": 51032.89999999976
+   },
+   "2026": {
+    "mtm_pnl": 46655.224999970174,
+    "realized": 41851.474999970174
+   }
+  },
+  "commission": 10631.449999997272,
+  "slippage_cost": 9445.0,
+  "roll_cost": 1080.8000000000002,
+  "total_cost": 21157.24999999727,
+  "cost_over_gross_profit": 0.060883296643205916,
+  "max_mtm_dd": -129867.84999999439,
+  "max_mtm_dd_peak": "2022-01-04T15:51:00.000000000",
+  "max_mtm_dd_trough": "2022-10-13T09:33:00.000000000",
+  "max_mtm_dd_intrabar_low": -129897.84999999439,
+  "max_mtm_dd_low_trough": "2022-10-13T09:34:00.000000000",
+  "max_realized_dd": -135.95000000001164,
+  "min_equity": 76394.44999999949,
+  "min_equity_dt": "2020-03-22T18:04:00.000000000",
+  "longest_mtm_underwater_days": 744.9256944444444,
+  "longest_underwater_span": [
+   "2022-01-04T15:51:00.000000000",
+   "2024-01-19T14:04:00.000000000",
+   "recovered"
+  ],
+  "worst_day": [
+   -24297.74999999994,
+   "2025-04-04"
+  ],
+  "worst_week": [
+   -39093.49999999977,
+   "2025-04-04"
+  ],
+  "worst_month": [
+   -45458.55000000016,
+   "2020-03-31"
+  ],
+  "worst_cycle_mtm": [
+   -134026.25,
+   126,
+   "closed"
+  ],
+  "cycles_completed": 281,
+  "cycle_duration_days": {
+   "median": 2.0555555555555554,
+   "p95": 19.73402777777778,
+   "max": 766.04375
+  },
+  "cycles_profitable_share": 1.0,
+  "contracts_per_cycle_avg": 24.377224199288257,
+  "inv_avg_rth": 13.306092944937395,
+  "inv_median_rth": 14.0,
+  "inv_max": 24,
+  "inv_p95_rth": 24.0,
+  "inv_p99_rth": 24.0,
+  "inv_share_rth_ge": {
+   "8": 0.7723487830640394,
+   "16": 0.40373920279277487,
+   "20": 0.1661109881458362,
+   "24": 0.09811414850905383,
+   "28": 0.0,
+   "32": 0.0
+  },
+  "longest_max_lock": [],
+  "longest_gt24": [],
+  "peak_notional": 743610.0,
+  "avg_notional_rth": 296865.72202602256,
+  "peak_notional_over_equity": 2.751591056052511,
+  "margin_stress": {
+   "1500": {
+    "min_excess_liquidity": 49394.44999999949,
+    "at": "2020-03-22T18:04:00.000000000",
+    "bars_negative": 0
+   },
+   "2500": {
+    "min_excess_liquidity": 31394.449999999488,
+    "at": "2020-03-22T18:04:00.000000000",
+    "bars_negative": 0
+   },
+   "3500": {
+    "min_excess_liquidity": 13394.449999999488,
+    "at": "2020-03-22T18:04:00.000000000",
+    "bars_negative": 0
+   }
+  },
+  "lanes": {
+   "core": {
+    "capacity": 20,
+    "exit_mode": "basket",
+    "tp_pts": 25.0,
+    "trades": 2040,
+    "pnl_net": 240129.25000000003,
+    "win_rate": 0.9284313725490196,
+    "trades_per_day": 1.1505922165820643,
+    "pnl_per_day": 135.4366892272984,
+    "avg_hold_min": 16625.64068627451,
+    "median_hold_min": 2984.0,
+    "full_share_rth": 1.12069617646482e-05,
+    "longest_full": [
+     [
+      0.004861111111111111,
+      "2024-07-24T12:08:00.000000000",
+      "2024-07-24T12:15:00.000000000",
+      "False"
+     ],
+     [
+      0.0006944444444444445,
+      "2024-07-19T12:40:00.000000000",
+      "2024-07-19T12:41:00.000000000",
+      "False"
+     ]
+    ],
+    "open_qty_end": 4
+   },
+   "rec": {
+    "capacity": 12,
+    "exit_mode": "individual",
+    "tp_pts": 3.0,
+    "trades": 4817,
+    "pnl_net": 77707.4,
+    "win_rate": 1.0,
+    "trades_per_day": 2.7168640721940216,
+    "pnl_per_day": 43.82820078962211,
+    "avg_hold_min": 3277.1673240606187,
+    "median_hold_min": 6.0,
+    "full_share_rth": 0.09811414850905383,
+    "longest_full": [
+     [
+      160.01041666666666,
+      "2022-08-26T10:38:00.000000000",
+      "2023-02-02T10:53:00.000000000",
+      "False"
+     ],
+     [
+      55.94375,
+      "2023-02-16T15:07:00.000000000",
+      "2023-04-13T13:46:00.000000000",
+      "False"
+     ],
+     [
+      17.05763888888889,
+      "2023-05-01T14:18:00.000000000",
+      "2023-05-18T15:41:00.000000000",
+      "False"
+     ]
+    ],
+    "open_qty_end": 0
+   }
+  },
+  "open_cycle": {
+   "cycle": 282,
+   "start_idx": "2484229",
+   "start_dt": "2026-05-26T09:32:00.000000000",
+   "entries": 11,
+   "max_qty": 6,
+   "worst_mtm": -331.25,
+   "worst_mtm_low": -368.75,
+   "realized": 94.15
+  },
+  "ambiguous_bars": 0,
+  "cancelled_capacity": 0,
+  "lineage": {
+   "exp": "FACTORY_S6",
+   "name": "FQ_20_12__comm+25",
+   "dataset_sha256": "2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116",
+   "engine_version": "0.2.0",
+   "exec_spec": "EXEC-1.1",
+   "roll_model": "ROLL-1.0",
+   "git": "77ec325",
+   "cfg": {
+    "rec_activation": "always",
+    "rec_anchor": "low60",
+    "rec_spacing": "float",
+    "rec_step": 5.0,
+    "rec_tp": 3.0,
+    "core_cap": 20,
+    "rec_cap": 12,
+    "recovery": {
+     "h": 20,
+     "rec_tp": 2.0,
+     "rec_step": 10.0,
+     "layer_x": 5.0
+    }
+   },
+   "exec_cfg": {
+    "point_value": 5.0,
+    "commission_per_side": 0.775,
+    "slippage_ticks": 1,
+    "penetration_ticks": 1,
+    "allow_same_bar_tp_after_intrabar_buy": false,
+    "roll_commission_sides": 2,
+    "roll_slippage_ticks": 1.0,
+    "roll_cost_per_contract": null,
+    "roll_mode": "basis_adjust",
+    "initial_capital": 150000.0,
+    "spec_version": "EXEC-1.1"
+   },
+   "date_range": [
+    "2019-05-05T18:01:00.000000000",
+    "2026-05-27T17:00:00.000000000"
+   ]
+  }
+ },
+ "summary": {
+  "exp": "FACTORY_S6",
+  "name": "FQ_20_12__comm+25",
+  "family": "S6",
+  "module": "FQ_20_12",
+  "control": "FQ_20_12",
+  "cfg": "{\"core_cap\": 20, \"rec_activation\": \"always\", \"rec_anchor\": \"low60\", \"rec_cap\": 12, \"rec_spacing\": \"float\", \"rec_step\": 5.0, \"rec_tp\": 3.0, \"recovery\": {\"h\": 20, \"layer_x\": 5.0, \"rec_step\": 10.0, \"rec_tp\": 2.0}}",
+  "exec": "{\"commission_per_side\": 0.775}",
+  "realized": 316752.75000000815,
+  "unreal_end": 560.0,
+  "total_mtm": 317312.75000000815,
+  "open_qty_end": 4,
+  "max_mtm_dd": -129867.84999999439,
+  "max_dd_trough": "2022-10-13",
+  "worst_cycle": -134026.25,
+  "min_equity": 76394.44999999949,
+  "underwater_days": 744.9256944444444,
+  "pf": 32.74778999730305,
+  "trades": 6857,
+  "trades_day": 3.867456288776086,
+  "cost": 21157.24999999727,
+  "roll_cost": 1080.8000000000002,
+  "inv_avg": 13.306092944937395,
+  "inv_p95": 24.0,
+  "inv_max": 24,
+  "share16": 0.40373920279277487,
+  "share_gt24": 0.0,
+  "share32": 0.0,
+  "lock32_days": 0.0,
+  "gt24_days": 0.0,
+  "sat_days": 0.0,
+  "peak_notional": 743610.0,
+  "avg_notional": 296865.72202602256,
+  "min_excess_2500": 31394.449999999488,
+  "ret_over_dd": 2.4433510680281674,
+  "ret_per_avg_notional": 1.0688763520235363,
+  "rec_trades_day": 2.7168640721940216,
+  "rec_pnl": 77707.4,
+  "rec_loss_realized": 0.0,
+  "rec_rotations": 0,
+  "rec_full_share": 0.09811414850905383,
+  "rec_zero_free_days": 160.01041666666666,
+  "rec_free_avg": 7.844626682094917,
+  "rec_max": 12,
+  "no_fill_days": 160.01041666666666,
+  "no_entry_days": 160.05555555555554,
+  "active_day_share": 0.8804286520022561,
+  "core_trades_day": 1.1505922165820643,
+  "p1921_mtm": 130630.62500001129,
+  "p1921_dd": -102349.75000000015,
+  "p22_mtm": -88110.49999999424,
+  "p22_dd": -129867.84999999439,
+  "p23p_mtm": 274838.349999991,
+  "p23p_dd": -100630.89999999868,
+  "worst_year_mtm": -88110.49999999424,
+  "pos_years": 7,
+  "n_years": 8,
+  "w20_dd": -102349.75000000015,
+  "w20_lock": 0,
+  "w20_share32": 0.0,
+  "w20_trades": 421,
+  "w20_rec_trades": 352,
+  "w20_gt24_days": 0.0,
+  "w2223_dd": -129867.84999999439,
+  "w2223_lock": 0,
+  "w2223_share32": 0.0,
+  "w2223_trades": 967,
+  "w2223_rec_trades": 956,
+  "w2223_gt24_days": 0.0,
+  "w25_dd": -100630.89999999868,
+  "w25_lock": 0,
+  "w25_share32": 0.0,
+  "w25_trades": 535,
+  "w25_rec_trades": 452,
+  "w25_gt24_days": 0.0,
+  "runtime_s": 56.46237587928772
+ },
+ "top10_dd": [
+  {
+   "peak": "2022-01-03",
+   "trough": "2022-10-12",
+   "recovered": "2024-01-19",
+   "depth": -118375.07499999431,
+   "days_to_trough": 282,
+   "days_underwater": 746,
+   "max_qty": 24
+  },
+  {
+   "peak": "2020-02-16",
+   "trough": "2020-03-22",
+   "recovered": "2020-08-03",
+   "depth": -99876.1500000002,
+   "days_to_trough": 35,
+   "days_underwater": 169,
+   "max_qty": 21
+  },
+  {
+   "peak": "2025-02-18",
+   "trough": "2025-04-08",
+   "recovered": "2025-06-26",
+   "depth": -92782.94999999856,
+   "days_to_trough": 49,
+   "days_underwater": 128,
+   "max_qty": 20
+  },
+  {
+   "peak": "2026-02-11",
+   "trough": "2026-03-27",
+   "recovered": "2026-04-14",
+   "depth": -44469.75000000489,
+   "days_to_trough": 44,
+   "days_underwater": 62,
+   "max_qty": 21
+  },
+  {
+   "peak": "2024-12-16",
+   "trough": "2025-01-12",
+   "recovered": "2025-01-23",
+   "depth": -27422.549999999115,
+   "days_to_trough": 27,
+   "days_underwater": 38,
+   "max_qty": 21
+  },
+  {
+   "peak": "2024-07-16",
+   "trough": "2024-08-07",
+   "recovered": "2024-08-19",
+   "depth": -26777.32499999908,
+   "days_to_trough": 22,
+   "days_underwater": 34,
+   "max_qty": 21
+  },
+  {
+   "peak": "2020-09-02",
+   "trough": "2020-09-23",
+   "recovered": "2020-10-12",
+   "depth": -22288.15000000017,
+   "days_to_trough": 21,
+   "days_underwater": 40,
+   "max_qty": 20
+  },
+  {
+   "peak": "2025-11-12",
+   "trough": "2025-11-20",
+   "recovered": "2025-12-03",
+   "depth": -17357.750000001397,
+   "days_to_trough": 8,
+   "days_underwater": 21,
+   "max_qty": 20
+  },
+  {
+   "peak": "2024-04-09",
+   "trough": "2024-04-18",
+   "recovered": "2024-05-10",
+   "depth": -16793.924999999697,
+   "days_to_trough": 9,
+   "days_underwater": 31,
+   "max_qty": 20
+  },
+  {
+   "peak": "2020-10-12",
+   "trough": "2020-11-01",
+   "recovered": "2020-11-06",
+   "depth": -16164.225000000151,
+   "days_to_trough": 20,
+   "days_underwater": 25,
+   "max_qty": 20
+  }
+ ]
+}

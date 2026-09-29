@@ -1,95 +1,115 @@
-# latest_report — 2026-09-29
+# latest_report — RUN-2 (Roll gate + Research factory), 2026-09-29
 
-엔진 0.1.0 · EXEC-1.0 (conservative) · 데이터 SHA `2b4f41b1…c454116` · 기간 2019-05-05 ~ 2026-05-27 · 모두 in-sample
+engine 0.2.0 · EXEC-1.1 conservative · ROLL-1.0 · 데이터 SHA `2b4f41b1…c454116` · 2019-05-05 ~ 2026-05-27 · $150k 기준 · MES $5/pt
+(이전 보고서: git history의 RUN-1 `latest_report.md`)
 
-## 1. 무엇을 테스트했나
-1. 데이터 복원·감사 (39 chunk → parquet, bytes/SHA/rows/범위/schema/중복/gap/DST/roll)
-2. 실행 엔진 + 35개 unit test (필수 20항목 + roll/휴일/전략 동치성/no-lookahead)
-3. **Baseline A** = 이전 TV Basket +25의 단순 재구성: flat이면 다음 open 1계약, `close ≤ 마지막 체결가 − 5`면 다음 open 1계약 추가, basket 평균 +25 limit 청산, max 32, hard SL 없음
-4. **Parity 매트릭스**: adjusted vs unadjusted(TV 기본 연속차트) × conservative vs TV-like 체결 × 시작일 5개
-5. **CR_001**: Core/Recycle R1 (profit-only) 24/8·20/12·16/16 × recycle TP 2.5/3/4/5 × 활성화(항상 / core full일 때만), control 32/0
+## 1. Roll gate — PASS
+- 메타데이터: `contract`(29계약), `cum_adjustment`(계약 내 상수), `roll_adjacent`(신계약 첫 세션). roll 28회 모두 17:00→18:01. 조정 = 첫 계약 기준 forward additive, spread = cum_old − cum_new.
+- ROLL-1.0: 모든 tranche가 논리 ID를 유지하며 계약별 raw 원가를 들고 roll을 넘어감. `basis_adjust`(원가 이동) / `close_reopen`(구계약 실현 후 재개시) 두 방식은 equity 곡선이 동일하고 realized/unrealized 분할만 다름. 청산 시 불변식 오차 0.0.
+- 비용: roll 1회당 계약당 $2.49 (commission 2 sides + spread 1 tick), 2× slippage $3.74.
 
-## 2. Baseline A — 필수 지표
-
-**Return**
-| 항목 | 값 |
-|---|---|
-| realized net | **+$479,737** |
-| 종료 미실현 (4계약 open, 2026-05-26 진입) | +$560 |
-| 총 MTM P&L | +$480,297 (CAGR 22.5%, $150k 기준) |
-| 연도별 MTM | 2019 +29k · 2020 +48k · 2021 +93k · **2022 −107k** · 2023 +122k · 2024 +107k · 2025 +100k · 2026(5월) +88k |
-| 연도별 realized | 2022 +8.5k, 2023 +6.1k (2년간 거의 거래 정지) |
-| PF / 평균 / 중앙값 trade | 5.47 / +$140 / +$128 (계약 단위 round-trip) |
-| trades / 일 | 3,439 / 1.94 |
-| 완료 사이클 | 514 (100% 이익), 사이클당 평균 6.7계약 |
-
-**Cost**: commission $4,267 · slippage $5,089 · roll $1,345 · 합계 $10,700 (gross profit의 1.8%)
-
-**Risk**
-| 항목 | 값 |
-|---|---|
-| **Max MTM DD** | **−$204,875** (peak 2025-02-21 → trough 2025-04-06) |
-| intrabar low 기준 | −$205,321 |
-| realized equity DD | −$578 ← closed-trade만 보면 위험이 안 보임 |
-| **최소 equity** | **$16,761 (2020-03-22)** — $150k 시작 계좌가 89% 손실 상태 |
-| 최악 사이클 MTM | −$198,221 (2025-02-19 ~ 06-26) |
-| 최악 일/주/월 | −$48.7k (2025-04-04) / −$80.9k (2025-04-04 주) / −$81.8k (2020-03) |
-| 최장 underwater | 618일 (2022-04-05 → 2023-12-14) |
-
-**Top MTM drawdowns (일간 equity)**: 2025-02-18→04-08 −$190k (회복 06-26) · 2020-02-16→03-22 −$164k (회복 07-17) · 2022-04-04→10-12 −$155k (회복 **2023-12-13**, 618일) · 2022-01 −$76k · 2024-07/08 −$58k …
-
-**Inventory** (RTH 시간가중)
-| avg | median | p95 | p99 | max | ≥8 | ≥16 | ≥20 | ≥24 | ≥28 | =32 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 18.1 | 18 | 32 | 32 | 32 | 64% | 52% | 48% | 46% | 44% | **42%** |
-
-- 최장 32-lock: **2022-04-11 → 2023-12-18 (616일)** · 2020-02-26 → 07-20 (145일) · **2025-02-25 → 06-26 (121일)** · 2022-01-20 → 03-29 (68일)
-- 최장 >24 구간: 621일 (2022-04-06 → 2023-12-18)
-
-**Exposure / margin**: peak notional $1.108M (32 × raw 가격) · peak notional/equity 20.8× · margin $1,500/ct 가정에서도 excess liquidity 최소 **−$31k (2020-03-22)** → 실제로는 margin call/강제청산 발생 구간
-
-**2025-02~07 regression 창**: 32 도달 2025-02-25 10:07 · lock 121일 · 창 내 RTH의 69%가 32계약 · 창 내 최악 미실현 −$204.7k (2025-04-06) · 최소 equity $262.7k (그전 누적 이익 덕분)
-
-## 3. TradingView parity
-| 변형 | 사이클 | 진입 | realized | 2025 lock | 최악 사이클 |
+| 항목 | 기존 연속시리즈 | ROLL basis_adjust | ROLL close_reopen | roll 2× slip | naive 비조정 (금지) |
 |---|---|---|---|---|---|
-| TV (제공값) | 306 | 2,444 | $344.7k | ≈118일 (02-28→06-26) | ≈−$195k |
-| adjusted, 2019 시작, conservative | 514 | 3,443 | $479.7k | 121일 (02-25→06-26) | −$198k |
-| adjusted, 2019, TV-like 체결 | 521 | 3,460 | $485.0k | 121일 | −$198k |
-| unadjusted, 2022 시작 | 333 | 2,248 | $333.7k | 119일 (02-25→06-24) | −$190k |
-| adjusted, 2024 시작 | 312 | 2,123 | $294.4k | 121일 | −$198k |
+| 총 MTM P&L | 480,297.31 | 480,297.31 | 480,297.31 | 479,622.31 | 504,073 (+23.8k 가짜) |
+| realized (논리) | 479,737 | 479,737 | 479,737 | 479,062 | 503,513 |
+| 종료 미실현 | +560 | +560 | +560 | +560 | +560 |
+| Max MTM DD | −204,875 | −204,875 | −204,875 | −204,915 | −196,556 (과소) |
+| 최장 32-lock | 616일 | 616일 | 616일 | 616일 | 691일 |
+| roll 비용 합계 | 1,344.60 | 1,344.60 | 1,344.60 | 2,019.60 | 0 |
 
-해석:
-- **실패 모드는 가정에 강건함**: 2025 lock과 −$190k~−$198k 사이클 MTM은 모든 변형에서 재현. TV에서 본 위험은 실재한다.
-- 체결모델(1 tick 관통 vs touch, same-bar 허용)은 realized를 ≤1.1%만 바꿈 → 이 전략은 intrabar 가정에 민감하지 않음 (bar당 1회 market add 구조이므로).
-- unadjusted 연속차트는 2023년 이후 roll마다 +45~74pt 가짜 점프 → realized +5%, lock 종료가 약간 빨라짐. TV 차트 설정 확인 필요.
-- TV 수치와 정확히 일치하는 변형 없음. TV는 basket당 8.0계약, Python은 6.7계약 → **add 규칙(평단 기준? 첫 진입 기준? bar당 복수 add?)과 테스트 시작일이 다를 가능성**. Python 결과를 TV에 억지로 맞추지 않음 (D-008).
-- **중요**: TV 요약에는 없던 **2022-04 → 2023-12 616일 32-lock**이 전체 데이터에서 가장 심각한 lock. TV 테스트가 2023년 이후로 시작했을 가능성.
+stress 창 (최악 미실현 시점):
+| 창 | 최악 시점 | 수량 | adjusted 평단 | raw 손익분기(현재 계약) | 브로커 평단(close_reopen) | roll 시 실현된 손실(브로커) | 회복 |
+|---|---|---|---|---|---|---|---|
+| 2020 | 2020-03-22 | 32 | 3,222.5 | 3,222.0 | 2,399.5 | −$131.6k | 2020-06-08 |
+| 2022–23 | 2022-10-13 | 32 | 4,610.0 | 4,559.3 | 4,137.0 | −$67.6k | 2023-12-14 (8회 roll 통과) |
+| 2025 | 2025-04-06 | 32 | 5,636.6 | 6,114.1 (M5) | 5,731.8 | −$61.2k | 2025-06-26 |
+→ 기존 결과는 모두 유효. 장기 보유는 roll마다 contango carry를 지불(2025: raw 손익분기가 roll 후 6,114로 상승). naive 비조정은 2022–23 "회복"을 2023-07-27로 잘못 보고함(실제 2023-12-14).
 
-## 4. CR_001 — Core/Recycle R1 (profit-only)
-| config | realized | Max MTM DD | 최소 equity | 32 비중 | 최장 32-lock | recycle trades/일 | recycle full 비중 | 2025 lock |
+## 2. 테스트한 설정 수
+| 단계 | 내용 | 설정/실행 |
+|---|---|---|
+| S1 broad screen | 19개 모듈 가족(A–R), 각 1개 변경 | 202 |
+| S3 local robustness | 22개 후보 × 인접/±10/±20% | 103 |
+| S4 interactions | 선택 2-way + 소수 3/4-way | 28 |
+| S4b capacity-maintenance combos | floating recycle + core 위험 모듈 | 19 |
+| S3b robustness (FQ 계열) | | 28 |
+| Walk-forward | 4개 가족 × 4 fold | 23 |
+| S5 temporal | 결선 12개 연도/rolling 12m/top-10 DD + fresh start 3개 | 12 + 36 |
+| S6 execution/cost | 결선 12개 × 10종 | 120 |
+| 합계 | **고유 설정 372개, 총 실행 약 570회** (+ 결정성 확인용 v2 재실행 333회, 결과 동일) | |
+
+## 3. 가장 강한 메커니즘
+**핵심 재해석**: "최장 무진입 기간"을 추가하자 DD를 줄인 모듈 대부분이 **2022-01 → 2024-02 약 750일 동안 신규 진입 0**임이 드러남. 즉 32계약 lock을 16–24계약 lock으로 바꾼 것일 뿐.
+
+| 메커니즘 | 효과 | 강건성 | 판정 |
+|---|---|---|---|
+| **FQ: 항상 활성 floating recycle(low60 앵커) + 회복모드(core 가득 차면 core 정지, core layer +5 개별 청산, recycle TP 2 / 간격 10)** | 무진입 5.8일, 활동일 97%, DD −$116k~−$130k, 최소 equity ~$100k, >24계약 7–43일 | S3b 28개 전부 DD −$104k~−$139k, ret/DD 2.1–2.6 | **capacity + DD 동시 개선 — 유일** |
+| 노출 상한 (cap 16/20/24) | DD −$107k/−$132k/−$157k, ret/DD 2.9/2.7/2.4 | 13–29 전 구간 매끈, WF 4 fold 모두 cap16 선택 & OOS DD 1위 | 위험 크기 조절로는 최강, 그러나 무진입 ~760일 |
+| 회복모드 Q / state machine I_S6 | DD −$98k~−$130k | 안정 | 무진입 ~750일 (더 작은 lock) |
+| Armed-reversal add (lower-low failure / bull higher-close) | 같은 DD에서 +$51k~$64k | ±20% 안정 | 수익 개선 모듈 |
+| ATR-spike governor | 2020 급락 DD −$164k → −$65k, 최소 equity $108k | 2020에만 효과, WF 불안정 | 급락 전용 보조 |
+
+## 4. 실패한 메커니즘
+- **Rolling recycle (CR_002, B 가족 18개)**: 32-lock 4–8일로 capacity는 유지하나 DD −$207k~−$224k로 악화, 손익 −30%, underwater 880–1,016일. 하락 중 손실을 실현하고 반등을 놓쳐 평균회귀 edge 제거. 선택 방식(highest/oldest)은 하강 ladder에서 동일.
+- **Profit-only recycle 고정 배분 (A)**: CR_001 재확인, lock 660–757일.
+- **느린 core 간격 (C: fixed 7.5–15, convex, ATR, %, DD, vol, age)**: DD −$151k~−$203k로 감소하나 ret/DD 1.5–2.2 < base 2.34, 노출 상한에 지배됨. 2022 bear에서 여전히 450–730일 무진입.
+- **Cycle-age core-off (J) 및 gov+age 조합**: 2025 개선은 경로 운 — 2024-12-23 ~ 2025-07-03 진입 0건. 기각 (D-016).
+- Basket TP 변경(G), 진입 필터(K), 시간대(O), recycle TP 변경(E), 동적 core cap(H/A dyn), ETH 컨텍스트(P): 대부분 NEUTRAL 또는 거래 중단형. P(갭다운 진입)의 수중기간 289일은 경로 의존.
+- Float vs ladder 간격: recycle TP(3) < step(5)이면 구조적으로 동일 → 별도 증거 아님.
+
+## 5. Pareto 후보 (손익 × Max MTM DD × 무진입일, 비지배 65개 중 대표) — `PARETO_CANDIDATES.csv`
+| 후보 | 총 MTM | Max DD | 최소 equity | 무진입 | >24계약 | 거래/일 | 평균 notional | 비고 |
 |---|---|---|---|---|---|---|---|---|
-| **32/0 control** | 479.7k | −204.9k | 16.8k | 42% | 616일 | 0 | – | 121일 |
-| 24/8 tp3 always | 516.7k | −211.5k | 16.1k | 51% | 757일 | 4.5 | 68% | 123일 |
-| 24/8 tp3 core_full | 442.3k | −205.4k | 18.8k | 45% | 741일 | 2.0 | 45% | 99일 |
-| 16/16 tp3 always | 572.3k | −213.7k | 16.8k | 53% | 741일 | 8.5 | 54% | 125일 |
-| **16/16 tp3 core_full** | 478.6k | **−201.3k** | 20.7k | 43% | 661일 | 5.4 | 43% | **95일** |
-| 16/16 tp5 always | 586.0k | −213.9k | 17.8k | 54% | 746일 | 5.3 | 55% | 125일 |
+| BASE | 480k | −205k | 17k | 616일 | 621일 | 1.9 | 399k | control |
+| **FQ_12_20** | 256k | **−116k** | 103k | **5.8일** | 6.9일 | 3.8 | 264k | 최저 DD + capacity |
+| **FQ_16_16_add** | 306k | −122k | 103k | **5.8일** | 24.9일 | 4.1 | 283k | 균형 |
+| FQ_18_14_add | 322k | −122k | 82k | 25일 | 24.9일 | 4.1 | 286k | |
+| FLOAT_16_16 (단일 모듈) | 404k | −169k | 76k | 59일 | 453일 | 4.1 | 368k | 고수익 capacity |
+| CAP16 | 307k | −107k | 84k | 763일 | 0 | 1.3 | 262k | 거래 중단형 |
+| CAP20 + armed add | 390k | −131k | 71k | 756일 | 0 | 1.6 | 314k | 거래 중단형 |
+| QC24 + gov | 292k | −113k | 107k | 484일 | 3.8일 | 1.4 | — | 거래 중단형 |
+| ADD_llfail (단일) | 531k | −204k | 22k | 733일 | 734일 | 2.1 | 412k | 수익형, 위험 불변 |
+낮은 손익 후보(FQ_12_20)를 버리지 않음: 같은 자본에서 DD 43% 감소 + 거래 지속.
 
-(전체 25개 설정: `results/CR_001/summary.csv`, `master_results.csv`)
+모든 후보 종료 시 open inventory 4–7계약, 미실현 +$560~+$986 (공개).
 
-- recycle 거래는 모두 이익 청산(정의상 profit-only), recycle P&L +$66k~+$280k.
-- 그러나 **recycle lane도 추세 하락에서 가득 차 잠김** (full 42–69%). "always"는 노출을 늘려 DD와 lock을 악화. "core_full"도 core capacity가 줄어 core 평단이 덜 낮아지고 core 회복이 늦어짐 → 최장 lock이 616일 → 660–741일로 늘어남.
-- 가장 나은 16/16 core_full도 DD 개선 $3.6k(1.8%)에 불과.
+## 6. 2022–23 / 2025 stress 동작
+| 후보 | 2020 DD | 2022–23 DD | 2022–23 >24계약 | 2025 DD | 2025 lock | top-DD 최장 수중 |
+|---|---|---|---|---|---|---|
+| BASE | −168k | −171k | 621일 | −205k | 121일 | 618일 |
+| FQ_16_16_add | −75k | −122k | 25일 | −101k | 0 | 709일 |
+| FQ_12_20 | −70k | −116k | 7일 | −94k | 0 | 709일 |
+| CAP16 | −90k | −102k | 0 | −107k | 0 (16계약 방치) | 765일 |
+Fresh start (새 $150k, 과거 이익 없음):
+| 시작 | BASE 최소 equity | FQ_16_16_add | FQ_12_20 | CAP16 |
+|---|---|---|---|---|
+| 2022-01-01 | **−$10k (파산)** | $28k | $35k | $49k |
+| 2023-01-01 | $149k | $139k | $148k | $149k |
+| 2025-01-01 | **−$40k (파산)** | $65k | $66k | $55k |
 
-## 5. 최대 위험 / 실패
-- 모든 버전이 $150k 계좌 기준 **최소 equity $15k~$22k**, Max MTM DD ≈ −$200k. 실거래 불가 수준.
-- 근본 원인(가설): 5pt 고정 grid는 32계약을 ~155pt(가격의 약 2.6%) 안에 소진. 20%+ 하락(2020, 2022, 2025)에서 평단이 하락 초입에 고정되고 나머지 수백 pt를 무방비로 맞음. lane 분할(R1)은 이 기하학을 바꾸지 못함.
-- ES 데이터 기반. MES 실제 체결 미검증.
+## 7. 최대 lock / MTM DD 개선
+- 최장 무진입: 616일 → **5.8일** (FQ 계열), 32-lock 616일 → 0.
+- Max MTM DD: −$205k → **−$116k (FQ_12_20, −43%)**; 거래 중단을 허용하면 −$77k(경로 운) / −$98k(Q_16_16)까지 가능하나 capacity 실패.
+- 최소 equity: $16.8k → ~$100k.
+- Rolling 12m 최악 DD: −$190k → −$106k~−$118k.
 
-## 6. 가설 판정
-- "Python이 TV 실패 모드를 재현한다" → **확인** (그리고 전체 기간에서는 더 나쁨).
-- "R1 profit-only recycle reserve가 lock/MTM DD를 줄인다" → **기각** (CR_001).
+## 8. 거래 빈도 변화
+- BASE 1.94 trades/일(계약 round-trip), 활동일 44%.
+- FQ 계열 3.8–4.1/일 (core ~1.0 + recycle ~3.0), **활동일 97%**, recycle lane 가득 찬 시간 0%, 평균 여유 recycle slot 11.8/16.
+- 비용: FQ $18.6k–$19.8k (BASE $10.7k), 여전히 gross 대비 작음.
 
-## 7. 다음 한 단계
-**CR_002 — R3 rolling recycle** (`NEXT_ACTION.md`): recycle lane이 가득 차고 가격이 더 내려가면 최고 원가 tranche를 손실실현 후 현재가 근처로 교체. 노출은 줄지 않으므로 DD 개선은 기대하지 않고, capacity 유지와 총 경제적 P&L(realized+unrealized)을 평가한다. 이후 후보: core grid geometry(convex/ATR widening), freefall governor.
+## 9. 해결 안 된 위험
+1. **깊이**: FQ도 2022-01 fresh start에서 최소 equity $28k (−81%). $150k 계좌에 16–32 MES 롱 무손절은 여전히 과도.
+2. **회복 기간**: 2022 bear 수중 ~708일은 어떤 모듈로도 줄지 않음 (보유 재고의 경제 손실은 사라지지 않음).
+3. **체결 민감도**: FQ DD가 slippage 2틱에서 −$122k → −$148k. TV-like 체결은 FQ를 과대평가(−$111k). recycle 진입이 market 주문 전제.
+4. **데이터**: ES 1m로만 검증. MES 체결·스프레드 미검증. 1분 OHLC 순서 불명.
+5. **과최적화 위험**: 전 결과 in-sample 탐색. WF는 4개 가족만. FQ 계열은 이 run의 발견이므로 독립 기간 검증 전.
+6. TV parity 미완(Pine 원문 필요).
+
+## 10. 다음 연구 run (정확히)
+**RUN-3 — FQ 계열의 자본위험 보정 + 체결 현실성** (`NEXT_ACTION.md`):
+A) total ceiling 10/12/14/16/20/24 스케일링, 1차 판정 = fresh-start(2020-02, 2022-01, 2025-02) 최소 equity ≥ $75k;
+B) recycle 진입 market vs limit, slippage 1/2/3틱 × recycle TP 2.5/3/4 → DD 탄력성;
+C) 2019–2021 설계 / 2022–2026 검증 고정 분할(재선택 금지);
+D) 분리 등록 tail 위험정책(계좌 DD −X% 시 core 금지 vs 부분 청산).
+병행: MES 1m 데이터 확보(Massive 커넥터 인증 필요).

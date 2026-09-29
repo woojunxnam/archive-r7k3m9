@@ -28,3 +28,8 @@
 | 22 | MES 1m 데이터 검증 | – | DEFERRED | 데이터 미확보 |
 | 23 | Walk-forward 파라미터 재선정 | – | QUEUED | Stage 5에서 부분 수행 |
 | 24 | 1초/틱 데이터로 same-bar 순서 확인 | – | DEFERRED | 데이터 없음 |
+| 25 | FQ: 항상 활성 floating recycle + 회복모드 | Y | TESTED(S4b,S3b,S5,S6) | 유일한 capacity+DD 동시 개선 계열 → RUN-3 |
+| 26 | 무진입 기간 지표 | – | ADOPTED | D-015 |
+| 27 | FQ 자본위험 스케일링 (fresh-start 기준) | – | QUEUED | RUN-3 A |
+| 28 | Limit 기반 recycle 진입 + slippage 탄력성 | – | QUEUED | RUN-3 B |
+| 29 | 계좌 DD 기반 tail 위험정책 | – | QUEUED | RUN-3 D, 별도 등록 |

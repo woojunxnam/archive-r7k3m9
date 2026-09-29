@@ -1,16 +1,18 @@
 # PROJECT_STATE — MES Smart Recycling Grid Research
 
-최종 갱신: 2026-09-29 · 이 파일이 authoritative state다. 대화 기억보다 이 파일과 아래 경로를 우선한다.
+최종 갱신: 2026-09-29 (RUN-2: roll gate + research factory) · 이 파일이 authoritative state다. 대화 기억보다 이 파일과 아래 경로를 우선한다.
 
 ## 현재 단계
 | Phase | 상태 | 산출물 |
 |---|---|---|
-| 1 Data audit | **완료 (PASS)** | `DATA_AUDIT.md`, `results/data_audit.json` |
-| 2 Execution engine + tests | **완료** (35 tests pass) | `EXECUTION_SPEC.md` (EXEC-1.0), `src/mesgrid/`, `tests/` |
-| 3 Python baseline | **완료** | `results/BASE_A_001/` |
-| 4 TradingView parity audit | **부분 완료** (Pine 원문 필요) | `results/PARITY_001/parity_matrix.csv` |
-| 5 Core/Recycle 구조 | **진행 중** — CR_001(R1) 기각 | `results/CR_001/` |
-| 6+ | 미착수 | |
+| 1 Data audit | 완료 (PASS) | `DATA_AUDIT.md` |
+| 2 Engine + tests | 완료 — engine 0.2.0, **61 tests pass** | `EXECUTION_SPEC.md` (EXEC-1.1 + ROLL-1.0) |
+| 0' Roll gate | **완료 (PASS)** | `results/ROLL_GATE_001/` |
+| 3 Baseline | 완료 | `results/BASE_A_001/` |
+| 4 TV parity | 부분 완료 (Pine 원문 필요) | `results/PARITY_001/` |
+| 5–7 Research factory (S1 screen → S3 robustness → S4/S4b interactions → S5 temporal/WF → S6 exec stress → Pareto) | **1차 완료** | `MODULE_LEADERBOARD.csv`, `PARETO_CANDIDATES.csv`, `IDEA_BACKLOG.md`, `results/FACTORY_*` |
+| 8 Walk-forward | 부분 (4개 가족) | `results/FACTORY_S5/walkforward.csv` |
+| 9 MES 검증 | 미착수 (데이터 없음) | |
 
 ## 재현 방법
 ```bash
@@ -23,11 +25,17 @@ python3 -m pytest -q tests
 python3 scripts/run_baseline_a.py        # BASE_A_001
 python3 scripts/parity_audit.py          # PARITY_001
 python3 scripts/run_cr001.py             # CR_001
+python3 scripts/roll_gate.py             # ROLL_GATE_001
+python3 scripts/stage1.py FACTORY_S1v2   # 202 configs (~35 min, 4 cores)
+python3 scripts/stage3.py FACTORY_S3v2; python3 scripts/stage4.py FACTORY_S4v2
+python3 scripts/stage4b.py; python3 scripts/stage3b.py; python3 scripts/walkforward.py
+python3 scripts/stage56.py s5; python3 scripts/stage56.py s6   # finalists from results/FINALISTS.json
+python3 scripts/leaderboard.py FACTORY_S1v2 FACTORY_S4v2 FACTORY_S4b FACTORY_S3v2 FACTORY_S3b
 ```
 
 ## Lineage (모든 결과 공통)
 - dataset: `canonical_1m_ES.parquet`, SHA256 `2b4f41b124ab8772866088f87a86c6cc456ecbb2a9ede6b0bccbc24fbc454116`, 2019-05-05 18:01 ~ 2026-05-27 17:00
-- engine `0.1.0`, execution spec `EXEC-1.0` (conservative)
+- engine `0.2.0`, execution spec `EXEC-1.1` (conservative), roll model `ROLL-1.0` (이전 0.1.0 결과는 동일 재현 확인)
 - 세션: bar-end 09:31–16:15 ET (open 09:30–16:14), 거래소 휴일 47일 신규거래 금지
 - 비용: $0.62/ct/side, market 1 tick, limit 1 tick 관통, roll $2.49/ct
 - 각 결과 폴더의 `metrics.json` → `lineage` 필드에 파라미터·git hash 기록
@@ -41,6 +49,11 @@ python3 scripts/run_cr001.py             # CR_001
    - realized DD −$578 / PF 5.5 / 사이클 승률 100% — closed-trade 통계가 위험을 완전히 숨김.
 3. **Parity**: 2025 lock(119–121일)과 최악 사이클(−$190k~−$198k)은 가격기준·체결모델·시작일과 무관하게 재현 → TV에서 본 실패는 실재. TV 수치(306 basket / 2,444 entry / $344.7k)와 정확히 일치하는 변형은 없음 → Pine V2.2 add/entry 규칙과 TV 테스트 기간이 필요.
 4. **CR_001 (R1 profit-only recycle)**: 기각. MTM DD 개선 없음(−$201k~−$214k), 최장 32-lock 오히려 증가(660–757일). recycle lane도 추세 하락에서 함께 잠김. 순이익 증가는 노출 증가 때문.
+
+5. **ROLL_GATE_001 PASS**: 계약별 raw 원장(tranche ID 유지) 적용 시 Baseline A가 센트 단위 동일. naive 비조정 연속가는 +$23.8k 가짜 이익.
+6. **Research factory (unique 372 configs, 총 실행 ~570회)**: DD를 줄이는 대부분의 모듈(노출 상한, state machine, 회복모드, governor, 느린 core)은 **2022-01~2024-02 약 750일 무진입** → lock을 없앤 것이 아니라 크기만 줄임.
+   capacity와 DD를 동시에 개선한 유일한 강건 계열 = **FQ (항상 활성 floating recycle low60 + 회복모드 layer exit)**: 무진입 5.8일, DD −$116k~−$130k, 최소 equity ~$100k, 인접값 28개 모두 안정.
+7. 해결 안 된 위험: fresh start 2022-01에서 FQ도 최소 equity ~$28k; 2022 underwater ~708일; FQ DD가 slippage에 민감.
 
 ## 열린 이슈 / blocker
 - (비차단) TV parity 완결: Pine V2.2 원문, TV 차트 타임프레임, 테스트 시작일, back-adjust 설정, bar magnifier, 수수료/slippage 설정 필요.

@@ -1,0 +1,104 @@
+{
+ "top10_dd": [
+  {
+   "peak": "2022-01-03",
+   "trough": "2022-10-12",
+   "recovered": "2024-01-19",
+   "depth": -118202.5599999954,
+   "days_to_trough": 282,
+   "days_underwater": 746,
+   "max_qty": 24
+  },
+  {
+   "peak": "2020-02-16",
+   "trough": "2020-03-22",
+   "recovered": "2020-07-31",
+   "depth": -99850.41999999987,
+   "days_to_trough": 35,
+   "days_underwater": 166,
+   "max_qty": 21
+  },
+  {
+   "peak": "2025-02-18",
+   "trough": "2025-04-08",
+   "recovered": "2025-06-26",
+   "depth": -92739.85999999882,
+   "days_to_trough": 49,
+   "days_underwater": 128,
+   "max_qty": 20
+  },
+  {
+   "peak": "2026-02-11",
+   "trough": "2026-03-27",
+   "recovered": "2026-04-14",
+   "depth": -44432.549999999,
+   "days_to_trough": 44,
+   "days_underwater": 62,
+   "max_qty": 21
+  },
+  {
+   "peak": "2024-12-16",
+   "trough": "2025-01-12",
+   "recovered": "2025-01-23",
+   "depth": -27400.53999999934,
+   "days_to_trough": 27,
+   "days_underwater": 38,
+   "max_qty": 21
+  },
+  {
+   "peak": "2024-07-16",
+   "trough": "2024-08-07",
+   "recovered": "2024-08-19",
+   "depth": -26753.609999999288,
+   "days_to_trough": 22,
+   "days_underwater": 34,
+   "max_qty": 21
+  },
+  {
+   "peak": "2020-09-02",
+   "trough": "2020-09-23",
+   "recovered": "2020-10-12",
+   "depth": -22265.52000000028,
+   "days_to_trough": 21,
+   "days_underwater": 40,
+   "max_qty": 20
+  },
+  {
+   "peak": "2025-11-12",
+   "trough": "2025-11-20",
+   "recovered": "2025-12-03",
+   "depth": -17348.44999999972,
+   "days_to_trough": 8,
+   "days_underwater": 21,
+   "max_qty": 20
+  },
+  {
+   "peak": "2024-04-09",
+   "trough": "2024-04-18",
+   "recovered": "2024-05-10",
+   "depth": -16786.63999999978,
+   "days_to_trough": 9,
+   "days_underwater": 31,
+   "max_qty": 20
+  },
+  {
+   "peak": "2020-10-12",
+   "trough": "2020-11-01",
+   "recovered": "2020-11-06",
+   "depth": -16148.880000000267,
+   "days_to_trough": 20,
+   "days_underwater": 25,
+   "max_qty": 20
+  }
+ ],
+ "annual": {
+  "2019": 21225.629999999772,
+  "2020": 39158.53999999806,
+  "2021": 71074.00000001088,
+  "2022": -87929.14999999537,
+  "2023": 86160.51000000437,
+  "2024": 76825.6700000125,
+  "2025": 66185.0700000113,
+  "2026": 46858.43000000599
+ }
+}
