@@ -26,3 +26,4 @@ out/t46/bars5_*.parquet
 out/t96/*_3m_bars.parquet
 out/t96/panel_x.npz
 out/index_discretionary_alpha_continuous_v1/atlas/ATLAS_*.npz
+out/index_discretionary_alpha_continuous_v1/ph6/GENOME_WINDOW_DAILY.npy

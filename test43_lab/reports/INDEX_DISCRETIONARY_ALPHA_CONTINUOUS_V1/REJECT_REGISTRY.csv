@@ -13,3 +13,4 @@ PH5,MODEL_E,never beats take-all
 PH5,MODEL_H / EXIT_IF_NOT_WORKING,negative
 PH5,MODEL_X / XRES / XSTRUCT / X60 / X120,all worse than 16:15
 PH5,MODEL_A,no gain over generic press
+PH6,DISCRETIONARY_GRAMMAR,"nested stitched 0.89 $/day, SLIP4 < 0, stability 0.27"

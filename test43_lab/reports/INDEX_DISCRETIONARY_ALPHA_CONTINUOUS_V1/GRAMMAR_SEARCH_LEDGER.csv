@@ -1,1 +1,2 @@
 space,n_candidates,selected_by_fold,stitched_avg_day,stability,class
+trigger x trend x vol x TOD x confluence x room x exit,3600,"{""O1"": [""TOUCH"", ""any"", ""any"", ""any"", ""any"", ""room"", ""XSTRUCT""], ""O2"": [""LN2"", ""any"", ""high"", ""am"", ""conf2"", ""any"", ""X120""], ""O3"": [""LN2"", ""any"", ""high"", ""am"", ""conf2"", ""any"", ""X120""], ""O4"": [""C2"", ""any"", ""any"", ""any"", ""any"", ""any"", ""XSTRUCT""], ""O5"": [""C2"", ""any"", ""any"", ""any"", ""any"", ""any"", ""X1615""]}",0.893,0.27,GRAMMAR_FAIL
