@@ -1,8 +1,8 @@
 {
  "PROGRAM": "AUTONOMOUS_ALPHA_RESEARCH_MASTER_PROGRAM_V1",
- "CURRENT_TEST": "TEST106",
- "PHASE": "RESULT",
- "NEXT_TEST": "TEST107",
+ "CURRENT_TEST": "TEST108",
+ "PHASE": "PREREG",
+ "NEXT_TEST": "TEST109",
  "MAIN": "MAIN_GROWTH_V1 = T61-R1C_ATOMIC_CAP6 + FIXED_CLUE_BASKET_V1",
  "MAIN_METRICS": {
   "avg_day": 143.207,
@@ -58,7 +58,8 @@
   "TEST103": "REJECT by ESP-1 (0/12 EVENT_CLUE); second-entry forms = WEAK_RESEARCH_CLUE_ONLY (best of program so far)",
   "TEST104": "REJECT by ESP-1 (0/39 EVENT_CLUE); L2 failed-breakdown-reclaim-retest = WEAK_RESEARCH_CLUE_ONLY, family-consistent",
   "TEST105": "NOT_RUN_BY_RULE",
-  "TEST106": "A2 = STRONG_CLUE at 60m (event level) BUT RESEARCH_DUPLICATE of plain ORB; no strategy phase"
+  "TEST106": "A2 = STRONG_CLUE at 60m (event level) BUT RESEARCH_DUPLICATE of plain ORB; no strategy phase",
+  "TEST107": "NOT_RUN_BY_RULE"
  },
  "BUDGET_LIMITS": {
   "definitions": 400,
