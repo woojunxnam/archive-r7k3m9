@@ -1,0 +1,63 @@
+{
+ "note": "Post-hoc filter candidates chosen on ES (RUN3_P45 J family, 12 filters x 2 caps). Frozen BEFORE running on YM. YM was already used once for Phase 6 with other candidates -> this is a second, post-hoc cross-market look, NOT OOS.",
+ "sha256": "d632a80b8a216d55675e1e04870c17efd92b274aa4586b07894f0e7f97c29873",
+ "candidates": {
+  "C14_bs70": {
+   "add_trigger": "armed",
+   "core_cap": 8,
+   "max_total": 14,
+   "rec_activation": "always",
+   "rec_anchor": "low60",
+   "rec_cap": 6,
+   "rec_filter": "f_bs70",
+   "rec_spacing": "float",
+   "rec_step": 5.0,
+   "rec_tp": 3.0,
+   "recovery": {
+    "h": 8,
+    "layer_x": 5.0,
+    "rec_step": 10.0,
+    "rec_tp": 2.0
+   },
+   "reversal": "ll_fail"
+  },
+  "C14_rpos60": {
+   "add_trigger": "armed",
+   "core_cap": 8,
+   "max_total": 14,
+   "rec_activation": "always",
+   "rec_anchor": "low60",
+   "rec_cap": 6,
+   "rec_filter": "f_rpos60_05",
+   "rec_spacing": "float",
+   "rec_step": 5.0,
+   "rec_tp": 3.0,
+   "recovery": {
+    "h": 8,
+    "layer_x": 5.0,
+    "rec_step": 10.0,
+    "rec_tp": 2.0
+   },
+   "reversal": "ll_fail"
+  },
+  "C32_bs70": {
+   "add_trigger": "armed",
+   "core_cap": 16,
+   "max_total": 32,
+   "rec_activation": "always",
+   "rec_anchor": "low60",
+   "rec_cap": 16,
+   "rec_filter": "f_bs70",
+   "rec_spacing": "float",
+   "rec_step": 5.0,
+   "rec_tp": 3.0,
+   "recovery": {
+    "h": 16,
+    "layer_x": 5.0,
+    "rec_step": 10.0,
+    "rec_tp": 2.0
+   },
+   "reversal": "ll_fail"
+  }
+ }
+}
