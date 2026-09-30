@@ -73,6 +73,17 @@ DEFAULTS = dict(
     rec_filter=None,             # None | name of boolean feature array in F (smart recycle entry)
     rec_cooldown_bars=0,         # bars after a recycle exit before a new recycle entry
     core_filter=None,            # None | name of boolean feature array in F (core entry/add gate)
+    # ---- RUN-4 Sleeve A modules (all OFF by default; defaults reproduce RUN-3 exactly)
+    shadow=False,                # record recycle signals blocked by full slots/budget (no behaviour change)
+    rec_anchor_feat=None,        # rec_anchor="feat": boolean array name in F (NULL-C random timing)
+    dead_days=5.0,               # recycle tranche age (calendar days) at which it counts as DEAD
+    dead_dist_datr=None,         # optional: also DEAD if entry - close >= x * daily ATR
+    harvest_cond=None,           # None | dict(trig=free|dead|inv|always, k=, x=, q=, policy=, hx=, be=, core=False)
+    salvage=None,                # None | dict(trig=free|always, k=0, rebound=pts|atr|pivot|mid30|vwap|rollhigh, rb=,
+                                 #             select=oldest|highest|closest_be, max_per_day=1)
+    cap_sm=None,                 # None | dict(min_free=K, deep_mult=None, deep_off=None, ttl=30, harvest=None, hx=1.0,
+                                 #             harvest_at=1, salvage=None|dict, salvage_at=0)
+    rec_soft=None,               # None | dict(feat=, cuts=(..), offs=(..), unit=pts|atr, skip_top=False, ttl=30)
 )
 
 
@@ -123,6 +134,12 @@ class FactoryStrategy(Strategy):
         self._basket_tp_cur = k["basket_tp"]
         self._dd_paused = False
         self._last_rec_exit_i = -10**9
+        self._pend = None            # pending (re-issued) deep recycle limit: dict(px, tp, exp, day)
+        self.shadow_log = []         # (i, tp, n_dead, n_rec, n_free) for blocked recycle signals
+        self._salv_day = None
+        self._salv_n = 0
+        self.n_salvage = 0
+        self.n_cond_harvest = 0
 
     # ------------------------------------------------------------------ helpers
     def _age_days(self, ctx, i):
@@ -312,6 +329,8 @@ class FactoryStrategy(Strategy):
         for f in ctx.fills_this_bar:
             if f["side"] == "SELL" and f["lane"] == "rec":
                 self._last_rec_exit_i = i
+            elif f["side"] == "BUY" and f["tag"] == "rec_pend":
+                self._pend = None
             tg = f.get("tag") or ""
             if tg.startswith("SO1"):
                 self._scaled = max(self._scaled, 1)
@@ -375,6 +394,8 @@ class FactoryStrategy(Strategy):
         if core.qty:
             out += self._core_exit_orders(ctx, i, core, in_rec_mode)
         out += self._harvest_orders(ctx, i, out, dd_mode)
+        if k["rec_cap"] and (k["harvest_cond"] or k["salvage"] or k["cap_sm"]):
+            out += self._r4_exit_orders(ctx, i, out, a15)
 
         # ================= CORE ENTRY / ADD
         core_allowed = core_tod_ok and buys_budget > 0 and not (governed and k["gov_action"] in ("core", "all"))
@@ -434,6 +455,11 @@ class FactoryStrategy(Strategy):
             self._armed = None
 
         # ================= RECYCLE
+        if k["shadow"] and k["rec_cap"] and tod_ok and not (governed and k["gov_action"] == "all") and self._rec_active(ctx):
+            rec_l = ctx.lane("rec")
+            if (rec_l.free <= 0 or buys_budget <= 0) and self._rec_signal(ctx, i, a15, in_rec_mode):
+                nd = sum(1 for t in rec_l.tranches if self._is_dead(ctx, i, t))
+                self.shadow_log.append((i, self._rec_tp(ctx, i), nd, rec_l.qty, rec_l.free))
         if k["rec_cap"] and buys_budget > 0 and tod_ok and not (governed and k["gov_action"] == "all"):
             out += self._rec_orders(ctx, i, a15, in_rec_mode)
         elif k["rec_cap"] and k["rec_roll"]:
@@ -533,13 +559,8 @@ class FactoryStrategy(Strategy):
             ded.append(o)
         return ded
 
-    def _rec_orders(self, ctx, i, a15, in_rec_mode):
-        k, F, b = self.cfg, self.F, ctx.bars
-        rec = ctx.lane("rec")
-        c = b.c[i]
-        out = []
-        if not self._rec_active(ctx):
-            return out
+    def _rec_step_now(self, ctx, in_rec_mode):
+        k = self.cfg
         step = k["rec_step"]
         r = k["recovery"]
         if r and in_rec_mode:
@@ -547,26 +568,200 @@ class FactoryStrategy(Strategy):
         st = k["state"]
         if st and st.get("rec_step_mult"):
             step *= st["rec_step_mult"].get(self._state, 1.0)
+        cs = k["cap_sm"]
+        if cs and cs.get("deep_mult") and ctx.lane("rec").free < cs["min_free"]:
+            step *= cs["deep_mult"]
+        return step
+
+    def _space_ok(self, ctx, px, step):
+        opens = [t.entry_px for t in ctx.lane("rec").tranches]
+        if not opens:
+            return True, False
+        if self.cfg["rec_spacing"] == "ladder":
+            return px <= min(opens) - step, True
+        return all(abs(px - e) >= step for e in opens), True
+
+    def _rec_signal(self, ctx, i, a15, in_rec_mode):
+        """True if a recycle entry would be placed at bar i given a free slot (spacing, filter, cooldown, anchor)."""
+        k, F, b = self.cfg, self.F, ctx.bars
+        space_ok, has_open = self._space_ok(ctx, b.c[i], self._rec_step_now(ctx, in_rec_mode))
+        if k["rec_filter"] is not None and not bool(F[k["rec_filter"]][i]):
+            space_ok = False
+        if (i - self._last_rec_exit_i) <= k["rec_cooldown_bars"] and k["rec_cooldown_bars"] > 0:
+            space_ok = False
+        return bool(space_ok and self._rec_anchor_ok(ctx, i, a15, has_open))
+
+    def _entry_offset(self, ctx, i, a15):
+        """RUN-4 price improvement: 0 = normal entry, >0 = resting limit this many points below close, None = skip."""
+        k, F = self.cfg, self.F
+        off = 0.0
+        cs = k["cap_sm"]
+        if cs and cs.get("deep_off") and ctx.lane("rec").free < cs["min_free"]:
+            off = max(off, float(cs["deep_off"]))
+        rs = k["rec_soft"]
+        if rs:
+            sc = F[rs["feat"]][i]
+            bin_ = 0 if not np.isfinite(sc) else int(np.searchsorted(np.asarray(rs["cuts"]), sc, side="right"))
+            if rs.get("skip_top") and bin_ == len(rs["cuts"]):
+                return None
+            o = float(rs["offs"][bin_]) * (a15 if rs.get("unit", "pts") == "atr" else 1.0)
+            off = max(off, o)
+        return off
+
+    def _rec_orders(self, ctx, i, a15, in_rec_mode):
+        k, F, b = self.cfg, self.F, ctx.bars
+        rec = ctx.lane("rec")
+        c = b.c[i]
+        out = []
+        if not self._rec_active(ctx):
+            return out
         if rec.free > 0:
-            opens = [t.entry_px for t in rec.tranches]
-            if opens:
-                if k["rec_spacing"] == "ladder":
-                    space_ok = c <= min(opens) - step
+            if self._pend is not None:
+                p = self._pend
+                if i > p["exp"] or b.day[i] != p["day"]:
+                    self._pend = None
                 else:
-                    space_ok = all(abs(c - e) >= step for e in opens)
-            else:
-                space_ok = True
-            if k["rec_filter"] is not None and not bool(F[k["rec_filter"]][i]):
-                space_ok = False
-            if (i - self._last_rec_exit_i) <= k["rec_cooldown_bars"] and k["rec_cooldown_bars"] > 0:
-                space_ok = False
-            if space_ok and self._rec_anchor_ok(ctx, i, a15, bool(opens)):
-                if k["rec_entry_mode"] == "limit_close":
-                    out.append(Order("limit_buy", "rec", 1, price=floor_tick(c), tp_pts=self._rec_tp(ctx, i), tag="rec_lmt"))
+                    ok, _ = self._space_ok(ctx, p["px"], self._rec_step_now(ctx, in_rec_mode))
+                    if ok:
+                        out.append(Order("limit_buy", "rec", 1, price=p["px"], tp_pts=p["tp"], tag="rec_pend"))
+                        return out
+                    self._pend = None
+            if self._rec_signal(ctx, i, a15, in_rec_mode):
+                off = self._entry_offset(ctx, i, a15) if (k["cap_sm"] or k["rec_soft"]) else 0.0
+                if off is None:
+                    return out
+                tp = self._rec_tp(ctx, i)
+                if off > 0:
+                    px = floor_tick(c - off)
+                    ttl = (k["rec_soft"] or {}).get("ttl") or (k["cap_sm"] or {}).get("ttl", 30)
+                    self._pend = dict(px=px, tp=tp, exp=i + int(ttl), day=b.day[i])
+                    out.append(Order("limit_buy", "rec", 1, price=px, tp_pts=tp, tag="rec_pend"))
+                elif k["rec_entry_mode"] == "limit_close":
+                    out.append(Order("limit_buy", "rec", 1, price=floor_tick(c), tp_pts=tp, tag="rec_lmt"))
                 else:
-                    out.append(Order("market_buy", "rec", 1, tp_pts=self._rec_tp(ctx, i), tag="rec"))
+                    out.append(Order("market_buy", "rec", 1, tp_pts=tp, tag="rec"))
         elif k["rec_roll"]:
             out += self._rec_roll_orders(ctx, i, a15, in_rec_mode)
+        return out
+
+    # ------------------------------------------------------------------ RUN-4 capacity management
+    def _is_dead(self, ctx, i, t):
+        k = self.cfg
+        b = ctx.bars
+        if float((b.dt[i] - t.entry_dt).astype("int64")) / NS_DAY >= k["dead_days"]:
+            return True
+        x = k["dead_dist_datr"]
+        return bool(x) and (t.entry_px - b.c[i]) >= x * self.F["datr"][i]
+
+    def _harvest_select(self, ctx, i, policy, hx, be, include_core, taken):
+        c = ctx.bars.c[i]
+        lanes = ["rec"] + (["core"] if include_core else [])
+        tr = [(n, t) for n in lanes for t in ctx.lane(n).tranches if t.id not in taken]
+        if policy == "prof_be":
+            return [(n, t) for n, t in tr if c - t.entry_px >= -be]
+        prof = [(n, t) for n, t in tr if c - t.entry_px >= hx]
+        if not prof:
+            return []
+        if policy == "newest_prof":
+            return [max(prof, key=lambda nt: nt[1].entry_idx)]
+        if policy == "most_prof":
+            return [max(prof, key=lambda nt: c - nt[1].entry_px)]
+        if policy == "all_prof":
+            return prof
+        if policy == "partial":
+            srt = sorted(prof, key=lambda nt: -(c - nt[1].entry_px))
+            return srt[: (len(srt) + 1) // 2]
+        raise ValueError(policy)
+
+    def _rebound_ok(self, sv, i, a15):
+        F, b = self.F, self._bars
+        c = b.c[i]
+        lo = F["low60"][i]
+        if not np.isfinite(lo):
+            return False
+        m = sv["rebound"]
+        rb = sv.get("rb", 0.0)
+        if m == "pts":
+            return c - lo >= rb
+        if m == "atr":
+            return c - lo >= rb * a15
+        if m == "pivot":
+            return c > F["prev_high"][i] and F["prev_low"][i] <= lo + 0.25 and c - lo >= 0.5 * a15
+        if m == "mid30":
+            mid = 0.5 * (F["high30"][i] + F["low30"][i])
+            return c > mid and F["prev_c"][i] <= mid and c - lo >= 0.5 * a15
+        if m == "vwap":
+            vw = F["vwap"][i]
+            return c >= vw - 0.25 * a15 and lo <= vw - 1.0 * a15
+        if m == "rollhigh":
+            return c > F["r4_high5p"][i] and c - lo >= 0.5 * a15
+        raise ValueError(m)
+
+    def _salvage_orders(self, ctx, i, sv, taken, a15):
+        b = ctx.bars
+        rec = ctx.lane("rec")
+        if self._salv_day != b.day[i]:
+            self._salv_day, self._salv_n = b.day[i], 0
+        if self._salv_n >= sv.get("max_per_day", 1):
+            return []
+        dead = [t for t in rec.tranches if t.id not in taken and self._is_dead(ctx, i, t)]
+        if not dead or not self._rebound_ok(sv, i, a15):
+            return []
+        sel = sv.get("select", "oldest")
+        c = b.c[i]
+        if sel == "oldest":
+            t = min(dead, key=lambda t: t.entry_idx)
+        elif sel == "highest":
+            t = max(dead, key=lambda t: t.entry_px)
+        elif sel == "closest_be":
+            t = max(dead, key=lambda t: c - t.entry_px)
+        else:
+            raise ValueError(sel)
+        self._salv_n += 1
+        self.n_salvage += 1
+        return [Order("market_sell", "rec", tranche_id=t.id, tag="salvage")]
+
+    def _r4_exit_orders(self, ctx, i, existing, a15):
+        k = self.cfg
+        self._bars = ctx.bars
+        rec = ctx.lane("rec")
+        out = []
+        taken = {o.tranche_id for o in existing if o.tranche_id is not None}
+        hc = k["harvest_cond"]
+        pol = None
+        if hc:
+            trig = hc.get("trig", "free")
+            if trig == "free":
+                fire = rec.free <= hc.get("k", 1)
+            elif trig == "dead":
+                nd = sum(1 for t in rec.tranches if self._is_dead(ctx, i, t))
+                fire = nd >= hc.get("x", 0.5) * rec.spec.capacity
+            elif trig == "inv":
+                fire = ctx.total_qty >= hc.get("q", 0.75 * ctx.max_total)
+            elif trig == "always":
+                fire = True
+            else:
+                raise ValueError(trig)
+            if fire:
+                pol = (hc["policy"], hc.get("hx", 1.0), hc.get("be", 1.0), hc.get("core", False))
+        cs = k["cap_sm"]
+        if cs and cs.get("harvest") and rec.free <= cs.get("harvest_at", 1) and pol is None:
+            pol = (cs["harvest"], cs.get("hx", 1.0), cs.get("be", 1.0), False)
+        if pol is not None:
+            sel = self._harvest_select(ctx, i, pol[0], pol[1], pol[2], pol[3], taken)
+            for n, t in sel:
+                out.append(Order("market_sell", n, tranche_id=t.id, tag="H_cond"))
+                taken.add(t.id)
+            self.n_cond_harvest += len(sel)
+        sv = None
+        if k["salvage"]:
+            s0 = k["salvage"]
+            if s0.get("trig", "free") == "always" or rec.free <= s0.get("k", 0):
+                sv = s0
+        if cs and cs.get("salvage") and rec.free <= cs.get("salvage_at", 0) and sv is None:
+            sv = cs["salvage"]
+        if sv is not None:
+            out += self._salvage_orders(ctx, i, sv, taken, a15)
         return out
 
     def _harvest_orders(self, ctx, i, existing, dd_mode):
@@ -601,6 +796,10 @@ class FactoryStrategy(Strategy):
         k, F, b = self.cfg, self.F, ctx.bars
         c = b.c[i]
         an = k["rec_anchor"]
+        if an == "none":           # NULL-B: dumb floating recycle, no timing condition
+            return True
+        if an == "feat":           # NULL-C: externally supplied (e.g. random, time-of-day matched) signal
+            return bool(F[k["rec_anchor_feat"]][i])
         if an == "runhigh":
             if has_open:
                 return True        # ladder/float spacing already enforced
