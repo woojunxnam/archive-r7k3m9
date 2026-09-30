@@ -1,20 +1,16 @@
 # NEXT_ACTION (단 하나)
 
-## RUN-3 — FQ 계열의 자본위험 보정 + 체결 현실성 (Capital-at-risk calibration & execution realism)
+## RUN-4 — 진짜 OOS + MES 체결 검증 (데이터 우선), 이후 소규모 사전등록 구조 재검증
 
 ### 왜
-FQ(floating recycle + 회복모드)는 capacity(무진입 6일)와 DD(−$116k~−$130k)를 동시에 개선한 유일한 강건 계열이지만:
-1. 2022-01 fresh start에서 최소 equity ~$28k (시작 $150k 대비 −81%) → 여전히 실거래 불가 수준의 깊이.
-2. Max DD가 slippage 2틱에서 −$122k → −$148k로 민감 (recycle 약 3회/일, TP 3pt).
-3. 2022 장기 하락 underwater ~708일은 어떤 모듈로도 해결되지 않음 (보유 재고의 경제적 손실은 사라지지 않음).
+RUN-3 결과(`latest_report.md`): FQ 수익은 회계상 실재하지만, (a) 2019–2026 전체 in-sample, (b) 활동을 유지하는 구조는 fresh-start 깊이 $22–54k, (c) C32는 2–3틱 슬리피지에서 깊이 붕괴, (d) bottom 예측 edge 없음 — 수익원은 core 재고 + ES drift, recycle은 슬롯 회전 도구.
 
-### 사전 등록 설계
-- 대상: FQ_16_16_add, FQ_12_20 (control: BASE, CAP16, FQ 원본)
-- A. 자본위험 보정: total ceiling 10/12/14/16/20/24 × core/rec 비율 고정 → **1차 판정 지표 = fresh-start(2020-02, 2022-01, 2025-02) 최소 equity ≥ $75k(자본의 50%)**, 부차: 손익, 무진입일
-- B. 체결 현실성: recycle 진입을 market(next open) vs limit(현재 low60 기준) 비교, slippage 1/2/3틱, recycle TP 2.5/3/4 → DD의 slippage 탄력성 측정
-- C. 기간 분할: 2019-2021 설계 / 2022-2026 검증을 명시적으로 고정 (파라미터 재선택 금지)
-- D. (분리 등록) 극단 tail 위험정책: 계좌 DD −X% 도달 시 core 신규 금지 vs 부분 청산 — 강제청산은 별도 위험정책 실험으로만
-- 보고: realized/unrealized/총 MTM, open inventory, MTM DD, 무진입일, fresh-start 최소 equity, slippage 탄력성
+### 순서 (사전 등록)
+1. **데이터**: 2026-05-28 이후 ES 1m 및/또는 MES 1m 확보 → DATA_AUDIT 절차(bytes/hash/rows/range/schema/dup/gap/DST/roll) 후 원본 불변 보관.
+2. **Frozen 1회 실행**: `FROZEN_CANDIDATES.json`(C32/C14/C10) + `FROZEN_POSTHOC_FILTERS.json`(C14_bs70, C14_rpos60, C32_bs70) + BASE. 재조정 금지. 보고: 총 MTM, realized/unrealized, open inventory, MTM DD, 무진입, recycle 거래/일·P&L.
+3. **MES 체결**: MES 데이터로 limit_close recycle 진입 체결률 / 부분체결 / ES-MES 가격 괴리 측정. 체결 확인 전 C32 계열 보류.
+4. (데이터가 여전히 없을 때만) **소규모 구조 재검증**: core 한도 × recycle 슬롯 × 진입 필터 강도 ≤30 configs, 2019–2021에서만 선택, 2022–2026은 확인 전용. 새 broad search 금지.
 
-### 선결/병행
-- MES 1m 데이터 확보 (Massive MCP 인증 필요) → Phase 9 검증 준비
+### 보고 규칙 추가
+- "활동" = 무진입일 + recycle 거래/일 + recycle P&L (필터 후보의 recycle 소멸을 숨기지 않기 위해).
+- 합성 점수 금지, 자본 등급(≥$75k/$90k/$105k/$120k)으로 병기.

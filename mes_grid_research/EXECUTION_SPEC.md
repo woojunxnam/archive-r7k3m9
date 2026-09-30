@@ -114,3 +114,9 @@ roll bar r (구계약 마지막 bar r−1)에서 보유 중인 모든 tranche에
 ## 변경 이력
 - EXEC-1.0 (2026-09-29): 최초 작성.
 - EXEC-1.1 / ROLL-1.0 (2026-09-29): roll-aware tranche 원장, 설정 가능한 roll commission/slippage, `limit_sell`(전략 지정 tranche 청산) 주문, market_sell과 같은 bar의 교체 매수 허용(capacity 선반영), lane capacity 중첩 허용(절대 한도 32는 엔진이 강제). 기존 결과 수치 변화 없음(BASE_A 재현 확인).
+- EXEC-1.1 + RUN-3 전략 모듈 (2026-09-30, 엔진 체결 규칙 변경 없음):
+  - `rec_entry_mode="limit_close"`: recycle 진입을 신호 bar close 가격의 resting limit BUY(1 bar 유효)로 낸다. 체결은 기존 limit 규칙(1 tick 관통, slippage 없음). P3의 "C" = 기본 conservative(같은 bar TP 금지), "B" = `allow_same_bar_tp_after_intrabar_buy=True`(낙관, 비교용).
+  - `harvest=all_prof|rec_prof|partial_high` + `harvest_x`: 평균가 대비 +X pt 이익인 tranche를 `limit_sell`로 개별 청산(다음 bar 체결 규칙 동일).
+  - `acct_dd=dict(thr, mode)`: 계좌 MTM DD가 thr 이상이면 신규 매수 제한(all/core/core_harvest/progressive), 회복 비율 resume에서 해제. 강제 청산 없음.
+  - 엔진 `audit=True`: 매 bar 회계 불변식 검사(D-021). 결과 수치 영향 없음.
+  - 모든 RUN-3 결과 라벨: "ES-signal / MES-economics proxy backtest" (D-020).

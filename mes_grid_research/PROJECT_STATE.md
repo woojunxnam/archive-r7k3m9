@@ -1,18 +1,26 @@
 # PROJECT_STATE — MES Smart Recycling Grid Research
 
-최종 갱신: 2026-09-29 (RUN-2: roll gate + research factory) · 이 파일이 authoritative state다. 대화 기억보다 이 파일과 아래 경로를 우선한다.
+최종 갱신: 2026-09-30 (RUN-3: FQ 확인·자본위험·체결 현실성 + Smart Bottom addendum) · 이 파일이 authoritative state다. 대화 기억보다 이 파일과 아래 경로를 우선한다.
 
 ## 현재 단계
 | Phase | 상태 | 산출물 |
 |---|---|---|
 | 1 Data audit | 완료 (PASS) | `DATA_AUDIT.md` |
-| 2 Engine + tests | 완료 — engine 0.2.0, **61 tests pass** | `EXECUTION_SPEC.md` (EXEC-1.1 + ROLL-1.0) |
+| 2 Engine + tests | 완료 — engine 0.2.0 + audit mode, **86 tests pass** | `EXECUTION_SPEC.md` (EXEC-1.1 + ROLL-1.0) |
 | 0' Roll gate | **완료 (PASS)** | `results/ROLL_GATE_001/` |
 | 3 Baseline | 완료 | `results/BASE_A_001/` |
 | 4 TV parity | 부분 완료 (Pine 원문 필요) | `results/PARITY_001/` |
 | 5–7 Research factory (S1 screen → S3 robustness → S4/S4b interactions → S5 temporal/WF → S6 exec stress → Pareto) | **1차 완료** | `MODULE_LEADERBOARD.csv`, `PARETO_CANDIDATES.csv`, `IDEA_BACKLOG.md`, `results/FACTORY_*` |
 | 8 Walk-forward | 부분 (4개 가족) | `results/FACTORY_S5/walkforward.csv` |
-| 9 MES 검증 | 미착수 (데이터 없음) | |
+| R3-0 FQ 회계 감사 | **PASS** | `results/RUN3_P0_AUDIT/` |
+| R3-1 Roll 정산 | **PASS** | `results/RUN3_P1_ROLL/` |
+| R3-2 자본 frontier | 완료 (활동 vs 깊이 충돌) | `results/RUN3_P2_FRONTIER/` |
+| R3-3 체결 민감도 | 완료 | `results/RUN3_P3_EXEC/` |
+| R3-4/5 layer exit · tail 정책 · smart recycle | 완료 (103 configs) | `results/RUN3_P45/summary.csv`, `SMART_BOTTOM_PARETO.csv` |
+| R3 Bottom event study | 완료 (edge 없음) | `BOTTOM_EVENT_STUDY.csv`, `results/RUN3_BOTTOM/` |
+| R3-6 외부 검증 | **진짜 OOS 미수행** (데이터 없음). YM 동기간 cross-market만 | `results/RUN3_P6_YM*/` |
+| R3-7 결선 Pareto | 완료 (14 후보 × slip 1/2/3) | `PARETO_RUN3.csv`, `results/RUN3_FINAL/` (bootstrap, safe_scaling, regime_removal) |
+| 9 MES 검증 | 미착수 (데이터 없음) | frozen: `FROZEN_CANDIDATES.json`, `FROZEN_POSTHOC_FILTERS.json` |
 
 ## 재현 방법
 ```bash
@@ -31,6 +39,13 @@ python3 scripts/stage3.py FACTORY_S3v2; python3 scripts/stage4.py FACTORY_S4v2
 python3 scripts/stage4b.py; python3 scripts/stage3b.py; python3 scripts/walkforward.py
 python3 scripts/stage56.py s5; python3 scripts/stage56.py s6   # finalists from results/FINALISTS.json
 python3 scripts/leaderboard.py FACTORY_S1v2 FACTORY_S4v2 FACTORY_S4b FACTORY_S3v2 FACTORY_S3b
+# RUN-3 (메모리: worker 2개 권장 — 4개는 컨테이너 재시작 유발)
+python3 scripts/fq_audit.py; python3 scripts/roll_recon.py
+python3 scripts/run3_p2.py; python3 scripts/run3_p3.py; python3 scripts/run3_p45.py
+python3 scripts/event_study.py; python3 scripts/bottom_score.py; python3 scripts/failure_diag.py
+python3 scripts/cross_market_ym.py          # 외부 데이터 data/external/canonical_1m_YM.parquet 필요
+EXTRA_FINALISTS='{...}' PROCS=2 python3 scripts/run3_final.py   # RUN3_FINALISTS.json에 최종 목록 기록
+python3 scripts/scaling_bootstrap.py RUN3_FINAL; python3 scripts/run3_pareto.py
 ```
 
 ## Lineage (모든 결과 공통)
@@ -55,7 +70,15 @@ python3 scripts/leaderboard.py FACTORY_S1v2 FACTORY_S4v2 FACTORY_S4b FACTORY_S3v
    capacity와 DD를 동시에 개선한 유일한 강건 계열 = **FQ (항상 활성 floating recycle low60 + 회복모드 layer exit)**: 무진입 5.8일, DD −$116k~−$130k, 최소 equity ~$100k, 인접값 28개 모두 안정.
 7. 해결 안 된 위험: fresh start 2022-01에서 FQ도 최소 equity ~$28k; 2022 underwater ~708일; FQ DD가 slippage에 민감.
 
+8. **RUN-3 (2026-09-30)** — 모든 결과는 "ES-signal / MES-economics proxy backtest", in-sample:
+   - FQ 회계 PASS (713,842 bar × 3, 오차 ~5e-8). roll 비용 $2.49/ct, 총손익의 ~0.3%.
+   - 한도 frontier: 활동 유지(무진입 ≤10일)에는 recycle 슬롯 ≥16(총 32) 필요 → 최악 fresh 최소 equity $22–35k. cap 10–14는 fresh $76–97k지만 454–618일 무진입.
+   - 체결: 손익은 2–4틱에서 −5~−12%로 유지, C32 fresh 깊이는 2–3틱에서 $10k/$1.5k로 붕괴. limit_close 진입이 완화.
+   - Bottom 예측 edge 없음(AUC 0.50–0.51). layer exit는 all-profit harvest만 깊이 개선(손익 −40%). DD pause 계열은 무효과 또는 거래 중단.
+   - Recycle 진입 필터(bs70, rpos60)는 깊이 개선 + 짧은 무진입이지만 recycle 활동이 거의 소멸(core 중심 구조).
+   - 목표 "활동 유지 + 깊이 대폭 감소"는 미달성. FQ는 live-ready 아님.
+
 ## 열린 이슈 / blocker
 - (비차단) TV parity 완결: Pine V2.2 원문, TV 차트 타임프레임, 테스트 시작일, back-adjust 설정, bar magnifier, 수수료/slippage 설정 필요.
-- (비차단) MES 1m 데이터 미확보 → Phase 9 전 필요. `Massive` MCP 서버 인증 시 조회 가능성.
+- (**차단: 진짜 OOS**) 2026-05-28 이후 ES 1m 또는 MES 1m 데이터 미확보. frozen 후보는 준비됨.
 - 전 결과는 full-period in-sample. walk-forward는 Phase 8.

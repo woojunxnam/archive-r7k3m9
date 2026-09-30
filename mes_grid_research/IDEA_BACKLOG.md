@@ -33,3 +33,16 @@
 | 27 | FQ 자본위험 스케일링 (fresh-start 기준) | – | QUEUED | RUN-3 A |
 | 28 | Limit 기반 recycle 진입 + slippage 탄력성 | – | QUEUED | RUN-3 B |
 | 29 | 계좌 DD 기반 tail 위험정책 | – | QUEUED | RUN-3 D, 별도 등록 |
+| 30 | FQ 회계 감사 (per-bar 불변식) | – | DONE | Phase 0 PASS (D-021) |
+| 31 | Capital frontier (cap 10–32 × split) | – | DONE | 활동 vs 깊이 충돌 (D-026) |
+| 32 | Recycle limit 진입 (limit_close) | – | DONE | C32 depth 소폭 개선(2–3틱에서), 활동 유지. 결선 |
+| 33 | 이익 layer 수확 (all_prof +3/+5) | – | DONE | C32 fresh 28k→44–54k, 손익 −40~46%. 결선(harv5) |
+| 34 | LIFO recycle 청산 (last/last2) | – | REJECTED | C32 fresh depth 악화(11–24k) |
+| 35 | 계좌 DD core pause (core/core_harvest/progressive) | – | REJECTED | FQ에서 무효과 (D-025) |
+| 36 | 계좌 DD all-pause / equity cap | – | REJECTED(활동) | depth 개선이나 무진입 298–758일 |
+| 37 | Bottom event 조건 / BottomScore / ML | – | REJECTED(단독 edge) | D-024 |
+| 38 | Recycle 진입 필터 (bs70, rpos60≤0.05, rpos5d, below_pdl 등) | – | PARTIAL | fresh depth 개선 + 무진입 짧음, 대신 recycle 활동 거의 소멸 → "core 중심 grid + 희소 recycle" 구조. YM post-hoc 일관. RUN-4 검증 대상 |
+| 39 | Recycle cooldown / 동적 TP (vol, ATR, late, inv) | – | REJECTED | 차이 ≤ 노이즈, tp_inv는 C32 depth 악화 |
+| 40 | Core 필터 (core_deep, no-gap-down), momentum governor, volcap | – | REJECTED | core_deep는 손익 −30%, 나머지 무효과 |
+| 41 | 진짜 OOS: 2026-05-28 이후 ES / MES 1m | – | BLOCKED(데이터) | FROZEN_CANDIDATES.json + FROZEN_POSTHOC_FILTERS.json 준비됨 |
+| 42 | 주문 수준 MES 체결 시뮬레이션 (queue, partial fill) | – | QUEUED | limit 진입 결론의 전제 |
