@@ -51,5 +51,12 @@
 | 45 | B7 first-impulse(3m, 5×ATR) + limit 0.5 + TP 9 / 120분 (B7F) | – | WEAK SURVIVOR | 비용 스트레스 생존, null 20/20 초과, 이벤트 파라미터 민감 → 포트폴리오 소규모 |
 | 46 | B 다중 가족 union/clustering으로 20–30회/일 | – | REJECTED | union 전부 손실 |
 | 47 | Trap-risk 예측(깊은 갇힘) | – | REJECTED | hold>20d AUC 0.35–0.45(OOS) |
-| 48 | Trap-risk soft price improvement | – | TESTING | RUN-4 A wave2 |
-| 49 | Dead-slot capacity state machine / rebound salvage / 조건부 수확 | – | TESTING | RUN-4 A wave1 |
+| 48 | Trap-risk soft price improvement | – | REJECTED | 점수 없는 균일 offset과 결과 동일 — 점수 정보 없음 |
+| 49 | Dead-slot capacity state machine / rebound salvage / 조건부 수확 | – | PARTIAL | salvage·prof_be는 활동 회복(메커니즘 강건), 효과는 탈위험; 수동 long 대비 우위 없음 |
+| 50 | FQ recycle 타이밍 alpha 검정 (NULL-C 무작위 타이밍, NULL-B dumb) | – | REJECTED | 무작위/덤 recycle이 같거나 더 벌음 (D-036) |
+| 51 | 수동 static long 벤치마크 (NULL-D, A-STATIC-NULL) | – | ADOPTED | 모든 A 후보의 필수 비교 기준 (D-037) |
+| 52 | Static core + recycle (A-STATIC) | – | REJECTED | 수동 long보다 DD 악화, 추가 손익 없음 |
+| 53 | Recycle slot 비중 확대 split (core ≤ recycle) | – | ADOPTED(구조) | 활동 유지의 핵심은 recycle slot 수 |
+| 54 | A/B 재고 상호작용 (B 절반/생략, B 모멘텀 후 core 정지) | – | REJECTED | 무시 가능한 차이 |
+| 55 | 노출 관리형 long (반등 후 탈위험, 변동성 기반 노출) — 수동 long 대비 평가 | – | QUEUED(RUN-5) | 알파가 아니라 위험관리로 명시 |
+| 56 | Sleeve C 추세 추종 / Sleeve D 다른 시장 / short 허용 | – | NEEDS USER DECISION | 현 범위에서 알파 고갈 |

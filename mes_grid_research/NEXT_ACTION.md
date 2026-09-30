@@ -1,16 +1,16 @@
 # NEXT_ACTION (단 하나)
 
-## RUN-4 — 진짜 OOS + MES 체결 검증 (데이터 우선), 이후 소규모 사전등록 구조 재검증
+## RUN-5 — 벤치마크 교체 + 진짜 OOS, 그 다음에만 새 알파 원천
 
-### 왜
-RUN-3 결과(`latest_report.md`): FQ 수익은 회계상 실재하지만, (a) 2019–2026 전체 in-sample, (b) 활동을 유지하는 구조는 fresh-start 깊이 $22–54k, (c) C32는 2–3틱 슬리피지에서 깊이 붕괴, (d) bottom 예측 edge 없음 — 수익원은 core 재고 + ES drift, recycle은 슬롯 회전 도구.
+### 왜 (RUN-4 결과, `latest_report.md`)
+- FQ recycle 타이밍은 무작위 타이밍(NULL-C)·dumb recycle(NULL-B)을 이기지 못했다. FQ 손익은 평균 재고 × ES drift이며, 같은 평균 노출의 수동 static long보다 Max DD·fresh-start가 좋은 A 설정은 0개.
+- 활동 유지(적은 계약)는 rebound salvage / prof_be로 달성했지만 그 효과는 탈위험이다.
+- Sleeve B 1분 long 모멘텀은 비용 전부터 음(−) — SATURATED. B7F만 약한 생존.
+- A+B 주 평균 $280–490(16계약) — 주 $4k까지 8–14배, 알파 없는 스케일링은 레버리지일 뿐.
 
-### 순서 (사전 등록)
-1. **데이터**: 2026-05-28 이후 ES 1m 및/또는 MES 1m 확보 → DATA_AUDIT 절차(bytes/hash/rows/range/schema/dup/gap/DST/roll) 후 원본 불변 보관.
-2. **Frozen 1회 실행**: `FROZEN_CANDIDATES.json`(C32/C14/C10) + `FROZEN_POSTHOC_FILTERS.json`(C14_bs70, C14_rpos60, C32_bs70) + BASE. 재조정 금지. 보고: 총 MTM, realized/unrealized, open inventory, MTM DD, 무진입, recycle 거래/일·P&L.
-3. **MES 체결**: MES 데이터로 limit_close recycle 진입 체결률 / 부분체결 / ES-MES 가격 괴리 측정. 체결 확인 전 C32 계열 보류.
-4. (데이터가 여전히 없을 때만) **소규모 구조 재검증**: core 한도 × recycle 슬롯 × 진입 필터 강도 ≤30 configs, 2019–2021에서만 선택, 2022–2026은 확인 전용. 새 broad search 금지.
-
-### 보고 규칙 추가
-- "활동" = 무진입일 + recycle 거래/일 + recycle P&L (필터 후보의 recycle 소멸을 숨기지 않기 위해).
-- 합성 점수 금지, 자본 등급(≥$75k/$90k/$105k/$120k)으로 병기.
+### 사전 등록 순서
+1. **벤치마크 규칙 채택**: 모든 A 후보는 (a) 같은 평균 재고의 수동 static long(NULL-D), (b) 무작위 타이밍 recycle(NULL-C, ≥20 seed)을 **동시에** 이겨야 생존. 이기지 못하면 탈락. 보고에 두 null 대비 초과 손익, 계약-일당 손익, DD·fresh 차이를 필수 표기.
+2. **진짜 OOS**: 2026-05-28 이후 ES 1m 또는 MES 1m 확보 → DATA_AUDIT 절차 → frozen 후보(수동 long q=4/8, FQ-salvage 8/8, prof_be 4/8, B7F)를 재조정 없이 1회 실행.
+3. **Sleeve A 재정의(선택)**: "노출 관리형 long"으로 목표를 바꿔 수동 long 대비 DD/fresh 개선만 평가(예: 반등 후 탈위험, 변동성 기반 노출 조절). 새 알파라고 부르지 않는다.
+4. **새 알파 원천은 사용자 승인 사항**: Sleeve C(추세 추종·다일 보유), Sleeve D(다른 시장), short 허용 여부. 현 범위(ES 1m long-only)에서는 알파가 고갈된 것으로 판단.
+5. Sleeve B: 1분 모멘텀 탐색 중단. B7F는 이벤트 파라미터 이웃 안정성 재검증을 통과할 때만 유지.
