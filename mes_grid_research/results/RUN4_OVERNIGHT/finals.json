@@ -1,0 +1,58 @@
+{
+ "A_SALV_cap14": [
+  "A",
+  "A_80c22858d1a7"
+ ],
+ "A_SALV_cap16": [
+  "A",
+  "A_f4cf0d9e53b7"
+ ],
+ "A_SALV_cap8": [
+  "A",
+  "A_087346e76a45"
+ ],
+ "A_PASSIVE_4": [
+  "A",
+  "A_a92c36c7cb83"
+ ],
+ "A_PASSIVE_8": [
+  "A",
+  "A_706382567768"
+ ],
+ "B_B7F_x1": [
+  "B",
+  {
+   "events": [
+    "B7_tf3_k5.0_first"
+   ],
+   "lim_off": 0.5,
+   "ttl": 5,
+   "tp": 9.0,
+   "tmax": 120
+  }
+ ],
+ "AB_G16_SALV8_B7F8": [
+  "AB",
+  "AB_2e336541d37d"
+ ],
+ "AB_G16_PASSIVE4_B7F12": [
+  "AB",
+  "AB_23f18ae3efca"
+ ],
+ "AB_G16_PASSIVE8_B7F8": [
+  "AB",
+  "AB_598d9c84c040"
+ ],
+ "AB_G20_SALV8_B7F12": [
+  "AB",
+  "AB_4bc8165b7008"
+ ],
+ "AB_G20_PASSIVE20_only": [
+  "AB",
+  "AB_8295b92a8fdb"
+ ],
+ "AB_G16_B7F16_only": [
+  "AB",
+  "AB_ddac7f9585d5"
+ ]
+}
