@@ -5,3 +5,4 @@ __pycache__/
 results/**/bars_state.parquet
 results/*.log
 *.partial
+results/RUN4_OVERNIGHT/series/*.npy
