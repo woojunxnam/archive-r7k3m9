@@ -1,0 +1,24 @@
+wave3: 205 configs (201 newly registered)
+[A-wave3] 205 configs, 4 already complete, 201 to run
+[A-wave3] memory 9.2 GB free -> in-flight limit 3
+[A-wave3] 10/201 done, 8.2 min, ~157 min left, mem avail 9.7 GB, in-flight 3
+[A-wave3] 20/201 done, 12.1 min, ~110 min left, mem avail 9.0 GB, in-flight 3
+[A-wave3] 30/201 done, 16.9 min, ~97 min left, mem avail 9.8 GB, in-flight 3
+[A-wave3] 40/201 done, 21.8 min, ~88 min left, mem avail 10.6 GB, in-flight 3
+[A-wave3] 50/201 done, 26.6 min, ~80 min left, mem avail 10.6 GB, in-flight 3
+[A-wave3] 60/201 done, 31.5 min, ~74 min left, mem avail 10.2 GB, in-flight 3
+[A-wave3] 70/201 done, 35.6 min, ~67 min left, mem avail 10.6 GB, in-flight 3
+[A-wave3] 80/201 done, 40.5 min, ~61 min left, mem avail 10.7 GB, in-flight 3
+[A-wave3] 90/201 done, 45.1 min, ~56 min left, mem avail 10.2 GB, in-flight 3
+[A-wave3] 100/201 done, 49.8 min, ~50 min left, mem avail 11.1 GB, in-flight 3
+[A-wave3] 110/201 done, 55.1 min, ~46 min left, mem avail 11.1 GB, in-flight 3
+[A-wave3] 120/201 done, 59.9 min, ~40 min left, mem avail 10.7 GB, in-flight 3
+[A-wave3] 130/201 done, 62.1 min, ~34 min left, mem avail 10.7 GB, in-flight 3
+[A-wave3] 140/201 done, 63.7 min, ~28 min left, mem avail 10.6 GB, in-flight 3
+[A-wave3] 150/201 done, 65.5 min, ~22 min left, mem avail 9.8 GB, in-flight 3
+[A-wave3] 160/201 done, 67.2 min, ~17 min left, mem avail 10.6 GB, in-flight 3
+[A-wave3] 170/201 done, 72.7 min, ~13 min left, mem avail 10.0 GB, in-flight 3
+[A-wave3] 180/201 done, 77.1 min, ~9 min left, mem avail 11.1 GB, in-flight 3
+[A-wave3] 190/201 done, 82.5 min, ~5 min left, mem avail 10.8 GB, in-flight 3
+[A-wave3] 200/201 done, 89.0 min, ~0 min left, mem avail 10.6 GB, in-flight 3
+DONE wave3

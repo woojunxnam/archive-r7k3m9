@@ -1,0 +1,889 @@
+SALVpts10 {'6': 27494.269999999175, '8': 27739.63999999911, '10': 38405.929999997956, '12': 48901.28000000282, '14': 55605.45999999612, '16': 64426.769999994955, '20': 84518.50999999495, '24': 104122.819999995}
+PASSIVE {'6': 42029.880000000005, '8': 56039.84, '10': 70049.79999999999, '12': 84059.76000000001, '14': 98069.72000000003, '16': 112079.67999999993, '20': 140099.59999999998, '24': 168119.52000000002}
+92 portfolio configs, 92 new
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_01df7151dbe2 TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_c6bb5b5bd525 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_f70ec56f1025 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_677fba263e65 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_e3d4e62e1d1b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_12024d05b8f8 TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_6c7d84410085 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_09ac3b36910b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_1567290ee171 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_0d09ede9d4f4 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_dcf6eb0edc4c ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_94124512db65 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_9f7ca1482363 TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_31c058fd4efd ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_8106ee13bb84 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_3ed404d1aa8f ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_b655e89b7855 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_656985115b25 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_a36610832519 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_4ec252638788 TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_36c7a8e3ffdf ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_c1dad54ede96 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_016e1cb000e6 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_3c7f5435d15e ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_8a929a0a4bc4 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_a3aac8977c63 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_34e56fa16618 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_16be402bd839 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_7f61e2ae2c2d TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_cf60d7b55a3c ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_7a996ba91c56 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_0e26c4cf7da0 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_5eab7dd7c279 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_b1be53ee5ac5 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_93fbc5dbfbb1 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_73bcaae0c60d ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_97b210b2d219 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_b6a9cd2d9337 TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_f26e36fe1008 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_d4d97d72408b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_f7c5f46eab4e ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_8838885ceeb7 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_2d1428661168 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_57896e9b8d73 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_548fc6dbee69 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_b831fd75f4d3 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_3a45166ec9ee ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_92a0134db1d6 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_f7da7d657158 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_78ba6b317574 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_48808326ee1a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_ab82c27df74b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_a943c6fad6c4 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_6c215c913ca3 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_22d61c33549b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_b93d63408200 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_167811cb0170 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_547564fa606c ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_3a4ef377e96b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_9c7abb97488b ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_1eee7c4dd2c5 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_ae3cffd5ca1c ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+DONE ab
+90 portfolio configs, 60 new
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_9ca310d9b8ce TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_ecf9f307438f ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_0788b8e28901 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_00c6b3e8415a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_7a05fff88ce0 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_12ef3a4fc8bf TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_ace1e5a6cc52 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_20fa0b3df67a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_8e6258d9e912 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_d7a177cca224 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_424fdac232d3 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_7e68c23222c6 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_0f0b11c4943c TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_5716b8f3f7d0 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_0ff159e87ae1 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_25a97569afbc ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_51a9080d0702 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_d2bdabc43dd4 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_1049626102d3 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_2628a6f2781a TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_afba0c15c19a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_71082414f1cd ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_a62369e88888 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_d8d0442e8fbc ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_fb64d9e3f92e ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_44f67514abd6 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_ab7f44b4e7c9 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_e7a498729abe ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_333bf213b2d0 TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_f87f96170365 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_7410ea1db66c ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_610f779206f1 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_c5cfc48b4294 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_e6cf9f13bdfb ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_80ac2583fc80 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_ec281c494989 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_a98b841a1b36 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_c15b7e89786e TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_bac3307ef56a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_b1b6628f5fda ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_d6aff9fbf306 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_f5a5d78497ad ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_0bf2f30343f2 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_749e92d3cc9a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_7fb957ac2d19 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_8ef5de6b049a ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_5af11abcbe9f ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_e791752f5dff ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_342ecf6060c5 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_85a644b18d06 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_1032ad6a999e ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_a9f40d19dddd ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_19fabd8cd17d ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_8fccc2884de6 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_0f3d3d81c0b3 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_32f26ed6f7fc ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+FAILED AB_e07a89ab267f ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_70226007774c TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+FAILED AB_dfa870b55c60 ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() :: pe/concat.py", line 466, in concat
+    result = _get_result(
+             ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/pandas/core/reshape/concat.py", line 599, in _get_result
+    return result.__finalize__(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dis
+/usr/local/lib/python3.11/dist-packages/pandas/io/parquet.py:490: UserWarning: Could not serialize pd.DataFrame.attrs: Object of type ndarray is not JSON serializable, defaulting to empty attributes.
+  impl.write(
+FAILED AB_dfa48fed476e TypeError: Object of type ndarray is not JSON serializable :: on3.11/dist-packages/pandas/io/parquet.py", line 194, in write
+    df_metadata = {"PANDAS_ATTRS": json.dumps(df.attrs)}
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib
+DONE ab
+ALLDONE

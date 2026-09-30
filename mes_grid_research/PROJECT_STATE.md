@@ -6,7 +6,7 @@
 | Phase | 상태 | 산출물 |
 |---|---|---|
 | 1 Data audit | 완료 (PASS) | `DATA_AUDIT.md` |
-| 2 Engine + tests | 완료 — engine 0.2.0 + audit mode + RUN-4 모듈(기본 OFF, RUN-3 재현 동일), **[[TESTS]]** | `EXECUTION_SPEC.md` (EXEC-1.1 + ROLL-1.0) |
+| 2 Engine + tests | 완료 — engine 0.2.0 + audit mode + RUN-4 모듈(기본 OFF, RUN-3 재현 동일), **160 tests pass** | `EXECUTION_SPEC.md` (EXEC-1.1 + ROLL-1.0) |
 | 0' Roll gate | **완료 (PASS)** | `results/ROLL_GATE_001/` |
 | 3 Baseline | 완료 | `results/BASE_A_001/` |
 | 4 TV parity | 부분 완료 (Pine 원문 필요) | `results/PARITY_001/` |
