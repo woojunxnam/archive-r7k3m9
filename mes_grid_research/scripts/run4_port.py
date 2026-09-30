@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import numpy as np
 import run4_lib as L
 
-SPLITS = {6: (3, 3), 8: (4, 4), 10: (5, 5), 12: (6, 6), 14: (8, 6), 16: (8, 8), 20: (10, 10), 24: (12, 12)}
+SPLITS = {4: (2, 2), 6: (3, 3), 8: (4, 4), 10: (5, 5), 12: (6, 6), 14: (8, 6), 16: (8, 8), 20: (10, 10), 24: (12, 12)}
 
 
 def a_params(mech, cap):
@@ -23,6 +23,8 @@ def a_params(mech, cap):
 
 def series_entries(mech, caps=tuple(SPLITS), with_bpause=False):
     J = []
+    if mech.get("passive"):
+        caps = (2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24)
     for cap in caps:
         p = a_params(mech, cap)
         J.append(L.make_entry("A", "A-SERIES", p, stage="S6", fresh=("2022-01-01",), extra={"save": True},
@@ -38,11 +40,13 @@ def ab_entries(mech, sid):
     """sid: cap -> A-SERIES config_id (and ('pause', cap) -> id)."""
     J = []
     caps = sorted(c for c in sid if isinstance(c, int))
+    SPL = set(SPLITS)
     B = mech["b"]
     books = {"B7F": [("B7F", 1.0)], "B7F+B4F": [("B7F", 0.5), ("B4F", 0.5)]}
     for G in (10, 12, 14, 16, 20, 24):
         for wA in (1.0, 0.75, 0.6, 0.5, 0.4, 0.25, 0.0):
-            capA = max([c for c in caps if c <= wA * G + 1e-9], default=0) if wA > 0 else 0
+            cands = [c for c in caps if c <= G]
+            capA = min(cands, key=lambda c: (abs(c - wA * G), c)) if (wA > 0 and cands) else 0
             sizeB = G - capA
             for bk, parts in books.items():
                 if wA == 1.0 and bk != "B7F":
@@ -52,7 +56,8 @@ def ab_entries(mech, sid):
                     s = int(round(sizeB * frac))
                     if s > 0:
                         bl.append(dict(name=nm, params=B[nm], size=s))
-                spec = dict(G=G, a_id=sid.get(capA) if capA else None, capA=capA, b=bl, alloc=f"{int(wA*100)}/{int(100-wA*100)}", book=bk)
+                spec = dict(G=G, a_id=sid.get(capA) if capA else None, capA=capA, b=bl, alloc=f"{int(wA*100)}/{int(100-wA*100)}", book=bk,
+                        alloc_actual=f"{capA}/{sizeB}")
                 J.append(L.make_entry("AB", "AB-FIXED", spec, kind="portfolio", stage="S6", fresh=(),
                                       note=f"G{G} A{capA} B{sizeB} alloc {spec['alloc']} {bk}"))
     # risk-budget allocation: B size chosen so that B's standalone DD share ~ target (per-contract DD of B7F ~ $930)

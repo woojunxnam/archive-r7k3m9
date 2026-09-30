@@ -21,10 +21,10 @@ def a_series(a_id):
     d = pd.read_parquet(os.path.join(SER, f"{a_id}_daily.parquet"))
     q = np.load(os.path.join(SER, f"{a_id}_qty.npy")).astype(np.int64)
     pe = os.path.join(SER, f"{a_id}_equity.npy")
-    d.attrs["bar_equity"] = np.load(pe) if os.path.exists(pe) else None
+    beq = np.load(pe) if os.path.exists(pe) else None
     fr = os.path.join(SER, f"{a_id}_fresh2022_daily.parquet")
     f22 = pd.read_parquet(fr) if os.path.exists(fr) else None
-    return d, q, f22
+    return d, q, f22, beq
 
 
 def b_trades(p, size_arr, ex=None):
@@ -60,12 +60,12 @@ def evaluate(spec):
     G = spec["G"]
     # ---- A
     if spec.get("a_id"):
-        ad, qA, f22 = a_series(spec["a_id"])
+        ad, qA, f22, beq_A = a_series(spec["a_id"])
         eqA = ad.equity.copy()
         eqA.index = pd.to_datetime(eqA.index)
         dA = eqA.diff().fillna(eqA.iloc[0] - CAP0)
     else:
-        qA = np.zeros(n, np.int64); f22 = None
+        qA = np.zeros(n, np.int64); f22 = None; beq_A = None
         dA = pd.Series(0.0, index=days)
     # ---- B (possibly several independent single-position books)
     qB = np.zeros(n, np.int64)
@@ -109,7 +109,7 @@ def evaluate(spec):
     tot = qA + qB
     raw = b.c - b.adj
     # bar-level MTM drawdown (A engine equity per bar + B marked at closes; B entry/exit costs inside `net`)
-    beq = ad.attrs.get("bar_equity") if spec.get("a_id") else None
+    beq = beq_A
     if spec.get("a_id") and beq is None:
         r_bar_dd = r_bar_min = np.nan
     elif beq is not None:
