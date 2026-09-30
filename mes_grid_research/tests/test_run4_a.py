@@ -43,6 +43,9 @@ MODS = {
     "soft_atr": dict(BASEQ, rec_soft=dict(feat="trap_test", cuts=(0.5,), offs=(0, 0.25), unit="atr", ttl=10)),
     "null_none": dict(BASEQ, rec_anchor="none"),
     "null_feat": dict(BASEQ, rec_anchor="feat", rec_anchor_feat="rnd_s1"),
+    "static_core_rec": dict(BASEQ, core_mode="static", recovery=None),
+    "static_core_only": dict(BASEQ, core_mode="static", recovery=None, rec_cap=0, max_total=6),
+    "static_core_csm": dict(BASEQ, core_mode="static", recovery=None, cap_sm=dict(min_free=2, deep_mult=2.0, harvest="newest_prof", hx=1.0, salvage=SV)),
 }
 
 

@@ -84,6 +84,7 @@ DEFAULTS = dict(
     cap_sm=None,                 # None | dict(min_free=K, deep_mult=None, deep_off=None, ttl=30, harvest=None, hx=1.0,
                                  #             harvest_at=1, salvage=None|dict, salvage_at=0)
     rec_soft=None,               # None | dict(feat=, cuts=(..), offs=(..), unit=pts|atr, skip_top=False, ttl=30)
+    core_mode="grid",            # grid (default) | static: buy core_cap contracts at the first bars, never sell (rolled)
 )
 
 
@@ -116,7 +117,10 @@ class FactoryStrategy(Strategy):
         k = self.cfg
         self.F = F
         self.max_total = k["max_total"]
-        self.lanes = [LaneSpec("core", min(k["core_cap"], self.max_total), "basket", k["basket_tp"])]
+        if k["core_mode"] == "static":
+            self.lanes = [LaneSpec("core", min(k["core_cap"], self.max_total), "none", 1e9)]
+        else:
+            self.lanes = [LaneSpec("core", min(k["core_cap"], self.max_total), "basket", k["basket_tp"])]
         if k["rec_cap"]:
             self.lanes.append(LaneSpec("rec", k["rec_cap"], "individual" if k["rec_exit"] == "tp" else "none", k["rec_tp"]))
         if k["emerg_cap"]:
@@ -390,6 +394,21 @@ class FactoryStrategy(Strategy):
             buys_budget = 0
         if k["basket_tp_mode"] == "datr":
             core.spec.tp_pts = max(ceil_tick(k["basket_atr_k"] * F["datr"][i]), 5.0)
+        if k["core_mode"] == "static":
+            # passive long core: fill to core_cap one contract per bar, never exit (roll-accounted by the engine)
+            if core.qty < self.lanes[0].capacity and buys_budget > 0:
+                out.append(Order("market_buy", "core", 1, tag="static"))
+                buys_budget -= 1
+            if k["rec_cap"] and buys_budget > 0 and tod_ok:
+                out += self._rec_orders(ctx, i, a15, False)
+            if k["shadow"] and k["rec_cap"] and tod_ok:
+                rec_l = ctx.lane("rec")
+                if (rec_l.free <= 0 or buys_budget <= 0) and self._rec_signal(ctx, i, a15, False):
+                    nd = sum(1 for t in rec_l.tranches if self._is_dead(ctx, i, t))
+                    self.shadow_log.append((i, self._rec_tp(ctx, i), nd, rec_l.qty, rec_l.free))
+            if k["rec_cap"] and (k["harvest_cond"] or k["salvage"] or k["cap_sm"]):
+                out = self._r4_exit_orders(ctx, i, out, a15) + out
+            return self._fit(ctx, out, total_cap)
         # ================= CORE EXITS (strategy-managed, in addition to basket escape)
         if core.qty:
             out += self._core_exit_orders(ctx, i, core, in_rec_mode)

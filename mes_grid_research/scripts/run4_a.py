@@ -131,7 +131,119 @@ def wave2():
     return J
 
 
-WAVES = {"wave1": wave1, "wave2": wave2}
+def wave1b():
+    """A-STATIC: core/recycle separation taken to its limit (motivated by NULL-D: exposure-matched passive long had
+    ~FQ P&L with smaller DD). Core = passive static long (fill to q, never sell, rolled); recycle = FQ floating recycle
+    (low60 anchor, limit entry, TP +3), no recovery mode. Nulls: static core alone (= passive long)."""
+    J = []
+    R = dict(rec_activation="always", rec_anchor="low60", rec_spacing="float", rec_step=5.0, rec_tp=3.0,
+             rec_entry_mode="limit_close", shadow=True, core_mode="static")
+    for q in (2, 4, 6, 8, 10, 12):
+        J.append(E("A-STATIC-NULL", dict(core_mode="static", core_cap=q, max_total=q), note=f"passive static core {q} only"))
+    for q in (4, 6, 8):
+        for r in (6, 8, 10, 12, 16):
+            if q + r > 24:
+                continue
+            J.append(E("A-STATIC", dict(R, core_cap=q, rec_cap=r, max_total=q + r), note=f"static core {q} + recycle {r}"))
+    sv = dict(SV0, **REB["pts10"])
+    for q, r in ((4, 10), (6, 8), (6, 10), (8, 8)):
+        J.append(E("A-STATIC", dict(R, core_cap=q, rec_cap=r, max_total=q + r,
+                                    cap_sm=dict(min_free=4, deep_mult=2.0, harvest="newest_prof", hx=1.0, harvest_at=1, salvage=sv, salvage_at=0)),
+                   note=f"static core {q} + recycle {r} + CSM R4 minfree4"))
+    for r in (8, 12, 16):
+        J.append(E("A-STATIC", dict(R, core_cap=0, rec_cap=r, max_total=r), note=f"recycle only {r} (no core)"))
+    return J
+
+
+def _load_results():
+    import pandas as pd
+    d = L.collect("A")
+    m = json.load(open(L.MANIFEST))["configs"]
+    d["note"] = d.config_id.map(lambda c: m[c]["note"])
+    d["pp"] = d.config_id.map(lambda c: m[c]["params"])
+    d["parent"] = d.config_id.map(lambda c: m[c].get("parent"))
+    d["stage"] = d.config_id.map(lambda c: m[c].get("stage"))
+    return d
+
+
+def select_survivors(d, n_max=16):
+    """Stage-2 mechanism survivors (auto): recycle activity kept (fresh-2022 no-entry <= 30 d), P&L >= 70% of the
+    parent control, ranked by worst fresh min equity; plus 4-axis Pareto members. Controls/nulls excluded."""
+    import numpy as np
+    from run4_analyze import pareto, A_AXES4
+    base = d.set_index("config_id")
+    cand = d[~d.family.isin(["A-STRUCT", "A-NULL-A", "A-NULL-B", "A-NULL-C", "A-SERIES"]) & (d.stage == "S1")].copy()
+    cand["par_mtm"] = cand.parent.map(lambda p: base.loc[p, "total_mtm"] if isinstance(p, str) and p in base.index else np.nan)
+    ok = cand[(cand.fs2022_no_entry_days <= 30) & (cand.total_mtm >= 0.7 * cand.par_mtm)]
+    top = ok.sort_values("worst_fresh_min_equity", ascending=False).head(n_max)
+    cand["p4"] = pareto(cand, A_AXES4)
+    extra = cand[cand.p4 & ~cand.config_id.isin(top.config_id)].sort_values("worst_fresh_min_equity", ascending=False).head(6)
+    return list(top.config_id) + list(extra.config_id)
+
+
+def _perturb(p):
+    """local neighbours (+/-20% numeric, +/-1 integer) of the RUN-4 module parameters of a config."""
+    import copy
+    out = []
+    for key in ("cap_sm", "salvage", "harvest_cond", "rec_soft"):
+        if not p.get(key):
+            continue
+        blk = p[key]
+        for fld, val in list(blk.items()):
+            if isinstance(val, bool) or fld in ("trig", "policy", "select", "rebound", "unit", "feat", "harvest"):
+                continue
+            if isinstance(val, dict):          # nested salvage inside cap_sm
+                for f2, v2 in val.items():
+                    if isinstance(v2, (int, float)) and not isinstance(v2, bool) and f2 in ("rb",):
+                        for mlt in (0.8, 1.2):
+                            q = copy.deepcopy(p); q[key][fld][f2] = round(v2 * mlt, 3); out.append((f"{key}.{fld}.{f2}x{mlt}", q))
+                continue
+            if isinstance(val, int) and fld in ("min_free", "k", "harvest_at", "salvage_at", "max_per_day", "ttl"):
+                for dv in (-1, 1):
+                    if val + dv >= 0:
+                        q = copy.deepcopy(p); q[key][fld] = val + dv; out.append((f"{key}.{fld}{dv:+d}", q))
+            elif isinstance(val, (int, float)) and fld in ("deep_mult", "deep_off", "rb", "hx", "be", "x"):
+                for mlt in (0.8, 1.2):
+                    q = copy.deepcopy(p); q[key][fld] = round(val * mlt, 3); out.append((f"{key}.{fld}x{mlt}", q))
+    if p.get("salvage") or (p.get("cap_sm") or {}).get("salvage"):
+        for mlt in (0.8, 1.2):
+            q = copy.deepcopy(p); q["dead_days"] = round(p.get("dead_days", 5.0) * mlt, 3); out.append((f"dead_days x{mlt}", q))
+    return out
+
+
+def wave3():
+    """Stage 2 (all fresh starts) + Stage 3 (local robustness) + Stage 5 (execution stress) for auto-selected survivors."""
+    d = _load_results()
+    surv = select_survivors(d)
+    base = d.set_index("config_id")
+    J = []
+    for cid in surv:
+        p = base.loc[cid, "pp"]
+        fam = base.loc[cid, "family"]
+        note = base.loc[cid, "note"]
+        J.append(L.make_entry("A", fam, p, parent=cid, stage="S2", fresh=("2020-02-01", "2022-01-01", "2025-02-01"),
+                              note=f"S2 all-fresh {note}"))
+        for tag, q in _perturb(p):
+            J.append(L.make_entry("A", fam, q, parent=cid, stage="S3", note=f"S3 {tag} of [{note}]"))
+        for tag, ex in (("slip2", dict(slippage_ticks=2)), ("slip3", dict(slippage_ticks=3)), ("comm+50%", dict(commission_per_side=0.93)),
+                        ("pen2", dict(penetration_ticks=2))):
+            J.append(L.make_entry("A", fam, p, exec_kw=ex, parent=cid, stage="S5", note=f"S5 {tag} [{note}]"))
+    # controls with all fresh starts + stress for comparison
+    for cc, rc in [(8, 6), (8, 8), (10, 10), (16, 16), (6, 14)]:
+        p = FQ(cc, rc)
+        cid = L.make_entry("A", "A-STRUCT", p)["config_id"]
+        J.append(L.make_entry("A", "A-STRUCT", p, parent=cid, stage="S2", fresh=("2020-02-01", "2022-01-01", "2025-02-01"),
+                              note=f"S2 all-fresh control core{cc}/rec{rc} lmt"))
+        for tag, ex in (("slip2", dict(slippage_ticks=2)), ("slip3", dict(slippage_ticks=3))):
+            J.append(L.make_entry("A", "A-STRUCT", p, exec_kw=ex, parent=cid, stage="S5", note=f"S5 {tag} control core{cc}/rec{rc}"))
+    seen, JJ = set(), []
+    for e in J:
+        if e["config_id"] not in seen:
+            seen.add(e["config_id"]); JJ.append(e)
+    return JJ
+
+
+WAVES = {"wave1": wave1, "wave1b": wave1b, "wave2": wave2, "wave3": wave3}
 
 if __name__ == "__main__":
     wave = sys.argv[1]

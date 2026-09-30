@@ -87,3 +87,23 @@ def test_fastsim_equals_engine(p, slip):
     net = (x_p - e_p) * 5 - 2 * 0.62
     assert np.allclose(tr.net.values, net)
     assert e.state.qty.iloc[-1] == 0
+
+
+@pytest.mark.parametrize("p", PARITY[:6] + PARITY[8:10])
+def test_sized_sim_matches_constant_size(p):
+    df = _bars(days=10, seed=9, drop=25)
+    b = bars_from_frame(df, False)
+    rng = np.random.default_rng(2)
+    sig = np.zeros(len(b), bool)
+    sig[np.flatnonzero(b.in_window)] = rng.random(b.in_window.sum()) < 0.03
+    nxt, last_td, nil, dtm = fs.day_structure(b)
+    kw = dict(tp=np.inf, tmax=10**9, stop=np.inf, trail=np.inf, cooldown=0, lim_off=-1.0, ttl=1)
+    kw.update(p)
+    cap = np.full(len(b), 10, np.int64)
+    a = fs.sim_single(sig, b.o, b.h, b.l, b.c, b.tradeable, nxt, nil, dtm, kw["tp"], kw["tmax"], kw["stop"], kw["trail"],
+                      kw["cooldown"], 1, 1, False, cap, 3, kw["lim_off"], kw["ttl"])
+    z = fs.sim_single_sized(sig, b.o, b.h, b.l, b.c, b.tradeable, nxt, nil, dtm, kw["tp"], kw["tmax"], kw["stop"], kw["trail"],
+                            kw["cooldown"], 1, 1, np.full(len(b), 3, np.int64), kw["lim_off"], kw["ttl"])
+    for u, v in zip(a[:5], z[:5]):
+        assert np.array_equal(u, v)
+    assert (z[5] == 3).all()

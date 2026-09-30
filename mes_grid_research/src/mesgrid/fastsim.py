@@ -410,3 +410,97 @@ def dist_dead_bars(entry_idx, exit_idx, entry_px, c, datr, trad, x):
                 cnt += 1
         out[q] = cnt
     return out
+
+
+@njit(cache=True)
+def sim_single_sized(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cooldown, slip_ticks, pen_ticks,
+                     size_arr, lim_off=-1.0, ttl=1):
+    """sim_single with a per-decision-bar position size (size_arr[i] contracts decided at the close of bar i; 0 = skip).
+    Used by the A+B portfolio for inventory-dependent B sizing. Identical fills to sim_single for constant size."""
+    n = len(o)
+    slip = slip_ticks * 0.25
+    pen = pen_ticks * 0.25
+    maxt = 0
+    for i in range(n):
+        if sig[i]:
+            maxt += 1
+    e_idx = np.empty(maxt, np.int64)
+    x_idx = np.empty(maxt, np.int64)
+    e_px = np.empty(maxt, np.float64)
+    x_px = np.empty(maxt, np.float64)
+    reason = np.empty(maxt, np.int64)
+    qty = np.empty(maxt, np.int64)
+    k = 0
+    pos = False
+    pe = -1
+    px_ = -1
+    px_reason = 0
+    cool = -1
+    ei = -1
+    ep = 0.0
+    tpx = 0.0
+    maxc = 0.0
+    lim_px = 0.0
+    lim_exp = -1
+    at_open = True
+    q_pend = 0
+    for i in range(n):
+        if not trad[i]:
+            continue
+        if pos and i > ei and o[i] >= tpx + 0.25:
+            x_idx[k] = i; x_px[k] = max(tpx, o[i] - slip); reason[k] = 1
+            k += 1; pos = False; cool = i + cooldown; px_ = -1
+        if pos and px_ == i:
+            x_idx[k] = i; x_px[k] = o[i] - slip; reason[k] = px_reason
+            k += 1; pos = False; cool = i + cooldown
+        px_ = -1
+        if pe == i and not pos:
+            filled = False
+            if lim_off < 0:
+                ep = o[i] + slip; filled = True; at_open = True
+            elif o[i] <= lim_px - 0.25:
+                ep = min(lim_px, o[i] + slip); filled = True; at_open = True
+            elif l[i] <= lim_px - pen:
+                ep = lim_px; filled = True; at_open = False
+            if filled:
+                ei = i; pos = True
+                e_idx[k] = i; e_px[k] = ep; qty[k] = q_pend
+                tpx = _ceil_tick(ep + tp) if tp < 1e9 else 1e18
+                maxc = c[i]
+                lim_exp = -1
+        pe = -1
+        if pos:
+            if (i > ei or at_open) and h[i] >= tpx + pen:
+                x_idx[k] = i; x_px[k] = tpx; reason[k] = 2
+                k += 1; pos = False; cool = i + cooldown
+        if not nxt[i]:
+            lim_exp = -1
+            continue
+        if pos:
+            held = dtm[i] - dtm[ei] + 1
+            if c[i] > maxc:
+                maxc = c[i]
+            r = 0
+            if nil[i]:
+                r = 6
+            elif held >= tmax:
+                r = 3
+            elif c[i] <= ep - stop:
+                r = 4
+            elif c[i] <= maxc - trail:
+                r = 5
+            if r:
+                px_ = i + 1
+                px_reason = r
+        elif lim_exp >= i + 1 and not nil[i]:
+            pe = i + 1
+        elif sig[i] and i >= cool and not nil[i] and size_arr[i] > 0:
+            pe = i + 1
+            q_pend = size_arr[i]
+            if lim_off >= 0:
+                lim_px = _floor_tick(c[i] - lim_off)
+                lim_exp = i + ttl
+    if pos:
+        x_idx[k] = n - 1; x_px[k] = c[n - 1]; reason[k] = 9
+        k += 1
+    return e_idx[:k], x_idx[:k], e_px[:k], x_px[:k], reason[:k], qty[:k]

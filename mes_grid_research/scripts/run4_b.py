@@ -187,7 +187,51 @@ def s4():
     return J
 
 
-STAGES = {"s1": s1, "s2": s2, "s3": s3, "s4": s4}
+def _slow_events():
+    """slower intraday momentum on 15m/30m bars (strong bar, N-bar breakout) - held to EOD / trailed."""
+    from mesgrid.mtf import add_basic_features, mtf_bars, prior_max, to_1m
+    b = BL.G["b"]
+    n = len(b)
+    ok = BL.G["nxt"] & ~BL.G["nil"] & b.tradeable
+    new = {}
+    for k in (15, 30):
+        m = add_basic_features(mtf_bars(b, k))
+        for x in (0.8, 1.2):
+            new[f"B1s_tf{k}_body{x}"] = to_1m(m, (m["body"] >= x * m["atr"]) & (m["cl"] >= 0.8), n)
+        for N in (2, 3, 4):
+            new[f"B2s_tf{k}_N{N}"] = to_1m(m, m["c"] > prior_max(m["h"], N, m["nb"]), n)
+    for k2, v in new.items():
+        BL.G["ev"][k2] = np.flatnonzero(v & ok)
+        BL.G["meta"][k2] = dict(family=k2[:2], slow=True)
+    return list(new)
+
+
+def s6():
+    names = _slow_events()
+    J = []
+    for nm in names:
+        for xn, xp in (("tEOD", dict(tmax=EOD)), ("trail5_EOD", dict(trail=5.0, tmax=EOD)), ("trail8_EOD", dict(trail=8.0, tmax=EOD)),
+                       ("tp15_EOD", dict(tp=15.0, tmax=EOD)), ("t120", dict(tmax=120))):
+            J.append(E(f"B-{nm[:2]}", dict(events=[nm], **xp), note=f"S6 slow {nm} {xn}", stage="S6"))
+    return J
+
+
+def s6_nulls():
+    """random-timing nulls for the best S6 configs (auto-selected: top 3 by net P&L)."""
+    names = _slow_events()
+    d = load_b("S6")
+    top = d.sort_values("net_pnl", ascending=False).head(3)
+    J = []
+    for _, r in top.iterrows():
+        p = dict(r.pp)
+        evn = p["events"][0]
+        for nm in _null_events(evn):
+            q = dict(p, events=[nm])
+            J.append(E("B-NULL", q, parent=r.config_id, note=f"S6 NULL for {evn}", stage="S6"))
+    return J
+
+
+STAGES = {"s1": s1, "s2": s2, "s3": s3, "s4": s4, "s6": s6, "s6n": s6_nulls}
 
 if __name__ == "__main__":
     st = sys.argv[1]

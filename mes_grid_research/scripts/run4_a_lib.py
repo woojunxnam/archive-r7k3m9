@@ -50,6 +50,20 @@ def r4_extras(b, F, n_rnd=20):
         m = np.zeros(len(b), bool)
         m[W] = rng.random(len(W)) < p
         out[f"rnd_s{s}"] = m
+    bev = os.path.join(ROOT, "data", "cache", "r4_b_events.npz")
+    if os.path.exists(bev):
+        # A/B interaction feature: False within 30 RTH minutes after a strong B momentum event (B7 first impulse or
+        # opening-range break); core averaging can be paused while it is False (known at the event bar's close)
+        z = np.load(bev)
+        flag = np.zeros(len(b), bool)
+        for k in ("B7_tf3_k5.0_first", "B4_or15_break"):
+            if k in z.files:
+                flag[z[k]] = True
+        f = flag[W].astype(float)
+        recent = pd.Series(f).rolling(30, min_periods=1).max().values > 0
+        ok = np.ones(len(b), bool)
+        ok[W] = ~recent
+        out["bmom_ok30"] = ok
     if os.path.exists(TRAP_CACHE):
         z = np.load(TRAP_CACHE)
         for k in z.files:
@@ -95,6 +109,30 @@ def job_engine(e):
         r.update(sm.shadow_metrics(eng, strat, BI, cfg.get("rec_entry_mode") == "limit_close"))
     r["n_salvage"] = strat.n_salvage
     r["n_cond_harvest"] = strat.n_cond_harvest
+    tr = eng.trades_df
+    if len(tr):
+        for tag in ("salvage", "H_cond"):
+            t = tr[tr.reason == tag]
+            r[f"{tag}_n"] = int(len(t)); r[f"{tag}_realized"] = float(t.net.sum())
+            r[f"{tag}_avg"] = float(t.net.mean()) if len(t) else np.nan
+        rt = tr[tr.lane == "rec"]
+        r["rec_realized_losses_sum"] = float(rt.net[rt.net < 0].sum())
+        # recycle P&L split: TP exits vs other exits
+        r["rec_tp_exit_pnl"] = float(rt.net[rt.reason.isin(["tp", "tp_gap"])].sum())
+    # temporal robustness: calendar-year MTM P&L and rolling 12-month windows (daily equity)
+    st_ = eng.state
+    deq = pd.Series(st_.equity.values, index=pd.DatetimeIndex(st_.dt).normalize()).groupby(level=0).last()
+    dpl = deq.diff().fillna(deq.iloc[0] - 150000.0)
+    yr = dpl.groupby(dpl.index.year).sum()
+    for y in range(2019, 2027):
+        r[f"y{y}_mtm"] = float(yr.get(y, 0.0))
+    r["years_pos_mtm"] = int((yr > 0).sum())
+    m12 = deq.rolling("365D").apply(lambda x: x[-1] - x[0], raw=True)
+    r["roll12m_worst_pnl"] = float(m12[m12.index >= m12.index[0] + pd.Timedelta(days=365)].min())
+    r["roll12m_pos_share"] = float((m12[m12.index >= m12.index[0] + pd.Timedelta(days=365)] > 0).mean())
+    r["p19_21_mtm"] = float(sum(r[f"y{y}_mtm"] for y in (2019, 2020, 2021)))
+    r["p22_mtm"] = r["y2022_mtm"]
+    r["p23p_mtm"] = float(sum(r[f"y{y}_mtm"] for y in (2023, 2024, 2025, 2026)))
     ex_extra = e.get("extra") or {}
     if ex_extra.get("save"):
         os.makedirs(SAVE_DIR, exist_ok=True)
@@ -110,6 +148,11 @@ def job_engine(e):
         b, F = rl.slice_from(s)
         ef = Engine(b, FactoryStrategy(F, **cfg), ex).run()
         fr = rl.summarize(ef)
+        if ex_extra.get("save"):
+            stf = ef.state
+            dayf = pd.DatetimeIndex(stf.dt).normalize()
+            stf.groupby(dayf).agg(equity=("equity", "last"), qty=("qty", "max")).to_parquet(
+                os.path.join(SAVE_DIR, f"{e['config_id']}_fresh{s[:4]}_daily.parquet"))
         pre = f"fs{s[:4]}_"
         for k in FRESH_KEYS:
             r[pre + k] = fr[k]

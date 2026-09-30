@@ -46,3 +46,10 @@
 | 40 | Core 필터 (core_deep, no-gap-down), momentum governor, volcap | – | REJECTED | core_deep는 손익 −30%, 나머지 무효과 |
 | 41 | 진짜 OOS: 2026-05-28 이후 ES / MES 1m | – | BLOCKED(데이터) | FROZEN_CANDIDATES.json + FROZEN_POSTHOC_FILTERS.json 준비됨 |
 | 42 | 주문 수준 MES 체결 시뮬레이션 (queue, partial fill) | – | QUEUED | limit 진입 결론의 전제 |
+| 43 | B: 고회전 1m 모멘텀 (B1-B12, 167 이벤트) | – | REJECTED | 비용 후 음(−); 중·고빈도 0/251 양수; 단기 gross EV부터 음(−) — 1–10분 단기 평균회귀 |
+| 44 | B: 모멘텀 이벤트 + 30–60분/EOD 보유 | – | MOSTLY REJECTED | 양수 다수지만 best-10일 의존, 랜덤 타이밍 null과 구분 불가(OR/느린 모멘텀) |
+| 45 | B7 first-impulse(3m, 5×ATR) + limit 0.5 + TP 9 / 120분 (B7F) | – | WEAK SURVIVOR | 비용 스트레스 생존, null 20/20 초과, 이벤트 파라미터 민감 → 포트폴리오 소규모 |
+| 46 | B 다중 가족 union/clustering으로 20–30회/일 | – | REJECTED | union 전부 손실 |
+| 47 | Trap-risk 예측(깊은 갇힘) | – | REJECTED | hold>20d AUC 0.35–0.45(OOS) |
+| 48 | Trap-risk soft price improvement | – | TESTING | RUN-4 A wave2 |
+| 49 | Dead-slot capacity state machine / rebound salvage / 조건부 수확 | – | TESTING | RUN-4 A wave1 |
