@@ -6788,3 +6788,5 @@ config_id,family,sleeve,status,start,finish,engine_version,exec_spec,dataset_has
 "A_8c536202f489","A-SERIES","A","RUNNING","2026-09-30 04:59:14","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
 "A_d5608e776673","A-HARV","A","COMPLETE","2026-09-30 04:58:38","2026-09-30 05:00:13","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_d5608e776673.json",""
 "A_c283f8a7c049","A-HARV","A","RUNNING","2026-09-30 05:00:14","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
+"A_8c536202f489","A-SERIES","A","COMPLETE","2026-09-30 04:59:14","2026-09-30 05:00:24","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_8c536202f489.json",""
+"A_087346e76a45","A-SERIES","A","RUNNING","2026-09-30 05:00:25","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
