@@ -5696,3 +5696,5 @@ config_id,family,sleeve,status,start,finish,engine_version,exec_spec,dataset_has
 "A_221cb856cfb2","A-SEP","A","RUNNING","2026-09-30 02:24:43","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
 "A_bee7aa41ab25","A-SEP","A","COMPLETE","2026-09-30 02:23:10","2026-09-30 02:24:47","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_bee7aa41ab25.json",""
 "A_4fcd43f3cf27","A-SEP","A","RUNNING","2026-09-30 02:24:48","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
+"A_4dea5e2eea0d","A-SOFT","A","COMPLETE","2026-09-30 02:24:14","2026-09-30 02:25:40","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_4dea5e2eea0d.json",""
+"A_bb49a1128af7","A-SOFT","A","RUNNING","2026-09-30 02:25:40","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
