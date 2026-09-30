@@ -68,6 +68,8 @@ def main(finals):
     import run4_b_lib as BL
     if not BL.G:
         BL.init_b()
+        import run4_b
+        run4_b._variant_events()
     wrows, brows = [], []
     for name, (kind, ref) in finals.items():
         if kind == "A":

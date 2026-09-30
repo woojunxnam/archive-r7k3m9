@@ -100,7 +100,9 @@ if __name__ == "__main__":
     else:
         import run4_b_lib as BL
         from run4_ab import job_ab
+        import run4_b
         BL.init_b()
+        run4_b._variant_events()          # B4v_* / B7v_* variant events used by B finalists
         m = json.load(open(L.MANIFEST))["configs"]
         sid = {}
         for cid, e in m.items():

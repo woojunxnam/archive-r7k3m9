@@ -185,18 +185,19 @@ def _load_results():
     return d
 
 
-def select_survivors(d, n_max=16):
-    """Stage-2 mechanism survivors (auto): recycle activity kept (fresh-2022 no-entry <= 30 d), P&L >= 70% of the
-    parent control, ranked by worst fresh min equity; plus 4-axis Pareto members. Controls/nulls excluded."""
+def select_survivors(d, per_family=3, n_extra=3):
+    """Stage-2 mechanism survivors (auto, diversified): recycle activity kept (fresh-2022 no-entry <= 30 d), P&L >= 70%
+    of the parent control; top `per_family` per family by worst fresh min equity (families: SALV, HARV, CSM, STATIC,
+    SOFT, SEP, HARV-CORE), plus up to `n_extra` 4-axis Pareto members. Controls/nulls excluded."""
     import numpy as np
     from run4_analyze import pareto, A_AXES4
     base = d.set_index("config_id")
-    cand = d[~d.family.isin(["A-STRUCT", "A-NULL-A", "A-NULL-B", "A-NULL-C", "A-SERIES"]) & (d.stage == "S1")].copy()
-    cand["par_mtm"] = cand.parent.map(lambda p: base.loc[p, "total_mtm"] if isinstance(p, str) and p in base.index else np.nan)
-    ok = cand[(cand.fs2022_no_entry_days <= 30) & (cand.total_mtm >= 0.7 * cand.par_mtm)]
-    top = ok.sort_values("worst_fresh_min_equity", ascending=False).head(n_max)
+    cand = d[~d.family.isin(["A-STRUCT", "A-NULL-A", "A-NULL-B", "A-NULL-C", "A-SERIES", "A-STATIC-NULL"]) & (d.stage == "S1")].copy()
+    cand["par_mtm"] = [base.loc[p, "total_mtm"] if isinstance(p, str) and p in base.index else np.nan for p in cand.parent]
+    ok = cand[(cand.fs2022_no_entry_days <= 30) & ((cand.total_mtm >= 0.7 * cand.par_mtm) | cand.par_mtm.isna())]
+    top = ok.sort_values("worst_fresh_min_equity", ascending=False).groupby("family").head(per_family)
     cand["p4"] = pareto(cand, A_AXES4)
-    extra = cand[cand.p4 & ~cand.config_id.isin(top.config_id)].sort_values("worst_fresh_min_equity", ascending=False).head(6)
+    extra = cand[cand.p4 & ~cand.config_id.isin(top.config_id)].sort_values("worst_fresh_min_equity", ascending=False).head(n_extra)
     return list(top.config_id) + list(extra.config_id)
 
 
