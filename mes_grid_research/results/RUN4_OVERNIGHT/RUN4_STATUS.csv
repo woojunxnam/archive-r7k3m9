@@ -6304,3 +6304,7 @@ config_id,family,sleeve,status,start,finish,engine_version,exec_spec,dataset_has
 "A_f8d180ca75d7","A-STATIC-NULL","A","RUNNING","2026-09-30 04:17:29","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
 "A_f8d180ca75d7","A-STATIC-NULL","A","COMPLETE","2026-09-30 04:17:29","2026-09-30 04:17:48","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_f8d180ca75d7.json",""
 "A_b7d078e37a7f","A-STATIC","A","RUNNING","2026-09-30 04:17:48","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
+"A_a8d4a6589e9b","A-CSM","A","COMPLETE","2026-09-30 04:16:29","2026-09-30 04:17:56","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_a8d4a6589e9b.json",""
+"A_3453dcb550a2","A-CSM","A","COMPLETE","2026-09-30 04:16:29","2026-09-30 04:17:57","0.2.0","EXEC-1.1","2b4f41b124ab8772","results/RUN4_OVERNIGHT/res/A/A_3453dcb550a2.json",""
+"A_e4e875d1fd3a","A-CSM","A","RUNNING","2026-09-30 04:17:57","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
+"A_6161167c1437","A-CSM","A","RUNNING","2026-09-30 04:17:58","","0.2.0","EXEC-1.1","2b4f41b124ab8772","",""
