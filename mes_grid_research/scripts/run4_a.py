@@ -104,7 +104,34 @@ def wave1():
     return J
 
 
-WAVES = {"wave1": wave1}
+def wave2():
+    """A-SOFT: trap-risk dependent PRICE IMPROVEMENT (soft filter, not binary). Scores = causal walk-forward logistic
+    percentiles (run4_trap.py); NaN before a prior-fold model exists -> normal entry. hold_20d score = negative control
+    (anti-predictive out of sample)."""
+    J = []
+    base = {}
+    for cc, rc in HSTRUCT:
+        base[(cc, rc)] = L.make_entry("A", "A-STRUCT", FQ(cc, rc))["config_id"]
+    offs = {"pts_0_.5_1_2": dict(offs=(0, 0.5, 1, 2), unit="pts"), "pts_0_1_2_3": dict(offs=(0, 1, 2, 3), unit="pts"),
+            "pts_0_1_3_5": dict(offs=(0, 1, 3, 5), unit="pts"), "atr_0_.1_.25_.5": dict(offs=(0, 0.1, 0.25, 0.5), unit="atr")}
+    for feat in ("trap_lr_hold_5d", "trap_lr_mae_2atr"):
+        for on, od in offs.items():
+            for skip in (False, True):
+                for cc, rc in HSTRUCT:
+                    rs = dict(feat=feat, cuts=(0.5, 0.8, 0.95), ttl=30, skip_top=skip, **od)
+                    J.append(E("A-SOFT", FQ(cc, rc, rec_soft=rs), parent=base[(cc, rc)], note=f"{feat} {on} skip_top={skip}"))
+    for on in ("pts_0_1_2_3", "pts_0_1_3_5"):
+        rs = dict(feat="trap_lr_hold_20d", cuts=(0.5, 0.8, 0.95), ttl=30, skip_top=False, **offs[on])
+        J.append(E("A-SOFT", FQ(8, 8, rec_soft=rs), parent=base[(8, 8)], note=f"NEGATIVE CONTROL trap_lr_hold_20d {on}"))
+    # uniform price improvement (no score) as the score-free control
+    for off in (0.5, 1.0, 2.0):
+        for cc, rc in HSTRUCT:
+            rs = dict(feat="trap_lr_hold_5d", cuts=(), offs=(off,), unit="pts", ttl=30)
+            J.append(E("A-SOFT", FQ(cc, rc, rec_soft=rs), parent=base[(cc, rc)], note=f"UNIFORM limit offset {off} (score-free control)"))
+    return J
+
+
+WAVES = {"wave1": wave1, "wave2": wave2}
 
 if __name__ == "__main__":
     wave = sys.argv[1]

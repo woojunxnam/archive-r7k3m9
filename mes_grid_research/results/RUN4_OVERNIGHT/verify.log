@@ -1,0 +1,5 @@
+BASE 25 s {'total_mtm': np.float64(0.0), 'max_mtm_dd': np.float64(0.0), 'min_equity': np.float64(0.0), 'fills_total': np.int64(0)}
+C32_mkt 151 s {'total_mtm': np.float64(0.0), 'max_mtm_dd': np.float64(-0.0), 'min_equity': np.float64(0.0), 'fills_total': np.int64(0)}
+C14_mkt 48 s {'total_mtm': np.float64(0.0), 'max_mtm_dd': np.float64(0.0), 'min_equity': np.float64(0.0), 'fills_total': np.int64(0)}
+C14_lmt 46 s {'total_mtm': np.float64(0.0), 'max_mtm_dd': np.float64(0.0), 'min_equity': np.float64(0.0), 'fills_total': np.int64(0)}
+ALL_REPRODUCED True

@@ -56,10 +56,13 @@ def day_structure(b):
 # ----------------------------------------------------------------------------------------------- Sleeve B
 @njit(cache=True)
 def sim_single(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cooldown, slip_ticks, pen_ticks,
-               strict_entry_bar, cap, size):
+               strict_entry_bar, cap, size, lim_off=-1.0, ttl=1):
     """One position at a time. tp/stop/trail in points (inf = off), tmax minutes (large = off), cooldown bars after
     an exit before a new signal is accepted. cap[i] (int) = contracts available to this sleeve at the close of bar i
-    (portfolio global budget); entry only if cap[i] >= size. Returns trade arrays + signal accounting."""
+    (portfolio global budget); entry only if cap[i] >= size.
+    Entry: lim_off < 0 -> market at next open. lim_off >= 0 -> resting limit BUY at floor_tick(close - lim_off),
+    re-issued for up to `ttl` bars of the same day (gap-through at open: min(L, O+slip), TP allowed that bar;
+    intrabar L_bar <= L - pen: fill at L, TP NOT allowed that bar). Returns trade arrays + signal accounting."""
     n = len(o)
     slip = slip_ticks * 0.25
     pen = pen_ticks * 0.25
@@ -85,6 +88,9 @@ def sim_single(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cool
     n_sig = 0
     n_ignored = 0
     n_cap_block = 0
+    lim_px = 0.0
+    lim_exp = -1
+    at_open = True
     for i in range(n):
         if not trad[i]:
             continue
@@ -97,13 +103,22 @@ def sim_single(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cool
             k += 1; pos = False; cool = i + cooldown
         px_ = -1
         if pe == i and not pos:
-            ei = i; ep = o[i] + slip; pos = True
-            e_idx[k] = i; e_px[k] = ep
-            tpx = _ceil_tick(ep + tp) if tp < 1e9 else 1e18
-            maxc = c[i]
+            filled = False
+            if lim_off < 0:
+                ep = o[i] + slip; filled = True; at_open = True
+            elif o[i] <= lim_px - 0.25:
+                ep = min(lim_px, o[i] + slip); filled = True; at_open = True
+            elif l[i] <= lim_px - pen:
+                ep = lim_px; filled = True; at_open = False
+            if filled:
+                ei = i; pos = True
+                e_idx[k] = i; e_px[k] = ep
+                tpx = _ceil_tick(ep + tp) if tp < 1e9 else 1e18
+                maxc = c[i]
+                lim_exp = -1
         pe = -1
         if pos:
-            if (i > ei or not strict_entry_bar) and h[i] >= tpx + pen:
+            if (i > ei or (at_open and not strict_entry_bar)) and h[i] >= tpx + pen:
                 x_idx[k] = i; x_px[k] = tpx; reason[k] = 2
                 k += 1; pos = False; cool = i + cooldown
         # ---------------- decisions at the close of bar i (orders for i+1)
@@ -112,6 +127,7 @@ def sim_single(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cool
         if not nxt[i]:
             if sig[i]:
                 n_ignored += 1
+            lim_exp = -1
             continue
         if pos:
             if sig[i]:
@@ -131,6 +147,10 @@ def sim_single(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cool
             if r:
                 px_ = i + 1
                 px_reason = r
+        elif lim_exp >= i + 1 and not nil[i]:
+            if sig[i]:
+                n_ignored += 1
+            pe = i + 1                      # re-issue the resting limit for the next bar
         elif sig[i]:
             if i < cool or nil[i]:
                 n_ignored += 1
@@ -138,6 +158,9 @@ def sim_single(sig, o, h, l, c, trad, nxt, nil, dtm, tp, tmax, stop, trail, cool
                 n_cap_block += 1
             else:
                 pe = i + 1
+                if lim_off >= 0:
+                    lim_px = _floor_tick(c[i] - lim_off)
+                    lim_exp = i + ttl
     if pos:      # cannot happen for intraday rules (EOD exit); keep for safety: mark at last close
         x_idx[k] = n - 1; x_px[k] = c[n - 1]; reason[k] = 9
         k += 1
