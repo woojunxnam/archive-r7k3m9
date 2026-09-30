@@ -1,0 +1,244 @@
+{
+ "BASE": {},
+ "C32_mkt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "max_total": 32,
+  "recovery": {
+   "h": 16,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ },
+ "C32_lmt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "max_total": 32,
+  "recovery": {
+   "h": 16,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail",
+  "rec_entry_mode": "limit_close"
+ },
+ "C32_harv5": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "max_total": 32,
+  "recovery": {
+   "h": 16,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail",
+  "harvest": "all_prof",
+  "harvest_x": 5.0
+ },
+ "C32_harv5_lmt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 16,
+  "rec_cap": 16,
+  "max_total": 32,
+  "recovery": {
+   "h": 16,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail",
+  "harvest": "all_prof",
+  "harvest_x": 5.0,
+  "rec_entry_mode": "limit_close"
+ },
+ "C24_mkt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 12,
+  "rec_cap": 12,
+  "max_total": 24,
+  "recovery": {
+   "h": 12,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ },
+ "C20_mkt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 10,
+  "rec_cap": 10,
+  "max_total": 20,
+  "recovery": {
+   "h": 10,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ },
+ "C14_mkt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 8,
+  "rec_cap": 6,
+  "max_total": 14,
+  "recovery": {
+   "h": 8,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail"
+ },
+ "C14_lmt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 8,
+  "rec_cap": 6,
+  "max_total": 14,
+  "recovery": {
+   "h": 8,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "add_trigger": "armed",
+  "reversal": "ll_fail",
+  "rec_entry_mode": "limit_close"
+ },
+ "C10_mkt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 5,
+  "rec_cap": 5,
+  "max_total": 10,
+  "recovery": {
+   "h": 5,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  }
+ },
+ "C10_lmt": {
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "core_cap": 5,
+  "rec_cap": 5,
+  "max_total": 10,
+  "recovery": {
+   "h": 5,
+   "rec_tp": 2.0,
+   "rec_step": 10.0,
+   "layer_x": 5.0
+  },
+  "rec_entry_mode": "limit_close"
+ },
+ "C14_bs70": {
+  "add_trigger": "armed",
+  "core_cap": 8,
+  "max_total": 14,
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_cap": 6,
+  "rec_filter": "f_bs70",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "recovery": {
+   "h": 8,
+   "layer_x": 5.0,
+   "rec_step": 10.0,
+   "rec_tp": 2.0
+  },
+  "reversal": "ll_fail"
+ },
+ "C14_rpos60": {
+  "add_trigger": "armed",
+  "core_cap": 8,
+  "max_total": 14,
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_cap": 6,
+  "rec_filter": "f_rpos60_05",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "recovery": {
+   "h": 8,
+   "layer_x": 5.0,
+   "rec_step": 10.0,
+   "rec_tp": 2.0
+  },
+  "reversal": "ll_fail"
+ },
+ "C32_bs70": {
+  "add_trigger": "armed",
+  "core_cap": 16,
+  "max_total": 32,
+  "rec_activation": "always",
+  "rec_anchor": "low60",
+  "rec_cap": 16,
+  "rec_filter": "f_bs70",
+  "rec_spacing": "float",
+  "rec_step": 5.0,
+  "rec_tp": 3.0,
+  "recovery": {
+   "h": 16,
+   "layer_x": 5.0,
+   "rec_step": 10.0,
+   "rec_tp": 2.0
+  },
+  "reversal": "ll_fail"
+ }
+}
