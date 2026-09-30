@@ -1,0 +1,24 @@
+{
+ "name": "PASSIVE",
+ "params": {},
+ "b": {
+  "B7F": {
+   "events": [
+    "B7_tf3_k5.0_first"
+   ],
+   "lim_off": 0.5,
+   "ttl": 5,
+   "tp": 9.0,
+   "tmax": 120
+  },
+  "B4F": {
+   "events": [
+    "B4v_or18_pullback"
+   ],
+   "tp": 10.0,
+   "tmax": 1000000000
+  }
+ },
+ "ddB_per_contract": 930.0,
+ "passive": true
+}

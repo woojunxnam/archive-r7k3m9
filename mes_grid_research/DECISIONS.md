@@ -37,3 +37,8 @@
 | D-033 | 2026-09-30 | Shadow slot = 실제 book이 slot/예산 부족으로 받지 못한 recycle 신호만 받는 추가 1 slot(실행 안 함, 동일 체결 규칙). Dead slot 경제적 비용 = shadow slot 순손익 / 차단일 | 미실현 손익만으로 dead slot을 평가하지 않음 |
 | D-034 | 2026-09-30 | NULL-D 분해: Σ q_{t−1}Δp_t = q̄·ΣΔp(노출 일치 수동 long) + Σ(q_{t−1}−q̄)Δp_t(재고 타이밍); 체결 잔차 = 실제 가격손익 − Σ qΔp; 비용 별도 | FQ 수익의 drift/구조/타이밍 분리 |
 | D-035 | 2026-09-30 | A+B 포트폴리오 전역 예산 = 정적 분할(cap_A + size_B ≤ G) → 총 계약이 G를 넘을 수 없음(정확). 재고 상호작용은 결정 bar의 A 재고로 B 크기 조절(인과적) | 동적 공유는 A·B 동시 시뮬레이션 없이는 한도 위반 가능 |
+| D-036 | 2026-09-30 | RUN-4 결론(Sleeve A): FQ recycle 타이밍(low60 anchor)은 alpha로 인정하지 않는다. 같은 slot·간격·TP에서 시간대 분포를 맞춘 랜덤 신호(NULL-C, 30 seed)가 총손익 75–90%, recycle 손익 100% 경우에서 FQ 이상. dumb recycle(NULL-B)이 recycle 손익 2배 이상 | 신뢰할 null을 이기지 못함 |
+| D-037 | 2026-09-30 | FQ 계열의 손익은 평균 재고 × ES drift(NULL-D)로 대부분 설명된다: 계약-일당 손익 7–8.6 달러 ≈ 수동 static long 7.6. 같은 평균 노출의 수동 long 대비 Max DD·fresh-start 깊이가 나쁨(재고가 하락 저점에 집중) | NULL-A/D, A-STATIC-NULL |
+| D-038 | 2026-09-30 | "더 적은 계약으로 recycle 활동 유지"는 달성: rebound salvage(dead ≥5일, 반등 후에만 closest-BE 1개/일 정리) 94/94 설정이 12–16계약에서 무진입 ≤13일, recycle 2.8회/일(C32 3.0) 유지. 반등 정의 9종에 둔감(파라미터 과적합 아님). 단 경제적 효과는 재고 축소(탈위험) — 수동 long 대비 우위 아님 | A-SALV, A-CSM R4, prof_be |
+| D-039 | 2026-09-30 | Dead slot의 경제적 기회비용은 작다: shadow slot(추가 1 slot)의 순손익 연 $15–980, 차단일당 $1.5–35. Dead slot 관리의 가치는 수익 회수가 아니라 활동·깊이(위험) 측면 | shadow book |
+| D-040 | 2026-09-30 | Sleeve B 고회전 long 모멘텀은 기각(비용 전 gross EV부터 음(−)). B7F 하나만 약한 생존(비용 스트레스 통과, 파라미터 민감) — 포트폴리오에는 소규모 분산 후보로만 사용 | SLEEVE_B_RESULTS |

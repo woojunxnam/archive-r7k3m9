@@ -14,6 +14,8 @@ SPLITS = {6: (3, 3), 8: (4, 4), 10: (5, 5), 12: (6, 6), 14: (8, 6), 16: (8, 8), 
 
 def a_params(mech, cap):
     from run4_a_lib import FQ
+    if mech.get("passive"):
+        return dict(core_mode="static", core_cap=cap, max_total=cap)
     cc, rc = SPLITS[cap]
     extra = copy.deepcopy(mech["params"])
     return FQ(cc, rc, **extra)
@@ -25,7 +27,7 @@ def series_entries(mech, caps=tuple(SPLITS), with_bpause=False):
         p = a_params(mech, cap)
         J.append(L.make_entry("A", "A-SERIES", p, stage="S6", fresh=("2022-01-01",), extra={"save": True},
                               note=f"SERIES {mech['name']} cap{cap}"))
-        if with_bpause and cap in (8, 12):
+        if with_bpause and cap in (8, 12) and not mech.get("passive"):
             q = dict(p, core_filter="bmom_ok30")
             J.append(L.make_entry("A", "A-SERIES", q, stage="S6", fresh=("2022-01-01",), extra={"save": True},
                                   note=f"SERIES {mech['name']} cap{cap} + core pause 30m after strong B momentum"))
@@ -95,7 +97,8 @@ if __name__ == "__main__":
         from run4_a_lib import job_engine, init_a
         J = series_entries(mech, with_bpause=True)
         print(len(J), "series configs,", L.register(J), "new", flush=True)
-        L.run_entries(J, job_engine, init_fn=init_a, nmax=3, start_workers=3, tag="A-SERIES", log=lambda m: print(m, flush=True))
+        nw = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+        L.run_entries(J, job_engine, init_fn=init_a, nmax=nw, start_workers=nw, tag="A-SERIES", log=lambda m: print(m, flush=True))
         print("DONE series", flush=True)
     else:
         import run4_b_lib as BL
