@@ -20,6 +20,8 @@ CAP0 = 150_000.0
 def a_series(a_id):
     d = pd.read_parquet(os.path.join(SER, f"{a_id}_daily.parquet"))
     q = np.load(os.path.join(SER, f"{a_id}_qty.npy")).astype(np.int64)
+    pe = os.path.join(SER, f"{a_id}_equity.npy")
+    d.attrs["bar_equity"] = np.load(pe) if os.path.exists(pe) else None
     fr = os.path.join(SER, f"{a_id}_fresh2022_daily.parquet")
     f22 = pd.read_parquet(fr) if os.path.exists(fr) else None
     return d, q, f22
@@ -35,7 +37,7 @@ def b_trades(p, size_arr, ex=None):
                             float(ex["penetration_ticks"]), size_arr, float(p.get("lim_off", -1.0)), int(p.get("ttl", 1)))
     e_i, x_i, e_p, x_p, rs, q = r
     net = (x_p - e_p) * 5.0 * q - 2 * ex["commission_per_side"] * q
-    return pd.DataFrame(dict(e=e_i, x=x_i, q=q, net=net, day=b.day[x_i]))
+    return pd.DataFrame(dict(e=e_i, x=x_i, q=q, ep=e_p, xp=x_p, net=net, day=b.day[x_i]))
 
 
 def weekly_block(dp):
@@ -68,6 +70,7 @@ def evaluate(spec):
     # ---- B (possibly several independent single-position books)
     qB = np.zeros(n, np.int64)
     bday = []
+    bar_pnl_B = np.zeros(n)          # per-bar MTM changes of B (open-position marking at closes + realized at exit)
     for bs in spec.get("b", []):
         size = int(bs["size"])
         if size <= 0:
@@ -80,8 +83,17 @@ def evaluate(spec):
         elif rule == "skip_when_A_high":
             sz = np.where(qA >= bs["thr"], 0, size)
         T = b_trades(bs["params"], sz)
-        for e_, x_, q_ in zip(T.e.values, T.x.values, T.q.values):
+        for e_, x_, q_, ep_, net_ in zip(T.e.values, T.x.values, T.q.values, T.ep.values, T.net.values):
             qB[e_:x_ + 1] += q_
+            # bar-level MTM path: mark at closes e..x-1 (entry commission paid), realized net at the exit bar
+            if x_ > e_:
+                marks = (b.c[e_:x_] - ep_) * 5.0 * q_ - 0.62 * q_
+                bar_pnl_B[e_] += marks[0]
+                if x_ - e_ > 1:
+                    bar_pnl_B[e_ + 1:x_] += np.diff(marks)
+                bar_pnl_B[x_] += net_ - marks[-1]
+            else:
+                bar_pnl_B[e_] += net_
         bday.append(T.groupby("day").net.sum())
     if bday:
         dB = pd.concat(bday, axis=1).sum(axis=1)
@@ -96,7 +108,19 @@ def evaluate(spec):
     dd = eq - eq.cummax()
     tot = qA + qB
     raw = b.c - b.adj
-    r = dict(G=G, peak_contracts=int(tot.max()), peak_A=int(qA.max()), peak_B=int(qB.max()), budget_violation=bool(tot.max() > G),
+    # bar-level MTM drawdown (A engine equity per bar + B marked at closes; B entry/exit costs inside `net`)
+    beq = ad.attrs.get("bar_equity") if spec.get("a_id") else None
+    if spec.get("a_id") and beq is None:
+        r_bar_dd = r_bar_min = np.nan
+    elif beq is not None:
+        eq_bar = beq + np.cumsum(bar_pnl_B)
+        r_bar_dd = float((eq_bar - np.maximum.accumulate(eq_bar)).min())
+        r_bar_min = float(eq_bar.min())
+    else:
+        eq_bar = CAP0 + np.cumsum(bar_pnl_B)
+        r_bar_dd = float((eq_bar - np.maximum.accumulate(eq_bar)).min())
+        r_bar_min = float(eq_bar.min())
+    r = dict(G=G, max_mtm_dd_bar=r_bar_dd, min_equity_bar=r_bar_min, peak_contracts=int(tot.max()), peak_A=int(qA.max()), peak_B=int(qB.max()), budget_violation=bool(tot.max() > G),
              peak_notional=float((tot * np.abs(raw) * 5.0).max()),
              total_pnl=float(dP.sum()), pnl_A=float(dA.sum()), pnl_B=float(dB.sum()), max_dd=float(dd.min()), min_equity=float(eq.min()),
              underwater_days_max=float(_longest_uw(eq)))

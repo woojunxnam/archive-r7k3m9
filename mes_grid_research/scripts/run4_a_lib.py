@@ -141,6 +141,7 @@ def job_engine(e):
         st.groupby(day).agg(equity=("equity", "last"), qty=("qty", "max"), realized=("realized_net", "last"),
                             unreal=("unrealized", "last")).to_parquet(os.path.join(SAVE_DIR, f"{e['config_id']}_daily.parquet"))
         np.save(os.path.join(SAVE_DIR, f"{e['config_id']}_qty.npy"), st.qty.values.astype(np.int16))
+        np.save(os.path.join(SAVE_DIR, f"{e['config_id']}_equity.npy"), st.equity.values.astype(np.float64))
         eng.trades_df.to_parquet(os.path.join(SAVE_DIR, f"{e['config_id']}_trades.parquet"))
     del eng, strat
     worst = np.inf
