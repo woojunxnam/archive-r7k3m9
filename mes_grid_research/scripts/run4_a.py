@@ -155,6 +155,25 @@ def wave1b():
     return J
 
 
+def wave1c():
+    """auto-iteration from wave-1 partial results: capacity-scarce PROF_BE harvesting (release recycle tranches that are
+    profitable or within 1 pt of breakeven when free recycle slots <= k / dead share >= 50%) restored activity at cap 16.
+    Test it across structures incl. smaller caps and the static core, before robustness (wave 3)."""
+    J = []
+    trig = {"free3": dict(trig="free", k=3), "dead50": dict(trig="dead", x=0.5)}
+    for cc, rc in ((6, 6), (4, 8), (6, 8), (4, 10), (6, 10), (8, 10), (6, 14), (8, 12)):
+        par = L.make_entry("A", "A-STRUCT", FQ(cc, rc))["config_id"]
+        for tn, tg in trig.items():
+            J.append(E("A-HARV", FQ(cc, rc, harvest_cond=dict(tg, policy="prof_be", hx=1.0, be=1.0)), parent=par,
+                       note=f"{tn} prof_be +1 (wave1c structure sweep)"))
+    R = dict(rec_activation="always", rec_anchor="low60", rec_spacing="float", rec_step=5.0, rec_tp=3.0,
+             rec_entry_mode="limit_close", shadow=True, core_mode="static")
+    for q, r in ((4, 10), (6, 8), (6, 10), (8, 8)):
+        J.append(E("A-STATIC", dict(R, core_cap=q, rec_cap=r, max_total=q + r, harvest_cond=dict(trig="free", k=3, policy="prof_be", hx=1.0, be=1.0)),
+                   note=f"static core {q} + recycle {r} + prof_be free3"))
+    return J
+
+
 def _load_results():
     import pandas as pd
     d = L.collect("A")
@@ -243,7 +262,7 @@ def wave3():
     return JJ
 
 
-WAVES = {"wave1": wave1, "wave1b": wave1b, "wave2": wave2, "wave3": wave3}
+WAVES = {"wave1": wave1, "wave1b": wave1b, "wave1c": wave1c, "wave2": wave2, "wave3": wave3}
 
 if __name__ == "__main__":
     wave = sys.argv[1]
